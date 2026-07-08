@@ -1,0 +1,491 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum SpecFieldType {
+  number
+  text
+  select
+  boolean
+}
+
+enum SpecFilterType {
+  range
+  exact
+  none
+}
+
+enum UserRole {
+  SELLER
+  BUYER
+  ADMIN
+}
+
+enum GstStatus {
+  UNVERIFIED
+  ACTIVE
+  INACTIVE
+}
+
+enum ListingStatus {
+  DRAFT
+  PENDING_REVIEW
+  ACTIVE
+  UNDER_OFFER
+  SOLD
+  REJECTED
+  WITHDRAWN
+}
+
+enum ComplexityTier {
+  SIMPLE
+  STANDARD
+  COMPLEX
+}
+
+enum MediaType {
+  PHOTO
+  VIDEO
+}
+
+enum EnquiryStatus {
+  NEW
+  CLOSED
+}
+
+enum CommissionStatus {
+  PENDING
+  PAID
+}
+
+enum CertificationStatus {
+  REQUESTED
+  IN_PROGRESS
+  COMPLETED
+  REJECTED
+}
+
+enum LoanApplicationStatus {
+  DRAFT
+  SUBMITTED
+  CERT_PENDING
+  WITH_PARTNER
+  APPROVED
+  REJECTED
+}
+
+enum FinancePartnerType {
+  BANK
+  NBFC
+}
+
+enum BuybackStatus {
+  QUOTED
+  ACCEPTED
+  EXPIRED
+  COMPLETED
+}
+
+enum SubscriptionPlan {
+  FREE
+  STANDARD
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+// ---------------------------------------------------------------------------
+// Models
+// ---------------------------------------------------------------------------
+
+model User {
+  id            String    @id @default(uuid())
+  role          UserRole
+  email         String?   @unique
+  phone         String    @unique
+  passwordHash  String?   @map("password_hash")
+  fullName      String    @map("full_name")
+  phoneVerified Boolean   @default(false) @map("phone_verified")
+  gstNumber     String?   @map("gst_number")
+  businessName  String?   @map("business_name")
+  gstStatus     GstStatus @default(UNVERIFIED) @map("gst_status")
+  locationCity  String?   @map("location_city")
+  locationState String?   @map("location_state")
+  activeMode    String    @default("BUYER") @map("active_mode")
+  canSell       Boolean   @default(false) @map("can_sell")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  listings              Listing[]
+  enquiriesAsBuyer      Enquiry[]            @relation("EnquiryBuyer")
+  enquiriesAsSeller     Enquiry[]            @relation("EnquirySeller")
+  transactionsBuyer     Transaction[]        @relation("TransactionBuyer")
+  transactionsSeller    Transaction[]        @relation("TransactionSeller")
+  loanApplications      LoanApplication[]
+  otpCodes              OtpCode[]
+  refreshTokens         RefreshToken[]
+  subscriptions         SellerSubscription[]
+  contactPaymentsBuyer  ContactPayment[]     @relation("ContactPaymentBuyer")
+  contactPaymentsSeller ContactPayment[]     @relation("ContactPaymentSeller")
+
+  @@map("users")
+}
+
+model OtpCode {
+  id        String   @id @default(uuid())
+  userId    String?  @map("user_id")
+  phone     String
+  code      String
+  purpose   String
+  consumed  Boolean  @default(false)
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("otp_codes")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  tokenHash String   @map("token_hash")
+  revoked   Boolean  @default(false)
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model Listing {
+  id                  String         @id @default(uuid())
+  sellerId            String         @map("seller_id")
+  title               String
+  description         String
+  machineCategory     String         @map("machine_category")
+  machineSubcategory  String?        @map("machine_subcategory")
+  machineMake         String         @map("machine_make")
+  machineModel        String         @map("machine_model")
+  manufactureYear     Int            @map("manufacture_year")
+  askingPrice         Decimal        @map("asking_price") @db.Decimal(14, 2)
+  locationCity        String         @map("location_city")
+  locationState       String         @map("location_state")
+  status              ListingStatus  @default(DRAFT)
+  complexityTier      ComplexityTier @default(STANDARD) @map("complexity_tier")
+  catalogCategoryId   String?        @map("catalog_category_id")
+  subcategoryId       String?        @map("subcategory_id")
+  specs               Json?
+  conditionGrade      String?        @map("condition_grade")
+  runningHours        Int?           @map("running_hours")
+  serialNumber        String?        @map("serial_number")
+  negotiable          Boolean        @default(false)
+  createdAt           DateTime       @default(now()) @map("created_at")
+  updatedAt           DateTime       @updatedAt @map("updated_at")
+
+  subcategory      Subcategory?     @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
+  catalogCategory  Category?        @relation("ListingCatalogCategory", fields: [catalogCategoryId], references: [id], onDelete: SetNull)
+  seller           User             @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  media            ListingMedia[]
+  enquiries        Enquiry[]
+  transactions     Transaction[]
+  certifications   Certification[]
+  loanApplications LoanApplication[]
+  buybackOffers    BuybackOffer[]
+  contactPayments  ContactPayment[]
+
+  @@index([status])
+  @@index([machineCategory])
+  @@map("listings")
+}
+
+model ListingMedia {
+  id              String    @id @default(uuid())
+  listingId       String    @map("listing_id")
+  type            MediaType
+  storageKey      String    @map("storage_key")
+  url             String
+  capturedAt      DateTime? @map("captured_at")
+  durationSeconds Int?      @map("duration_seconds")
+  orderIndex      Int       @default(0) @map("order_index")
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@map("listing_media")
+}
+
+model Enquiry {
+  id        String        @id @default(uuid())
+  listingId String        @map("listing_id")
+  buyerId   String        @map("buyer_id")
+  sellerId  String        @map("seller_id")
+  status    EnquiryStatus @default(NEW)
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyer   User    @relation("EnquiryBuyer", fields: [buyerId], references: [id], onDelete: Cascade)
+  seller  User    @relation("EnquirySeller", fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@unique([listingId, buyerId])
+  @@map("enquiries")
+}
+
+model Transaction {
+  id                String           @id @default(uuid())
+  listingId         String           @map("listing_id")
+  buyerId           String           @map("buyer_id")
+  sellerId          String           @map("seller_id")
+  salePrice         Decimal          @map("sale_price") @db.Decimal(14, 2)
+  buyerCommission   Decimal          @map("buyer_commission") @db.Decimal(14, 2)
+  sellerCommission  Decimal          @map("seller_commission") @db.Decimal(14, 2)
+  commissionStatus  CommissionStatus @default(PENDING) @map("commission_status")
+  contactReleasedAt DateTime?        @map("contact_released_at")
+  createdAt         DateTime         @default(now()) @map("created_at")
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyer   User    @relation("TransactionBuyer", fields: [buyerId], references: [id], onDelete: Cascade)
+  seller  User    @relation("TransactionSeller", fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@map("transactions")
+}
+
+model Certification {
+  id                String              @id @default(uuid())
+  listingId         String              @map("listing_id")
+  loanApplicationId String              @unique @map("loan_application_id")
+  complexityTier    ComplexityTier      @map("complexity_tier")
+  fee               Decimal             @db.Decimal(14, 2)
+  status            CertificationStatus @default(REQUESTED)
+  reportStorageKey  String?             @map("report_storage_key")
+  inspectorNotes    String?             @map("inspector_notes")
+  inspectionReport  Json?               @map("inspection_report")
+  createdAt         DateTime            @default(now()) @map("created_at")
+  completedAt       DateTime?           @map("completed_at")
+
+  listing         Listing         @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  loanApplication LoanApplication @relation(fields: [loanApplicationId], references: [id], onDelete: Cascade)
+
+  @@map("certifications")
+}
+
+model LoanApplication {
+  id                 String                @id @default(uuid())
+  listingId          String                @map("listing_id")
+  buyerId            String                @map("buyer_id")
+  partnerId          String?               @map("partner_id")
+  amountRequested    Decimal               @map("amount_requested") @db.Decimal(14, 2)
+  status             LoanApplicationStatus @default(DRAFT)
+  referralCommission Decimal?              @map("referral_commission") @db.Decimal(14, 2)
+  createdAt          DateTime              @default(now()) @map("created_at")
+
+  listing       Listing         @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyer         User            @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  partner       FinancePartner? @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+  certification Certification?
+  buybackOffer  BuybackOffer?
+
+  @@map("loan_applications")
+}
+
+model FinancePartner {
+  id           String             @id @default(uuid())
+  name         String
+  type         FinancePartnerType
+  referralRate Decimal            @map("referral_rate") @db.Decimal(6, 4)
+  active       Boolean            @default(true)
+
+  loanApplications LoanApplication[]
+
+  @@map("finance_partners")
+}
+
+model BuybackOffer {
+  id                   String        @id @default(uuid())
+  listingId            String?       @map("listing_id")
+  loanApplicationId    String?       @unique @map("loan_application_id")
+  machineReference     String?       @map("machine_reference")
+  originalPrice        Decimal       @map("original_price") @db.Decimal(14, 2)
+  machineAgeYears      Int           @map("machine_age_years")
+  certifiedValue       Decimal?      @map("certified_value") @db.Decimal(14, 2)
+  depreciatedValue     Decimal       @map("depreciated_value") @db.Decimal(14, 2)
+  offerAmount          Decimal       @map("offer_amount") @db.Decimal(14, 2)
+  depreciationSchedule Json?         @map("depreciation_schedule")
+  agreementTerms       Json?         @map("agreement_terms")
+  status               BuybackStatus @default(QUOTED)
+  createdAt            DateTime      @default(now()) @map("created_at")
+
+  listing         Listing?         @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  loanApplication LoanApplication? @relation(fields: [loanApplicationId], references: [id], onDelete: SetNull)
+
+  @@map("buyback_offers")
+}
+
+model DepreciationSchedule {
+  id                String  @id @default(uuid())
+  machineCategory   String  @map("machine_category")
+  yearOffset        Int     @map("year_offset")
+  retainedValuePct  Decimal @map("retained_value_pct") @db.Decimal(5, 2)
+
+  @@unique([machineCategory, yearOffset])
+  @@map("depreciation_schedule")
+}
+
+// ---------------------------------------------------------------------------
+// Self-expandable machine catalog
+// ---------------------------------------------------------------------------
+
+model CategoryGroup {
+  id           String     @id @default(uuid())
+  name         String     @unique
+  displayOrder Int        @default(0) @map("display_order")
+  isActive     Boolean    @default(true) @map("is_active")
+
+  categories   Category[]
+
+  @@map("category_groups")
+}
+
+model Category {
+  id            String    @id @default(uuid())
+  groupId       String?   @map("group_id")
+  name          String
+  slug          String    @unique
+  iconKey       String?   @map("icon_key")
+  imageUrl      String?   @map("image_url")
+  thumbnailUrl  String?   @map("thumbnail_url")
+  description   String?
+  listingCount  Int       @default(0) @map("listing_count")
+  isActive      Boolean   @default(true) @map("is_active")
+  displayOrder  Int       @default(0) @map("display_order")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  group         CategoryGroup?         @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  specFields    CategorySpecTemplate[]
+  subcategories Subcategory[]
+  listings      Listing[]              @relation("ListingCatalogCategory")
+
+  @@map("categories")
+}
+
+model Subcategory {
+  id           String   @id @default(uuid())
+  categoryId   String   @map("category_id")
+  name         String
+  slug         String
+  imageUrl     String?  @map("image_url")
+  iconKey      String?  @map("icon_key")
+  description  String?
+  listingCount Int      @default(0) @map("listing_count")
+  displayOrder Int      @default(0) @map("display_order")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  category Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  listings Listing[]
+
+  @@unique([categoryId, slug])
+  @@map("subcategories")
+}
+
+model CategorySpecTemplate {
+  id           String          @id @default(uuid())
+  categoryId   String          @map("category_id")
+  fieldKey     String          @map("field_key")
+  fieldLabel   String          @map("field_label")
+  unit         String?
+  fieldType    SpecFieldType   @map("field_type")
+  options      String[]        @default([])
+  isRequired   Boolean         @default(false) @map("is_required")
+  isFilterable Boolean         @default(false) @map("is_filterable")
+  filterType   SpecFilterType  @default(none) @map("filter_type")
+  displayOrder Int             @default(0) @map("display_order")
+  helpText     String?         @map("help_text")
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, fieldKey])
+  @@map("category_spec_templates")
+}
+
+model SubscriptionPlanConfig {
+  id           String   @id @default(uuid())
+  name         String   @unique
+  displayName  String   @map("display_name")
+  listingQuota Int      @map("listing_quota")
+  priceInr     Decimal  @default(0) @map("price_inr") @db.Decimal(10, 2)
+  durationDays Int      @default(30) @map("duration_days")
+  isActive     Boolean  @default(true) @map("is_active")
+  isFree       Boolean  @default(false) @map("is_free")
+  description  String?
+  sortOrder    Int      @default(0) @map("sort_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  subscriptions SellerSubscription[]
+
+  @@map("subscription_plan_configs")
+}
+
+model SellerSubscription {
+  id                 String             @id @default(uuid())
+  sellerId           String             @map("seller_id")
+  plan               SubscriptionPlan   @default(STANDARD)
+  planConfigId       String?            @map("plan_config_id")
+  listingQuota       Int                @default(4) @map("listing_quota")
+  price              Decimal            @default(1000) @db.Decimal(10, 2)
+  durationDays       Int                @default(30) @map("duration_days")
+  startsAt           DateTime           @map("starts_at")
+  expiresAt          DateTime           @map("expires_at")
+  status             SubscriptionStatus @default(ACTIVE)
+  razorpayOrderId    String?            @map("razorpay_order_id")
+  razorpayPaymentId  String?            @map("razorpay_payment_id")
+  createdAt          DateTime           @default(now()) @map("created_at")
+
+  seller     User                    @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  planConfig SubscriptionPlanConfig? @relation(fields: [planConfigId], references: [id], onDelete: SetNull)
+
+  @@map("seller_subscriptions")
+}
+
+model AppSetting {
+  key       String   @id
+  value     String
+  label     String
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("app_settings")
+}
+
+model ContactPayment {
+  id                 String    @id @default(uuid())
+  buyerId            String    @map("buyer_id")
+  listingId          String    @map("listing_id")
+  sellerId           String    @map("seller_id")
+  amount             Decimal   @default(500) @db.Decimal(10, 2)
+  razorpayOrderId    String?   @map("razorpay_order_id")
+  razorpayPaymentId  String?   @map("razorpay_payment_id")
+  paidAt             DateTime? @map("paid_at")
+  createdAt          DateTime  @default(now()) @map("created_at")
+
+  buyer   User    @relation("ContactPaymentBuyer", fields: [buyerId], references: [id], onDelete: Cascade)
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  seller  User    @relation("ContactPaymentSeller", fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@unique([buyerId, listingId])
+  @@map("contact_payments")
+}

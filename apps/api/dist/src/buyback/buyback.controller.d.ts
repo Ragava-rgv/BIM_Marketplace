@@ -1,0 +1,152 @@
+import type { AuthenticatedUser } from '../auth/types/jwt-payload.interface';
+import { BuybackService } from './buyback.service';
+import { QuoteBuybackDto } from './dto/quote-buyback.dto';
+import { UpdateBuybackAgreementDto } from './dto/update-buyback-agreement.dto';
+export declare class BuybackController {
+    private readonly buyback;
+    constructor(buyback: BuybackService);
+    quote(dto: QuoteBuybackDto): Promise<{
+        id: string;
+        depreciationSchedule: import("@prisma/client/runtime/library").JsonValue | null;
+        createdAt: Date;
+        status: import("@prisma/client").$Enums.BuybackStatus;
+        listingId: string | null;
+        loanApplicationId: string | null;
+        machineReference: string | null;
+        originalPrice: import("@prisma/client/runtime/library").Decimal;
+        machineAgeYears: number;
+        certifiedValue: import("@prisma/client/runtime/library").Decimal | null;
+        depreciatedValue: import("@prisma/client/runtime/library").Decimal;
+        offerAmount: import("@prisma/client/runtime/library").Decimal;
+        agreementTerms: import("@prisma/client/runtime/library").JsonValue | null;
+    }>;
+    mine(user: AuthenticatedUser): Promise<({
+        listing: {
+            id: string;
+            machineCategory: string;
+            locationCity: string;
+            locationState: string;
+            sellerId: string;
+            title: string;
+            machineMake: string;
+            machineModel: string;
+            manufactureYear: number;
+        } | null;
+    } & {
+        id: string;
+        depreciationSchedule: import("@prisma/client/runtime/library").JsonValue | null;
+        createdAt: Date;
+        status: import("@prisma/client").$Enums.BuybackStatus;
+        listingId: string | null;
+        loanApplicationId: string | null;
+        machineReference: string | null;
+        originalPrice: import("@prisma/client/runtime/library").Decimal;
+        machineAgeYears: number;
+        certifiedValue: import("@prisma/client/runtime/library").Decimal | null;
+        depreciatedValue: import("@prisma/client/runtime/library").Decimal;
+        offerAmount: import("@prisma/client/runtime/library").Decimal;
+        agreementTerms: import("@prisma/client/runtime/library").JsonValue | null;
+    })[]>;
+    findOne(id: string): Promise<{
+        id: string;
+        depreciationSchedule: import("@prisma/client/runtime/library").JsonValue | null;
+        createdAt: Date;
+        status: import("@prisma/client").$Enums.BuybackStatus;
+        listingId: string | null;
+        loanApplicationId: string | null;
+        machineReference: string | null;
+        originalPrice: import("@prisma/client/runtime/library").Decimal;
+        machineAgeYears: number;
+        certifiedValue: import("@prisma/client/runtime/library").Decimal | null;
+        depreciatedValue: import("@prisma/client/runtime/library").Decimal;
+        offerAmount: import("@prisma/client/runtime/library").Decimal;
+        agreementTerms: import("@prisma/client/runtime/library").JsonValue | null;
+    }>;
+    accept(user: AuthenticatedUser, id: string): Promise<{
+        id: string;
+        depreciationSchedule: import("@prisma/client/runtime/library").JsonValue | null;
+        createdAt: Date;
+        status: import("@prisma/client").$Enums.BuybackStatus;
+        listingId: string | null;
+        loanApplicationId: string | null;
+        machineReference: string | null;
+        originalPrice: import("@prisma/client/runtime/library").Decimal;
+        machineAgeYears: number;
+        certifiedValue: import("@prisma/client/runtime/library").Decimal | null;
+        depreciatedValue: import("@prisma/client/runtime/library").Decimal;
+        offerAmount: import("@prisma/client/runtime/library").Decimal;
+        agreementTerms: import("@prisma/client/runtime/library").JsonValue | null;
+    }>;
+    listAll(): Promise<({
+        listing: {
+            id: string;
+            machineCategory: string;
+            locationCity: string;
+            locationState: string;
+            sellerId: string;
+            title: string;
+            machineMake: string;
+            machineModel: string;
+            manufactureYear: number;
+        } | null;
+    } & {
+        id: string;
+        depreciationSchedule: import("@prisma/client/runtime/library").JsonValue | null;
+        createdAt: Date;
+        status: import("@prisma/client").$Enums.BuybackStatus;
+        listingId: string | null;
+        loanApplicationId: string | null;
+        machineReference: string | null;
+        originalPrice: import("@prisma/client/runtime/library").Decimal;
+        machineAgeYears: number;
+        certifiedValue: import("@prisma/client/runtime/library").Decimal | null;
+        depreciatedValue: import("@prisma/client/runtime/library").Decimal;
+        offerAmount: import("@prisma/client/runtime/library").Decimal;
+        agreementTerms: import("@prisma/client/runtime/library").JsonValue | null;
+    })[]>;
+    initiateFromLoan(loanApplicationId: string): Promise<{
+        id: string;
+        depreciationSchedule: import("@prisma/client/runtime/library").JsonValue | null;
+        createdAt: Date;
+        status: import("@prisma/client").$Enums.BuybackStatus;
+        listingId: string | null;
+        loanApplicationId: string | null;
+        machineReference: string | null;
+        originalPrice: import("@prisma/client/runtime/library").Decimal;
+        machineAgeYears: number;
+        certifiedValue: import("@prisma/client/runtime/library").Decimal | null;
+        depreciatedValue: import("@prisma/client/runtime/library").Decimal;
+        offerAmount: import("@prisma/client/runtime/library").Decimal;
+        agreementTerms: import("@prisma/client/runtime/library").JsonValue | null;
+    }>;
+    updateAgreement(id: string, dto: UpdateBuybackAgreementDto): Promise<{
+        id: string;
+        depreciationSchedule: import("@prisma/client/runtime/library").JsonValue | null;
+        createdAt: Date;
+        status: import("@prisma/client").$Enums.BuybackStatus;
+        listingId: string | null;
+        loanApplicationId: string | null;
+        machineReference: string | null;
+        originalPrice: import("@prisma/client/runtime/library").Decimal;
+        machineAgeYears: number;
+        certifiedValue: import("@prisma/client/runtime/library").Decimal | null;
+        depreciatedValue: import("@prisma/client/runtime/library").Decimal;
+        offerAmount: import("@prisma/client/runtime/library").Decimal;
+        agreementTerms: import("@prisma/client/runtime/library").JsonValue | null;
+    }>;
+    complete(id: string): Promise<{
+        id: string;
+        depreciationSchedule: import("@prisma/client/runtime/library").JsonValue | null;
+        createdAt: Date;
+        status: import("@prisma/client").$Enums.BuybackStatus;
+        listingId: string | null;
+        loanApplicationId: string | null;
+        machineReference: string | null;
+        originalPrice: import("@prisma/client/runtime/library").Decimal;
+        machineAgeYears: number;
+        certifiedValue: import("@prisma/client/runtime/library").Decimal | null;
+        depreciatedValue: import("@prisma/client/runtime/library").Decimal;
+        offerAmount: import("@prisma/client/runtime/library").Decimal;
+        agreementTerms: import("@prisma/client/runtime/library").JsonValue | null;
+    }>;
+}

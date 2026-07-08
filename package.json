@@ -1,0 +1,22 @@
+{
+  "name": "machinebazaar",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run start:dev --workspace=apps/api",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "build:api": "npm run build --workspace=apps/api",
+    "build:web": "npm run build --workspace=apps/web",
+    "build:shared": "npm run build --workspace=packages/shared",
+    "dev:mobile": "npm run dev --workspace=apps/mobile",
+    "build:mobile": "npm run build --workspace=apps/mobile"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "jpeg-js": "^0.4.4"
+  }
+}
