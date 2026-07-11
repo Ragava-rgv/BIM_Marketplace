@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -26,6 +28,12 @@ import { AppSettingsModule } from './app-settings/app-settings.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
+    // Serves the built React app from the same origin/port as the API, so the
+    // frontend's hardcoded '/api' axios baseURL works with no separate host.
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', '..', '..', 'web', 'dist'),
+      exclude: ['/api/{*splat}', '/media/{*splat}'],
+    }),
     PrismaModule,
     PaymentsModule,
     AuthModule,
