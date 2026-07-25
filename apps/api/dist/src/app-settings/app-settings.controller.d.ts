@@ -2,13 +2,6 @@ import { AppSettingsService } from './app-settings.service';
 declare class UpdateSettingDto {
     value: string;
 }
-export declare class PublicSettingsController {
-    private readonly service;
-    constructor(service: AppSettingsService);
-    contactRevealPrice(): Promise<{
-        price: number;
-    }>;
-}
 export declare class AdminSettingsController {
     private readonly service;
     constructor(service: AppSettingsService);

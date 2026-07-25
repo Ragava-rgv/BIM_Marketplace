@@ -17,6 +17,7 @@ export declare class GstController {
         gstStatus: import("@prisma/client").$Enums.GstStatus;
         locationCity: string | null;
         locationState: string | null;
+        address: string | null;
         activeMode: string;
         canSell: boolean;
         createdAt: Date;

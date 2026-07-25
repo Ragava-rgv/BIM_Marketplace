@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type {
   RazorpayOrderDto,
   SubscriptionPlanConfigDto,
@@ -7,6 +7,7 @@ import type {
 import { SubscriptionPlan } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import { formatInr } from '../../lib/format';
+import { loadRazorpayScript } from '../../lib/razorpay';
 import {
   Button,
   Card,
@@ -17,24 +18,6 @@ import {
   SuccessBanner,
 } from '../../components/ui';
 import { CheckCircleIcon } from '../../components/icons';
-
-declare global {
-  interface Window {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Razorpay: any;
-  }
-}
-
-function loadRazorpayScript(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (typeof window.Razorpay !== 'undefined') { resolve(); return; }
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error('Failed to load Razorpay SDK'));
-    document.body.appendChild(script);
-  });
-}
 
 export function SellerSubscription() {
   const [status, setStatus] = useState<SubscriptionStatusDto | null>(null);
@@ -116,8 +99,16 @@ export function SellerSubscription() {
     [],
   );
 
-  const freePlan = plans.find((p) => p.isFree);
-  const paidPlans = plans.filter((p) => !p.isFree);
+  const orderedPlans = [...plans].sort((a, b) => (a.isFree === b.isFree ? 0 : a.isFree ? -1 : 1));
+
+  const FEATURE_ROWS = [
+    'GST verification required',
+    'Admin-reviewed listings',
+    'Enquiry notifications',
+    'Priority listing review',
+    'Subcategory tagging',
+  ];
+  const freeFeatureSupport = [true, true, true, false, false];
 
   return (
     <div>
@@ -142,9 +133,9 @@ export function SellerSubscription() {
       {!status ? (
         <LoadingBlock />
       ) : (
-        <div className="max-w-2xl space-y-5">
+        <div className="space-y-6">
           {/* Current status */}
-          <Card>
+          <Card className="max-w-2xl">
             <MonoLabel className="text-copper">Current plan</MonoLabel>
             <div className="mt-4 flex items-center justify-between">
               <div>
@@ -198,94 +189,98 @@ export function SellerSubscription() {
             )}
           </Card>
 
-          {/* Plan cards */}
-          <div className={`grid grid-cols-1 gap-4 sm:grid-cols-${Math.min(2, 1 + paidPlans.length)}`}>
-            {/* Free plan */}
-            {freePlan && (
-              <Card>
-                <div className="mb-3 flex items-center justify-between">
-                  <p className="font-display text-lg font-medium text-navy">{freePlan.displayName}</p>
-                  <span className="font-display text-xl font-medium text-navy">₹0</span>
-                </div>
-                {freePlan.description && (
-                  <p className="mb-3 text-[12.5px] text-navy/55">{freePlan.description}</p>
-                )}
-                <ul className="space-y-2">
-                  {[
-                    `${freePlan.listingQuota} active listing${freePlan.listingQuota !== 1 ? 's' : ''}`,
-                    'GST verification required',
-                    'Admin-reviewed listings',
-                    'Enquiry notifications',
-                  ].map((feat) => (
-                    <li key={feat} className="flex items-center gap-2 text-[13px] text-navy/70">
-                      <CheckCircleIcon className="h-4 w-4 shrink-0 text-navy/30" />
-                      {feat}
-                    </li>
+          {/* Plan comparison table */}
+          <div className="overflow-x-auto rounded-2xl border border-navy/10 bg-white">
+            <table className="w-full min-w-[560px] border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-navy/10 bg-navy/[0.02]">
+                  <th className="w-40 px-5 py-4 text-left align-bottom text-xs font-semibold uppercase tracking-wide text-navy/40">
+                    Plan
+                  </th>
+                  {orderedPlans.map((plan) => {
+                    const isCurrent =
+                      (status.plan === SubscriptionPlan.FREE && plan.isFree) ||
+                      (status.plan === SubscriptionPlan.STANDARD && status.subscription?.planConfigId === plan.id);
+                    return (
+                      <th key={plan.id} className="px-5 py-4 text-center align-bottom">
+                        <p className="font-display text-lg font-medium text-navy">{plan.displayName}</p>
+                        <p className="mt-1 font-display text-xl font-medium text-navy">
+                          {plan.isFree ? '₹0' : formatInr(String(plan.priceInr))}
+                          {!plan.isFree && (
+                            <span className="ml-1 text-[12px] font-normal text-navy/45">
+                              /{plan.durationDays === 30 ? 'mo' : `${plan.durationDays}d`}
+                            </span>
+                          )}
+                        </p>
+                        {isCurrent && (
+                          <span className="mt-1.5 inline-block rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-emerald-700">
+                            Current
+                          </span>
+                        )}
+                      </th>
+                    );
+                  })}
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b border-navy/10">
+                  <td className="px-5 py-3 font-semibold text-navy/60">Listing quota</td>
+                  {orderedPlans.map((plan) => (
+                    <td key={plan.id} className="px-5 py-3 text-center font-semibold text-navy">
+                      {plan.listingQuota}
+                    </td>
                   ))}
-                </ul>
-                {status.plan === SubscriptionPlan.FREE && (
-                  <div className="mt-4 rounded-lg bg-navy/[0.04] px-3 py-2 text-center text-[12px] font-semibold text-navy/50">
-                    Current plan
-                  </div>
-                )}
-              </Card>
-            )}
-
-            {/* Paid plans */}
-            {paidPlans.map((plan) => {
-              const isCurrent =
-                status.plan === SubscriptionPlan.STANDARD &&
-                status.subscription?.planConfigId === plan.id;
-              return (
-                <Card key={plan.id} className="border-accent/20 bg-accent/[0.03]">
-                  <div className="mb-3 flex items-center justify-between">
-                    <p className="font-display text-lg font-medium text-navy">{plan.displayName}</p>
-                    <div className="text-right">
-                      <span className="font-display text-xl font-medium text-navy">
-                        {formatInr(String(plan.priceInr))}
-                      </span>
-                      <span className="ml-1 text-[12px] text-navy/45">
-                        /{plan.durationDays === 30 ? 'month' : `${plan.durationDays}d`}
-                      </span>
-                    </div>
-                  </div>
-                  {plan.description && (
-                    <p className="mb-3 text-[12.5px] text-navy/55">{plan.description}</p>
-                  )}
-                  <ul className="space-y-2">
-                    {[
-                      `${plan.listingQuota} active listing${plan.listingQuota !== 1 ? 's' : ''}`,
-                      'Everything in Free',
-                      'Priority listing review',
-                      'Subcategory tagging',
-                    ].map((feat) => (
-                      <li key={feat} className="flex items-center gap-2 text-[13px] text-navy/70">
-                        <CheckCircleIcon className="h-4 w-4 shrink-0 text-accent" />
-                        {feat}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="mt-4">
-                    <Button
-                      className="w-full"
-                      onClick={() => upgrade(plan)}
-                      disabled={paying}
-                    >
-                      {paying
-                        ? 'Processing...'
-                        : isCurrent
-                        ? 'Renew subscription'
-                        : `Upgrade — ${formatInr(String(plan.priceInr))}/${plan.durationDays === 30 ? 'mo' : `${plan.durationDays}d`}`}
-                    </Button>
-                    <p className="mt-2 text-center text-[11.5px] text-navy/45">
-                      Secure payment via Razorpay · {plan.durationDays}-day validity
-                    </p>
-                  </div>
-                </Card>
-              );
-            })}
+                </tr>
+                <tr className="border-b border-navy/10">
+                  <td className="px-5 py-3 font-semibold text-navy/60">Duration</td>
+                  {orderedPlans.map((plan) => (
+                    <td key={plan.id} className="px-5 py-3 text-center text-navy/70">
+                      {plan.durationDays} days
+                    </td>
+                  ))}
+                </tr>
+                {FEATURE_ROWS.map((feature, idx) => (
+                  <tr key={feature} className="border-b border-navy/10">
+                    <td className="px-5 py-3 text-navy/60">{feature}</td>
+                    {orderedPlans.map((plan) => {
+                      const has = plan.isFree ? freeFeatureSupport[idx] : true;
+                      return (
+                        <td key={plan.id} className="px-5 py-3 text-center">
+                          {has ? (
+                            <CheckCircleIcon className="mx-auto h-4 w-4 text-forest" />
+                          ) : (
+                            <span className="text-navy/20">—</span>
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+                <tr>
+                  <td className="px-5 py-4" />
+                  {orderedPlans.map((plan) => {
+                    const isCurrent =
+                      (status.plan === SubscriptionPlan.FREE && plan.isFree) ||
+                      (status.plan === SubscriptionPlan.STANDARD && status.subscription?.planConfigId === plan.id);
+                    return (
+                      <td key={plan.id} className="px-5 py-4 text-center">
+                        {plan.isFree ? (
+                          <span className="text-[12px] font-semibold text-navy/40">
+                            {isCurrent ? 'Current plan' : 'Always included'}
+                          </span>
+                        ) : (
+                          <Button onClick={() => upgrade(plan)} disabled={paying} className="w-full">
+                            {paying ? 'Processing...' : isCurrent ? 'Renew' : 'Upgrade'}
+                          </Button>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              </tbody>
+            </table>
           </div>
+          <p className="text-center text-[11.5px] text-navy/45">Secure payment via Razorpay</p>
         </div>
       )}
     </div>

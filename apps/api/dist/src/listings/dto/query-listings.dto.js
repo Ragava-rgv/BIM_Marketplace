@@ -26,6 +26,9 @@ class QueryListingsDto {
     city;
     state;
     search;
+    condition;
+    origin;
+    sort;
     page = 1;
     pageSize = 20;
 }
@@ -96,6 +99,21 @@ __decorate([
 ], QueryListingsDto.prototype, "search", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], QueryListingsDto.prototype, "condition", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsIn)(['INDIAN', 'IMPORTED']),
+    __metadata("design:type", String)
+], QueryListingsDto.prototype, "origin", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsIn)(['newest', 'price_asc', 'price_desc', 'year_desc']),
+    __metadata("design:type", String)
+], QueryListingsDto.prototype, "sort", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(1),
@@ -111,6 +129,7 @@ __decorate([
 ], QueryListingsDto.prototype, "pageSize", void 0);
 class AdminQueryListingsDto extends QueryListingsDto {
     status;
+    sellerSearch;
 }
 exports.AdminQueryListingsDto = AdminQueryListingsDto;
 __decorate([
@@ -118,4 +137,9 @@ __decorate([
     (0, class_validator_1.IsIn)(['DRAFT', 'PENDING_REVIEW', 'ACTIVE', 'UNDER_OFFER', 'SOLD', 'REJECTED', 'WITHDRAWN']),
     __metadata("design:type", String)
 ], AdminQueryListingsDto.prototype, "status", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], AdminQueryListingsDto.prototype, "sellerSearch", void 0);
 //# sourceMappingURL=query-listings.dto.js.map

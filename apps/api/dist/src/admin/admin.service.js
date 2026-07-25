@@ -19,9 +19,11 @@ let AdminService = class AdminService {
         this.prisma = prisma;
     }
     async dashboardSummary() {
-        const [listingsPendingReview, listingsActive, loansAwaitingAction, certificationsInProgress, commissionsPending, enquiriesNew,] = await this.prisma.$transaction([
+        const [listingsPendingReview, listingsActive, listingsSold, listingsInactive, loansAwaitingAction, certificationsInProgress, commissionsPending, enquiriesNew,] = await this.prisma.$transaction([
             this.prisma.listing.count({ where: { status: client_1.ListingStatus.PENDING_REVIEW } }),
             this.prisma.listing.count({ where: { status: client_1.ListingStatus.ACTIVE } }),
+            this.prisma.listing.count({ where: { status: client_1.ListingStatus.SOLD } }),
+            this.prisma.listing.count({ where: { status: client_1.ListingStatus.WITHDRAWN } }),
             this.prisma.loanApplication.count({
                 where: { status: { in: [client_1.LoanApplicationStatus.CERT_PENDING, client_1.LoanApplicationStatus.WITH_PARTNER] } },
             }),
@@ -34,6 +36,8 @@ let AdminService = class AdminService {
         return {
             listingsPendingReview,
             listingsActive,
+            listingsSold,
+            listingsInactive,
             loansAwaitingAction,
             certificationsInProgress,
             commissionsPending,

@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, HttpStatus, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { UserRole } from '@prisma/client';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -6,6 +6,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { AdminService } from './admin.service';
 import { ListingsService } from '../listings/listings.service';
 import { AdminQueryListingsDto } from '../listings/dto/query-listings.dto';
+import { BulkListingStatusDto, type BulkListingStatusAction } from './dto/bulk-listing-status.dto';
 
 /**
  * Admin Module (project_spec.md §6.8): a thin, admin-gated aggregation layer over
@@ -50,5 +51,51 @@ export class AdminController {
   @HttpCode(HttpStatus.OK)
   async rejectListing(@Param('id') id: string) {
     return this.listings.reject(id);
+  }
+
+  @Post('listings/:id/mark-sold')
+  @HttpCode(HttpStatus.OK)
+  async markSoldListing(@Param('id') id: string) {
+    return this.listings.markSold(id);
+  }
+
+  @Post('listings/:id/mark-inactive')
+  @HttpCode(HttpStatus.OK)
+  async markInactiveListing(@Param('id') id: string) {
+    return this.listings.markInactive(id);
+  }
+
+  @Post('listings/:id/reactivate')
+  @HttpCode(HttpStatus.OK)
+  async reactivateListing(@Param('id') id: string) {
+    return this.listings.reactivate(id);
+  }
+
+  @Post('listings/bulk-status')
+  @HttpCode(HttpStatus.OK)
+  async bulkListingStatus(@Body() dto: BulkListingStatusDto) {
+    const action = this.resolveBulkAction(dto.action);
+    const results = await Promise.allSettled(dto.ids.map((id) => action(id)));
+    const succeeded = results.filter((r) => r.status === 'fulfilled').length;
+    const failed = results
+      .map((r, i) => ({ r, id: dto.ids[i] }))
+      .filter(({ r }) => r.status === 'rejected')
+      .map(({ r, id }) => ({ id, error: (r as PromiseRejectedResult).reason?.message ?? 'Failed' }));
+    return { succeeded, failed };
+  }
+
+  private resolveBulkAction(action: BulkListingStatusAction): (id: string) => Promise<unknown> {
+    switch (action) {
+      case 'approve':
+        return (id) => this.listings.approve(id);
+      case 'reject':
+        return (id) => this.listings.reject(id);
+      case 'mark-sold':
+        return (id) => this.listings.markSold(id);
+      case 'mark-inactive':
+        return (id) => this.listings.markInactive(id);
+      case 'reactivate':
+        return (id) => this.listings.reactivate(id);
+    }
   }
 }

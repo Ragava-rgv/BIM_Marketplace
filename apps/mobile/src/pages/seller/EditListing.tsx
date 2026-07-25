@@ -15,8 +15,6 @@ import { CheckIcon, ChevronRightIcon, PlusIcon, MachineIcon } from '../../compon
 import { INDIA_STATES, INDIA_STATES_AND_CITIES } from '../../lib/india-locations';
 import { formatInr } from '../../lib/format';
 
-const CURRENT_YEAR = new Date().getFullYear();
-
 const inputCls =
   'w-full h-[50px] bg-gray-50 border border-gray-200 rounded-[12px] px-4 text-[14px] text-ink font-medium placeholder-gray-400 outline-none focus:border-forest focus:bg-white transition';
 const selectCls = inputCls + ' appearance-none pr-8';
@@ -74,11 +72,20 @@ interface FormData {
   machineMake: string;
   machineModel: string;
   manufactureYear: string;
+  origin: string;
+  importedCountry: string;
   askingPrice: string;
   locationCity: string;
   locationState: string;
   description: string;
 }
+
+const EDIT_CURRENT_YEAR = new Date().getFullYear();
+const EDIT_YEAR_OPTIONS = Array.from({ length: EDIT_CURRENT_YEAR - 1950 + 1 }, (_, i) => EDIT_CURRENT_YEAR - i);
+const EDIT_IMPORT_COUNTRIES = [
+  'China', 'Japan', 'South Korea', 'Germany', 'USA', 'Italy',
+  'United Kingdom', 'France', 'Sweden', 'Taiwan', 'Singapore', 'UAE', 'Other',
+];
 
 export function EditListing() {
   const { id } = useParams<{ id: string }>();
@@ -94,7 +101,8 @@ export function EditListing() {
   // Form state
   const [form, setForm] = useState<FormData>({
     title: '', machineCategory: '', machineSubcategory: '',
-    machineMake: '', machineModel: '', manufactureYear: '',
+    machineMake: '', machineModel: '',
+    manufactureYear: '', origin: 'INDIAN', importedCountry: '',
     askingPrice: '', locationCity: '', locationState: '', description: '',
   });
   const [saveLoading, setSaveLoading] = useState(false);
@@ -126,7 +134,9 @@ export function EditListing() {
           machineSubcategory: data.machineSubcategory ?? '',
           machineMake: data.machineMake,
           machineModel: data.machineModel,
-          manufactureYear: String(data.manufactureYear),
+          manufactureYear: data.manufactureYear != null ? String(data.manufactureYear) : '',
+          origin: data.origin,
+          importedCountry: data.importedCountry ?? '',
           askingPrice: data.askingPrice,
           locationCity: data.locationCity,
           locationState: data.locationState,
@@ -170,7 +180,9 @@ export function EditListing() {
         ...(form.machineSubcategory ? { machineSubcategory: form.machineSubcategory } : {}),
         machineMake: form.machineMake.trim(),
         machineModel: form.machineModel.trim(),
-        manufactureYear: parseInt(form.manufactureYear, 10),
+        manufactureYear: form.manufactureYear ? parseInt(form.manufactureYear, 10) : null,
+        origin: form.origin,
+        ...(form.origin === 'IMPORTED' ? { importedCountry: form.importedCountry } : {}),
         askingPrice: parseFloat(form.askingPrice),
         locationCity: form.locationCity,
         locationState: form.locationState,
@@ -415,15 +427,44 @@ export function EditListing() {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Year" required>
-                  <input type="number" value={form.manufactureYear} onChange={(e) => setField('manufactureYear', e.target.value)}
-                    min="1950" max={CURRENT_YEAR} className={inputCls} />
+                <Field label="Year bought" hint="Leave as Not available if unknown">
+                  <SelectWrapper>
+                    <select value={form.manufactureYear} onChange={(e) => setField('manufactureYear', e.target.value)} className={selectCls}>
+                      <option value="">Not available</option>
+                      {EDIT_YEAR_OPTIONS.map((year) => <option key={year} value={year}>{year}</option>)}
+                    </select>
+                  </SelectWrapper>
                 </Field>
-                <Field label="Price (₹)" required>
-                  <input type="number" value={form.askingPrice} onChange={(e) => setField('askingPrice', e.target.value)}
-                    min="1" className={inputCls} />
+                <Field label="Make origin" required>
+                  <SelectWrapper>
+                    <select value={form.origin} onChange={(e) => setField('origin', e.target.value)} className={selectCls}>
+                      <option value="INDIAN">Indian</option>
+                      <option value="IMPORTED">Imported</option>
+                    </select>
+                  </SelectWrapper>
                 </Field>
               </div>
+
+              {form.origin === 'IMPORTED' && (
+                <Field label="Country of import" required>
+                  <SelectWrapper>
+                    <select value={form.importedCountry} onChange={(e) => setField('importedCountry', e.target.value)} className={selectCls}>
+                      <option value="">Select country…</option>
+                      {EDIT_IMPORT_COUNTRIES.map((country) => <option key={country} value={country}>{country}</option>)}
+                    </select>
+                  </SelectWrapper>
+                </Field>
+              )}
+
+              <Field label="Price (₹)" required>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={form.askingPrice ? Number(form.askingPrice).toLocaleString('en-IN') : ''}
+                  onChange={(e) => setField('askingPrice', e.target.value.replace(/[^0-9]/g, ''))}
+                  className={inputCls}
+                />
+              </Field>
 
               <Field label="State" required>
                 <SelectWrapper>
@@ -476,7 +517,13 @@ export function EditListing() {
                   ['Title', listing.title],
                   ['Category', [listing.machineCategory, listing.machineSubcategory].filter(Boolean).join(' › ')],
                   ['Make / Model', `${listing.machineMake} ${listing.machineModel}`],
-                  ['Year', String(listing.manufactureYear)],
+                  ['Year', listing.manufactureYear != null ? String(listing.manufactureYear) : 'Not available'],
+                  [
+                    'Origin',
+                    listing.origin === 'IMPORTED'
+                      ? `Imported${listing.importedCountry ? ` (${listing.importedCountry})` : ''}`
+                      : 'Indian',
+                  ],
                   ['Price', formatInr(listing.askingPrice)],
                   ['Location', `${listing.locationCity}, ${listing.locationState}`],
                 ].map(([label, value]) => (

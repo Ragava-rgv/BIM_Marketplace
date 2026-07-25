@@ -5,7 +5,7 @@ import type { EnquiryDto, LoanApplicationDto } from '@machinebazaar/shared';
 import { api } from '../../lib/api';
 import { useAuth } from '../../lib/auth-context';
 import { AppLayout } from '../../components/AppLayout';
-import { getSavedListingIds } from '../../lib/saved-listings';
+import { useWishlist } from '../../lib/wishlist-context';
 import { formatInr, formatDate } from '../../lib/format';
 import { ChevronRightIcon, MachineIcon, RupeeIcon, ShieldIcon } from '../../components/icons';
 
@@ -25,7 +25,7 @@ export function BuyerDashboard() {
   const [loans, setLoans] = useState<LoanApplicationDto[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const savedCount = user ? getSavedListingIds(user.id).length : 0;
+  const { count: savedCount } = useWishlist();
   const initials = user?.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() ?? '';
   const isGstActive = user?.gstStatus === GstStatus.ACTIVE;
 

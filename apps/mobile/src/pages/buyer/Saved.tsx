@@ -3,37 +3,30 @@ import { useNavigate } from 'react-router-dom';
 import type { ListingDto } from '@machinebazaar/shared';
 import { api } from '../../lib/api';
 import { useAuth } from '../../lib/auth-context';
+import { useWishlist } from '../../lib/wishlist-context';
 import { AppLayout } from '../../components/AppLayout';
-import { getSavedListingIds, toggleSavedListing } from '../../lib/saved-listings';
 import { formatInrShort } from '../../lib/format';
 import { ChevronRightIcon, HeartIcon, MachineIcon, MapPinIcon } from '../../components/icons';
 
 export function BuyerSaved() {
   const { user } = useAuth();
+  const { toggle } = useWishlist();
   const navigate = useNavigate();
   const [listings, setListings] = useState<ListingDto[]>([]);
   const [loading, setLoading] = useState(true);
-  const [savedIds, setSavedIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (!user) { setLoading(false); return; }
-    const ids = getSavedListingIds(user.id);
-    setSavedIds(ids);
-    if (ids.length === 0) { setLoading(false); return; }
-
     let cancelled = false;
-    Promise.all(ids.map((id) => api.get<ListingDto>(`/listings/${id}`).then(({ data }) => data).catch(() => null)))
-      .then((results) => {
-        if (!cancelled) setListings(results.filter((l): l is ListingDto => l !== null));
-      })
+    api.get<ListingDto[]>('/wishlist')
+      .then(({ data }) => { if (!cancelled) setListings(data); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [user]);
 
   const handleUnsave = (listingId: string) => {
     if (!user) return;
-    const next = toggleSavedListing(user.id, listingId);
-    setSavedIds(next);
+    void toggle(listingId);
     setListings((prev) => prev.filter((l) => l.id !== listingId));
   };
 
@@ -45,7 +38,7 @@ export function BuyerSaved() {
         </button>
         <div>
           <h1 className="text-[17px] font-extrabold text-ink tracking-[-0.3px]">Saved Listings</h1>
-          <p className="text-[11px] text-gray-500">{savedIds.length} saved</p>
+          <p className="text-[11px] text-gray-500">{listings.length} saved</p>
         </div>
       </div>
 
@@ -83,7 +76,7 @@ export function BuyerSaved() {
                   <div className="flex-1 p-[10px_12px] min-w-0">
                     <p className="text-[13px] font-bold text-ink truncate">{l.title}</p>
                     <p className="text-[11px] text-gray-500 mt-0.5">
-                      {l.machineMake} {l.machineModel} · {l.manufactureYear}
+                      {l.machineMake} {l.machineModel}
                     </p>
                     <p className="font-mono text-[11px] font-bold text-forest mt-1">
                       {formatInrShort(l.askingPrice)}

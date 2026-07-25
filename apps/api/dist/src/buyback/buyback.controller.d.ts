@@ -30,7 +30,7 @@ export declare class BuybackController {
             title: string;
             machineMake: string;
             machineModel: string;
-            manufactureYear: number;
+            manufactureYear: number | null;
         } | null;
     } & {
         id: string;
@@ -87,7 +87,7 @@ export declare class BuybackController {
             title: string;
             machineMake: string;
             machineModel: string;
-            manufactureYear: number;
+            manufactureYear: number | null;
         } | null;
     } & {
         id: string;

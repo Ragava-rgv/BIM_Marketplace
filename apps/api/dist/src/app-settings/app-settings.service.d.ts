@@ -9,7 +9,6 @@ export declare class AppSettingsService {
         label: string;
     }[]>;
     get(key: string): Promise<string>;
-    getContactRevealPrice(): Promise<number>;
     update(key: string, value: string): Promise<{
         updatedAt: Date;
         key: string;

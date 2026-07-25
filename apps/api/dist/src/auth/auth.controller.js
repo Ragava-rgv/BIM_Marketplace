@@ -21,6 +21,8 @@ const login_dto_1 = require("./dto/login.dto");
 const send_otp_dto_1 = require("./dto/send-otp.dto");
 const verify_otp_dto_1 = require("./dto/verify-otp.dto");
 const admin_login_dto_1 = require("./dto/admin-login.dto");
+const forgot_password_dto_1 = require("./dto/forgot-password.dto");
+const reset_password_dto_1 = require("./dto/reset-password.dto");
 const refresh_token_dto_1 = require("./dto/refresh-token.dto");
 const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
@@ -51,6 +53,13 @@ let AuthController = class AuthController {
     }
     async verifyOtp(dto) {
         return this.auth.verifyOtpAndAuthenticate(dto.phone, dto.code, dto.purpose);
+    }
+    async forgotPassword(dto) {
+        await this.auth.requestPasswordReset(dto.phone);
+        return { sent: true };
+    }
+    async resetPassword(dto) {
+        return this.auth.resetPassword(dto.phone, dto.code, dto.newPassword);
     }
     async adminLogin(dto) {
         return this.auth.adminLogin(dto.email, dto.password);
@@ -109,6 +118,22 @@ __decorate([
     __metadata("design:paramtypes", [verify_otp_dto_1.VerifyOtpDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "verifyOtp", null);
+__decorate([
+    (0, common_1.Post)('password/forgot'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [forgot_password_dto_1.ForgotPasswordDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "forgotPassword", null);
+__decorate([
+    (0, common_1.Post)('password/reset'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [reset_password_dto_1.ResetPasswordDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "resetPassword", null);
 __decorate([
     (0, common_1.Post)('admin/login'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),

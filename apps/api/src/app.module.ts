@@ -21,9 +21,14 @@ import { AdminModule } from './admin/admin.module';
 import { PaymentsModule } from './payments/payments.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { SubscriptionPlansModule } from './subscription-plans/subscription-plans.module';
-import { ContactPaymentsModule } from './contact-payments/contact-payments.module';
+import { BuyerSubscriptionPlansModule } from './buyer-subscription-plans/buyer-subscription-plans.module';
+import { BuyerSubscriptionsModule } from './buyer-subscriptions/buyer-subscriptions.module';
 import { CatalogModule } from './catalog/catalog.module';
 import { AppSettingsModule } from './app-settings/app-settings.module';
+import { WishlistModule } from './wishlist/wishlist.module';
+import { BoostPlansModule } from './boost-plans/boost-plans.module';
+import { ListingBoostsModule } from './listing-boosts/listing-boosts.module';
+import { AdvertisementsModule } from './advertisements/advertisements.module';
 
 @Module({
   imports: [
@@ -51,9 +56,14 @@ import { AppSettingsModule } from './app-settings/app-settings.module';
     AdminModule,
     SubscriptionsModule,
     SubscriptionPlansModule,
-    ContactPaymentsModule,
+    BuyerSubscriptionPlansModule,
+    BuyerSubscriptionsModule,
     CatalogModule,
     AppSettingsModule,
+    WishlistModule,
+    BoostPlansModule,
+    ListingBoostsModule,
+    AdvertisementsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

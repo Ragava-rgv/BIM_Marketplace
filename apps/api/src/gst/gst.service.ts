@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { GstStatus, User } from '@prisma/client';
+import { GstStatus, User, UserRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { GstVerifyClient } from './masters-india.client';
 
@@ -22,7 +22,13 @@ export class GstService {
    *   6. Auto-fill business_name on the user record
    *   7. Set gst_status = ACTIVE and persist
    */
-  async verify(userId: string, gstNumber: string): Promise<User> {
+  async verify(userId: string, gstNumber: string, address: string | undefined, role: UserRole): Promise<User> {
+    // Sellers must supply an address alongside GST verification — it's what gets
+    // revealed to buyers after they view the contact. Buyers never send this field.
+    if (role === UserRole.SELLER && !address) {
+      throw new BadRequestException('Address is required for seller GST verification');
+    }
+
     // Step 2: call Masters India API with the GST number
     const result = await this.mastersIndia.lookupGstin(gstNumber);
 
@@ -50,6 +56,7 @@ export class GstService {
         gstNumber,
         businessName,
         gstStatus: GstStatus.ACTIVE,
+        ...(address ? { address } : {}),
       },
     });
   }

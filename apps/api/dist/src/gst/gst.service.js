@@ -22,7 +22,10 @@ let GstService = class GstService {
         this.prisma = prisma;
         this.mastersIndia = mastersIndia;
     }
-    async verify(userId, gstNumber) {
+    async verify(userId, gstNumber, address, role) {
+        if (role === client_1.UserRole.SELLER && !address) {
+            throw new common_1.BadRequestException('Address is required for seller GST verification');
+        }
         const result = await this.mastersIndia.lookupGstin(gstNumber);
         if (!result) {
             await this.markStatus(userId, gstNumber, client_1.GstStatus.UNVERIFIED);
@@ -39,6 +42,7 @@ let GstService = class GstService {
                 gstNumber,
                 businessName,
                 gstStatus: client_1.GstStatus.ACTIVE,
+                ...(address ? { address } : {}),
             },
         });
     }

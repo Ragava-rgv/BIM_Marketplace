@@ -1,6 +1,7 @@
 import { AdminService } from './admin.service';
 import { ListingsService } from '../listings/listings.service';
 import { AdminQueryListingsDto } from '../listings/dto/query-listings.dto';
+import { BulkListingStatusDto } from './dto/bulk-listing-status.dto';
 export declare class AdminController {
     private readonly admin;
     private readonly listings;
@@ -17,7 +18,14 @@ export declare class AdminController {
                 orderIndex: number;
                 listingId: string;
                 storageKey: string;
+                isPrimary: boolean;
             }[];
+            seller: {
+                id: string;
+                email: string | null;
+                phone: string;
+                fullName: string;
+            };
         } & {
             id: string;
             machineCategory: string;
@@ -32,7 +40,9 @@ export declare class AdminController {
             machineSubcategory: string | null;
             machineMake: string;
             machineModel: string;
-            manufactureYear: number;
+            manufactureYear: number | null;
+            origin: import("@prisma/client").$Enums.ListingOrigin;
+            importedCountry: string | null;
             askingPrice: import("@prisma/client/runtime/library").Decimal;
             complexityTier: import("@prisma/client").$Enums.ComplexityTier;
             catalogCategoryId: string | null;
@@ -42,6 +52,8 @@ export declare class AdminController {
             serialNumber: string | null;
             negotiable: boolean;
             subcategoryId: string | null;
+            isBoosted: boolean;
+            boostExpiresAt: Date | null;
         })[];
         total: number;
         page: number;
@@ -57,6 +69,7 @@ export declare class AdminController {
             orderIndex: number;
             listingId: string;
             storageKey: string;
+            isPrimary: boolean;
         }[];
         seller: {
             id: string;
@@ -69,6 +82,36 @@ export declare class AdminController {
             locationCity: string | null;
             locationState: string | null;
         };
+        catalogCategory: ({
+            specFields: {
+                id: string;
+                isFilterable: boolean;
+                unit: string | null;
+                filterType: import("@prisma/client").$Enums.SpecFilterType;
+                options: string[];
+                displayOrder: number;
+                categoryId: string;
+                fieldKey: string;
+                fieldLabel: string;
+                fieldType: import("@prisma/client").$Enums.SpecFieldType;
+                isRequired: boolean;
+                helpText: string | null;
+            }[];
+        } & {
+            id: string;
+            name: string;
+            createdAt: Date;
+            updatedAt: Date;
+            isActive: boolean;
+            description: string | null;
+            displayOrder: number;
+            slug: string;
+            groupId: string | null;
+            iconKey: string | null;
+            imageUrl: string | null;
+            thumbnailUrl: string | null;
+            listingCount: number;
+        }) | null;
     } & {
         id: string;
         machineCategory: string;
@@ -83,7 +126,9 @@ export declare class AdminController {
         machineSubcategory: string | null;
         machineMake: string;
         machineModel: string;
-        manufactureYear: number;
+        manufactureYear: number | null;
+        origin: import("@prisma/client").$Enums.ListingOrigin;
+        importedCountry: string | null;
         askingPrice: import("@prisma/client/runtime/library").Decimal;
         complexityTier: import("@prisma/client").$Enums.ComplexityTier;
         catalogCategoryId: string | null;
@@ -93,6 +138,8 @@ export declare class AdminController {
         serialNumber: string | null;
         negotiable: boolean;
         subcategoryId: string | null;
+        isBoosted: boolean;
+        boostExpiresAt: Date | null;
     }>;
     approveListing(id: string): Promise<{
         id: string;
@@ -108,7 +155,9 @@ export declare class AdminController {
         machineSubcategory: string | null;
         machineMake: string;
         machineModel: string;
-        manufactureYear: number;
+        manufactureYear: number | null;
+        origin: import("@prisma/client").$Enums.ListingOrigin;
+        importedCountry: string | null;
         askingPrice: import("@prisma/client/runtime/library").Decimal;
         complexityTier: import("@prisma/client").$Enums.ComplexityTier;
         catalogCategoryId: string | null;
@@ -118,6 +167,8 @@ export declare class AdminController {
         serialNumber: string | null;
         negotiable: boolean;
         subcategoryId: string | null;
+        isBoosted: boolean;
+        boostExpiresAt: Date | null;
     }>;
     rejectListing(id: string): Promise<{
         id: string;
@@ -133,7 +184,9 @@ export declare class AdminController {
         machineSubcategory: string | null;
         machineMake: string;
         machineModel: string;
-        manufactureYear: number;
+        manufactureYear: number | null;
+        origin: import("@prisma/client").$Enums.ListingOrigin;
+        importedCountry: string | null;
         askingPrice: import("@prisma/client/runtime/library").Decimal;
         complexityTier: import("@prisma/client").$Enums.ComplexityTier;
         catalogCategoryId: string | null;
@@ -143,5 +196,102 @@ export declare class AdminController {
         serialNumber: string | null;
         negotiable: boolean;
         subcategoryId: string | null;
+        isBoosted: boolean;
+        boostExpiresAt: Date | null;
     }>;
+    markSoldListing(id: string): Promise<{
+        id: string;
+        machineCategory: string;
+        locationCity: string;
+        locationState: string;
+        createdAt: Date;
+        updatedAt: Date;
+        description: string;
+        status: import("@prisma/client").$Enums.ListingStatus;
+        sellerId: string;
+        title: string;
+        machineSubcategory: string | null;
+        machineMake: string;
+        machineModel: string;
+        manufactureYear: number | null;
+        origin: import("@prisma/client").$Enums.ListingOrigin;
+        importedCountry: string | null;
+        askingPrice: import("@prisma/client/runtime/library").Decimal;
+        complexityTier: import("@prisma/client").$Enums.ComplexityTier;
+        catalogCategoryId: string | null;
+        specs: import("@prisma/client/runtime/library").JsonValue | null;
+        conditionGrade: string | null;
+        runningHours: number | null;
+        serialNumber: string | null;
+        negotiable: boolean;
+        subcategoryId: string | null;
+        isBoosted: boolean;
+        boostExpiresAt: Date | null;
+    }>;
+    markInactiveListing(id: string): Promise<{
+        id: string;
+        machineCategory: string;
+        locationCity: string;
+        locationState: string;
+        createdAt: Date;
+        updatedAt: Date;
+        description: string;
+        status: import("@prisma/client").$Enums.ListingStatus;
+        sellerId: string;
+        title: string;
+        machineSubcategory: string | null;
+        machineMake: string;
+        machineModel: string;
+        manufactureYear: number | null;
+        origin: import("@prisma/client").$Enums.ListingOrigin;
+        importedCountry: string | null;
+        askingPrice: import("@prisma/client/runtime/library").Decimal;
+        complexityTier: import("@prisma/client").$Enums.ComplexityTier;
+        catalogCategoryId: string | null;
+        specs: import("@prisma/client/runtime/library").JsonValue | null;
+        conditionGrade: string | null;
+        runningHours: number | null;
+        serialNumber: string | null;
+        negotiable: boolean;
+        subcategoryId: string | null;
+        isBoosted: boolean;
+        boostExpiresAt: Date | null;
+    }>;
+    reactivateListing(id: string): Promise<{
+        id: string;
+        machineCategory: string;
+        locationCity: string;
+        locationState: string;
+        createdAt: Date;
+        updatedAt: Date;
+        description: string;
+        status: import("@prisma/client").$Enums.ListingStatus;
+        sellerId: string;
+        title: string;
+        machineSubcategory: string | null;
+        machineMake: string;
+        machineModel: string;
+        manufactureYear: number | null;
+        origin: import("@prisma/client").$Enums.ListingOrigin;
+        importedCountry: string | null;
+        askingPrice: import("@prisma/client/runtime/library").Decimal;
+        complexityTier: import("@prisma/client").$Enums.ComplexityTier;
+        catalogCategoryId: string | null;
+        specs: import("@prisma/client/runtime/library").JsonValue | null;
+        conditionGrade: string | null;
+        runningHours: number | null;
+        serialNumber: string | null;
+        negotiable: boolean;
+        subcategoryId: string | null;
+        isBoosted: boolean;
+        boostExpiresAt: Date | null;
+    }>;
+    bulkListingStatus(dto: BulkListingStatusDto): Promise<{
+        succeeded: number;
+        failed: {
+            id: string;
+            error: any;
+        }[];
+    }>;
+    private resolveBulkAction;
 }

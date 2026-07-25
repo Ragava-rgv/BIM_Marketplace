@@ -1,5 +1,5 @@
 ﻿import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import type { UserDto } from '@machinebazaar/shared';
+import type { AuthTokensDto, UserDto } from '@machinebazaar/shared';
 import { api, clearTokens, getAccessToken, getRefreshToken, setTokens } from './api';
 
 interface AuthContextValue {
@@ -10,6 +10,8 @@ interface AuthContextValue {
   refreshProfile: () => Promise<void>;
   /** Persist active mode preference (BUYER | SELLER) to server and update local state. */
   switchMode: (mode: 'BUYER' | 'SELLER') => Promise<void>;
+  /** First-time enablement of seller capability (requires GST ACTIVE) — sets canSell + role + activeMode. */
+  switchToSeller: () => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -56,6 +58,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data);
   }, []);
 
+  const switchToSeller = useCallback(async () => {
+    const { data } = await api.post<AuthTokensDto>('/auth/switch-to-seller');
+    await authenticate(data);
+  }, [authenticate]);
+
   const logout = useCallback(async () => {
     const refreshToken = getRefreshToken();
     try {
@@ -70,8 +77,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, loading, authenticate, refreshProfile: async () => { await loadProfile(); }, switchMode, logout }),
-    [user, loading, authenticate, loadProfile, switchMode, logout],
+    () => ({ user, loading, authenticate, refreshProfile: async () => { await loadProfile(); }, switchMode, switchToSeller, logout }),
+    [user, loading, authenticate, loadProfile, switchMode, switchToSeller, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

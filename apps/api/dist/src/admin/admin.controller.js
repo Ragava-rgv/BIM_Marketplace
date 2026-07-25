@@ -21,6 +21,7 @@ const roles_decorator_1 = require("../common/decorators/roles.decorator");
 const admin_service_1 = require("./admin.service");
 const listings_service_1 = require("../listings/listings.service");
 const query_listings_dto_1 = require("../listings/dto/query-listings.dto");
+const bulk_listing_status_dto_1 = require("./dto/bulk-listing-status.dto");
 let AdminController = class AdminController {
     admin;
     listings;
@@ -42,6 +43,39 @@ let AdminController = class AdminController {
     }
     async rejectListing(id) {
         return this.listings.reject(id);
+    }
+    async markSoldListing(id) {
+        return this.listings.markSold(id);
+    }
+    async markInactiveListing(id) {
+        return this.listings.markInactive(id);
+    }
+    async reactivateListing(id) {
+        return this.listings.reactivate(id);
+    }
+    async bulkListingStatus(dto) {
+        const action = this.resolveBulkAction(dto.action);
+        const results = await Promise.allSettled(dto.ids.map((id) => action(id)));
+        const succeeded = results.filter((r) => r.status === 'fulfilled').length;
+        const failed = results
+            .map((r, i) => ({ r, id: dto.ids[i] }))
+            .filter(({ r }) => r.status === 'rejected')
+            .map(({ r, id }) => ({ id, error: r.reason?.message ?? 'Failed' }));
+        return { succeeded, failed };
+    }
+    resolveBulkAction(action) {
+        switch (action) {
+            case 'approve':
+                return (id) => this.listings.approve(id);
+            case 'reject':
+                return (id) => this.listings.reject(id);
+            case 'mark-sold':
+                return (id) => this.listings.markSold(id);
+            case 'mark-inactive':
+                return (id) => this.listings.markInactive(id);
+            case 'reactivate':
+                return (id) => this.listings.reactivate(id);
+        }
     }
 };
 exports.AdminController = AdminController;
@@ -81,6 +115,38 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "rejectListing", null);
+__decorate([
+    (0, common_1.Post)('listings/:id/mark-sold'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "markSoldListing", null);
+__decorate([
+    (0, common_1.Post)('listings/:id/mark-inactive'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "markInactiveListing", null);
+__decorate([
+    (0, common_1.Post)('listings/:id/reactivate'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "reactivateListing", null);
+__decorate([
+    (0, common_1.Post)('listings/bulk-status'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [bulk_listing_status_dto_1.BulkListingStatusDto]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "bulkListingStatus", null);
 exports.AdminController = AdminController = __decorate([
     (0, common_1.Controller)('admin'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

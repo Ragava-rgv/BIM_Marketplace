@@ -150,6 +150,96 @@ async function seedSubscriptionPlans() {
     }
     console.log(`Seeded ${plans.length} subscription plan configs`);
 }
+async function seedBuyerSubscriptionPlans() {
+    const plans = [
+        {
+            name: 'FREE',
+            displayName: 'Free',
+            contactViewQuota: 10,
+            priceInr: 0,
+            durationDays: null,
+            isActive: true,
+            isFree: true,
+            isDefault: true,
+            description: '10 free contact views, no expiry.',
+            sortOrder: 0,
+        },
+        {
+            name: 'STANDARD',
+            displayName: 'Standard',
+            contactViewQuota: 30,
+            priceInr: 499,
+            durationDays: 30,
+            isActive: true,
+            isFree: false,
+            isDefault: false,
+            description: '30 contact views per month.',
+            sortOrder: 1,
+        },
+        {
+            name: 'PRO',
+            displayName: 'Pro',
+            contactViewQuota: 100,
+            priceInr: 1499,
+            durationDays: 30,
+            isActive: true,
+            isFree: false,
+            isDefault: false,
+            description: '100 contact views per month, for active buyers.',
+            sortOrder: 2,
+        },
+    ];
+    for (const plan of plans) {
+        await prisma.buyerSubscriptionPlan.upsert({
+            where: { name: plan.name },
+            update: {},
+            create: plan,
+        });
+    }
+    console.log(`Seeded ${plans.length} buyer subscription plans`);
+}
+async function seedBoostPlans() {
+    const plans = [
+        {
+            name: 'BASIC_BOOST',
+            displayName: '3-Day Boost',
+            priceInr: 199,
+            durationDays: 3,
+            sortWeight: 1,
+            isActive: true,
+            description: 'Pushes your listing to the top of search results for 3 days.',
+            sortOrder: 0,
+        },
+        {
+            name: 'WEEKLY_BOOST',
+            displayName: '7-Day Boost',
+            priceInr: 399,
+            durationDays: 7,
+            sortWeight: 2,
+            isActive: true,
+            description: 'Pushes your listing to the top of search results for a full week.',
+            sortOrder: 1,
+        },
+        {
+            name: 'MONTHLY_BOOST',
+            displayName: '30-Day Boost',
+            priceInr: 999,
+            durationDays: 30,
+            sortWeight: 3,
+            isActive: true,
+            description: 'Maximum visibility — top placement for a full month.',
+            sortOrder: 2,
+        },
+    ];
+    for (const plan of plans) {
+        await prisma.promotionPlan.upsert({
+            where: { name: plan.name },
+            update: {},
+            create: plan,
+        });
+    }
+    console.log(`Seeded ${plans.length} boost plans`);
+}
 const CATALOG = [
     {
         name: 'Metal Cutting',
@@ -470,6 +560,8 @@ async function main() {
     await seedFinancePartners();
     await seedAdminUser();
     await seedSubscriptionPlans();
+    await seedBuyerSubscriptionPlans();
+    await seedBoostPlans();
     await seedCatalog();
     await seedIndustryCategories();
     await seedAppSettings();

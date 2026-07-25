@@ -52,6 +52,11 @@ enum ComplexityTier {
   COMPLEX
 }
 
+enum ListingOrigin {
+  INDIAN
+  IMPORTED
+}
+
 enum MediaType {
   PHOTO
   VIDEO
@@ -123,6 +128,7 @@ model User {
   gstStatus     GstStatus @default(UNVERIFIED) @map("gst_status")
   locationCity  String?   @map("location_city")
   locationState String?   @map("location_state")
+  address       String?
   activeMode    String    @default("BUYER") @map("active_mode")
   canSell       Boolean   @default(false) @map("can_sell")
   createdAt     DateTime  @default(now()) @map("created_at")
@@ -139,6 +145,11 @@ model User {
   subscriptions         SellerSubscription[]
   contactPaymentsBuyer  ContactPayment[]     @relation("ContactPaymentBuyer")
   contactPaymentsSeller ContactPayment[]     @relation("ContactPaymentSeller")
+  buyerSubscriptions    BuyerSubscription[]
+  contactViewsAsBuyer   ContactView[]        @relation("ContactViewBuyer")
+  contactViewsAsSeller  ContactView[]        @relation("ContactViewSeller")
+  wishlist              Wishlist[]
+  listingBoosts         ListingBoost[]
 
   @@map("users")
 }
@@ -172,33 +183,37 @@ model RefreshToken {
 }
 
 model Listing {
-  id                  String         @id @default(uuid())
-  sellerId            String         @map("seller_id")
-  title               String
-  description         String
-  machineCategory     String         @map("machine_category")
-  machineSubcategory  String?        @map("machine_subcategory")
-  machineMake         String         @map("machine_make")
-  machineModel        String         @map("machine_model")
-  manufactureYear     Int            @map("manufacture_year")
-  askingPrice         Decimal        @map("asking_price") @db.Decimal(14, 2)
-  locationCity        String         @map("location_city")
-  locationState       String         @map("location_state")
-  status              ListingStatus  @default(DRAFT)
-  complexityTier      ComplexityTier @default(STANDARD) @map("complexity_tier")
-  catalogCategoryId   String?        @map("catalog_category_id")
-  subcategoryId       String?        @map("subcategory_id")
-  specs               Json?
-  conditionGrade      String?        @map("condition_grade")
-  runningHours        Int?           @map("running_hours")
-  serialNumber        String?        @map("serial_number")
-  negotiable          Boolean        @default(false)
-  createdAt           DateTime       @default(now()) @map("created_at")
-  updatedAt           DateTime       @updatedAt @map("updated_at")
+  id                 String         @id @default(uuid())
+  sellerId           String         @map("seller_id")
+  title              String
+  description        String
+  machineCategory    String         @map("machine_category")
+  machineSubcategory String?        @map("machine_subcategory")
+  machineMake        String         @map("machine_make")
+  machineModel       String         @map("machine_model")
+  manufactureYear    Int?           @map("manufacture_year")
+  origin             ListingOrigin  @default(INDIAN)
+  importedCountry    String?        @map("imported_country")
+  askingPrice        Decimal        @map("asking_price") @db.Decimal(14, 2)
+  locationCity       String         @map("location_city")
+  locationState      String         @map("location_state")
+  status             ListingStatus  @default(DRAFT)
+  complexityTier     ComplexityTier @default(STANDARD) @map("complexity_tier")
+  catalogCategoryId  String?        @map("catalog_category_id")
+  subcategoryId      String?        @map("subcategory_id")
+  specs              Json?
+  conditionGrade     String?        @map("condition_grade")
+  runningHours       Int?           @map("running_hours")
+  serialNumber       String?        @map("serial_number")
+  negotiable         Boolean        @default(false)
+  isBoosted          Boolean        @default(false) @map("is_boosted")
+  boostExpiresAt     DateTime?      @map("boost_expires_at")
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @updatedAt @map("updated_at")
 
-  subcategory      Subcategory?     @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
-  catalogCategory  Category?        @relation("ListingCatalogCategory", fields: [catalogCategoryId], references: [id], onDelete: SetNull)
-  seller           User             @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  subcategory      Subcategory?      @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
+  catalogCategory  Category?         @relation("ListingCatalogCategory", fields: [catalogCategoryId], references: [id], onDelete: SetNull)
+  seller           User              @relation(fields: [sellerId], references: [id], onDelete: Cascade)
   media            ListingMedia[]
   enquiries        Enquiry[]
   transactions     Transaction[]
@@ -206,10 +221,28 @@ model Listing {
   loanApplications LoanApplication[]
   buybackOffers    BuybackOffer[]
   contactPayments  ContactPayment[]
+  contactViews     ContactView[]
+  wishlistedBy     Wishlist[]
+  boosts           ListingBoost[]
 
   @@index([status])
   @@index([machineCategory])
   @@map("listings")
+}
+
+model Wishlist {
+  id        String    @id @default(uuid())
+  buyerId   String    @map("buyer_id")
+  listingId String    @map("listing_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  buyer   User    @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([buyerId, listingId])
+  @@index([buyerId])
+  @@map("wishlists")
 }
 
 model ListingMedia {
@@ -221,6 +254,7 @@ model ListingMedia {
   capturedAt      DateTime? @map("captured_at")
   durationSeconds Int?      @map("duration_seconds")
   orderIndex      Int       @default(0) @map("order_index")
+  isPrimary       Boolean   @default(false) @map("is_primary")
 
   listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
 
@@ -334,10 +368,10 @@ model BuybackOffer {
 }
 
 model DepreciationSchedule {
-  id                String  @id @default(uuid())
-  machineCategory   String  @map("machine_category")
-  yearOffset        Int     @map("year_offset")
-  retainedValuePct  Decimal @map("retained_value_pct") @db.Decimal(5, 2)
+  id               String  @id @default(uuid())
+  machineCategory  String  @map("machine_category")
+  yearOffset       Int     @map("year_offset")
+  retainedValuePct Decimal @map("retained_value_pct") @db.Decimal(5, 2)
 
   @@unique([machineCategory, yearOffset])
   @@map("depreciation_schedule")
@@ -348,30 +382,30 @@ model DepreciationSchedule {
 // ---------------------------------------------------------------------------
 
 model CategoryGroup {
-  id           String     @id @default(uuid())
-  name         String     @unique
-  displayOrder Int        @default(0) @map("display_order")
-  isActive     Boolean    @default(true) @map("is_active")
+  id           String  @id @default(uuid())
+  name         String  @unique
+  displayOrder Int     @default(0) @map("display_order")
+  isActive     Boolean @default(true) @map("is_active")
 
-  categories   Category[]
+  categories Category[]
 
   @@map("category_groups")
 }
 
 model Category {
-  id            String    @id @default(uuid())
-  groupId       String?   @map("group_id")
-  name          String
-  slug          String    @unique
-  iconKey       String?   @map("icon_key")
-  imageUrl      String?   @map("image_url")
-  thumbnailUrl  String?   @map("thumbnail_url")
-  description   String?
-  listingCount  Int       @default(0) @map("listing_count")
-  isActive      Boolean   @default(true) @map("is_active")
-  displayOrder  Int       @default(0) @map("display_order")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+  id           String   @id @default(uuid())
+  groupId      String?  @map("group_id")
+  name         String
+  slug         String   @unique
+  iconKey      String?  @map("icon_key")
+  imageUrl     String?  @map("image_url")
+  thumbnailUrl String?  @map("thumbnail_url")
+  description  String?
+  listingCount Int      @default(0) @map("listing_count")
+  isActive     Boolean  @default(true) @map("is_active")
+  displayOrder Int      @default(0) @map("display_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   group         CategoryGroup?         @relation(fields: [groupId], references: [id], onDelete: SetNull)
   specFields    CategorySpecTemplate[]
@@ -403,18 +437,18 @@ model Subcategory {
 }
 
 model CategorySpecTemplate {
-  id           String          @id @default(uuid())
-  categoryId   String          @map("category_id")
-  fieldKey     String          @map("field_key")
-  fieldLabel   String          @map("field_label")
+  id           String         @id @default(uuid())
+  categoryId   String         @map("category_id")
+  fieldKey     String         @map("field_key")
+  fieldLabel   String         @map("field_label")
   unit         String?
-  fieldType    SpecFieldType   @map("field_type")
-  options      String[]        @default([])
-  isRequired   Boolean         @default(false) @map("is_required")
-  isFilterable Boolean         @default(false) @map("is_filterable")
-  filterType   SpecFilterType  @default(none) @map("filter_type")
-  displayOrder Int             @default(0) @map("display_order")
-  helpText     String?         @map("help_text")
+  fieldType    SpecFieldType  @map("field_type")
+  options      String[]       @default([])
+  isRequired   Boolean        @default(false) @map("is_required")
+  isFilterable Boolean        @default(false) @map("is_filterable")
+  filterType   SpecFilterType @default(none) @map("filter_type")
+  displayOrder Int            @default(0) @map("display_order")
+  helpText     String?        @map("help_text")
 
   category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
@@ -442,19 +476,19 @@ model SubscriptionPlanConfig {
 }
 
 model SellerSubscription {
-  id                 String             @id @default(uuid())
-  sellerId           String             @map("seller_id")
-  plan               SubscriptionPlan   @default(STANDARD)
-  planConfigId       String?            @map("plan_config_id")
-  listingQuota       Int                @default(4) @map("listing_quota")
-  price              Decimal            @default(1000) @db.Decimal(10, 2)
-  durationDays       Int                @default(30) @map("duration_days")
-  startsAt           DateTime           @map("starts_at")
-  expiresAt          DateTime           @map("expires_at")
-  status             SubscriptionStatus @default(ACTIVE)
-  razorpayOrderId    String?            @map("razorpay_order_id")
-  razorpayPaymentId  String?            @map("razorpay_payment_id")
-  createdAt          DateTime           @default(now()) @map("created_at")
+  id                String             @id @default(uuid())
+  sellerId          String             @map("seller_id")
+  plan              SubscriptionPlan   @default(STANDARD)
+  planConfigId      String?            @map("plan_config_id")
+  listingQuota      Int                @default(4) @map("listing_quota")
+  price             Decimal            @default(1000) @db.Decimal(10, 2)
+  durationDays      Int                @default(30) @map("duration_days")
+  startsAt          DateTime           @map("starts_at")
+  expiresAt         DateTime           @map("expires_at")
+  status            SubscriptionStatus @default(ACTIVE)
+  razorpayOrderId   String?            @map("razorpay_order_id")
+  razorpayPaymentId String?            @map("razorpay_payment_id")
+  createdAt         DateTime           @default(now()) @map("created_at")
 
   seller     User                    @relation(fields: [sellerId], references: [id], onDelete: Cascade)
   planConfig SubscriptionPlanConfig? @relation(fields: [planConfigId], references: [id], onDelete: SetNull)
@@ -472,15 +506,15 @@ model AppSetting {
 }
 
 model ContactPayment {
-  id                 String    @id @default(uuid())
-  buyerId            String    @map("buyer_id")
-  listingId          String    @map("listing_id")
-  sellerId           String    @map("seller_id")
-  amount             Decimal   @default(500) @db.Decimal(10, 2)
-  razorpayOrderId    String?   @map("razorpay_order_id")
-  razorpayPaymentId  String?   @map("razorpay_payment_id")
-  paidAt             DateTime? @map("paid_at")
-  createdAt          DateTime  @default(now()) @map("created_at")
+  id                String    @id @default(uuid())
+  buyerId           String    @map("buyer_id")
+  listingId         String    @map("listing_id")
+  sellerId          String    @map("seller_id")
+  amount            Decimal   @default(500) @db.Decimal(10, 2)
+  razorpayOrderId   String?   @map("razorpay_order_id")
+  razorpayPaymentId String?   @map("razorpay_payment_id")
+  paidAt            DateTime? @map("paid_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
 
   buyer   User    @relation("ContactPaymentBuyer", fields: [buyerId], references: [id], onDelete: Cascade)
   listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
@@ -488,4 +522,127 @@ model ContactPayment {
 
   @@unique([buyerId, listingId])
   @@map("contact_payments")
+}
+
+model BuyerSubscriptionPlan {
+  id               String    @id @default(uuid())
+  name             String    @unique
+  displayName      String    @map("display_name")
+  contactViewQuota Int       @map("contact_view_quota")
+  priceInr         Decimal   @default(0) @map("price_inr") @db.Decimal(10, 2)
+  durationDays     Int?      @map("duration_days")
+  isActive         Boolean   @default(true) @map("is_active")
+  isFree           Boolean   @default(false) @map("is_free")
+  isDefault        Boolean   @default(false) @map("is_default")
+  description      String?
+  sortOrder        Int       @default(0) @map("sort_order")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
+
+  subscriptions BuyerSubscription[]
+
+  @@map("buyer_subscription_plans")
+}
+
+model BuyerSubscription {
+  id                String             @id @default(uuid())
+  buyerId           String             @map("buyer_id")
+  planId            String?            @map("plan_id")
+  quotaTotal        Int                @map("quota_total")
+  quotaUsed         Int                @default(0) @map("quota_used")
+  price             Decimal            @default(0) @db.Decimal(10, 2)
+  durationDays      Int?               @map("duration_days")
+  startsAt          DateTime           @map("starts_at")
+  expiresAt         DateTime?          @map("expires_at")
+  status            SubscriptionStatus @default(ACTIVE)
+  razorpayOrderId   String?            @map("razorpay_order_id")
+  razorpayPaymentId String?            @map("razorpay_payment_id")
+  adjustedBy        String?            @map("adjusted_by")
+  adjustedAt        DateTime?          @map("adjusted_at")
+  adjustmentReason  String?            @map("adjustment_reason")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  deletedAt         DateTime?          @map("deleted_at")
+
+  buyer        User                   @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  plan         BuyerSubscriptionPlan? @relation(fields: [planId], references: [id], onDelete: SetNull)
+  contactViews ContactView[]
+
+  @@map("buyer_subscriptions")
+}
+
+model ContactView {
+  id                  String    @id @default(uuid())
+  buyerId             String    @map("buyer_id")
+  listingId           String    @map("listing_id")
+  sellerId            String    @map("seller_id")
+  buyerSubscriptionId String    @map("buyer_subscription_id")
+  viewedAt            DateTime  @default(now()) @map("viewed_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  deletedAt           DateTime? @map("deleted_at")
+
+  buyer        User              @relation("ContactViewBuyer", fields: [buyerId], references: [id], onDelete: Cascade)
+  listing      Listing           @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  seller       User              @relation("ContactViewSeller", fields: [sellerId], references: [id], onDelete: Cascade)
+  subscription BuyerSubscription @relation(fields: [buyerSubscriptionId], references: [id], onDelete: Cascade)
+
+  @@unique([buyerId, listingId])
+  @@index([buyerId])
+  @@index([sellerId])
+  @@map("contact_views")
+}
+
+model PromotionPlan {
+  id           String    @id @default(uuid())
+  name         String    @unique
+  displayName  String    @map("display_name")
+  priceInr     Decimal   @default(0) @map("price_inr") @db.Decimal(10, 2)
+  durationDays Int       @map("duration_days")
+  sortWeight   Int       @default(0) @map("sort_weight")
+  isActive     Boolean   @default(true) @map("is_active")
+  description  String?
+  sortOrder    Int       @default(0) @map("sort_order")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  boosts ListingBoost[]
+
+  @@map("promotion_plans")
+}
+
+model ListingBoost {
+  id                String   @id @default(uuid())
+  listingId         String   @map("listing_id")
+  sellerId          String   @map("seller_id")
+  planId            String?  @map("plan_id")
+  price             Decimal  @default(0) @db.Decimal(10, 2)
+  durationDays      Int      @map("duration_days")
+  startsAt          DateTime @map("starts_at")
+  expiresAt         DateTime @map("expires_at")
+  razorpayOrderId   String?  @map("razorpay_order_id")
+  razorpayPaymentId String?  @map("razorpay_payment_id")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  listing Listing        @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  seller  User           @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  plan    PromotionPlan? @relation(fields: [planId], references: [id], onDelete: SetNull)
+
+  @@map("listing_boosts")
+}
+
+model Advertisement {
+  id        String    @id @default(uuid())
+  title     String
+  imageUrl  String    @map("image_url")
+  linkUrl   String?   @map("link_url")
+  position  Int       @default(0)
+  isActive  Boolean   @default(true) @map("is_active")
+  sortOrder Int       @default(0) @map("sort_order")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@map("advertisements")
 }

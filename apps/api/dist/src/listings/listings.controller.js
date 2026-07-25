@@ -25,6 +25,7 @@ const create_listing_dto_1 = require("./dto/create-listing.dto");
 const update_listing_dto_1 = require("./dto/update-listing.dto");
 const query_listings_dto_1 = require("./dto/query-listings.dto");
 const upload_media_dto_1 = require("./dto/upload-media.dto");
+const reorder_media_dto_1 = require("./dto/reorder-media.dto");
 const MAX_UPLOAD_BYTES = 250 * 1024 * 1024;
 let ListingsController = class ListingsController {
     listings;
@@ -58,6 +59,12 @@ let ListingsController = class ListingsController {
     async removeMedia(user, id, mediaId) {
         await this.listings.removeMedia(user.id, id, mediaId);
         return { removed: true };
+    }
+    async reorderMedia(user, id, dto) {
+        return this.listings.reorderMedia(user.id, id, dto.mediaIds);
+    }
+    async setPrimaryMedia(user, id, mediaId) {
+        return this.listings.setPrimaryMedia(user.id, id, mediaId);
     }
     async submit(user, id) {
         return this.listings.submitForReview(user.id, id);
@@ -154,6 +161,28 @@ __decorate([
     __metadata("design:paramtypes", [Object, String, String]),
     __metadata("design:returntype", Promise)
 ], ListingsController.prototype, "removeMedia", null);
+__decorate([
+    (0, common_1.Patch)(':id/media/reorder'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.UserRole.SELLER),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, reorder_media_dto_1.ReorderMediaDto]),
+    __metadata("design:returntype", Promise)
+], ListingsController.prototype, "reorderMedia", null);
+__decorate([
+    (0, common_1.Patch)(':id/media/:mediaId/primary'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.UserRole.SELLER),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Param)('mediaId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String]),
+    __metadata("design:returntype", Promise)
+], ListingsController.prototype, "setPrimaryMedia", null);
 __decorate([
     (0, common_1.Post)(':id/submit'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),

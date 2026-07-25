@@ -13,18 +13,6 @@ class UpdateSettingDto {
   value: string;
 }
 
-/** Public endpoint — returns only the contact reveal price for the listing page. */
-@Controller('settings')
-export class PublicSettingsController {
-  constructor(private readonly service: AppSettingsService) {}
-
-  @Get('contact-reveal-price')
-  async contactRevealPrice() {
-    const price = await this.service.getContactRevealPrice();
-    return { price };
-  }
-}
-
 /** Admin-only CRUD for all platform settings. */
 @Controller('admin/settings')
 @UseGuards(JwtAuthGuard, RolesGuard)

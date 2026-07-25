@@ -5,6 +5,8 @@ import { PrismaService } from '../prisma/prisma.service';
 export interface AdminDashboardSummary {
   listingsPendingReview: number;
   listingsActive: number;
+  listingsSold: number;
+  listingsInactive: number;
   loansAwaitingAction: number;
   certificationsInProgress: number;
   commissionsPending: number;
@@ -19,6 +21,8 @@ export class AdminService {
     const [
       listingsPendingReview,
       listingsActive,
+      listingsSold,
+      listingsInactive,
       loansAwaitingAction,
       certificationsInProgress,
       commissionsPending,
@@ -26,6 +30,8 @@ export class AdminService {
     ] = await this.prisma.$transaction([
       this.prisma.listing.count({ where: { status: ListingStatus.PENDING_REVIEW } }),
       this.prisma.listing.count({ where: { status: ListingStatus.ACTIVE } }),
+      this.prisma.listing.count({ where: { status: ListingStatus.SOLD } }),
+      this.prisma.listing.count({ where: { status: ListingStatus.WITHDRAWN } }),
       this.prisma.loanApplication.count({
         where: { status: { in: [LoanApplicationStatus.CERT_PENDING, LoanApplicationStatus.WITH_PARTNER] } },
       }),
@@ -39,6 +45,8 @@ export class AdminService {
     return {
       listingsPendingReview,
       listingsActive,
+      listingsSold,
+      listingsInactive,
       loansAwaitingAction,
       certificationsInProgress,
       commissionsPending,

@@ -22,6 +22,8 @@ class CreateListingDto {
     machineMake;
     machineModel;
     manufactureYear;
+    origin;
+    importedCountry;
     askingPrice;
     locationCity;
     locationState;
@@ -66,12 +68,24 @@ __decorate([
     __metadata("design:type", String)
 ], CreateListingDto.prototype, "machineModel", void 0);
 __decorate([
+    (0, class_validator_1.IsOptional)(),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(1950),
     (0, class_validator_1.Max)(CURRENT_YEAR),
-    __metadata("design:type", Number)
+    __metadata("design:type", Object)
 ], CreateListingDto.prototype, "manufactureYear", void 0);
+__decorate([
+    (0, class_validator_1.IsIn)(['INDIAN', 'IMPORTED']),
+    __metadata("design:type", String)
+], CreateListingDto.prototype, "origin", void 0);
+__decorate([
+    (0, class_validator_1.ValidateIf)((o) => o.origin === 'IMPORTED'),
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.Length)(2, 80),
+    __metadata("design:type", String)
+], CreateListingDto.prototype, "importedCountry", void 0);
 __decorate([
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)(),
@@ -114,7 +128,7 @@ __decorate([
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(0),
-    __metadata("design:type", Number)
+    __metadata("design:type", Object)
 ], CreateListingDto.prototype, "runningHours", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),

@@ -15,7 +15,7 @@ let AppSettingsModule = class AppSettingsModule {
 exports.AppSettingsModule = AppSettingsModule;
 exports.AppSettingsModule = AppSettingsModule = __decorate([
     (0, common_1.Module)({
-        controllers: [app_settings_controller_1.PublicSettingsController, app_settings_controller_1.AdminSettingsController],
+        controllers: [app_settings_controller_1.AdminSettingsController],
         providers: [app_settings_service_1.AppSettingsService],
         exports: [app_settings_service_1.AppSettingsService],
     })

@@ -4,7 +4,6 @@ import { GstStatus } from '@machinebazaar/shared';
 import type { ListingDto } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth-context';
-import { getSavedListingIds } from '../../lib/saved-listings';
 import { formatInr } from '../../lib/format';
 import { Button, Card, ErrorBanner, Field, Input, LoadingBlock, PageHeading, Select, SuccessBanner } from '../../components/ui';
 import { ChevronRightIcon, RupeeIcon, ShieldCheckIcon } from '../../components/icons';
@@ -26,24 +25,25 @@ export function BuyerNewLoan() {
   const isGstActive = user?.gstStatus === GstStatus.ACTIVE;
 
   useEffect(() => {
-    let cancelled = false;
-    const ids = user ? getSavedListingIds(user.id) : [];
-    const allIds = presetListingId && !ids.includes(presetListingId) ? [presetListingId, ...ids] : ids;
-
-    if (allIds.length === 0) {
+    if (!user) {
       setListings([]);
-    } else {
-      Promise.all(
-        allIds.map((id) =>
-          api
-            .get<ListingDto>(`/listings/${id}`)
-            .then(({ data }) => data)
-            .catch(() => null),
-        ),
-      ).then((results) => {
-        if (!cancelled) setListings(results.filter((l): l is ListingDto => l !== null));
-      });
+      return;
     }
+    let cancelled = false;
+    api
+      .get<ListingDto[]>('/wishlist')
+      .then(async ({ data }) => {
+        if (presetListingId && !data.some((l) => l.id === presetListingId)) {
+          try {
+            const { data: preset } = await api.get<ListingDto>(`/listings/${presetListingId}`);
+            data = [preset, ...data];
+          } catch {
+            // preset listing not found/accessible — fall through with the wishlist alone
+          }
+        }
+        if (!cancelled) setListings(data);
+      })
+      .catch(() => { if (!cancelled) setListings([]); });
 
     return () => {
       cancelled = true;

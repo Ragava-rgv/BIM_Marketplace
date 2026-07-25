@@ -21,7 +21,12 @@ export class RolesGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user: AuthenticatedUser | undefined = request.user;
 
-    if (!user || !requiredRoles.includes(user.role)) {
+    // Every non-admin account retains buyer capability even after switching to
+    // seller mode (which permanently changes `role` to SELLER) — otherwise
+    // buyer-only endpoints (loans, buyback, etc.) would lock sellers out.
+    const buyerAllowed = requiredRoles.includes(UserRole.BUYER) && user?.role !== UserRole.ADMIN;
+
+    if (!user || (!requiredRoles.includes(user.role) && !buyerAllowed)) {
       throw new ForbiddenException('You do not have permission to access this resource');
     }
 

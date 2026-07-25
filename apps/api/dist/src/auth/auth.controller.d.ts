@@ -4,6 +4,8 @@ import { LoginDto } from './dto/login.dto';
 import { SendOtpDto } from './dto/send-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { AdminLoginDto } from './dto/admin-login.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import type { AuthenticatedUser } from './types/jwt-payload.interface';
 declare class SwitchModeDto {
@@ -37,6 +39,10 @@ export declare class AuthController {
         sent: boolean;
     }>;
     verifyOtp(dto: VerifyOtpDto): Promise<import("./auth.service").AuthTokens>;
+    forgotPassword(dto: ForgotPasswordDto): Promise<{
+        sent: boolean;
+    }>;
+    resetPassword(dto: ResetPasswordDto): Promise<import("./auth.service").AuthTokens>;
     adminLogin(dto: AdminLoginDto): Promise<import("./auth.service").AuthTokens>;
     refresh(dto: RefreshTokenDto): Promise<import("./auth.service").AuthTokens>;
     switchToSeller(user: AuthenticatedUser): Promise<import("./auth.service").AuthTokens>;

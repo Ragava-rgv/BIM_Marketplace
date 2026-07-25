@@ -91,19 +91,35 @@ export function NewListing() {
       />
 
       <ol className="mb-8 flex items-center gap-3">
-        {STEPS.map((label, idx) => (
-          <li key={label} className="flex items-center gap-3">
-            <span
-              className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${
-                idx < step ? 'bg-emerald-100 text-emerald-700' : idx === step ? 'bg-accent text-white' : 'bg-navy/[0.06] text-navy/40'
-              }`}
-            >
-              {idx < step ? <CheckCircleIcon className="h-4 w-4" /> : idx + 1}
-            </span>
-            <span className={`text-sm font-medium ${idx === step ? 'text-navy' : 'text-navy/45'}`}>{label}</span>
-            {idx < STEPS.length - 1 && <span className="h-px w-10 bg-navy/10" />}
-          </li>
-        ))}
+        {STEPS.map((label, idx) => {
+          const reachable = idx <= step;
+          return (
+            <li key={label} className="flex items-center gap-3">
+              <button
+                type="button"
+                disabled={!reachable}
+                onClick={() => reachable && setStep(idx)}
+                className={`flex items-center gap-2 rounded-full ${reachable ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+              >
+                <span
+                  className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition ${
+                    idx < step
+                      ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                      : idx === step
+                        ? 'bg-accent text-white'
+                        : 'bg-navy/[0.06] text-navy/40'
+                  }`}
+                >
+                  {idx < step ? <CheckCircleIcon className="h-4 w-4" /> : idx + 1}
+                </span>
+                <span className={`text-sm font-medium ${idx === step ? 'text-navy' : reachable ? 'text-navy/70' : 'text-navy/45'}`}>
+                  {label}
+                </span>
+              </button>
+              {idx < STEPS.length - 1 && <span className="h-px w-10 bg-navy/10" />}
+            </li>
+          );
+        })}
       </ol>
 
       {error && <div className="mb-5"><ErrorBanner message={error} /></div>}
@@ -134,7 +150,13 @@ export function NewListing() {
               {[
                 ['Category', details.machineCategory],
                 ['Make / model', `${details.machineMake} ${details.machineModel}`],
-                ['Year', details.manufactureYear],
+                ['Year', details.manufactureYear || 'Not available'],
+                [
+                  'Origin',
+                  details.origin === 'IMPORTED'
+                    ? `Imported${details.importedCountry ? ` (${details.importedCountry})` : ''}`
+                    : 'Indian',
+                ],
                 ['Asking price', formatInr(details.askingPrice)],
                 ['Location', `${details.locationCity}, ${details.locationState}`],
                 ['Complexity', details.complexityTier],

@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import type { ListingDto } from '@machinebazaar/shared';
 import { ListingStatus } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
-import { formatInr } from '../../lib/format';
+import { formatInr, formatSpecField } from '../../lib/format';
 import { Button, ErrorBanner, LoadingBlock, MonoLabel, StatusBadge } from '../../components/ui';
 import { humanizeStatus } from '../../lib/format';
 import { ArrowLeftIcon, CheckCircleIcon, CloseIcon, PhotoIcon, VideoIcon } from '../../components/icons';
@@ -157,6 +157,23 @@ export function AdminListingReview() {
               ))}
             </div>
           </div>
+
+          {listing.catalogCategory?.specFields && listing.catalogCategory.specFields.length > 0 && (
+            <div className="mt-10">
+              <MonoLabel className="text-copper">— {listing.catalogCategory.name} specifications</MonoLabel>
+              <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {listing.catalogCategory.specFields.map((field) => {
+                  const { label, value } = formatSpecField(field, listing.specs?.[field.fieldKey]);
+                  return (
+                    <div key={field.id} className="rounded-xl border border-dashed border-line-2 bg-white p-4">
+                      <MonoLabel>{label}</MonoLabel>
+                      <p className="mt-1 text-[13.5px] font-bold text-ink">{value}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {listing.seller && (
             <div className="mt-10">

@@ -12,8 +12,6 @@ import { AppLayout } from '../../components/AppLayout';
 import { CheckIcon, ChevronRightIcon, PlusIcon } from '../../components/icons';
 import { INDIA_STATES, INDIA_STATES_AND_CITIES } from '../../lib/india-locations';
 
-const CURRENT_YEAR = new Date().getFullYear();
-
 const inputCls =
   'w-full h-[50px] bg-gray-50 border border-gray-200 rounded-[12px] px-4 text-[14px] text-ink font-medium placeholder-gray-400 outline-none focus:border-forest focus:bg-white transition';
 const selectCls = inputCls + ' appearance-none pr-8';
@@ -57,6 +55,8 @@ interface FormData {
   machineMake: string;
   machineModel: string;
   manufactureYear: string;
+  origin: 'INDIAN' | 'IMPORTED';
+  importedCountry: string;
   askingPrice: string;
   locationCity: string;
   locationState: string;
@@ -65,7 +65,6 @@ interface FormData {
   specs: Record<string, string>;
   conditionGrade: string;
   runningHours: string;
-  serialNumber: string;
   negotiable: boolean;
 }
 
@@ -76,6 +75,8 @@ const EMPTY_FORM: FormData = {
   machineMake: '',
   machineModel: '',
   manufactureYear: '',
+  origin: 'INDIAN',
+  importedCountry: '',
   askingPrice: '',
   locationCity: '',
   locationState: '',
@@ -84,9 +85,15 @@ const EMPTY_FORM: FormData = {
   specs: {},
   conditionGrade: '',
   runningHours: '',
-  serialNumber: '',
   negotiable: false,
 };
+
+const CURRENT_YEAR = new Date().getFullYear();
+const YEAR_OPTIONS = Array.from({ length: CURRENT_YEAR - 1950 + 1 }, (_, i) => CURRENT_YEAR - i);
+const IMPORT_COUNTRIES = [
+  'China', 'Japan', 'South Korea', 'Germany', 'USA', 'Italy',
+  'United Kingdom', 'France', 'Sweden', 'Taiwan', 'Singapore', 'UAE', 'Other',
+];
 
 interface UploadedPhoto {
   id: string;
@@ -171,6 +178,7 @@ export function NewListing() {
 
   // Step 0
   const [form, setForm] = useState<FormData>(EMPTY_FORM);
+  const [runningHoursNA, setRunningHoursNA] = useState(false);
   const [step1Loading, setStep1Loading] = useState(false);
   const [step1Error, setStep1Error] = useState<string | null>(null);
 
@@ -189,7 +197,7 @@ export function NewListing() {
   // Listing created after step 0
   const [listing, setListing] = useState<ListingDto | null>(null);
 
-  // Step 1 "” media
+  // Step 1 — media
   const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
   const [photoUploading, setPhotoUploading] = useState(false);
   const [video, setVideo] = useState<UploadedVideo | null>(null);
@@ -217,9 +225,7 @@ export function NewListing() {
     if (!form.machineCategory) return 'Please select a machine category.';
     if (!form.machineMake.trim()) return 'Machine make is required.';
     if (!form.machineModel.trim()) return 'Machine model is required.';
-    if (!form.manufactureYear) return 'Year of manufacture is required.';
-    const yr = parseInt(form.manufactureYear, 10);
-    if (yr < 1950 || yr > CURRENT_YEAR) return `Year must be between 1950 and ${CURRENT_YEAR}.`;
+    if (form.origin === 'IMPORTED' && !form.importedCountry) return 'Please select the country of import.';
     if (!form.askingPrice || parseFloat(form.askingPrice) <= 0)
       return 'Enter a valid asking price.';
     if (!form.locationState) return 'Please select a state.';
@@ -249,15 +255,16 @@ export function NewListing() {
         ...(form.machineSubcategory ? { machineSubcategory: form.machineSubcategory } : {}),
         machineMake: form.machineMake.trim(),
         machineModel: form.machineModel.trim(),
-        manufactureYear: parseInt(form.manufactureYear, 10),
+        manufactureYear: form.manufactureYear ? parseInt(form.manufactureYear, 10) : null,
+        origin: form.origin,
+        ...(form.origin === 'IMPORTED' ? { importedCountry: form.importedCountry } : {}),
         askingPrice: parseFloat(form.askingPrice),
         locationCity: form.locationCity,
         locationState: form.locationState,
         ...(form.catalogCategoryId ? { catalogCategoryId: form.catalogCategoryId } : {}),
         ...(form.catalogCategoryId && Object.keys(form.specs).length > 0 ? { specs: form.specs } : {}),
         ...(form.conditionGrade ? { conditionGrade: form.conditionGrade } : {}),
-        ...(form.runningHours ? { runningHours: parseInt(form.runningHours, 10) } : {}),
-        ...(form.serialNumber.trim() ? { serialNumber: form.serialNumber.trim() } : {}),
+        runningHours: form.runningHours ? parseInt(form.runningHours, 10) : null,
         negotiable: form.negotiable,
       });
       setListing(data);
@@ -402,7 +409,7 @@ export function NewListing() {
           </h2>
           <p className="mt-2.5 text-[13px] text-gray-500 leading-relaxed max-w-xs">
             Your listing is under review by our team. Once approved, it will be visible to buyers
-            "” usually within 1"“2 business days.
+            — usually within 1–2 business days.
           </p>
           <button
             onClick={() => navigate('/seller/listings', { replace: true })}
@@ -432,7 +439,7 @@ export function NewListing() {
         <div>
           <h1 className="text-[17px] font-extrabold text-ink tracking-[-0.3px]">New Listing</h1>
           <p className="text-[11px] text-gray-500">
-            Step {(step as number) + 1} of 3 "” {STEPS[step as number]}
+            Step {(step as number) + 1} of 3 — {STEPS[step as number]}
           </p>
         </div>
       </div>
@@ -478,7 +485,7 @@ export function NewListing() {
           </Field>
 
           {subcategories.length > 0 && (
-            <Field label="Subcategory" hint="Optional "” helps buyers filter">
+            <Field label="Subcategory" hint="Optional — helps buyers filter">
               <SelectWrapper>
                 <select
                   value={form.machineSubcategory}
@@ -568,10 +575,27 @@ export function NewListing() {
                     </SelectWrapper>
                   </Field>
                   <Field label="Running hours">
-                    <input type="number" min={0} value={form.runningHours} onChange={(e) => setField('runningHours', e.target.value)} placeholder="4200" className={inputCls} />
-                  </Field>
-                  <Field label="Serial no.">
-                    <input value={form.serialNumber} onChange={(e) => setField('serialNumber', e.target.value)} placeholder="SN-20219" className={inputCls} />
+                    <input
+                      type="number"
+                      min={0}
+                      value={form.runningHours}
+                      onChange={(e) => setField('runningHours', e.target.value)}
+                      placeholder="4200"
+                      disabled={runningHoursNA}
+                      className={inputCls}
+                    />
+                    <label className="mt-1.5 flex items-center gap-1.5 text-[11.5px] font-medium text-gray-500">
+                      <input
+                        type="checkbox"
+                        checked={runningHoursNA}
+                        onChange={(e) => {
+                          setRunningHoursNA(e.target.checked);
+                          if (e.target.checked) setField('runningHours', '');
+                        }}
+                        className="h-3.5 w-3.5 rounded"
+                      />
+                      Not available
+                    </label>
                   </Field>
                   <div className="flex items-end pb-1">
                     <label className="flex items-center gap-2 text-[12.5px] font-semibold text-ink">
@@ -609,28 +633,61 @@ export function NewListing() {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Year of manufacture" required>
-              <input
-                type="number"
-                value={form.manufactureYear}
-                onChange={(e) => setField('manufactureYear', e.target.value)}
-                placeholder="2018"
-                min="1950"
-                max={CURRENT_YEAR}
-                className={inputCls}
-              />
+            <Field label="Year bought" hint="Leave as Not available if unknown">
+              <SelectWrapper>
+                <select
+                  value={form.manufactureYear}
+                  onChange={(e) => setField('manufactureYear', e.target.value)}
+                  className={selectCls}
+                >
+                  <option value="">Not available</option>
+                  {YEAR_OPTIONS.map((year) => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </SelectWrapper>
             </Field>
-            <Field label="Asking price (₹)" required>
-              <input
-                type="number"
-                value={form.askingPrice}
-                onChange={(e) => setField('askingPrice', e.target.value)}
-                placeholder="2500000"
-                min="1"
-                className={inputCls}
-              />
+            <Field label="Make origin" required>
+              <SelectWrapper>
+                <select
+                  value={form.origin}
+                  onChange={(e) => setField('origin', e.target.value as FormData['origin'])}
+                  className={selectCls}
+                >
+                  <option value="INDIAN">Indian</option>
+                  <option value="IMPORTED">Imported</option>
+                </select>
+              </SelectWrapper>
             </Field>
           </div>
+
+          {form.origin === 'IMPORTED' && (
+            <Field label="Country of import" required>
+              <SelectWrapper>
+                <select
+                  value={form.importedCountry}
+                  onChange={(e) => setField('importedCountry', e.target.value)}
+                  className={selectCls}
+                >
+                  <option value="">Select country…</option>
+                  {IMPORT_COUNTRIES.map((country) => (
+                    <option key={country} value={country}>{country}</option>
+                  ))}
+                </select>
+              </SelectWrapper>
+            </Field>
+          )}
+
+          <Field label="Asking price (₹)" required>
+            <input
+              type="text"
+              inputMode="numeric"
+              value={form.askingPrice ? Number(form.askingPrice).toLocaleString('en-IN') : ''}
+              onChange={(e) => setField('askingPrice', e.target.value.replace(/[^0-9]/g, ''))}
+              placeholder="18,50,000"
+              className={inputCls}
+            />
+          </Field>
 
           <Field label="State" required>
             <SelectWrapper>
@@ -677,7 +734,7 @@ export function NewListing() {
           <Field
             label="Description"
             required
-            hint="Minimum 20 characters "” condition, accessories, reason for sale"
+            hint="Minimum 20 characters — condition, accessories, reason for sale"
           >
             <textarea
               value={form.description}
@@ -704,7 +761,7 @@ export function NewListing() {
             disabled={step1Loading}
             className="w-full h-[52px] bg-forest text-white rounded-[13px] text-[15px] font-bold disabled:opacity-50"
           >
-            {step1Loading ? 'Creating draft...' : 'Next: Add Photos & Video <-’'}
+            {step1Loading ? 'Creating draft...' : 'Next: Add Photos & Video →'}
           </button>
         </form>
       )}
@@ -729,13 +786,13 @@ export function NewListing() {
               <p
                 className={`text-[11px] font-medium ${photos.length >= MIN_LISTING_PHOTOS ? 'text-green-txt' : 'text-copper'}`}
               >
-                {photos.length >= MIN_LISTING_PHOTOS ? 'âœ“' : 'â—‹'} Photos:{' '}
-                {photos.length} of {MIN_LISTING_PHOTOS}"“{MAX_LISTING_PHOTOS} required
+                {photos.length >= MIN_LISTING_PHOTOS ? '✓' : '○'} Photos:{' '}
+                {photos.length} of {MIN_LISTING_PHOTOS}–{MAX_LISTING_PHOTOS} required
               </p>
               <p
                 className={`text-[11px] font-medium ${video ? 'text-green-txt' : 'text-copper'}`}
               >
-                {video ? 'âœ“' : 'â—‹'} Video:{' '}
+                {video ? '✓' : '○'} Video:{' '}
                 {video
                   ? `Uploaded (${fmtDuration(video.durationSeconds)})`
                   : `1 video of at least ${MIN_VIDEO_DURATION_SECONDS}s required`}
@@ -806,7 +863,7 @@ export function NewListing() {
                     <>
                       <PlusIcon className="w-4 h-4" />
                       {photos.length === 0
-                        ? `Add photos (need ${MIN_LISTING_PHOTOS}"“${MAX_LISTING_PHOTOS})`
+                        ? `Add photos (need ${MIN_LISTING_PHOTOS}–${MAX_LISTING_PHOTOS})`
                         : `Add more (${MAX_LISTING_PHOTOS - photos.length} remaining)`}
                     </>
                   )}
@@ -814,7 +871,7 @@ export function NewListing() {
               </>
             )}
             <p className="mt-1.5 text-[11px] text-gray-400">
-              All angles "” front, back, sides, control panel, work area. Photos must be taken
+              All angles — front, back, sides, control panel, work area. Photos must be taken
               recently.
             </p>
           </div>
@@ -875,7 +932,7 @@ export function NewListing() {
               </>
             )}
             <p className="mt-1.5 text-[11px] text-gray-400">
-              Record a walkaround showing the machine actively running "” at least 1 minute.
+              Record a walkaround showing the machine actively running — at least 1 minute.
               Buyers use this to assess condition before enquiring.
             </p>
           </div>
@@ -895,7 +952,7 @@ export function NewListing() {
             disabled={!mediaGatePassed || photoUploading || videoUploading}
             className="w-full h-[52px] bg-forest text-white rounded-[13px] text-[15px] font-bold disabled:opacity-50"
           >
-            Next: Review & Submit <-’
+            Next: Review & Submit →
           </button>
         </div>
       )}
@@ -916,10 +973,16 @@ export function NewListing() {
                   'Category',
                   [listing.machineCategory, listing.machineSubcategory]
                     .filter(Boolean)
-                    .join(' "º '),
+                    .join(' › '),
                 ],
                 ['Make / Model', `${listing.machineMake} ${listing.machineModel}`],
-                ['Year', String(listing.manufactureYear)],
+                ['Year', listing.manufactureYear != null ? String(listing.manufactureYear) : 'Not available'],
+                [
+                  'Origin',
+                  listing.origin === 'IMPORTED'
+                    ? `Imported${listing.importedCountry ? ` (${listing.importedCountry})` : ''}`
+                    : 'Indian',
+                ],
                 [
                   'Asking price',
                   `₹ ${Number(listing.askingPrice).toLocaleString('en-IN')}`,
@@ -958,7 +1021,7 @@ export function NewListing() {
             <p className="text-[12px] font-bold text-forest mb-0.5">Pending admin review</p>
             <p className="text-[11px] text-forest/75">
               Once submitted, our team will verify the listing details and photos, then approve it
-              for buyers to browse. This usually takes 1"“2 business days.
+              for buyers to browse. This usually takes 1–2 business days.
             </p>
           </div>
 
@@ -974,7 +1037,7 @@ export function NewListing() {
             disabled={submitLoading}
             className="w-full h-[52px] bg-forest text-white rounded-[13px] text-[15px] font-bold disabled:opacity-50"
           >
-            {submitLoading ? 'Submitting...' : 'Submit for Review <-’'}
+            {submitLoading ? 'Submitting...' : 'Submit for Review →'}
           </button>
 
           <button
@@ -982,7 +1045,7 @@ export function NewListing() {
             onClick={() => setStep(1)}
             className="w-full h-[44px] border border-gray-200 rounded-[13px] text-[13px] font-semibold text-gray-600 bg-white"
           >
-            <- Back to Media
+            ← Back to Media
           </button>
         </div>
       )}

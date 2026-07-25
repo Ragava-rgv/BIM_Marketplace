@@ -9,6 +9,7 @@ import { NotFound } from './pages/NotFound';
 import { Login } from './pages/auth/Login';
 import { Signup } from './pages/auth/Signup';
 import { VerifyOtp } from './pages/auth/VerifyOtp';
+import { ForgotPassword } from './pages/auth/ForgotPassword';
 
 import { BuyerDashboard } from './pages/buyer/Dashboard';
 import { BuyerGstVerification } from './pages/buyer/GstVerification';
@@ -38,6 +39,7 @@ export const router = createBrowserRouter([
   { path: '/login', element: <Login /> },
   { path: '/signup', element: <Signup /> },
   { path: '/verify-otp', element: <VerifyOtp /> },
+  { path: '/forgot-password', element: <ForgotPassword /> },
 
   // Buyer
   { path: '/buyer/dashboard', element: <BuyerDashboard /> },

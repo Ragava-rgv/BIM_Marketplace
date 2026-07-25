@@ -17,7 +17,7 @@ import {
 } from '../../components/icons';
 
 export function BuyerSwitchToSeller() {
-  const { user, switchMode } = useAuth();
+  const { user, switchMode, switchToSeller } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -71,7 +71,7 @@ export function BuyerSwitchToSeller() {
     setLoading(true);
     setError(null);
     try {
-      await switchMode('SELLER');
+      await switchToSeller();
       navigate('/seller/dashboard', { replace: true });
     } catch (err) {
       setError(apiErrorMessage(err, 'Could not enable seller mode. Please try again.'));

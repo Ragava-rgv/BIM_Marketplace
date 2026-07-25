@@ -33,7 +33,16 @@ let SubscriptionsService = class SubscriptionsService {
             orderBy: { expiresAt: 'desc' },
             include: { planConfig: true },
         });
-        const quota = active ? active.listingQuota : shared_1.FREE_LISTING_QUOTA;
+        let quota;
+        if (active) {
+            quota = active.planConfig && active.planConfig.isActive ? active.planConfig.listingQuota : active.listingQuota;
+        }
+        else {
+            const freePlan = await this.prisma.subscriptionPlanConfig.findFirst({
+                where: { isFree: true, isActive: true },
+            });
+            quota = freePlan?.listingQuota ?? shared_1.FREE_LISTING_QUOTA;
+        }
         const activeListingsCount = await this.prisma.listing.count({
             where: {
                 sellerId,
@@ -105,7 +114,7 @@ let SubscriptionsService = class SubscriptionsService {
         const status = await this.getStatus(sellerId);
         if (status.remainingSlots <= 0) {
             if (status.plan === client_1.SubscriptionPlan.FREE) {
-                throw new common_1.ForbiddenException(`Free plan allows ${shared_1.FREE_LISTING_QUOTA} active listings. Upgrade your subscription to list more machines.`);
+                throw new common_1.ForbiddenException(`Free plan allows ${status.listingQuota} active listings. Upgrade your subscription to list more machines.`);
             }
             throw new common_1.ForbiddenException(`You have reached your listing quota of ${status.listingQuota} for your current subscription.`);
         }

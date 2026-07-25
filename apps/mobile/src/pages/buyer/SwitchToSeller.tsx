@@ -82,7 +82,7 @@ export function BuyerSwitchToSeller() {
               onClick={() => navigate('/buyer/gst-verification')}
               className="w-full h-[50px] bg-copper text-white rounded-[13px] text-[14.5px] font-bold"
             >
-              Verify GST now <-’
+              Verify GST now →
             </button>
             <button
               onClick={() => navigate(-1)}
@@ -92,7 +92,7 @@ export function BuyerSwitchToSeller() {
             </button>
           </>
         ) : (
-          /* GST active "” show confirm flow */
+          /* GST active — show confirm flow */
           <>
             {/* GST verified badge */}
             <div className="bg-green-bg border border-green-bdr rounded-[13px] px-4 py-3 flex items-center gap-3">
@@ -141,7 +141,7 @@ export function BuyerSwitchToSeller() {
               disabled={loading}
               className="w-full h-[52px] bg-forest text-white rounded-[13px] text-[15px] font-bold disabled:opacity-50"
             >
-              {loading ? 'Switching account...' : 'Yes, switch to seller <-’'}
+              {loading ? 'Switching account...' : 'Yes, switch to seller →'}
             </button>
             <button
               onClick={() => navigate(-1)}

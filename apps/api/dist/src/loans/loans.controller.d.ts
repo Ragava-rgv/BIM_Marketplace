@@ -55,7 +55,7 @@ export declare class LoansController {
             title: string;
             machineMake: string;
             machineModel: string;
-            manufactureYear: number;
+            manufactureYear: number | null;
             askingPrice: import("@prisma/client/runtime/library").Decimal;
             complexityTier: import("@prisma/client").$Enums.ComplexityTier;
         };

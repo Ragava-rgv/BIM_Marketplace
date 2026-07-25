@@ -15,6 +15,7 @@ export function SellerGstVerification() {
   const { user, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [gstNumber, setGstNumber] = useState(user?.gstNumber ?? '');
+  const [address, setAddress] = useState(user?.address ?? '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -22,7 +23,7 @@ export function SellerGstVerification() {
   if (!user) return null;
 
   const isActive = user.gstStatus === GstStatus.ACTIVE;
-  const valid = GSTIN_RE.test(gstNumber.toUpperCase());
+  const valid = GSTIN_RE.test(gstNumber.toUpperCase()) && address.trim().length >= 10;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,9 +31,9 @@ export function SellerGstVerification() {
     setError(null);
     setSuccess(null);
     try {
-      await api.post('/gst/verify', { gstNumber: gstNumber.toUpperCase() });
+      await api.post('/gst/verify', { gstNumber: gstNumber.toUpperCase(), address: address.trim() });
       await refreshProfile();
-      setSuccess('GST verified "” you can now publish listings.');
+      setSuccess('GST verified — you can now publish listings.');
     } catch (err) {
       setError(apiErrorMessage(err, 'Could not verify that GSTIN. Please check the number and try again.'));
     } finally {
@@ -100,7 +101,7 @@ export function SellerGstVerification() {
                 onClick={() => navigate('/seller/listings/new')}
                 className="mt-3 h-[40px] px-4 bg-forest text-white rounded-[10px] text-[13px] font-bold"
               >
-                Create a listing <-’
+                Create a listing →
               </button>
             </div>
           </div>
@@ -127,7 +128,7 @@ export function SellerGstVerification() {
               <p className="text-[13px] font-bold text-ink mb-1">Enter your GSTIN</p>
               <p className="text-[11.5px] text-gray-500 mb-4 leading-relaxed">
                 Sellers must have an ACTIVE GST registration to create and publish listings on BIM.
-                Enter your GSTIN below "” we'll validate it and auto-fill your business name.
+                Enter your GSTIN below — we'll validate it and auto-fill your business name.
               </p>
 
               <form onSubmit={handleSubmit} className="space-y-3">
@@ -144,6 +145,22 @@ export function SellerGstVerification() {
                   />
                   <p className="mt-1 text-[10.5px] text-gray-400">
                     15-character GST identification number
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+                    Business address <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="Plot 12, Industrial Estate, Chennai, Tamil Nadu 600001"
+                    rows={3}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-[12px] px-4 py-3 text-[14px] text-ink font-medium placeholder-gray-400 outline-none focus:border-forest focus:bg-white transition resize-none"
+                  />
+                  <p className="mt-1 text-[10.5px] text-gray-400">
+                    Shown to buyers after they view your contact details
                   </p>
                 </div>
 

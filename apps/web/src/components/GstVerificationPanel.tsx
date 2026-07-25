@@ -12,9 +12,10 @@ const GSTIN_PATTERN = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$
  * Masters India lookup happens server-side (gst.service.ts); this panel just
  * submits the GSTIN and reflects the resulting gst_status / business_name.
  */
-export function GstVerificationPanel({ intro }: { intro: ReactNode }) {
+export function GstVerificationPanel({ intro, requireAddress = false }: { intro: ReactNode; requireAddress?: boolean }) {
   const { user, refreshProfile } = useAuth();
   const [gstNumber, setGstNumber] = useState(user?.gstNumber ?? '');
+  const [address, setAddress] = useState(user?.address ?? '');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -22,7 +23,7 @@ export function GstVerificationPanel({ intro }: { intro: ReactNode }) {
   if (!user) return null;
 
   const isActive = user.gstStatus === GstStatus.ACTIVE;
-  const valid = GSTIN_PATTERN.test(gstNumber.toUpperCase());
+  const valid = GSTIN_PATTERN.test(gstNumber.toUpperCase()) && (!requireAddress || address.trim().length >= 10);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +31,10 @@ export function GstVerificationPanel({ intro }: { intro: ReactNode }) {
     setSuccess(null);
     setSubmitting(true);
     try {
-      await api.post('/gst/verify', { gstNumber: gstNumber.toUpperCase() });
+      await api.post('/gst/verify', {
+        gstNumber: gstNumber.toUpperCase(),
+        ...(requireAddress ? { address: address.trim() } : {}),
+      });
       await refreshProfile();
       setSuccess('Your GST registration is verified and active.');
     } catch (err) {
@@ -87,6 +91,17 @@ export function GstVerificationPanel({ intro }: { intro: ReactNode }) {
                 required
               />
             </Field>
+            {requireAddress && (
+              <Field label="Business address" hint="Shown to buyers after they view your contact details">
+                <Input
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Plot 12, Industrial Estate, Chennai, Tamil Nadu 600001"
+                  required
+                  minLength={10}
+                />
+              </Field>
+            )}
             <Button type="submit" disabled={!valid || submitting}>
               {submitting ? 'Verifying with Masters India...' : 'Verify GSTIN'}
             </Button>

@@ -25,8 +25,12 @@ export function ProtectedRoute({ roles }: { roles?: UserRole[] }) {
     // Seller routes: accessible when user has canSell capability (GST-verified),
     // regardless of activeMode — mode only affects which dashboard they see.
     const sellerAllowed = roles.includes(UserRole.SELLER) && user.canSell;
+    // Buyer routes: every non-admin account retains buyer capability, even after
+    // switching to seller mode (which permanently changes `role` to SELLER) —
+    // otherwise the buyer/seller mode toggle would lock users out of buyer pages.
+    const buyerAllowed = roles.includes(UserRole.BUYER) && user.role !== UserRole.ADMIN;
     const roleAllowed = roles.includes(user.role);
-    if (!sellerAllowed && !roleAllowed) {
+    if (!sellerAllowed && !buyerAllowed && !roleAllowed) {
       return <Navigate to="/" replace />;
     }
   }

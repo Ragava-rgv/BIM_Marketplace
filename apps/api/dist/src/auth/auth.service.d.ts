@@ -21,6 +21,8 @@ export declare class AuthService {
     loginWithPassword(phone: string, password: string): Promise<AuthTokens>;
     requestOtp(phone: string, purpose: OtpPurpose): Promise<void>;
     verifyOtpAndAuthenticate(phone: string, code: string, purpose: OtpPurpose): Promise<AuthTokens>;
+    requestPasswordReset(phone: string): Promise<void>;
+    resetPassword(phone: string, code: string, newPassword: string): Promise<AuthTokens>;
     adminLogin(email: string, password: string): Promise<AuthTokens>;
     issueTokenPair(user: User): Promise<AuthTokens>;
     refresh(refreshToken: string): Promise<AuthTokens>;

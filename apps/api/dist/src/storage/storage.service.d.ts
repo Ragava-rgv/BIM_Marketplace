@@ -3,6 +3,7 @@ export declare const LISTING_PHOTOS_DIR = "listing-photos";
 export declare const LISTING_VIDEOS_DIR = "listing-videos";
 export declare const CERTIFICATION_REPORTS_DIR = "certification-reports";
 export declare const CATEGORY_IMAGES_DIR = "category-images";
+export declare const ADVERTISEMENT_IMAGES_DIR = "advertisement-images";
 export interface UploadedObject {
     key: string;
     url: string;

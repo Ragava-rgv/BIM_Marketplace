@@ -22,6 +22,10 @@ export declare enum ComplexityTier {
     STANDARD = "STANDARD",
     COMPLEX = "COMPLEX"
 }
+export declare enum ListingOrigin {
+    INDIAN = "INDIAN",
+    IMPORTED = "IMPORTED"
+}
 export declare enum MediaType {
     PHOTO = "PHOTO",
     VIDEO = "VIDEO"
@@ -97,6 +101,11 @@ export declare const FREE_LISTING_QUOTA = 2;
 export declare const STANDARD_LISTING_QUOTA = 4;
 export declare const STANDARD_SUBSCRIPTION_PRICE_INR = 1000;
 export declare const CONTACT_REVEAL_PRICE_INR = 500;
+/** Default buyer contact-view quota — used only by the seed script; runtime default comes from the DB-flagged isDefault plan */
+export declare const DEFAULT_BUYER_CONTACT_VIEW_QUOTA = 10;
+/** Quota-alert modal thresholds */
+export declare const QUOTA_ALERT_AFTER_USED = 4;
+export declare const QUOTA_ALERT_REMAINING_THRESHOLD = 2;
 /** Kitmondo-inspired industrial machinery categories (excludes broadcast, film/audio, construction, agriculture) */
 export declare const MACHINE_CATEGORIES: readonly [{
     readonly id: "metalworking";

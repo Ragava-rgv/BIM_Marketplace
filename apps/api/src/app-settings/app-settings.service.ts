@@ -15,13 +15,6 @@ export class AppSettingsService {
     return setting.value;
   }
 
-  async getContactRevealPrice(): Promise<number> {
-    const setting = await this.prisma.appSetting.findUnique({
-      where: { key: 'contact_reveal_price_inr' },
-    });
-    return setting ? Number(setting.value) : 500;
-  }
-
   async update(key: string, value: string) {
     const existing = await this.prisma.appSetting.findUnique({ where: { key } });
     if (!existing) throw new NotFoundException(`Setting '${key}' not found`);

@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import type { ListingDto } from '@machinebazaar/shared';
 import { api } from '../../lib/api';
 import { useAuth } from '../../lib/auth-context';
-import { getSavedListingIds } from '../../lib/saved-listings';
 import { ListingCard } from '../../components/ListingCard';
 import { Button, EmptyState, LoadingBlock, PageHeading } from '../../components/ui';
 
@@ -13,22 +12,11 @@ export function BuyerSaved() {
 
   useEffect(() => {
     if (!user) return;
-    const ids = getSavedListingIds(user.id);
-    if (ids.length === 0) {
-      setListings([]);
-      return;
-    }
     let cancelled = false;
-    Promise.all(
-      ids.map((id) =>
-        api
-          .get<ListingDto>(`/listings/${id}`)
-          .then(({ data }) => data)
-          .catch(() => null),
-      ),
-    ).then((results) => {
-      if (!cancelled) setListings(results.filter((l): l is ListingDto => l !== null));
-    });
+    api
+      .get<ListingDto[]>('/wishlist')
+      .then(({ data }) => { if (!cancelled) setListings(data); })
+      .catch(() => { if (!cancelled) setListings([]); });
     return () => {
       cancelled = true;
     };
@@ -39,7 +27,7 @@ export function BuyerSaved() {
       <PageHeading
         eyebrow="Buyer workspace"
         title="Saved listings"
-        description="Listings you've bookmarked while browsing — saved on this device so you can come back to them quickly."
+        description="Listings you've bookmarked while browsing — synced to your account, so they follow you across devices."
       />
 
       {listings === null ? (

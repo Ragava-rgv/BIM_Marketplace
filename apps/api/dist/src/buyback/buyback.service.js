@@ -80,6 +80,12 @@ let BuybackService = class BuybackService {
             throw new common_1.BadRequestException('The certification report is missing its inspection details');
         }
         const listing = application.listing;
+        if (listing.manufactureYear == null) {
+            throw new common_1.BadRequestException({
+                message: 'This listing needs a manufacturing year before a buyback quote can be generated',
+                error: 'MANUFACTURE_YEAR_REQUIRED',
+            });
+        }
         const certifiedValue = new client_1.Prisma.Decimal(inspectionReport.recommendedMarketValue);
         const machineAgeYears = Math.max(0, new Date().getFullYear() - listing.manufactureYear);
         const depreciationSchedule = [];

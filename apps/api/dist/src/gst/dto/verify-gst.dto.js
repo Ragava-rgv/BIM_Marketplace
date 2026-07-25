@@ -13,6 +13,7 @@ exports.VerifyGstDto = void 0;
 const class_validator_1 = require("class-validator");
 class VerifyGstDto {
     gstNumber;
+    address;
 }
 exports.VerifyGstDto = VerifyGstDto;
 __decorate([
@@ -21,4 +22,10 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], VerifyGstDto.prototype, "gstNumber", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.Length)(10, 300),
+    __metadata("design:type", String)
+], VerifyGstDto.prototype, "address", void 0);
 //# sourceMappingURL=verify-gst.dto.js.map

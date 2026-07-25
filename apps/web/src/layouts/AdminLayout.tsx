@@ -5,8 +5,10 @@ import {
   DocumentIcon,
   GridIcon,
   MachineIcon,
+  PhotoIcon,
   RupeeIcon,
   ShieldCheckIcon,
+  StarIcon,
   TrendDownIcon,
 } from '../components/icons';
 
@@ -21,6 +23,10 @@ const ITEMS = [
   { to: '/admin/depreciation', label: 'Depreciation schedule', icon: TrendDownIcon },
   { to: '/admin/buyback', label: 'Buyback agreements', icon: TrendDownIcon },
   { to: '/admin/subscription-plans', label: 'Subscription plans', icon: RupeeIcon },
+  { to: '/admin/buyer-subscription-plans', label: 'Buyer plans', icon: RupeeIcon },
+  { to: '/admin/buyer-subscriptions', label: 'Buyer subscriptions', icon: RupeeIcon },
+  { to: '/admin/boost-plans', label: 'Boost tiers', icon: StarIcon },
+  { to: '/admin/advertisements', label: 'Ad slots', icon: PhotoIcon },
   { to: '/admin/catalog', label: 'Machine catalog', icon: GridIcon },
   { to: '/admin/settings', label: 'Platform settings', icon: GridIcon },
 ];

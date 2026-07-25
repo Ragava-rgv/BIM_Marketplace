@@ -27,7 +27,7 @@ let GstController = class GstController {
         this.gst = gst;
     }
     async verify(user, dto) {
-        return this.gst.verify(user.id, dto.gstNumber);
+        return this.gst.verify(user.id, dto.gstNumber, dto.address, user.role);
     }
 };
 exports.GstController = GstController;

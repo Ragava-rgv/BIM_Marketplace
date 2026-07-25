@@ -21,8 +21,8 @@ function Field({ label, children, hint }: { label: string; children: React.React
 type Role = 'BUYER' | 'SELLER';
 
 const ROLES: { role: Role; title: string; body: string; emoji: string }[] = [
-  { role: 'SELLER', title: 'I want to sell machinery', body: 'List your machines with verified media and admin review.', emoji: 'ðŸ­' },
-  { role: 'BUYER', title: 'I want to buy machinery', body: 'Browse listings, enquire safely, and apply for financing.', emoji: 'ðŸš›' },
+  { role: 'SELLER', title: 'I want to sell machinery', body: 'List your machines with verified media and admin review.', emoji: '🏭' },
+  { role: 'BUYER', title: 'I want to buy machinery', body: 'Browse listings, enquire safely, and apply for financing.', emoji: '🚛' },
 ];
 
 export function Signup() {
@@ -112,7 +112,7 @@ export function Signup() {
     <div className="min-h-screen bg-forest flex flex-col">
       <div className="flex-1 flex flex-col justify-center px-6 pb-6 pt-8">
         <button onClick={() => setRole(null)} className="text-[13px] text-white/65 font-semibold mb-4 text-left">
-          <- Change account type
+          ← Change account type
         </button>
         <h1 className="text-[24px] font-extrabold text-white tracking-[-0.5px]">
           {role === UserRole.SELLER ? 'Seller account' : 'Buyer account'}
@@ -142,7 +142,7 @@ export function Signup() {
 
           <Field label="Password" hint="At least 8 characters">
             <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-[12px] h-[50px] px-4 focus-within:border-forest focus-within:bg-white transition">
-              <input type={showPassword ? 'text' : 'password'} placeholder=""¢"¢"¢"¢"¢"¢"¢"¢"
+              <input type={showPassword ? 'text' : 'password'} placeholder="••••••••"
                 value={password} onChange={(e) => setPassword(e.target.value)}
                 minLength={8}
                 className="flex-1 bg-transparent text-[14px] font-medium text-ink placeholder-gray-400 outline-none" />
@@ -167,7 +167,7 @@ export function Signup() {
               <select value={locationState}
                 onChange={(e) => { setLocationState(e.target.value); setLocationCity(''); }}
                 className={selectCls} required>
-                <option value="">"” Select state "”</option>
+                <option value="">— Select state —</option>
                 {INDIA_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
               <ChevronRightIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 rotate-90 pointer-events-none" />
@@ -178,7 +178,7 @@ export function Signup() {
             <div className="relative">
               <select value={locationCity} onChange={(e) => setLocationCity(e.target.value)}
                 className={selectCls} required disabled={!locationState}>
-                <option value="">"” Select city "”</option>
+                <option value="">— Select city —</option>
                 {cities.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
               <ChevronRightIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 rotate-90 pointer-events-none" />
@@ -193,7 +193,7 @@ export function Signup() {
 
           <button type="submit" disabled={!isValid}
             className="w-full h-[52px] bg-forest text-white rounded-[13px] text-[15px] font-bold disabled:opacity-50 !mt-4">
-            {loading ? 'Creating account...' : 'Create account & verify <-’'}
+            {loading ? 'Creating account...' : 'Create account & verify →'}
           </button>
         </form>
 

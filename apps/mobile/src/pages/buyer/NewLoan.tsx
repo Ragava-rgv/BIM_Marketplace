@@ -5,7 +5,6 @@ import type { ListingDto } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth-context';
 import { AppLayout } from '../../components/AppLayout';
-import { getSavedListingIds } from '../../lib/saved-listings';
 import { formatInrShort } from '../../lib/format';
 import { ChevronRightIcon, ShieldIcon } from '../../components/icons';
 
@@ -39,26 +38,18 @@ export function BuyerNewLoan() {
 
   useEffect(() => {
     if (!user) return;
-    const ids = getSavedListingIds(user.id);
-
-    // Also include the preset listing if not already saved
-    const allIds = presetListingId && !ids.includes(presetListingId)
-      ? [...ids, presetListingId]
-      : ids;
-
-    if (allIds.length === 0) { setLoadingListings(false); return; }
-
-    Promise.all(
-      allIds.map((id) =>
-        api.get<ListingDto>(`/listings/${id}`)
-          .then(({ data }) => data)
-          .catch(() => null),
-      ),
-    )
-      .then((results) => {
-        const active = results.filter(
-          (l): l is ListingDto => l !== null && l.status === 'ACTIVE',
-        );
+    api.get<ListingDto[]>('/wishlist')
+      .then(async ({ data }) => {
+        let all = data;
+        if (presetListingId && !all.some((l) => l.id === presetListingId)) {
+          try {
+            const { data: preset } = await api.get<ListingDto>(`/listings/${presetListingId}`);
+            all = [...all, preset];
+          } catch {
+            // preset listing not found/accessible — fall through with the wishlist alone
+          }
+        }
+        const active = all.filter((l) => l.status === 'ACTIVE');
         setSavedListings(active);
         if (presetListingId && active.some((l) => l.id === presetListingId)) {
           setSelectedListingId(presetListingId);

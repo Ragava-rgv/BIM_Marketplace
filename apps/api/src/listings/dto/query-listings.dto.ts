@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
-import { ListingStatus } from '@prisma/client';
+import { ListingOrigin, ListingStatus } from '@prisma/client';
 
 export class QueryListingsDto {
   @IsOptional()
@@ -56,6 +56,18 @@ export class QueryListingsDto {
   search?: string;
 
   @IsOptional()
+  @IsString()
+  condition?: string;
+
+  @IsOptional()
+  @IsIn(['INDIAN', 'IMPORTED'])
+  origin?: ListingOrigin;
+
+  @IsOptional()
+  @IsIn(['newest', 'price_asc', 'price_desc', 'year_desc'])
+  sort?: 'newest' | 'price_asc' | 'price_desc' | 'year_desc';
+
+  @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
@@ -73,4 +85,9 @@ export class AdminQueryListingsDto extends QueryListingsDto {
   @IsOptional()
   @IsIn(['DRAFT', 'PENDING_REVIEW', 'ACTIVE', 'UNDER_OFFER', 'SOLD', 'REJECTED', 'WITHDRAWN'])
   status?: ListingStatus;
+
+  /** Free-text search over the seller's name/email/phone. */
+  @IsOptional()
+  @IsString()
+  sellerSearch?: string;
 }

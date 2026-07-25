@@ -98,6 +98,12 @@ export class BuybackService {
     }
 
     const listing = application.listing;
+    if (listing.manufactureYear == null) {
+      throw new BadRequestException({
+        message: 'This listing needs a manufacturing year before a buyback quote can be generated',
+        error: 'MANUFACTURE_YEAR_REQUIRED',
+      });
+    }
     const certifiedValue = new Prisma.Decimal(inspectionReport.recommendedMarketValue);
     const machineAgeYears = Math.max(0, new Date().getFullYear() - listing.manufactureYear);
 

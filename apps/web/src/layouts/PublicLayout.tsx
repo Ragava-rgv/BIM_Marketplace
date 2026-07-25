@@ -2,9 +2,11 @@
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { UserRole } from '@machinebazaar/shared';
 import { useAuth } from '../lib/auth-context';
+import { useWishlist } from '../lib/wishlist-context';
 import { TickerBar } from '../components/TickerBar';
 import { BimIcon, BimLogoDark } from '../components/BimLogo';
-import { ChevronRightIcon, CloseIcon, MenuIcon } from '../components/icons';
+import { ChevronRightIcon, CloseIcon, HeartIcon, MenuIcon } from '../components/icons';
+import { INDIA_STATES } from '../lib/india-locations';
 
 const NAV_LINKS = [
   { to: '/listings', label: 'Marketplace' },
@@ -16,6 +18,93 @@ function dashboardPath(user: { role: UserRole; activeMode: string; canSell: bool
   if (user.role === UserRole.ADMIN) return '/admin/dashboard';
   if (user.canSell && user.activeMode === 'SELLER') return '/seller/dashboard';
   return '/buyer/dashboard';
+}
+
+/** Always-visible "Sell" CTA — the primary header action, routed by the viewer's current capability. */
+function SellButton({ className = '' }: { className?: string }) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const go = () => {
+    if (!user) return navigate('/signup');
+    if (!user.canSell) return navigate('/buyer/switch-to-seller');
+    navigate('/seller/listings/new');
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={go}
+      className={`inline-flex items-center gap-1.5 rounded-lg bg-copper px-[18px] py-2.5 text-[13.5px] font-bold text-white transition hover:bg-copper-2 ${className}`}
+    >
+      Sell
+    </button>
+  );
+}
+
+function LocationSelect() {
+  const navigate = useNavigate();
+  return (
+    <select
+      aria-label="Browse by state"
+      defaultValue=""
+      onChange={(e) => {
+        if (e.target.value) navigate(`/listings?state=${encodeURIComponent(e.target.value)}`);
+        e.target.value = '';
+      }}
+      className="w-[110px] shrink-0 rounded-lg border border-line bg-white px-2.5 py-2.5 text-[13px] font-semibold text-slate outline-none transition hover:border-ink"
+    >
+      <option value="">All India</option>
+      {INDIA_STATES.map((state) => (
+        <option key={state} value={state}>
+          {state}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+function HeaderSearch() {
+  const navigate = useNavigate();
+  const [q, setQ] = useState('');
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        navigate(q.trim() ? `/listings?search=${encodeURIComponent(q.trim())}` : '/listings');
+      }}
+      className="flex-1"
+    >
+      <input
+        type="search"
+        value={q}
+        onChange={(e) => setQ(e.target.value)}
+        placeholder="Search machines, makes, models…"
+        aria-label="Search listings"
+        className="w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-[13px] text-ink placeholder:text-muted outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/10"
+      />
+    </form>
+  );
+}
+
+function WishlistLink() {
+  const { user } = useAuth();
+  const { count } = useWishlist();
+  if (!user) return null;
+  return (
+    <Link
+      to="/buyer/saved"
+      aria-label="Wishlist"
+      className="relative inline-flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-lg border border-line text-ink transition hover:border-ink"
+    >
+      <HeartIcon className="h-[18px] w-[18px]" />
+      {count > 0 && (
+        <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-copper px-1 font-mono text-[9.5px] font-bold text-white">
+          {count}
+        </span>
+      )}
+    </Link>
+  );
 }
 
 function ProfileDropdown() {
@@ -55,17 +144,17 @@ function ProfileDropdown() {
   };
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative shrink-0">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-2 rounded-lg border border-line bg-white px-3.5 py-2.5 text-[13.5px] font-bold text-ink transition hover:border-ink"
+        className="inline-flex items-center gap-2 whitespace-nowrap rounded-lg border border-line bg-white px-3.5 py-2.5 text-[13.5px] font-bold text-ink transition hover:border-ink"
       >
         <span className="h-6 w-6 rounded-full bg-forest text-white flex items-center justify-center text-[11px] font-bold select-none">
           {user.fullName.charAt(0).toUpperCase()}
         </span>
-        {user.fullName.split(' ')[0]}
-        <ChevronRightIcon className={`h-3.5 w-3.5 transition-transform ${open ? 'rotate-90' : ''}`} />
+        <span className="max-w-[64px] truncate">{user.fullName.split(' ')[0]}</span>
+        <ChevronRightIcon className={`h-3.5 w-3.5 shrink-0 transition-transform ${open ? 'rotate-90' : ''}`} />
       </button>
 
       {open && (
@@ -132,18 +221,20 @@ export function PublicLayout() {
       <TickerBar />
 
       <header className="sticky top-0 z-40 border-b border-line bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3.5 lg:px-[52px]">
-          <Link to="/" aria-label="BIM — Big Industrial Machines">
+        {/* Row 1 — brand, nav, account actions. Kept on its own line so it never has to
+            compete with the search bar for space (that was causing overflow/wrapping). */}
+        <div className="mx-auto flex max-w-7xl items-center gap-4 px-6 pt-3.5 lg:px-[52px]">
+          <Link to="/" aria-label="BIM — Big Industrial Machines" className="shrink-0">
             <BimLogoDark />
           </Link>
 
-          <nav className="hidden items-center gap-1 md:flex">
+          <nav className="hidden shrink-0 items-center gap-1 md:flex">
             {NAV_LINKS.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
                 className={({ isActive }) =>
-                  `rounded-[7px] px-3.5 py-2 text-[13.5px] font-semibold transition ${
+                  `whitespace-nowrap rounded-[7px] px-3.5 py-2 text-[13.5px] font-semibold transition ${
                     isActive ? 'text-forest' : 'text-slate hover:bg-forest-bg hover:text-forest'
                   }`
                 }
@@ -153,25 +244,19 @@ export function PublicLayout() {
             ))}
           </nav>
 
-          <div className="hidden items-center gap-2.5 md:flex">
+          <div className="hidden flex-1 items-center justify-end gap-2 md:flex">
+            <WishlistLink />
             {user ? (
               <ProfileDropdown />
             ) : (
-              <>
-                <Link
-                  to="/login"
-                  className="rounded-lg border border-line px-[18px] py-2.5 text-[13.5px] font-bold text-ink transition hover:border-ink"
-                >
-                  Sign in
-                </Link>
-                <Link
-                  to="/signup"
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-forest px-[18px] py-2.5 text-[13.5px] font-bold text-white transition hover:bg-forest-2"
-                >
-                  List a machine
-                </Link>
-              </>
+              <Link
+                to="/login"
+                className="shrink-0 whitespace-nowrap rounded-lg border border-line px-[18px] py-2.5 text-[13.5px] font-bold text-ink transition hover:border-ink"
+              >
+                Sign in
+              </Link>
             )}
+            <SellButton className="shrink-0" />
           </div>
 
           <button
@@ -182,6 +267,14 @@ export function PublicLayout() {
           >
             {menuOpen ? <CloseIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
           </button>
+        </div>
+
+        {/* Row 2 — search is the dominant element here since it has the whole row to itself,
+            with only the compact location selector beside it. Desktop only (mobile search
+            lives in the hamburger menu instead, alongside the nav links). */}
+        <div className="mx-auto hidden max-w-7xl items-center gap-2 px-6 pb-3 pt-2.5 md:flex lg:px-[52px]">
+          <HeaderSearch />
+          <LocationSelect />
         </div>
 
         {menuOpen && (
@@ -198,32 +291,34 @@ export function PublicLayout() {
                 </NavLink>
               ))}
               <div className="mt-2 flex flex-col gap-2">
-                {user ? (
-                  <Link
-                    to={dashboardPath(user)}
-                    onClick={() => setMenuOpen(false)}
-                    className="rounded-lg bg-forest px-4 py-2.5 text-center text-sm font-bold text-white"
-                  >
-                    Go to dashboard
-                  </Link>
-                ) : (
+                {user && (
                   <>
                     <Link
-                      to="/login"
-                      onClick={() => setMenuOpen(false)}
-                      className="rounded-lg border border-line px-4 py-2.5 text-center text-sm font-bold text-ink"
-                    >
-                      Sign in
-                    </Link>
-                    <Link
-                      to="/signup"
+                      to={dashboardPath(user)}
                       onClick={() => setMenuOpen(false)}
                       className="rounded-lg bg-forest px-4 py-2.5 text-center text-sm font-bold text-white"
                     >
-                      List a machine
+                      Go to dashboard
+                    </Link>
+                    <Link
+                      to="/buyer/saved"
+                      onClick={() => setMenuOpen(false)}
+                      className="rounded-lg border border-line px-4 py-2.5 text-center text-sm font-bold text-ink"
+                    >
+                      Wishlist
                     </Link>
                   </>
                 )}
+                {!user && (
+                  <Link
+                    to="/login"
+                    onClick={() => setMenuOpen(false)}
+                    className="rounded-lg border border-line px-4 py-2.5 text-center text-sm font-bold text-ink"
+                  >
+                    Sign in
+                  </Link>
+                )}
+                <SellButton className="w-full justify-center py-2.5 text-sm" />
               </div>
             </nav>
           </div>

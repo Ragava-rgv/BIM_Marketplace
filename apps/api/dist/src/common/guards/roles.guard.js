@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.RolesGuard = void 0;
 const common_1 = require("@nestjs/common");
 const core_1 = require("@nestjs/core");
+const client_1 = require("@prisma/client");
 const roles_decorator_1 = require("../decorators/roles.decorator");
 let RolesGuard = class RolesGuard {
     reflector;
@@ -28,7 +29,8 @@ let RolesGuard = class RolesGuard {
         }
         const request = context.switchToHttp().getRequest();
         const user = request.user;
-        if (!user || !requiredRoles.includes(user.role)) {
+        const buyerAllowed = requiredRoles.includes(client_1.UserRole.BUYER) && user?.role !== client_1.UserRole.ADMIN;
+        if (!user || (!requiredRoles.includes(user.role) && !buyerAllowed)) {
             throw new common_1.ForbiddenException('You do not have permission to access this resource');
         }
         return true;

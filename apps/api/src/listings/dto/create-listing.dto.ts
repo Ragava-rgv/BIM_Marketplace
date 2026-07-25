@@ -3,6 +3,7 @@ import {
   IsBoolean,
   IsIn,
   IsInt,
+  IsNotEmpty,
   IsNumber,
   IsObject,
   IsOptional,
@@ -11,8 +12,9 @@ import {
   Length,
   Max,
   Min,
+  ValidateIf,
 } from 'class-validator';
-import { ComplexityTier } from '@prisma/client';
+import { ComplexityTier, ListingOrigin } from '@prisma/client';
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -42,11 +44,23 @@ export class CreateListingDto {
   @Length(1, 120)
   machineModel: string;
 
+  /** Optional — null means "not available" (e.g. unknown manufacture year). */
+  @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1950)
   @Max(CURRENT_YEAR)
-  manufactureYear: number;
+  manufactureYear?: number | null;
+
+  @IsIn(['INDIAN', 'IMPORTED'])
+  origin: ListingOrigin;
+
+  /** Required only when origin is IMPORTED; ignored/nulled server-side for INDIAN. */
+  @ValidateIf((o) => o.origin === 'IMPORTED')
+  @IsNotEmpty()
+  @IsString()
+  @Length(2, 80)
+  importedCountry?: string;
 
   @Type(() => Number)
   @IsNumber()
@@ -79,11 +93,12 @@ export class CreateListingDto {
   @Length(1, 10)
   conditionGrade?: string;
 
+  /** Optional — null means "not available" (e.g. unknown running hours). */
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(0)
-  runningHours?: number;
+  runningHours?: number | null;
 
   @IsOptional()
   @IsString()

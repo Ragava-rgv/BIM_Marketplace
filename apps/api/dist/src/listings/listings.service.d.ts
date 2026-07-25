@@ -24,11 +24,17 @@ export declare class ListingsService {
     private addPhoto;
     private addVideo;
     removeMedia(sellerId: string, listingId: string, mediaId: string): Promise<void>;
+    reorderMedia(sellerId: string, listingId: string, mediaIds: string[]): Promise<ListingMedia[]>;
+    setPrimaryMedia(sellerId: string, listingId: string, mediaId: string): Promise<ListingMedia[]>;
     private assertPhotoIsRecent;
     submitForReview(sellerId: string, listingId: string): Promise<Listing>;
     private assertMediaGate;
     approve(listingId: string): Promise<Listing>;
     reject(listingId: string): Promise<Listing>;
+    markSold(listingId: string): Promise<Listing>;
+    markInactive(listingId: string): Promise<Listing>;
+    reactivate(listingId: string): Promise<Listing>;
+    private requireStatus;
     private requirePendingReview;
     browse(query: QueryListingsDto): Promise<{
         items: ({
@@ -41,6 +47,7 @@ export declare class ListingsService {
                 orderIndex: number;
                 listingId: string;
                 storageKey: string;
+                isPrimary: boolean;
             }[];
         } & {
             id: string;
@@ -56,7 +63,9 @@ export declare class ListingsService {
             machineSubcategory: string | null;
             machineMake: string;
             machineModel: string;
-            manufactureYear: number;
+            manufactureYear: number | null;
+            origin: import("@prisma/client").$Enums.ListingOrigin;
+            importedCountry: string | null;
             askingPrice: Prisma.Decimal;
             complexityTier: import("@prisma/client").$Enums.ComplexityTier;
             catalogCategoryId: string | null;
@@ -66,6 +75,8 @@ export declare class ListingsService {
             serialNumber: string | null;
             negotiable: boolean;
             subcategoryId: string | null;
+            isBoosted: boolean;
+            boostExpiresAt: Date | null;
         })[];
         total: number;
         page: number;
@@ -84,6 +95,7 @@ export declare class ListingsService {
             orderIndex: number;
             listingId: string;
             storageKey: string;
+            isPrimary: boolean;
         }[];
         seller: {
             id: string;
@@ -96,6 +108,36 @@ export declare class ListingsService {
             locationCity: string | null;
             locationState: string | null;
         };
+        catalogCategory: ({
+            specFields: {
+                id: string;
+                isFilterable: boolean;
+                unit: string | null;
+                filterType: import("@prisma/client").$Enums.SpecFilterType;
+                options: string[];
+                displayOrder: number;
+                categoryId: string;
+                fieldKey: string;
+                fieldLabel: string;
+                fieldType: import("@prisma/client").$Enums.SpecFieldType;
+                isRequired: boolean;
+                helpText: string | null;
+            }[];
+        } & {
+            id: string;
+            name: string;
+            createdAt: Date;
+            updatedAt: Date;
+            isActive: boolean;
+            description: string | null;
+            displayOrder: number;
+            slug: string;
+            groupId: string | null;
+            iconKey: string | null;
+            imageUrl: string | null;
+            thumbnailUrl: string | null;
+            listingCount: number;
+        }) | null;
     } & {
         id: string;
         machineCategory: string;
@@ -110,7 +152,9 @@ export declare class ListingsService {
         machineSubcategory: string | null;
         machineMake: string;
         machineModel: string;
-        manufactureYear: number;
+        manufactureYear: number | null;
+        origin: import("@prisma/client").$Enums.ListingOrigin;
+        importedCountry: string | null;
         askingPrice: Prisma.Decimal;
         complexityTier: import("@prisma/client").$Enums.ComplexityTier;
         catalogCategoryId: string | null;
@@ -120,6 +164,8 @@ export declare class ListingsService {
         serialNumber: string | null;
         negotiable: boolean;
         subcategoryId: string | null;
+        isBoosted: boolean;
+        boostExpiresAt: Date | null;
     }>;
     adminList(query: AdminQueryListingsDto): Promise<{
         items: ({
@@ -132,7 +178,14 @@ export declare class ListingsService {
                 orderIndex: number;
                 listingId: string;
                 storageKey: string;
+                isPrimary: boolean;
             }[];
+            seller: {
+                id: string;
+                email: string | null;
+                phone: string;
+                fullName: string;
+            };
         } & {
             id: string;
             machineCategory: string;
@@ -147,7 +200,9 @@ export declare class ListingsService {
             machineSubcategory: string | null;
             machineMake: string;
             machineModel: string;
-            manufactureYear: number;
+            manufactureYear: number | null;
+            origin: import("@prisma/client").$Enums.ListingOrigin;
+            importedCountry: string | null;
             askingPrice: Prisma.Decimal;
             complexityTier: import("@prisma/client").$Enums.ComplexityTier;
             catalogCategoryId: string | null;
@@ -157,11 +212,14 @@ export declare class ListingsService {
             serialNumber: string | null;
             negotiable: boolean;
             subcategoryId: string | null;
+            isBoosted: boolean;
+            boostExpiresAt: Date | null;
         })[];
         total: number;
         page: number;
         pageSize: number;
     }>;
     private buildPublicWhere;
+    private sweepExpiredBoosts;
     private paginate;
 }

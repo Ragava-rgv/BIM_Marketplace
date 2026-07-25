@@ -117,6 +117,11 @@ export function Login() {
                 )}
               </button>
             </div>
+            <div className="text-right mt-1.5">
+              <button type="button" onClick={() => navigate('/forgot-password')} className="text-[12.5px] font-bold text-forest">
+                Forgot password?
+              </button>
+            </div>
           </div>
 
           {error && (

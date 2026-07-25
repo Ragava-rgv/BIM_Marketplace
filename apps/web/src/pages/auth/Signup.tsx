@@ -128,7 +128,7 @@ export function Signup() {
         onClick={() => setRole(null)}
         className="mb-4 text-[13.5px] font-semibold text-muted hover:text-ink"
       >
-        â† Change account type
+        ← Change account type
       </button>
       <MonoLabel className="text-copper">
         — Signing up as a {role === UserRole.SELLER ? 'seller' : 'buyer'}

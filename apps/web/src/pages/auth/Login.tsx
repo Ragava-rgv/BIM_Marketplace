@@ -70,6 +70,11 @@ export function Login() {
             minLength={8}
           />
         </Field>
+        <div className="text-right">
+          <Link to="/forgot-password" className="text-[13px] font-bold text-forest hover:text-forest-2">
+            Forgot password?
+          </Link>
+        </div>
         <Button type="submit" disabled={submitting || phone.length !== 10 || password.length < 8} className="w-full">
           {submitting ? 'Signing in...' : 'Log in'}
           <ChevronRightIcon className="h-4 w-4" />

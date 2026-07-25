@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.StorageService = exports.CATEGORY_IMAGES_DIR = exports.CERTIFICATION_REPORTS_DIR = exports.LISTING_VIDEOS_DIR = exports.LISTING_PHOTOS_DIR = void 0;
+exports.StorageService = exports.ADVERTISEMENT_IMAGES_DIR = exports.CATEGORY_IMAGES_DIR = exports.CERTIFICATION_REPORTS_DIR = exports.LISTING_VIDEOS_DIR = exports.LISTING_PHOTOS_DIR = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const crypto_1 = require("crypto");
@@ -19,6 +19,7 @@ exports.LISTING_PHOTOS_DIR = 'listing-photos';
 exports.LISTING_VIDEOS_DIR = 'listing-videos';
 exports.CERTIFICATION_REPORTS_DIR = 'certification-reports';
 exports.CATEGORY_IMAGES_DIR = 'category-images';
+exports.ADVERTISEMENT_IMAGES_DIR = 'advertisement-images';
 let StorageService = class StorageService {
     config;
     rootPath;

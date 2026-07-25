@@ -1,11 +1,47 @@
 ﻿import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import type { CategoryDto, ListingDto, PaginatedResult } from '@machinebazaar/shared';
+import type { AdvertisementDto, CategoryDto, ListingDto, PaginatedResult } from '@machinebazaar/shared';
 import { api } from '../../lib/api';
 import { ListingCard } from '../../components/ListingCard';
-import { Button, EmptyState, Input, LoadingBlock, MonoLabel } from '../../components/ui';
+import { Button, EmptyState, Input } from '../../components/ui';
 import { ChevronRightIcon, CloseIcon, SearchIcon } from '../../components/icons';
 import { INDIA_STATES } from '../../lib/india-locations';
+import { ActiveFilters } from '../../components/FilterChips';
+import { SortSelect } from '../../components/SortSelect';
+import { ListingGridSkeleton } from '../../components/Skeleton';
+
+type GridEntry = { kind: 'listing'; listing: ListingDto } | { kind: 'ad'; ad: AdvertisementDto };
+
+/** Interleaves active ad slots into the organic results at each ad's configured position — never reorders listings. */
+function interleaveAds(items: ListingDto[], ads: AdvertisementDto[]): GridEntry[] {
+  const result: GridEntry[] = items.map((listing) => ({ kind: 'listing', listing }));
+  const sorted = [...ads].sort((a, b) => a.position - b.position);
+  for (const ad of sorted) {
+    const index = Math.min(Math.max(ad.position, 0), result.length);
+    result.splice(index, 0, { kind: 'ad', ad });
+  }
+  return result;
+}
+
+function AdTile({ ad }: { ad: AdvertisementDto }) {
+  const content = (
+    <img src={ad.imageUrl} alt={ad.title} className="h-full w-full rounded-xl object-cover" />
+  );
+  return (
+    <div className="relative overflow-hidden rounded-xl border border-dashed border-line-2 bg-paper">
+      <span className="absolute left-2 top-2 z-[1] rounded bg-ink/70 px-1.5 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-wide text-white">
+        Ad
+      </span>
+      {ad.linkUrl ? (
+        <a href={ad.linkUrl} target="_blank" rel="noopener noreferrer sponsored" className="block h-full">
+          {content}
+        </a>
+      ) : (
+        content
+      )}
+    </div>
+  );
+}
 
 interface Filters {
   search: string;
@@ -15,8 +51,9 @@ interface Filters {
   state: string;
   priceMin: string;
   priceMax: string;
-  yearMin: string;
-  yearMax: string;
+  condition: string;
+  origin: string;
+  sort: string;
 }
 
 const EMPTY_FILTERS: Filters = {
@@ -27,9 +64,21 @@ const EMPTY_FILTERS: Filters = {
   state: '',
   priceMin: '',
   priceMax: '',
-  yearMin: '',
-  yearMax: '',
+  condition: '',
+  origin: '',
+  sort: '',
 };
+
+const ORIGIN_OPTIONS = [
+  { value: 'INDIAN', label: 'Indian' },
+  { value: 'IMPORTED', label: 'Imported' },
+];
+
+const CONDITION_OPTIONS = [
+  { value: 'A', label: 'A — Excellent' },
+  { value: 'B', label: 'B — Good' },
+  { value: 'C', label: 'C — Fair' },
+];
 
 const SELECT_ARROW =
   "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%236B7280' stroke-width='1.5' stroke-linecap='round'%3e%3cpolyline points='3 5 6 8 9 5'/%3e%3c/svg%3e\")";
@@ -56,6 +105,9 @@ export function Listings() {
     state: searchParams.get('state') ?? '',
     priceMin: searchParams.get('priceMin') ?? '',
     priceMax: searchParams.get('priceMax') ?? '',
+    condition: searchParams.get('condition') ?? '',
+    origin: searchParams.get('origin') ?? '',
+    sort: searchParams.get('sort') ?? '',
   });
   // Separate input value so the field is live while the API call is debounced
   const [inputSearch, setInputSearch] = useState(filters.search);
@@ -63,6 +115,7 @@ export function Listings() {
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const [categories, setCategories] = useState<CategoryDto[]>([]);
+  const [ads, setAds] = useState<AdvertisementDto[]>([]);
   const [result, setResult] = useState<PaginatedResult<ListingDto> | null>(null);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -71,7 +124,21 @@ export function Listings() {
 
   useEffect(() => {
     api.get<CategoryDto[]>('/categories').then(({ data }) => setCategories(data)).catch(() => {});
+    api.get<AdvertisementDto[]>('/advertisements').then(({ data }) => setAds(data)).catch(() => {});
   }, []);
+
+  // `filters.search` is only seeded from the URL once at mount — re-sync whenever the URL's
+  // `search` param changes from outside this page (e.g. the header search bar navigating here
+  // while this component is already mounted, which React Router does not remount for).
+  useEffect(() => {
+    const urlSearch = searchParams.get('search') ?? '';
+    if (urlSearch !== filters.search) {
+      setFilters((prev) => ({ ...prev, search: urlSearch }));
+      setInputSearch(urlSearch);
+      setPage(1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   useEffect(() => {
     let cancelled = false;
@@ -85,8 +152,9 @@ export function Listings() {
     if (filters.state) params.state = filters.state;
     if (filters.priceMin) params.priceMin = filters.priceMin;
     if (filters.priceMax) params.priceMax = filters.priceMax;
-    if (filters.yearMin) params.yearMin = filters.yearMin;
-    if (filters.yearMax) params.yearMax = filters.yearMax;
+    if (filters.condition) params.condition = filters.condition;
+    if (filters.origin) params.origin = filters.origin;
+    if (filters.sort) params.sort = filters.sort;
 
     api
       .get<PaginatedResult<ListingDto>>('/listings', { params })
@@ -106,12 +174,21 @@ export function Listings() {
     if (f.state) next.state = f.state;
     if (f.priceMin) next.priceMin = f.priceMin;
     if (f.priceMax) next.priceMax = f.priceMax;
+    if (f.condition) next.condition = f.condition;
+    if (f.origin) next.origin = f.origin;
+    if (f.sort) next.sort = f.sort;
     setSearchParams(next);
     setFilters(f);
   };
 
   const update = <K extends keyof Filters>(key: K, value: Filters[K]) => {
     const next = { ...filters, [key]: value };
+    applyFilters(next);
+  };
+
+  const clearKeys = (keys: (keyof Filters)[]) => {
+    const next = { ...filters };
+    for (const key of keys) next[key] = '';
     applyFilters(next);
   };
 
@@ -290,27 +367,35 @@ export function Listings() {
                     </select>
                   </div>
                 )}
-                {/* Year range */}
+                {/* Condition */}
                 <div>
-                  <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.07em] text-muted">Year</p>
-                  <div className="flex gap-1.5">
-                    <Input
-                      placeholder="From"
-                      inputMode="numeric"
-                      maxLength={4}
-                      value={filters.yearMin}
-                      onChange={(e) => update('yearMin', e.target.value)}
-                      className="w-20"
-                    />
-                    <Input
-                      placeholder="To"
-                      inputMode="numeric"
-                      maxLength={4}
-                      value={filters.yearMax}
-                      onChange={(e) => update('yearMax', e.target.value)}
-                      className="w-20"
-                    />
-                  </div>
+                  <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.07em] text-muted">Condition</p>
+                  <select
+                    value={filters.condition}
+                    onChange={(e) => update('condition', e.target.value)}
+                    className={selectCls}
+                    style={{ backgroundImage: SELECT_ARROW }}
+                  >
+                    <option value="">Any</option>
+                    {CONDITION_OPTIONS.map((c) => (
+                      <option key={c.value} value={c.value}>{c.label}</option>
+                    ))}
+                  </select>
+                </div>
+                {/* Origin */}
+                <div>
+                  <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.07em] text-muted">Origin</p>
+                  <select
+                    value={filters.origin}
+                    onChange={(e) => update('origin', e.target.value)}
+                    className={selectCls}
+                    style={{ backgroundImage: SELECT_ARROW }}
+                  >
+                    <option value="">Any</option>
+                    {ORIGIN_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>{o.label}</option>
+                    ))}
+                  </select>
                 </div>
                 <button
                   type="button"
@@ -326,8 +411,14 @@ export function Listings() {
 
         {/* â"€â"€ Results grid â"€â"€ */}
         <div className="mx-auto max-w-7xl px-4 py-6 lg:px-[52px]">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <ActiveFilters filters={filters} onClear={clearKeys} onClearAll={clearAll} />
+            <SortSelect value={filters.sort} onChange={(v) => update('sort', v)} />
+          </div>
           {loading ? (
-            <LoadingBlock />
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              <ListingGridSkeleton />
+            </div>
           ) : !result || result.items.length === 0 ? (
             <EmptyState
               title={`No machines found for "${filters.search}"`}
@@ -336,9 +427,13 @@ export function Listings() {
           ) : (
             <>
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                {result.items.map((listing) => (
-                  <ListingCard key={listing.id} listing={listing} />
-                ))}
+                {interleaveAds(result.items, ads).map((entry) =>
+                  entry.kind === 'ad' ? (
+                    <AdTile key={`ad-${entry.ad.id}`} ad={entry.ad} />
+                  ) : (
+                    <ListingCard key={entry.listing.id} listing={entry.listing} />
+                  ),
+                )}
               </div>
               {totalPages > 1 && (
                 <div className="mt-10 flex items-center justify-center gap-2">
@@ -363,39 +458,7 @@ export function Listings() {
   // â"€â"€â"€ BROWSE MODE â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
   return (
     <div className="bg-paper">
-      {/* Hero */}
-      <div className="border-b border-line bg-white px-6 py-12 lg:px-[52px]">
-        <div className="mx-auto max-w-7xl">
-          <MonoLabel className="text-copper">— Marketplace</MonoLabel>
-          <h1 className="mt-2.5 font-display text-[34px] font-medium leading-[1.05] tracking-[-0.8px] text-ink sm:text-[42px]">
-            Browse machinery listings
-          </h1>
-          <p className="mt-2 max-w-2xl text-[14.5px] leading-[1.7] text-muted">
-            GST-verified, admin-approved industrial machines from across India. Filter by category, make, location and budget.
-          </p>
-          {/* Prominent search bar in hero */}
-          <div className="mt-6 flex max-w-2xl gap-3">
-            <div className="relative flex-1">
-              <SearchIcon className="pointer-events-none absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted" />
-              <input
-                value={inputSearch}
-                onChange={(e) => handleSearchInput(e.target.value)}
-                placeholder="Search machines, makes, models..."
-                className="w-full rounded-xl border border-line bg-paper py-3.5 pl-11 pr-4 text-[15px] text-ink shadow-sm outline-none transition placeholder:text-muted focus:border-forest focus:bg-white focus:ring-2 focus:ring-forest/10"
-              />
-            </div>
-            <button
-              type="button"
-              onClick={() => { applyFilters({ ...filters, search: inputSearch }); }}
-              className="rounded-xl bg-forest px-6 py-3.5 text-[15px] font-semibold text-white transition hover:bg-[#2D6A4F]"
-            >
-              Search
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="mx-auto max-w-7xl px-6 py-10 lg:px-[52px]">
+      <div className="mx-auto max-w-7xl px-6 py-6 lg:px-[52px]">
         <div className="flex gap-8 lg:items-start">
           {/* SIDEBAR */}
           <aside className="hidden w-64 shrink-0 lg:block">
@@ -535,25 +598,36 @@ export function Listings() {
                 </div>
               </div>
 
-              {/* Year */}
+              {/* Condition */}
               <div>
-                <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">Manufacture Year</p>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="From"
-                    inputMode="numeric"
-                    maxLength={4}
-                    value={filters.yearMin}
-                    onChange={(e) => update('yearMin', e.target.value)}
-                  />
-                  <Input
-                    placeholder="To"
-                    inputMode="numeric"
-                    maxLength={4}
-                    value={filters.yearMax}
-                    onChange={(e) => update('yearMax', e.target.value)}
-                  />
-                </div>
+                <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">Condition</p>
+                <select
+                  value={filters.condition}
+                  onChange={(e) => update('condition', e.target.value)}
+                  className={`${selectCls} w-full`}
+                  style={{ backgroundImage: SELECT_ARROW }}
+                >
+                  <option value="">Any</option>
+                  {CONDITION_OPTIONS.map((c) => (
+                    <option key={c.value} value={c.value}>{c.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Origin */}
+              <div>
+                <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">Origin</p>
+                <select
+                  value={filters.origin}
+                  onChange={(e) => update('origin', e.target.value)}
+                  className={`${selectCls} w-full`}
+                  style={{ backgroundImage: SELECT_ARROW }}
+                >
+                  <option value="">Any</option>
+                  {ORIGIN_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
               </div>
 
               <div className="flex flex-col gap-2 pt-2">
@@ -643,8 +717,12 @@ export function Listings() {
               </div>
             )}
 
+            <ActiveFilters filters={filters} onClear={clearKeys} onClearAll={clearAll} />
+
             {loading ? (
-              <LoadingBlock />
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                <ListingGridSkeleton />
+              </div>
             ) : !result || result.items.length === 0 ? (
               <EmptyState
                 title="No listings match your filters"
@@ -652,13 +730,20 @@ export function Listings() {
               />
             ) : (
               <>
-                <p className="mb-5 font-mono text-[11.5px] font-semibold uppercase tracking-[0.08em] text-muted">
-                  {result.total} listing{result.total === 1 ? '' : 's'} found
-                </p>
+                <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+                  <p className="font-mono text-[11.5px] font-semibold uppercase tracking-[0.08em] text-muted">
+                    {result.total} listing{result.total === 1 ? '' : 's'} found
+                  </p>
+                  <SortSelect value={filters.sort} onChange={(v) => update('sort', v)} />
+                </div>
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                  {result.items.map((listing) => (
-                    <ListingCard key={listing.id} listing={listing} />
-                  ))}
+                  {interleaveAds(result.items, ads).map((entry) =>
+                    entry.kind === 'ad' ? (
+                      <AdTile key={`ad-${entry.ad.id}`} ad={entry.ad} />
+                    ) : (
+                      <ListingCard key={entry.listing.id} listing={entry.listing} />
+                    ),
+                  )}
                 </div>
 
                 {totalPages > 1 && (

@@ -207,6 +207,32 @@ export const EyeIcon = (props: SVGProps<SVGSVGElement>) => (
   </Icon>
 );
 
+export const HeartIcon = (props: SVGProps<SVGSVGElement>) => (
+  <Icon {...props}>
+    <path d="M12 20.5s-7.5-4.6-10-9.4C.3 7.6 2 4 5.6 4c2 0 3.5 1 4.9 2.9C11.9 9 12 9 12 9s.1 0 1.5-2.1C14.9 5 16.4 4 18.4 4 22 4 23.7 7.6 22 11.1c-2.5 4.8-10 9.4-10 9.4z" />
+  </Icon>
+);
+
+export const StarIcon = (props: SVGProps<SVGSVGElement>) => (
+  <Icon {...props}>
+    <path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.2 1 5.9-5.2-2.8-5.2 2.8 1-5.9-4.3-4.2 5.9-.8L12 3.5z" />
+  </Icon>
+);
+
+export const ArrowUpIcon = (props: SVGProps<SVGSVGElement>) => (
+  <Icon {...props}>
+    <path d="M12 19V5" />
+    <path d="M6 11l6-6 6 6" />
+  </Icon>
+);
+
+export const ArrowDownIcon = (props: SVGProps<SVGSVGElement>) => (
+  <Icon {...props}>
+    <path d="M12 5v14" />
+    <path d="M18 13l-6 6-6-6" />
+  </Icon>
+);
+
 export const BuildingIcon = (props: SVGProps<SVGSVGElement>) => (
   <Icon {...props}>
     <rect x="4" y="3" width="16" height="18" rx="1.5" />

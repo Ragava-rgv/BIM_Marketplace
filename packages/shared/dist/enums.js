@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MACHINE_CATEGORIES = exports.CONTACT_REVEAL_PRICE_INR = exports.STANDARD_SUBSCRIPTION_PRICE_INR = exports.STANDARD_LISTING_QUOTA = exports.FREE_LISTING_QUOTA = exports.MIN_VIDEO_DURATION_SECONDS = exports.PHOTO_MAX_AGE_DAYS = exports.MAX_LISTING_PHOTOS = exports.MIN_LISTING_PHOTOS = exports.SELLER_COMMISSION_RATE = exports.BUYER_COMMISSION_RATE = exports.SpecFilterType = exports.SpecFieldType = exports.SubscriptionStatus = exports.SubscriptionPlan = exports.BuybackStatus = exports.FinancePartnerType = exports.LoanApplicationStatus = exports.CertificationConditionGrade = exports.CertificationStatus = exports.CommissionStatus = exports.EnquiryStatus = exports.MediaType = exports.ComplexityTier = exports.ListingStatus = exports.GstStatus = exports.UserRole = void 0;
+exports.MACHINE_CATEGORIES = exports.QUOTA_ALERT_REMAINING_THRESHOLD = exports.QUOTA_ALERT_AFTER_USED = exports.DEFAULT_BUYER_CONTACT_VIEW_QUOTA = exports.CONTACT_REVEAL_PRICE_INR = exports.STANDARD_SUBSCRIPTION_PRICE_INR = exports.STANDARD_LISTING_QUOTA = exports.FREE_LISTING_QUOTA = exports.MIN_VIDEO_DURATION_SECONDS = exports.PHOTO_MAX_AGE_DAYS = exports.MAX_LISTING_PHOTOS = exports.MIN_LISTING_PHOTOS = exports.SELLER_COMMISSION_RATE = exports.BUYER_COMMISSION_RATE = exports.SpecFilterType = exports.SpecFieldType = exports.SubscriptionStatus = exports.SubscriptionPlan = exports.BuybackStatus = exports.FinancePartnerType = exports.LoanApplicationStatus = exports.CertificationConditionGrade = exports.CertificationStatus = exports.CommissionStatus = exports.EnquiryStatus = exports.MediaType = exports.ListingOrigin = exports.ComplexityTier = exports.ListingStatus = exports.GstStatus = exports.UserRole = void 0;
 var UserRole;
 (function (UserRole) {
     UserRole["SELLER"] = "SELLER";
@@ -29,6 +29,11 @@ var ComplexityTier;
     ComplexityTier["STANDARD"] = "STANDARD";
     ComplexityTier["COMPLEX"] = "COMPLEX";
 })(ComplexityTier || (exports.ComplexityTier = ComplexityTier = {}));
+var ListingOrigin;
+(function (ListingOrigin) {
+    ListingOrigin["INDIAN"] = "INDIAN";
+    ListingOrigin["IMPORTED"] = "IMPORTED";
+})(ListingOrigin || (exports.ListingOrigin = ListingOrigin = {}));
 var MediaType;
 (function (MediaType) {
     MediaType["PHOTO"] = "PHOTO";
@@ -116,6 +121,11 @@ exports.FREE_LISTING_QUOTA = 2;
 exports.STANDARD_LISTING_QUOTA = 4;
 exports.STANDARD_SUBSCRIPTION_PRICE_INR = 1000;
 exports.CONTACT_REVEAL_PRICE_INR = 500;
+/** Default buyer contact-view quota — used only by the seed script; runtime default comes from the DB-flagged isDefault plan */
+exports.DEFAULT_BUYER_CONTACT_VIEW_QUOTA = 10;
+/** Quota-alert modal thresholds */
+exports.QUOTA_ALERT_AFTER_USED = 4;
+exports.QUOTA_ALERT_REMAINING_THRESHOLD = 2;
 /** Kitmondo-inspired industrial machinery categories (excludes broadcast, film/audio, construction, agriculture) */
 exports.MACHINE_CATEGORIES = [
     {

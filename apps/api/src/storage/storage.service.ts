@@ -8,6 +8,7 @@ export const LISTING_PHOTOS_DIR = 'listing-photos';
 export const LISTING_VIDEOS_DIR = 'listing-videos';
 export const CERTIFICATION_REPORTS_DIR = 'certification-reports';
 export const CATEGORY_IMAGES_DIR = 'category-images';
+export const ADVERTISEMENT_IMAGES_DIR = 'advertisement-images';
 
 export interface UploadedObject {
   /** S3-compatible relative key, e.g. "listing-photos/<uuid>.jpg" — stored in storage_key columns. */

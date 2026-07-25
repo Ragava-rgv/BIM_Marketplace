@@ -1,0 +1,105 @@
+import { Prisma } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
+import type { CreateBoostPlanDto, UpdateBoostPlanDto } from './dto/plan.dto';
+export declare class BoostPlansService {
+    private readonly prisma;
+    constructor(prisma: PrismaService);
+    listAll(): Prisma.PrismaPromise<{
+        id: string;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
+        displayName: string;
+        priceInr: Prisma.Decimal;
+        durationDays: number;
+        isActive: boolean;
+        description: string | null;
+        sortOrder: number;
+        deletedAt: Date | null;
+        sortWeight: number;
+    }[]>;
+    listActive(): Prisma.PrismaPromise<{
+        id: string;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
+        displayName: string;
+        priceInr: Prisma.Decimal;
+        durationDays: number;
+        isActive: boolean;
+        description: string | null;
+        sortOrder: number;
+        deletedAt: Date | null;
+        sortWeight: number;
+    }[]>;
+    findById(id: string): Promise<{
+        id: string;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
+        displayName: string;
+        priceInr: Prisma.Decimal;
+        durationDays: number;
+        isActive: boolean;
+        description: string | null;
+        sortOrder: number;
+        deletedAt: Date | null;
+        sortWeight: number;
+    }>;
+    create(dto: CreateBoostPlanDto): Promise<{
+        id: string;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
+        displayName: string;
+        priceInr: Prisma.Decimal;
+        durationDays: number;
+        isActive: boolean;
+        description: string | null;
+        sortOrder: number;
+        deletedAt: Date | null;
+        sortWeight: number;
+    }>;
+    update(id: string, dto: UpdateBoostPlanDto): Promise<{
+        id: string;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
+        displayName: string;
+        priceInr: Prisma.Decimal;
+        durationDays: number;
+        isActive: boolean;
+        description: string | null;
+        sortOrder: number;
+        deletedAt: Date | null;
+        sortWeight: number;
+    }>;
+    remove(id: string): Promise<{
+        id: string;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
+        displayName: string;
+        priceInr: Prisma.Decimal;
+        durationDays: number;
+        isActive: boolean;
+        description: string | null;
+        sortOrder: number;
+        deletedAt: Date | null;
+        sortWeight: number;
+    }>;
+    purge(id: string): Promise<{
+        id: string;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
+        displayName: string;
+        priceInr: Prisma.Decimal;
+        durationDays: number;
+        isActive: boolean;
+        description: string | null;
+        sortOrder: number;
+        deletedAt: Date | null;
+        sortWeight: number;
+    }>;
+}

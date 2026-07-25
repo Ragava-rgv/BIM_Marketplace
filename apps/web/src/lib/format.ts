@@ -30,3 +30,22 @@ export function humanizeStatus(value: string): string {
   const lower = value.toLowerCase().replaceAll('_', ' ');
   return lower.charAt(0).toUpperCase() + lower.slice(1);
 }
+
+/** Renders a catalog spec field's label (with unit, if any) and its stored value for read-only display. */
+export function formatSpecField(
+  field: { fieldLabel: string; fieldType: string; unit: string | null },
+  rawValue: unknown,
+): { label: string; value: string } {
+  const label = field.unit ? `${field.fieldLabel} (${field.unit})` : field.fieldLabel;
+  if (rawValue === undefined || rawValue === null || rawValue === '') {
+    return { label, value: 'Not available' };
+  }
+  if (field.fieldType === 'boolean') {
+    return { label, value: rawValue === true || rawValue === 'true' ? 'Yes' : 'No' };
+  }
+  if (field.fieldType === 'number') {
+    const n = Number(rawValue);
+    return { label, value: Number.isNaN(n) ? String(rawValue) : n.toLocaleString('en-IN') };
+  }
+  return { label, value: String(rawValue) };
+}

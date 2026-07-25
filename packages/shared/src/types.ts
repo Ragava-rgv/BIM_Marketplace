@@ -3,6 +3,7 @@ import type {
   GstStatus,
   ListingStatus,
   ComplexityTier,
+  ListingOrigin,
   MediaType,
   EnquiryStatus,
   CommissionStatus,
@@ -29,6 +30,7 @@ export interface UserDto {
   gstStatus: GstStatus;
   locationCity: string | null;
   locationState: string | null;
+  address: string | null;
   activeMode: string;
   canSell: boolean;
   createdAt: string;
@@ -44,6 +46,7 @@ export interface ListingMediaDto {
   capturedAt: string | null;
   durationSeconds: number | null;
   orderIndex: number;
+  isPrimary: boolean;
 }
 
 export interface ListingDto {
@@ -55,7 +58,9 @@ export interface ListingDto {
   machineSubcategory: string | null;
   machineMake: string;
   machineModel: string;
-  manufactureYear: number;
+  manufactureYear: number | null;
+  origin: ListingOrigin;
+  importedCountry: string | null;
   askingPrice: string;
   locationCity: string;
   locationState: string;
@@ -67,6 +72,8 @@ export interface ListingDto {
   runningHours: number | null;
   serialNumber: string | null;
   negotiable: boolean;
+  isBoosted: boolean;
+  boostExpiresAt: string | null;
   media?: ListingMediaDto[];
   seller?: {
     id: string;
@@ -80,6 +87,59 @@ export interface ListingDto {
     locationState: string | null;
   };
   catalogCategory?: CategoryDto | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WishlistDto {
+  id: string;
+  buyerId: string;
+  listingId: string;
+  createdAt: string;
+  listing?: ListingDto;
+}
+
+export interface PromotionPlanDto {
+  id: string;
+  name: string;
+  displayName: string;
+  priceInr: string;
+  durationDays: number;
+  sortWeight: number;
+  isActive: boolean;
+  description: string | null;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ListingBoostDto {
+  id: string;
+  listingId: string;
+  sellerId: string;
+  planId: string | null;
+  price: string;
+  durationDays: number;
+  startsAt: string;
+  expiresAt: string;
+  createdAt: string;
+  listing?: { id: string; title: string };
+  plan?: PromotionPlanDto | null;
+}
+
+export interface ListingBoostStatusDto {
+  isBoosted: boolean;
+  boostExpiresAt: string | null;
+}
+
+export interface AdvertisementDto {
+  id: string;
+  title: string;
+  imageUrl: string;
+  linkUrl: string | null;
+  position: number;
+  isActive: boolean;
+  sortOrder: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -179,7 +239,7 @@ export interface CertificationDto {
     machineCategory: string;
     machineMake: string;
     machineModel: string;
-    manufactureYear: number;
+    manufactureYear: number | null;
     askingPrice: string;
     locationCity: string;
     locationState: string;
@@ -203,7 +263,7 @@ export interface LoanApplicationDto {
     machineCategory: string;
     machineMake: string;
     machineModel: string;
-    manufactureYear: number;
+    manufactureYear: number | null;
     locationCity: string;
     locationState: string;
     complexityTier: ComplexityTier;
@@ -256,7 +316,7 @@ export interface BuybackOfferDto {
     machineCategory: string;
     machineMake: string;
     machineModel: string;
-    manufactureYear: number;
+    manufactureYear: number | null;
     locationCity: string;
     locationState: string;
     sellerId: string;
@@ -327,9 +387,66 @@ export interface RazorpayOrderDto {
   keyId: string;
 }
 
-export interface ContactRevealStatusDto {
-  paid: boolean;
-  contact: { fullName: string; phone: string; email: string | null } | null;
+export interface BuyerSubscriptionPlanDto {
+  id: string;
+  name: string;
+  displayName: string;
+  contactViewQuota: number;
+  priceInr: string;
+  durationDays: number | null;
+  isActive: boolean;
+  isFree: boolean;
+  isDefault: boolean;
+  description: string | null;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BuyerSubscriptionDto {
+  id: string;
+  buyerId: string;
+  planId: string | null;
+  quotaTotal: number;
+  quotaUsed: number;
+  price: string;
+  durationDays: number | null;
+  startsAt: string;
+  expiresAt: string | null;
+  status: SubscriptionStatus;
+  adjustedBy: string | null;
+  adjustedAt: string | null;
+  adjustmentReason: string | null;
+  createdAt: string;
+  plan?: BuyerSubscriptionPlanDto | null;
+  buyer?: { id: string; fullName: string; phone: string; email: string | null } | null;
+}
+
+export interface BuyerSubscriptionStatusDto {
+  quotaTotal: number;
+  quotaUsed: number;
+  quotaRemaining: number;
+  expiresAt: string | null;
+  status: SubscriptionStatus;
+  subscription: BuyerSubscriptionDto;
+}
+
+export interface ContactViewDto {
+  id: string;
+  buyerId: string;
+  listingId: string;
+  sellerId: string;
+  viewedAt: string;
+  listing?: { id: string; title: string; machineCategory: string } | null;
+  seller?: { id: string; fullName: string; businessName: string | null } | null;
+}
+
+export interface ContactViewStatusDto {
+  contact: { fullName: string; phone: string; address: string; email: string | null } | null;
+  quotaUsed: number;
+  quotaTotal: number;
+  quotaRemaining: number;
+  isIdempotent: boolean;
 }
 
 // ---------------------------------------------------------------------------

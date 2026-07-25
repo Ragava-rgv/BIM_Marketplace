@@ -97,7 +97,7 @@ function PlanForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && <ErrorBanner message={error} />}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-4">
         <Field label="Internal name" hint="Unique identifier e.g. STANDARD">
           <Input
             value={form.name}

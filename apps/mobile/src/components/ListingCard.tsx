@@ -1,12 +1,18 @@
 import { Link } from 'react-router-dom';
 import type { ListingDto } from '@machinebazaar/shared';
 import { formatInrShort } from '../lib/format';
-import { EyeIcon, MachineIcon, PlayIcon } from './icons';
+import { useAuth } from '../lib/auth-context';
+import { useWishlist } from '../lib/wishlist-context';
+import { EyeIcon, HeartIcon, MachineIcon, PlayIcon } from './icons';
 
 export function ListingCard({ listing }: { listing: ListingDto }) {
-  const cover = listing.media?.find((m) => m.type === 'PHOTO');
+  const { user } = useAuth();
+  const { isWishlisted, toggle } = useWishlist();
+  const photos = listing.media?.filter((m) => m.type === 'PHOTO') ?? [];
+  const cover = photos.find((m) => m.isPrimary) ?? photos[0];
   const video = listing.media?.find((m) => m.type === 'VIDEO');
   const isCertified = listing.status === 'ACTIVE';
+  const wishlisted = isWishlisted(listing.id);
 
   return (
     <Link to={`/listings/${listing.id}`}
@@ -24,6 +30,20 @@ export function ListingCard({ listing }: { listing: ListingDto }) {
               <PlayIcon className="w-1.5 h-1.5 fill-[#6CE9A6]" />
               {video.durationSeconds ? `${video.durationSeconds}s` : 'VIDEO'}
             </span>
+          )}
+          {user && (
+            <button
+              type="button"
+              aria-label={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                void toggle(listing.id);
+              }}
+              className="absolute right-1.5 top-1.5 z-[2] flex h-6 w-6 items-center justify-center rounded-full bg-white/90 border border-gray-200"
+            >
+              <HeartIcon className={`w-[12px] h-[12px] ${wishlisted ? 'fill-copper stroke-copper' : 'fill-none stroke-gray-500'}`} />
+            </button>
           )}
         </div>
 
@@ -56,10 +76,15 @@ export function ListingCard({ listing }: { listing: ListingDto }) {
             <span className="truncate">{listing.machineMake} · GST</span>
           </div>
 
+          {/* Category */}
+          <p className="text-[10.5px] font-semibold text-forest-2 truncate mb-1">
+            {listing.machineCategory}
+            {listing.machineSubcategory ? ` · ${listing.machineSubcategory}` : ''}
+          </p>
+
           {/* Spec strip */}
           <p className="font-mono text-[8.5px] text-gray-500 font-semibold tracking-[0.05em]">
-            <span className="text-ink font-bold">{listing.manufactureYear}</span>
-            {' · '}{listing.complexityTier}
+            <span className="text-ink font-bold">{listing.complexityTier}</span>
             {' · '}{listing.locationCity}
           </p>
         </div>

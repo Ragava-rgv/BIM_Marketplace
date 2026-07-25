@@ -21,7 +21,9 @@ function toDetailsValues(listing: ListingDto): ListingDetailsValues {
     machineSubcategory: listing.machineSubcategory ?? '',
     machineMake: listing.machineMake,
     machineModel: listing.machineModel,
-    manufactureYear: String(listing.manufactureYear),
+    manufactureYear: listing.manufactureYear != null ? String(listing.manufactureYear) : '',
+    origin: listing.origin,
+    importedCountry: listing.importedCountry ?? '',
     askingPrice: listing.askingPrice,
     locationCity: listing.locationCity,
     locationState: listing.locationState,
@@ -30,7 +32,6 @@ function toDetailsValues(listing: ListingDto): ListingDetailsValues {
     specs: (listing.specs as Record<string, string>) ?? {},
     conditionGrade: listing.conditionGrade ?? '',
     runningHours: listing.runningHours != null ? String(listing.runningHours) : '',
-    serialNumber: listing.serialNumber ?? '',
     negotiable: listing.negotiable ?? false,
   };
 }
@@ -164,7 +165,7 @@ export function EditListing() {
             <Card className="max-w-2xl space-y-2 text-sm text-navy/65">
               <p>{listing.description}</p>
               <p className="text-navy/45">
-                {listing.machineMake} · {listing.machineModel} · {listing.manufactureYear} · {listing.locationCity}, {listing.locationState}
+                {listing.machineMake} · {listing.machineModel} · {listing.locationCity}, {listing.locationState}
               </p>
             </Card>
           )}

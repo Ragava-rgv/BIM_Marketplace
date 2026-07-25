@@ -120,6 +120,40 @@ export class AuthService {
     return this.issueTokenPair(user);
   }
 
+  // -- Forgot / reset password (OTP) -----------------------------------------
+
+  async requestPasswordReset(phone: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { phone } });
+    if (!user || !user.passwordHash) {
+      throw new BadRequestException('No account found for this phone number');
+    }
+
+    await this.otp.issue(phone, 'RESET_PASSWORD', user.id);
+  }
+
+  async resetPassword(phone: string, code: string, newPassword: string): Promise<AuthTokens> {
+    await this.otp.verify(phone, code, 'RESET_PASSWORD');
+
+    const user = await this.prisma.user.findUnique({ where: { phone } });
+    if (!user) {
+      throw new BadRequestException('No account found for this phone number');
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, PASSWORD_HASH_ROUNDS);
+    const updated = await this.prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash },
+    });
+
+    // Reset invalidates any existing sessions — revoke all outstanding refresh tokens.
+    await this.prisma.refreshToken.updateMany({
+      where: { userId: user.id, revoked: false },
+      data: { revoked: true },
+    });
+
+    return this.issueTokenPair(updated);
+  }
+
   // -- Admin login -----------------------------------------------------------
 
   async adminLogin(email: string, password: string): Promise<AuthTokens> {

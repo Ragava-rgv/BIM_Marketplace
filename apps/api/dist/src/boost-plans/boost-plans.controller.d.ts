@@ -1,0 +1,90 @@
+import { BoostPlansService } from './boost-plans.service';
+import { CreateBoostPlanDto, UpdateBoostPlanDto } from './dto/plan.dto';
+export declare class BoostPlansController {
+    private readonly service;
+    constructor(service: BoostPlansService);
+    listActive(): import("@prisma/client").Prisma.PrismaPromise<{
+        id: string;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
+        displayName: string;
+        priceInr: import("@prisma/client/runtime/library").Decimal;
+        durationDays: number;
+        isActive: boolean;
+        description: string | null;
+        sortOrder: number;
+        deletedAt: Date | null;
+        sortWeight: number;
+    }[]>;
+    listAll(): import("@prisma/client").Prisma.PrismaPromise<{
+        id: string;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
+        displayName: string;
+        priceInr: import("@prisma/client/runtime/library").Decimal;
+        durationDays: number;
+        isActive: boolean;
+        description: string | null;
+        sortOrder: number;
+        deletedAt: Date | null;
+        sortWeight: number;
+    }[]>;
+    create(dto: CreateBoostPlanDto): Promise<{
+        id: string;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
+        displayName: string;
+        priceInr: import("@prisma/client/runtime/library").Decimal;
+        durationDays: number;
+        isActive: boolean;
+        description: string | null;
+        sortOrder: number;
+        deletedAt: Date | null;
+        sortWeight: number;
+    }>;
+    update(id: string, dto: UpdateBoostPlanDto): Promise<{
+        id: string;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
+        displayName: string;
+        priceInr: import("@prisma/client/runtime/library").Decimal;
+        durationDays: number;
+        isActive: boolean;
+        description: string | null;
+        sortOrder: number;
+        deletedAt: Date | null;
+        sortWeight: number;
+    }>;
+    remove(id: string): Promise<{
+        id: string;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
+        displayName: string;
+        priceInr: import("@prisma/client/runtime/library").Decimal;
+        durationDays: number;
+        isActive: boolean;
+        description: string | null;
+        sortOrder: number;
+        deletedAt: Date | null;
+        sortWeight: number;
+    }>;
+    purge(id: string): Promise<{
+        id: string;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
+        displayName: string;
+        priceInr: import("@prisma/client/runtime/library").Decimal;
+        durationDays: number;
+        isActive: boolean;
+        description: string | null;
+        sortOrder: number;
+        deletedAt: Date | null;
+        sortWeight: number;
+    }>;
+}

@@ -1,11 +1,12 @@
 import { DashboardShell } from './DashboardShell';
-import { BankIcon, ChatIcon, MachineIcon, PlusIcon, SearchIcon, ShieldCheckIcon, TrendDownIcon, TruckIcon } from '../components/icons';
+import { BankIcon, ChatIcon, MachineIcon, PlusIcon, RupeeIcon, SearchIcon, ShieldCheckIcon, TrendDownIcon, TruckIcon } from '../components/icons';
 
 const ITEMS = [
   { to: '/buyer/dashboard', label: 'Dashboard', icon: MachineIcon, end: true },
   { to: '/listings', label: 'Browse listings', icon: SearchIcon },
   { to: '/buyer/enquiries', label: 'Enquiries', icon: ChatIcon },
   { to: '/buyer/saved', label: 'Saved listings', icon: TruckIcon },
+  { to: '/buyer/subscription', label: 'Contact views', icon: RupeeIcon },
   { to: '/buyer/loans', label: 'Loan applications', icon: BankIcon },
   { to: '/buyer/buyback', label: 'Buyback agreements', icon: TrendDownIcon },
   { to: '/buyer/gst-verification', label: 'GST verification', icon: ShieldCheckIcon },

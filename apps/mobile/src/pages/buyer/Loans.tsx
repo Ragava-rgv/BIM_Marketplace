@@ -95,7 +95,7 @@ export function BuyerLoans() {
 
                 {loan.listing && (
                   <p className="text-[11px] text-gray-500 mb-2">
-                    {loan.listing.machineMake} {loan.listing.machineModel} · {loan.listing.manufactureYear}
+                    {loan.listing.machineMake} {loan.listing.machineModel}
                   </p>
                 )}
 

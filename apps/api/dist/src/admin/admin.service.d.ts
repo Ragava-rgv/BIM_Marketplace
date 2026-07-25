@@ -2,6 +2,8 @@ import { PrismaService } from '../prisma/prisma.service';
 export interface AdminDashboardSummary {
     listingsPendingReview: number;
     listingsActive: number;
+    listingsSold: number;
+    listingsInactive: number;
     loansAwaitingAction: number;
     certificationsInProgress: number;
     commissionsPending: number;

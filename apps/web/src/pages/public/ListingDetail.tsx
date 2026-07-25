@@ -1,12 +1,15 @@
-﻿import { useCallback, useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import type { ContactRevealStatusDto, ListingDto, RazorpayOrderDto } from '@machinebazaar/shared';
+import type { ContactViewStatusDto, ListingDto, PaginatedResult } from '@machinebazaar/shared';
 import { ListingStatus, UserRole } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth-context';
-import { formatInr } from '../../lib/format';
-import { isListingSaved, toggleSavedListing } from '../../lib/saved-listings';
+import { formatInr, formatSpecField } from '../../lib/format';
+import { useWishlist } from '../../lib/wishlist-context';
 import { Button, ErrorBanner, MonoLabel, Tag } from '../../components/ui';
+import { ListingCard } from '../../components/ListingCard';
+import { Skeleton, ListingGridSkeleton } from '../../components/Skeleton';
+import { QuotaAlertModal, shouldShowQuotaAlert } from '../../components/QuotaAlertModal';
 import {
   ArrowLeftIcon,
   ChatIcon,
@@ -20,28 +23,11 @@ import {
   VideoIcon,
 } from '../../components/icons';
 
-declare global {
-  interface Window {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Razorpay: any;
-  }
-}
-
-function loadRazorpayScript(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (typeof window.Razorpay !== 'undefined') { resolve(); return; }
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error('Failed to load Razorpay SDK'));
-    document.body.appendChild(script);
-  });
-}
-
 export function ListingDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, switchMode } = useAuth();
+  const { isWishlisted, toggle: toggleWishlist } = useWishlist();
 
   const [listing, setListing] = useState<ListingDto | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -49,30 +35,29 @@ export function ListingDetail() {
   const [enquiring, setEnquiring] = useState(false);
   const [enquiryNotice, setEnquiryNotice] = useState<string | null>(null);
   const [enquirySent, setEnquirySent] = useState(false);
-  const [saved, setSaved] = useState(false);
+
+  // Similar machines (same category, excluding this listing)
+  const [related, setRelated] = useState<ListingDto[] | null>(null);
 
   // Contact reveal state
-  const [contactStatus, setContactStatus] = useState<ContactRevealStatusDto | null>(null);
+  const [contactStatus, setContactStatus] = useState<ContactViewStatusDto | null>(null);
   const [contactLoading, setContactLoading] = useState(false);
   const [contactError, setContactError] = useState<string | null>(null);
-  const [contactPrice, setContactPrice] = useState<number>(500);
+  const [showQuotaModal, setShowQuotaModal] = useState(false);
+  const [modeSwitching, setModeSwitching] = useState(false);
   const contactChecked = useRef(false);
 
-  useEffect(() => {
-    if (user?.role === UserRole.BUYER && id) {
-      setSaved(isListingSaved(user.id, id));
-    }
-  }, [user, id]);
-
+  const saved = id ? isWishlisted(id) : false;
   const toggleSave = () => {
-    if (!user || !id) return;
-    setSaved(toggleSavedListing(user.id, id).includes(id));
+    if (!id) return;
+    void toggleWishlist(id);
   };
 
   useEffect(() => {
     if (!id) return;
     setListing(null);
     setError(null);
+    setRelated(null);
     contactChecked.current = false;
     let cancelled = false;
     api
@@ -80,7 +65,8 @@ export function ListingDetail() {
       .then(({ data }) => {
         if (cancelled) return;
         setListing(data);
-        setActiveMediaId(data.media?.[0]?.id ?? null);
+        const primaryPhoto = data.media?.find((m) => m.type === 'PHOTO' && m.isPrimary);
+        setActiveMediaId((primaryPhoto ?? data.media?.[0])?.id ?? null);
       })
       .catch((err) => {
         if (!cancelled) setError(apiErrorMessage(err, 'This listing could not be found.'));
@@ -90,22 +76,31 @@ export function ListingDetail() {
     };
   }, [id]);
 
-  // Fetch current contact reveal price (admin-configurable)
+  // Similar machines — same category, excluding this listing
   useEffect(() => {
-    api.get<{ price: number }>('/settings/contact-reveal-price')
-      .then(({ data }) => setContactPrice(data.price))
-      .catch(() => {});
-  }, []);
+    if (!listing) return;
+    let cancelled = false;
+    api
+      .get<PaginatedResult<ListingDto>>('/listings', { params: { category: listing.machineCategory, pageSize: 5 } })
+      .then(({ data }) => {
+        if (cancelled) return;
+        setRelated(data.items.filter((item) => item.id !== listing.id).slice(0, 4));
+      })
+      .catch(() => { if (!cancelled) setRelated([]); });
+    return () => {
+      cancelled = true;
+    };
+  }, [listing]);
 
-  // Check if buyer has already paid to reveal contact (also works for sellers in buyer mode)
+  // Check if this buyer has already revealed this listing's contact (also works for sellers in buyer mode)
   const isBuyerMode = user?.activeMode === 'BUYER' || user?.role === UserRole.BUYER;
   useEffect(() => {
     if (!id || !user || !isBuyerMode || contactChecked.current) return;
     contactChecked.current = true;
     api
-      .get<ContactRevealStatusDto>(`/contact-payments/check/${id}`)
+      .get<ContactViewStatusDto>(`/buyer-subscriptions/reveal-status/${id}`)
       .then(({ data }) => setContactStatus(data))
-      .catch(() => setContactStatus({ paid: false, contact: null }));
+      .catch(() => {});
   }, [id, user, isBuyerMode]);
 
   const sendEnquiry = async () => {
@@ -131,7 +126,7 @@ export function ListingDetail() {
     }
   };
 
-  const revealContact = useCallback(async () => {
+  const revealContact = async () => {
     if (!listing || !user) return;
     const inBuyerMode = user.activeMode === 'BUYER' || user.role === UserRole.BUYER;
     if (!inBuyerMode) {
@@ -141,45 +136,22 @@ export function ListingDetail() {
     setContactLoading(true);
     setContactError(null);
     try {
-      await loadRazorpayScript();
-      const { data: orderData } = await api.post<RazorpayOrderDto>('/contact-payments/order', {
-        listingId: listing.id,
-      });
-      await new Promise<void>((resolve, reject) => {
-        const rzp = new window.Razorpay({
-          key: orderData.keyId,
-          amount: orderData.amount,
-          currency: orderData.currency,
-          name: 'BIM',
-          description: `Seller contact for: ${listing.title}`,
-          order_id: orderData.razorpayOrderId,
-          handler: async (resp: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) => {
-            try {
-              const { data } = await api.post<ContactRevealStatusDto>('/contact-payments/verify', {
-                listingId: listing.id,
-                razorpayOrderId: resp.razorpay_order_id,
-                razorpayPaymentId: resp.razorpay_payment_id,
-                razorpaySignature: resp.razorpay_signature,
-              });
-              setContactStatus(data);
-              resolve();
-            } catch (e) {
-              reject(e);
-            }
-          },
-          modal: { ondismiss: () => reject(new Error('Payment cancelled')) },
-          theme: { color: '#1a56db' },
-        });
-        rzp.open();
-      });
+      const { data } = await api.post<ContactViewStatusDto>(`/buyer-subscriptions/reveal/${listing.id}`);
+      setContactStatus(data);
+      if (shouldShowQuotaAlert(data.quotaUsed, data.quotaTotal)) {
+        setShowQuotaModal(true);
+      }
     } catch (err) {
-      if ((err as Error).message !== 'Payment cancelled') {
-        setContactError(apiErrorMessage(err, 'Could not process payment. Please try again.'));
+      const code = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
+      if (code === 'QUOTA_EXHAUSTED') {
+        setContactError('You have used all your contact views. Upgrade your plan to view more contacts.');
+      } else {
+        setContactError(apiErrorMessage(err, 'Could not reveal this contact. Please try again.'));
       }
     } finally {
       setContactLoading(false);
     }
-  }, [listing, user, navigate]);
+  };
 
   if (error) {
     return (
@@ -196,19 +168,19 @@ export function ListingDetail() {
   if (!listing) {
     return (
       <div className="mx-auto max-w-7xl px-6 py-8 lg:px-[52px]">
-        <div className="mb-6 h-4 w-24 animate-pulse rounded bg-paper-2" />
+        <Skeleton className="mb-6 h-4 w-24" />
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.4fr_1fr]">
           <div>
-            <div className="aspect-video w-full animate-pulse rounded-[14px] bg-paper-2" />
+            <Skeleton className="aspect-video w-full rounded-[14px]" />
             <div className="mt-3 flex gap-2">
-              {[1, 2, 3].map((i) => <div key={i} className="h-16 w-20 animate-pulse rounded-lg bg-paper-2" />)}
+              {[1, 2, 3].map((i) => <Skeleton key={i} className="h-16 w-20 rounded-lg" />)}
             </div>
           </div>
           <div className="space-y-4">
-            <div className="h-8 w-3/4 animate-pulse rounded bg-paper-2" />
-            <div className="h-5 w-1/2 animate-pulse rounded bg-paper-2" />
-            <div className="h-10 w-full animate-pulse rounded bg-paper-2" />
-            <div className="h-32 w-full animate-pulse rounded bg-paper-2" />
+            <Skeleton className="h-8 w-3/4" />
+            <Skeleton className="h-5 w-1/2" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-32 w-full" />
           </div>
         </div>
       </div>
@@ -315,21 +287,49 @@ export function ListingDetail() {
                     ...(listing.machineSubcategory ? [['Subcategory', listing.machineSubcategory]] : []),
                     ['Make', listing.machineMake],
                     ['Model', listing.machineModel],
-                    ['Manufacture year', String(listing.manufactureYear)],
+                    ['Year', listing.manufactureYear != null ? String(listing.manufactureYear) : 'Not available'],
+                    [
+                      'Origin',
+                      listing.origin === 'IMPORTED'
+                        ? `Imported${listing.importedCountry ? ` (${listing.importedCountry})` : ''}`
+                        : 'Indian',
+                    ],
+                    [
+                      'Running hours',
+                      listing.runningHours != null ? listing.runningHours.toLocaleString('en-IN') : 'Not available',
+                    ],
+                    ...(listing.conditionGrade ? [['Condition', listing.conditionGrade]] : []),
                     ['Location', `${listing.locationCity}, ${listing.locationState}`],
                     ['Complexity tier', listing.complexityTier],
                   ] as [string, string][]
                 ).map(([label, value]) => (
                     <div key={label} className="rounded-xl border border-dashed border-line-2 bg-white p-4">
                       <MonoLabel>{label}</MonoLabel>
-                      <p className="mt-1 text-[13.5px] font-bold text-ink">{value}</p>
+                      <p className="mt-1 font-mono text-[13.5px] font-bold text-ink">{value}</p>
                     </div>
                   ))}
               </div>
             </div>
+
+            {listing.catalogCategory?.specFields && listing.catalogCategory.specFields.length > 0 && (
+              <div className="mt-10">
+                <MonoLabel className="text-copper">— {listing.catalogCategory.name} specifications</MonoLabel>
+                <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {listing.catalogCategory.specFields.map((field) => {
+                    const { label, value } = formatSpecField(field, listing.specs?.[field.fieldKey]);
+                    return (
+                      <div key={field.id} className="rounded-xl border border-dashed border-line-2 bg-white p-4">
+                        <MonoLabel>{label}</MonoLabel>
+                        <p className="mt-1 font-mono text-[13.5px] font-bold text-ink">{value}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
-          <aside className="space-y-5">
+          <aside className="space-y-5 lg:sticky lg:top-24 lg:self-start">
             <div className="rounded-[14px] border border-line bg-white p-6">
               <div className="flex items-center justify-between">
                 <Tag tone={isCertified ? 'cert' : 'uncert'}>{isCertified ? 'Certified' : 'Unverified'}</Tag>
@@ -393,25 +393,34 @@ export function ListingDetail() {
             <div className="rounded-[14px] border border-line bg-white p-6">
               <MonoLabel className="text-copper">— Seller contact</MonoLabel>
 
-              {contactStatus?.paid && contactStatus.contact ? (
+              {contactStatus?.contact ? (
                 <div className="mt-4 space-y-2">
                   <div className="flex items-start gap-2.5 rounded-xl border border-forest-bdr bg-forest-bg p-4">
                     <CheckCircleIcon className="mt-0.5 h-4 w-4 shrink-0 text-forest" />
                     <div>
                       <p className="font-semibold text-ink">{contactStatus.contact.fullName}</p>
-                      <p className="mt-0.5 text-[13px] text-slate">ðŸ"ž {contactStatus.contact.phone}</p>
+                      <p className="mt-0.5 text-[13px] text-slate">📞 {contactStatus.contact.phone}</p>
+                      <p className="text-[13px] text-slate">📍 {contactStatus.contact.address}</p>
                       {contactStatus.contact.email && (
-                        <p className="text-[13px] text-slate">âœ‰ï¸ {contactStatus.contact.email}</p>
+                        <p className="text-[13px] text-slate">✉️ {contactStatus.contact.email}</p>
                       )}
                     </div>
                   </div>
+                  <p className="text-[11.5px] text-muted">
+                    {contactStatus.quotaRemaining} of {contactStatus.quotaTotal} contact views remaining
+                  </p>
                 </div>
               ) : isBuyerMode ? (
                 <div className="mt-4">
                   <p className="text-[13px] leading-[1.6] text-muted">
-                    Pay a one-time fee of{' '}
-                    <span className="font-semibold text-ink">{formatInr(String(contactPrice))}</span> to
-                    view the seller&apos;s phone number and email for this listing.
+                    Reveal this seller&apos;s phone number and address using one of your contact
+                    views.
+                    {contactStatus && (
+                      <>
+                        {' '}You have <span className="font-semibold text-ink">{contactStatus.quotaRemaining}</span> of{' '}
+                        {contactStatus.quotaTotal} views remaining.
+                      </>
+                    )}
                   </p>
                   {contactError && (
                     <div className="mt-3">
@@ -424,13 +433,10 @@ export function ListingDetail() {
                     disabled={contactLoading}
                   >
                     <RupeeIcon className="h-4 w-4" />
-                    {contactLoading ? 'Processing...' : `View contact (₹${contactPrice})`}
+                    {contactLoading ? 'Revealing...' : 'View contact'}
                   </Button>
-                  <p className="mt-2 text-center text-[11.5px] text-muted">
-                    Secure payment via Razorpay
-                  </p>
                 </div>
-              ) : (
+              ) : !user ? (
                 <div className="mt-4">
                   <div className="rounded-xl border border-dashed border-line-2 bg-paper p-4 text-center">
                     <p className="text-[13px] text-muted">
@@ -439,9 +445,33 @@ export function ListingDetail() {
                         className="font-semibold text-forest hover:underline"
                         onClick={() => navigate('/login', { state: { from: { pathname: `/listings/${listing.id}` } } })}
                       >
-                        Sign in as a buyer
+                        Sign in
                       </button>{' '}
-                      to view the seller&apos;s contact details (₹{contactPrice} one-time fee).
+                      to view the seller&apos;s contact details using your contact-view quota.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-4">
+                  <div className="rounded-xl border border-dashed border-line-2 bg-paper p-4 text-center">
+                    <p className="text-[13px] text-muted">
+                      You&apos;re currently in seller mode.{' '}
+                      <button
+                        type="button"
+                        className="font-semibold text-forest hover:underline disabled:opacity-60"
+                        disabled={modeSwitching}
+                        onClick={async () => {
+                          setModeSwitching(true);
+                          try {
+                            await switchMode('BUYER');
+                          } finally {
+                            setModeSwitching(false);
+                          }
+                        }}
+                      >
+                        {modeSwitching ? 'Switching...' : 'Switch to buyer mode'}
+                      </button>{' '}
+                      to view the seller&apos;s contact details.
                     </p>
                   </div>
                 </div>
@@ -449,7 +479,34 @@ export function ListingDetail() {
             </div>
           </aside>
         </div>
+
+        {related === null ? (
+          <div className="mt-14">
+            <MonoLabel className="text-copper">— Similar machines</MonoLabel>
+            <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+              <ListingGridSkeleton count={4} />
+            </div>
+          </div>
+        ) : related.length > 0 ? (
+          <div className="mt-14">
+            <MonoLabel className="text-copper">— Similar machines</MonoLabel>
+            <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+              {related.map((item) => (
+                <ListingCard key={item.id} listing={item} />
+              ))}
+            </div>
+          </div>
+        ) : null}
       </div>
+
+      {contactStatus && (
+        <QuotaAlertModal
+          open={showQuotaModal}
+          quotaUsed={contactStatus.quotaUsed}
+          quotaTotal={contactStatus.quotaTotal}
+          onClose={() => setShowQuotaModal(false)}
+        />
+      )}
     </div>
   );
 }

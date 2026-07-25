@@ -1,3 +1,4 @@
+import { forwardRef } from 'react';
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react';
 import { humanizeStatus } from '../lib/format';
 
@@ -28,34 +29,37 @@ export function Button({
   return <button className={`${base} ${variants[variant]} ${className}`} {...props} />;
 }
 
-export function Input({ className = '', ...props }: InputHTMLAttributes<HTMLInputElement>) {
-  return (
+export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
+  ({ className = '', ...props }, ref) => (
     <input
+      ref={ref}
       className={`w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-sm text-ink placeholder:text-muted outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/10 ${className}`}
       {...props}
     />
-  );
-}
+  ),
+);
 
-export function Textarea({ className = '', ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return (
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLTextAreaElement>>(
+  ({ className = '', ...props }, ref) => (
     <textarea
+      ref={ref}
       className={`w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-sm text-ink placeholder:text-muted outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/10 ${className}`}
       {...props}
     />
-  );
-}
+  ),
+);
 
-export function Select({ className = '', children, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
-  return (
+export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSelectElement>>(
+  ({ className = '', children, ...props }, ref) => (
     <select
+      ref={ref}
       className={`w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/10 disabled:cursor-not-allowed disabled:bg-navy/[0.04] disabled:text-muted ${className}`}
       {...props}
     >
       {children}
     </select>
-  );
-}
+  ),
+);
 
 export function Field({ label, children, hint, required }: { label: string; children: ReactNode; hint?: string; required?: boolean }) {
   return (
@@ -185,5 +189,46 @@ export function ErrorBanner({ message }: { message: string }) {
 export function SuccessBanner({ message }: { message: string }) {
   return (
     <div className="rounded-lg border border-forest-bdr bg-forest-bg px-4 py-3 text-sm font-medium text-forest">{message}</div>
+  );
+}
+
+/**
+ * Simple controlled modal — centered panel, no outside-click dismiss (only an
+ * explicit close button or caller-supplied footer actions close it).
+ */
+export function Modal({
+  open,
+  onClose,
+  title,
+  children,
+  footer,
+}: {
+  open: boolean;
+  onClose?: () => void;
+  title?: string;
+  children: ReactNode;
+  footer?: ReactNode;
+}) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 p-0 sm:items-center sm:p-6">
+      <div className="max-h-[90vh] w-full overflow-y-auto rounded-t-2xl border border-line bg-white p-6 shadow-xl sm:max-w-md sm:rounded-2xl">
+        <div className="mb-4 flex items-start justify-between gap-4">
+          {title && <h2 className="font-display text-xl text-ink">{title}</h2>}
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              className="ml-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-paper-2 hover:text-ink"
+            >
+              ×
+            </button>
+          )}
+        </div>
+        {children}
+        {footer && <div className="mt-6 flex flex-wrap items-center gap-3">{footer}</div>}
+      </div>
+    </div>
   );
 }

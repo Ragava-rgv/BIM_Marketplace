@@ -26,12 +26,6 @@ let AppSettingsService = class AppSettingsService {
             throw new common_1.NotFoundException(`Setting '${key}' not found`);
         return setting.value;
     }
-    async getContactRevealPrice() {
-        const setting = await this.prisma.appSetting.findUnique({
-            where: { key: 'contact_reveal_price_inr' },
-        });
-        return setting ? Number(setting.value) : 500;
-    }
     async update(key, value) {
         const existing = await this.prisma.appSetting.findUnique({ where: { key } });
         if (!existing)

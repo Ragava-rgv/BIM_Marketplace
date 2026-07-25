@@ -4,16 +4,16 @@ import { GstStatus } from '@machinebazaar/shared';
 import type { LoanApplicationDto, ReleasedContactSummaryDto } from '@machinebazaar/shared';
 import { api } from '../../lib/api';
 import { useAuth } from '../../lib/auth-context';
-import { getSavedListingIds } from '../../lib/saved-listings';
+import { useWishlist } from '../../lib/wishlist-context';
 import { formatInr, humanizeStatus } from '../../lib/format';
 import { Button, Card, EmptyState, LoadingBlock, PageHeading, StatusBadge } from '../../components/ui';
 import { CheckCircleIcon, ChevronRightIcon, MachineIcon, PlusIcon, RupeeIcon, ShieldCheckIcon } from '../../components/icons';
 
 export function BuyerDashboard() {
   const { user } = useAuth();
+  const { count: savedCount } = useWishlist();
   const [loans, setLoans] = useState<LoanApplicationDto[] | null>(null);
   const [contacts, setContacts] = useState<ReleasedContactSummaryDto[]>([]);
-  const savedCount = user ? getSavedListingIds(user.id).length : 0;
 
   useEffect(() => {
     let cancelled = false;

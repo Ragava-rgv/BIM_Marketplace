@@ -26,6 +26,11 @@ export enum ComplexityTier {
   COMPLEX = 'COMPLEX',
 }
 
+export enum ListingOrigin {
+  INDIAN = 'INDIAN',
+  IMPORTED = 'IMPORTED',
+}
+
 export enum MediaType {
   PHOTO = 'PHOTO',
   VIDEO = 'VIDEO',
@@ -115,6 +120,13 @@ export const FREE_LISTING_QUOTA = 2;
 export const STANDARD_LISTING_QUOTA = 4;
 export const STANDARD_SUBSCRIPTION_PRICE_INR = 1000;
 export const CONTACT_REVEAL_PRICE_INR = 500;
+
+/** Default buyer contact-view quota — used only by the seed script; runtime default comes from the DB-flagged isDefault plan */
+export const DEFAULT_BUYER_CONTACT_VIEW_QUOTA = 10;
+
+/** Quota-alert modal thresholds */
+export const QUOTA_ALERT_AFTER_USED = 4;
+export const QUOTA_ALERT_REMAINING_THRESHOLD = 2;
 
 /** Kitmondo-inspired industrial machinery categories (excludes broadcast, film/audio, construction, agriculture) */
 export const MACHINE_CATEGORIES = [

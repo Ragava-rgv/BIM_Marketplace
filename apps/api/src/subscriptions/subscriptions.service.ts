@@ -30,8 +30,21 @@ export class SubscriptionsService {
       include: { planConfig: true },
     });
 
-    // Quota comes from the active subscription record itself (snapshot at purchase time)
-    const quota = active ? active.listingQuota : FREE_LISTING_QUOTA;
+    // Quota enforcement reads the live plan config so admin edits take effect immediately;
+    // `active.listingQuota` (snapshot at purchase time) is only a fallback if the plan was
+    // since deleted/deactivated, so an existing subscriber isn't cut off by that.
+    let quota: number;
+    if (active) {
+      quota = active.planConfig && active.planConfig.isActive ? active.planConfig.listingQuota : active.listingQuota;
+    } else {
+      // Sellers with no paid subscription sit on the admin-configured "Free" plan config —
+      // read its live listingQuota so admin edits apply immediately, same as paid plans.
+      // FREE_LISTING_QUOTA is only a defensive fallback if that config row is ever missing.
+      const freePlan = await this.prisma.subscriptionPlanConfig.findFirst({
+        where: { isFree: true, isActive: true },
+      });
+      quota = freePlan?.listingQuota ?? FREE_LISTING_QUOTA;
+    }
 
     const activeListingsCount = await this.prisma.listing.count({
       where: {
@@ -114,7 +127,7 @@ export class SubscriptionsService {
     if (status.remainingSlots <= 0) {
       if (status.plan === SubscriptionPlan.FREE) {
         throw new ForbiddenException(
-          `Free plan allows ${FREE_LISTING_QUOTA} active listings. Upgrade your subscription to list more machines.`,
+          `Free plan allows ${status.listingQuota} active listings. Upgrade your subscription to list more machines.`,
         );
       }
       throw new ForbiddenException(

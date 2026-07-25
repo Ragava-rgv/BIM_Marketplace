@@ -30,9 +30,14 @@ const admin_module_1 = require("./admin/admin.module");
 const payments_module_1 = require("./payments/payments.module");
 const subscriptions_module_1 = require("./subscriptions/subscriptions.module");
 const subscription_plans_module_1 = require("./subscription-plans/subscription-plans.module");
-const contact_payments_module_1 = require("./contact-payments/contact-payments.module");
+const buyer_subscription_plans_module_1 = require("./buyer-subscription-plans/buyer-subscription-plans.module");
+const buyer_subscriptions_module_1 = require("./buyer-subscriptions/buyer-subscriptions.module");
 const catalog_module_1 = require("./catalog/catalog.module");
 const app_settings_module_1 = require("./app-settings/app-settings.module");
+const wishlist_module_1 = require("./wishlist/wishlist.module");
+const boost_plans_module_1 = require("./boost-plans/boost-plans.module");
+const listing_boosts_module_1 = require("./listing-boosts/listing-boosts.module");
+const advertisements_module_1 = require("./advertisements/advertisements.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -61,9 +66,14 @@ exports.AppModule = AppModule = __decorate([
             admin_module_1.AdminModule,
             subscriptions_module_1.SubscriptionsModule,
             subscription_plans_module_1.SubscriptionPlansModule,
-            contact_payments_module_1.ContactPaymentsModule,
+            buyer_subscription_plans_module_1.BuyerSubscriptionPlansModule,
+            buyer_subscriptions_module_1.BuyerSubscriptionsModule,
             catalog_module_1.CatalogModule,
             app_settings_module_1.AppSettingsModule,
+            wishlist_module_1.WishlistModule,
+            boost_plans_module_1.BoostPlansModule,
+            listing_boosts_module_1.ListingBoostsModule,
+            advertisements_module_1.AdvertisementsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

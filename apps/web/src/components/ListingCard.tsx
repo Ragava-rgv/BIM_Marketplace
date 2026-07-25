@@ -2,13 +2,19 @@
 import type { ListingDto } from '@machinebazaar/shared';
 import { ListingStatus } from '@machinebazaar/shared';
 import { formatInr } from '../lib/format';
-import { EyeIcon, MachineIcon, MapPinIcon, PlayIcon } from './icons';
+import { useAuth } from '../lib/auth-context';
+import { useWishlist } from '../lib/wishlist-context';
+import { EyeIcon, HeartIcon, MachineIcon, MapPinIcon, PlayIcon } from './icons';
 
 export function ListingCard({ listing }: { listing: ListingDto }) {
-  const cover = listing.media?.find((m) => m.type === 'PHOTO');
+  const { user } = useAuth();
+  const { isWishlisted, toggle } = useWishlist();
+  const photos = listing.media?.filter((m) => m.type === 'PHOTO') ?? [];
+  const cover = photos.find((m) => m.isPrimary) ?? photos[0];
   const video = listing.media?.find((m) => m.type === 'VIDEO');
   const isCertified = listing.status === ListingStatus.ACTIVE;
   const shortId = `MB-${listing.id.slice(0, 8).toUpperCase()}`;
+  const wishlisted = isWishlisted(listing.id);
 
   return (
     <Link
@@ -50,12 +56,30 @@ export function ListingCard({ listing }: { listing: ListingDto }) {
 
         {/* Video badge */}
         {video && (
-          <div className="absolute right-2.5 top-2.5 z-[2]">
+          <div className={`absolute top-2.5 z-[2] ${user ? 'right-[46px]' : 'right-2.5'}`}>
             <span className="inline-flex items-center gap-[5px] rounded-[6px] bg-[rgba(16,24,40,.85)] px-2.5 py-[4px] font-mono text-[10px] font-semibold tracking-[0.03em] text-white">
               <PlayIcon className="h-[8px] w-[8px] fill-[#6CE9A6] stroke-none" />
               VIDEO{video.durationSeconds ? ` ${video.durationSeconds}s` : ''}
             </span>
           </div>
+        )}
+
+        {/* Wishlist heart */}
+        {user && (
+          <button
+            type="button"
+            aria-label={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              void toggle(listing.id);
+            }}
+            className="absolute right-2.5 top-2.5 z-[2] flex h-7 w-7 items-center justify-center rounded-full border border-[#E4E7EC] bg-white/90 backdrop-blur transition hover:border-[#2D6A4F]"
+          >
+            <HeartIcon
+              className={`h-[14px] w-[14px] ${wishlisted ? 'fill-[#B45309] stroke-[#B45309]' : 'fill-none stroke-[#667085]'}`}
+            />
+          </button>
         )}
 
         {/* Ref ID */}
@@ -81,19 +105,15 @@ export function ListingCard({ listing }: { listing: ListingDto }) {
           {listing.machineMake} · {listing.machineModel} · GST verified
         </div>
 
-        {/* Spec strip — 3 cells */}
-        <div className="mb-3 grid grid-cols-3 overflow-hidden rounded-[9px] border border-[#E4E7EC]">
-          <div className="border-r border-[#E4E7EC] bg-[#FCFCFD] px-2.5 py-2">
-            <p className="mb-[2px] font-mono text-[8.5px] font-semibold uppercase tracking-[0.08em] text-[#667085]">Year</p>
-            <p className="text-[12px] font-semibold text-[#101828]">{listing.manufactureYear}</p>
-          </div>
+        {/* Spec strip — 2 cells */}
+        <div className="mb-3 grid grid-cols-2 overflow-hidden rounded-[9px] border border-[#E4E7EC]">
           <div className="border-r border-[#E4E7EC] bg-[#FCFCFD] px-2.5 py-2">
             <p className="mb-[2px] font-mono text-[8.5px] font-semibold uppercase tracking-[0.08em] text-[#667085]">Tier</p>
-            <p className="text-[12px] font-semibold text-[#101828]">{listing.complexityTier}</p>
+            <p className="font-mono text-[12px] font-semibold text-[#101828]">{listing.complexityTier}</p>
           </div>
           <div className="bg-[#FCFCFD] px-2.5 py-2">
             <p className="mb-[2px] font-mono text-[8.5px] font-semibold uppercase tracking-[0.08em] text-[#667085]">Type</p>
-            <p className="truncate text-[12px] font-semibold text-[#101828]">{listing.machineCategory}</p>
+            <p className="truncate font-mono text-[12px] font-semibold text-[#101828]">{listing.machineCategory}</p>
           </div>
         </div>
 
@@ -107,7 +127,7 @@ export function ListingCard({ listing }: { listing: ListingDto }) {
         <div className="mt-auto flex items-center justify-between border-t border-[#E4E7EC] pt-[13px]">
           <div>
             <p className="mb-[1px] font-mono text-[9px] font-semibold uppercase tracking-[0.08em] text-[#667085]">Asking</p>
-            <p className="text-[21px] font-extrabold leading-[1.1] tracking-[-0.5px] text-[#101828]">
+            <p className="font-mono text-[21px] font-extrabold leading-[1.1] tracking-[-0.5px] text-[#101828]">
               {formatInr(listing.askingPrice)}
             </p>
           </div>

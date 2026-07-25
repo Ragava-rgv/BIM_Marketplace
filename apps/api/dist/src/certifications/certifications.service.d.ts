@@ -19,7 +19,7 @@ export declare class CertificationsService {
             title: string;
             machineMake: string;
             machineModel: string;
-            manufactureYear: number;
+            manufactureYear: number | null;
             askingPrice: Prisma.Decimal;
         };
     } & {

@@ -12,7 +12,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AdminSettingsController = exports.PublicSettingsController = void 0;
+exports.AdminSettingsController = void 0;
 const common_1 = require("@nestjs/common");
 const class_validator_1 = require("class-validator");
 const client_1 = require("@prisma/client");
@@ -29,27 +29,6 @@ __decorate([
     (0, class_validator_1.MaxLength)(200),
     __metadata("design:type", String)
 ], UpdateSettingDto.prototype, "value", void 0);
-let PublicSettingsController = class PublicSettingsController {
-    service;
-    constructor(service) {
-        this.service = service;
-    }
-    async contactRevealPrice() {
-        const price = await this.service.getContactRevealPrice();
-        return { price };
-    }
-};
-exports.PublicSettingsController = PublicSettingsController;
-__decorate([
-    (0, common_1.Get)('contact-reveal-price'),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
-], PublicSettingsController.prototype, "contactRevealPrice", null);
-exports.PublicSettingsController = PublicSettingsController = __decorate([
-    (0, common_1.Controller)('settings'),
-    __metadata("design:paramtypes", [app_settings_service_1.AppSettingsService])
-], PublicSettingsController);
 let AdminSettingsController = class AdminSettingsController {
     service;
     constructor(service) {

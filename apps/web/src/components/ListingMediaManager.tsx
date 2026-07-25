@@ -8,7 +8,17 @@ import {
 import type { ListingMediaDto } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../lib/api';
 import { Button, ErrorBanner, Field, Input, Select } from './ui';
-import { CheckCircleIcon, AlertCircleIcon, PhotoIcon, TrashIcon, UploadIcon, VideoIcon } from './icons';
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  CheckCircleIcon,
+  AlertCircleIcon,
+  PhotoIcon,
+  StarIcon,
+  TrashIcon,
+  UploadIcon,
+  VideoIcon,
+} from './icons';
 
 interface Props {
   listingId: string;
@@ -18,8 +28,15 @@ interface Props {
 
 type UploadKind = 'PHOTO' | 'VIDEO';
 
+const MAX_PHOTO_BYTES = 10 * 1024 * 1024; // 10MB
+const MAX_VIDEO_BYTES = 200 * 1024 * 1024; // 200MB
+
 function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+function formatMb(bytes: number): string {
+  return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
 }
 
 /**
@@ -36,9 +53,12 @@ export function ListingMediaManager({ listingId, media, onChange }: Props) {
   const [durationSeconds, setDurationSeconds] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{ fileIndex: number; fileCount: number; pct: number } | null>(null);
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const [reorderingId, setReorderingId] = useState<string | null>(null);
+  const [primaryPending, setPrimaryPending] = useState<string | null>(null);
 
-  const photos = media.filter((m) => m.type === 'PHOTO');
+  const photos = media.filter((m) => m.type === 'PHOTO').sort((a, b) => a.orderIndex - b.orderIndex);
   const video = media.find((m) => m.type === 'VIDEO');
 
   const photoCountOk = photos.length >= MIN_LISTING_PHOTOS && photos.length <= MAX_LISTING_PHOTOS;
@@ -46,8 +66,8 @@ export function ListingMediaManager({ listingId, media, onChange }: Props) {
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    const file = fileInput.current?.files?.[0];
-    if (!file) {
+    const files = fileInput.current?.files;
+    if (!files || files.length === 0) {
       setError('Choose a file to upload first.');
       return;
     }
@@ -55,38 +75,103 @@ export function ListingMediaManager({ listingId, media, onChange }: Props) {
       setError('This listing already has a running video. Remove it before uploading a new one.');
       return;
     }
-    if (kind === 'PHOTO' && photos.length >= MAX_LISTING_PHOTOS) {
-      setError(`A listing may have at most ${MAX_LISTING_PHOTOS} photos.`);
+    if (kind === 'VIDEO' && files.length > 1) {
+      setError('Only one running video is allowed — please select a single file.');
       return;
+    }
+    if (kind === 'PHOTO' && photos.length + files.length > MAX_LISTING_PHOTOS) {
+      setError(`A listing may have at most ${MAX_LISTING_PHOTOS} photos — you selected ${files.length}, which would exceed the limit.`);
+      return;
+    }
+    if (kind === 'VIDEO' && (!durationSeconds || Number(durationSeconds) < MIN_VIDEO_DURATION_SECONDS)) {
+      setError(`The running video must be at least ${MIN_VIDEO_DURATION_SECONDS} seconds long.`);
+      return;
+    }
+
+    // Client-side type/size checks — the accept attribute is advisory only.
+    const maxBytes = kind === 'PHOTO' ? MAX_PHOTO_BYTES : MAX_VIDEO_BYTES;
+    for (const file of Array.from(files)) {
+      const expectedType = kind === 'PHOTO' ? 'image/' : 'video/';
+      if (!file.type.startsWith(expectedType)) {
+        setError(`"${file.name}" is not a valid ${kind === 'PHOTO' ? 'image' : 'video'} file.`);
+        return;
+      }
+      if (file.size > maxBytes) {
+        setError(`"${file.name}" is ${formatMb(file.size)}, which exceeds the ${formatMb(maxBytes)} limit.`);
+        return;
+      }
     }
 
     setError(null);
     setUploading(true);
     try {
-      const form = new FormData();
-      form.append('file', file);
-      form.append('type', kind);
-      if (kind === 'PHOTO') {
-        form.append('capturedAt', new Date(capturedAt).toISOString());
-      } else {
-        if (!durationSeconds || Number(durationSeconds) < MIN_VIDEO_DURATION_SECONDS) {
-          setError(`The running video must be at least ${MIN_VIDEO_DURATION_SECONDS} seconds long.`);
-          setUploading(false);
-          return;
+      const uploaded: ListingMediaDto[] = [];
+      const fileList = Array.from(files);
+      for (let i = 0; i < fileList.length; i++) {
+        const file = fileList[i];
+        setUploadProgress({ fileIndex: i, fileCount: fileList.length, pct: 0 });
+        const form = new FormData();
+        form.append('file', file);
+        form.append('type', kind);
+        if (kind === 'PHOTO') {
+          form.append('capturedAt', new Date(capturedAt).toISOString());
+        } else {
+          form.append('durationSeconds', durationSeconds);
         }
-        form.append('durationSeconds', durationSeconds);
+        const { data } = await api.post<ListingMediaDto>(`/listings/${listingId}/media`, form, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          onUploadProgress: (evt) => {
+            const pct = evt.total ? Math.round((evt.loaded / evt.total) * 100) : 0;
+            setUploadProgress({ fileIndex: i, fileCount: fileList.length, pct });
+          },
+        });
+        uploaded.push(data);
       }
-
-      const { data } = await api.post<ListingMediaDto>(`/listings/${listingId}/media`, form, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      onChange([...media, data]);
+      onChange([...media, ...uploaded]);
       if (fileInput.current) fileInput.current.value = '';
       setDurationSeconds('');
     } catch (err) {
       setError(apiErrorMessage(err, 'Could not upload that file. Please check the requirements and try again.'));
     } finally {
       setUploading(false);
+      setUploadProgress(null);
+    }
+  };
+
+  const handleMove = async (mediaId: string, direction: -1 | 1) => {
+    const index = photos.findIndex((p) => p.id === mediaId);
+    const swapIndex = index + direction;
+    if (index === -1 || swapIndex < 0 || swapIndex >= photos.length) return;
+
+    const reordered = [...photos];
+    [reordered[index], reordered[swapIndex]] = [reordered[swapIndex], reordered[index]];
+
+    setError(null);
+    setReorderingId(mediaId);
+    try {
+      const { data } = await api.patch<ListingMediaDto[]>(`/listings/${listingId}/media/reorder`, {
+        mediaIds: reordered.map((p) => p.id),
+      });
+      const untouched = media.filter((m) => m.type !== 'PHOTO');
+      onChange([...untouched, ...data.filter((m) => m.type === 'PHOTO')]);
+    } catch (err) {
+      setError(apiErrorMessage(err, 'Could not reorder photos.'));
+    } finally {
+      setReorderingId(null);
+    }
+  };
+
+  const handleSetPrimary = async (mediaId: string) => {
+    setError(null);
+    setPrimaryPending(mediaId);
+    try {
+      const { data } = await api.patch<ListingMediaDto[]>(`/listings/${listingId}/media/${mediaId}/primary`);
+      const untouched = media.filter((m) => m.type !== 'PHOTO');
+      onChange([...untouched, ...data.filter((m) => m.type === 'PHOTO')]);
+    } catch (err) {
+      setError(apiErrorMessage(err, 'Could not set this photo as primary.'));
+    } finally {
+      setPrimaryPending(null);
     }
   };
 
@@ -160,21 +245,35 @@ export function ListingMediaManager({ listingId, media, onChange }: Props) {
             ref={fileInput}
             type="file"
             accept={kind === 'PHOTO' ? 'image/*' : 'video/*'}
+            multiple={kind === 'PHOTO'}
             className="block w-full text-sm text-navy/60 file:mr-3 file:rounded-lg file:border-0 file:bg-navy/[0.06] file:px-3.5 file:py-2 file:text-sm file:font-semibold file:text-navy hover:file:bg-navy/10"
           />
         </div>
 
-        <div className="sm:col-span-3">
+        <div className="sm:col-span-3 space-y-2.5">
           <Button type="submit" disabled={uploading}>
             <UploadIcon className="h-4 w-4" />
-            {uploading ? 'Uploading...' : `Upload ${kind === 'PHOTO' ? 'photo' : 'video'}`}
+            {uploading ? 'Uploading...' : kind === 'PHOTO' ? 'Upload photos' : 'Upload video'}
           </Button>
+          {uploadProgress && (
+            <div>
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-navy/10">
+                <div
+                  className="h-full rounded-full bg-forest transition-[width]"
+                  style={{ width: `${uploadProgress.pct}%` }}
+                />
+              </div>
+              <p className="mt-1 text-xs text-navy/45">
+                Uploading file {uploadProgress.fileIndex + 1} of {uploadProgress.fileCount} — {uploadProgress.pct}%
+              </p>
+            </div>
+          )}
         </div>
       </form>
 
       {media.length > 0 && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {media.map((item) => (
+          {[...photos, ...(video ? [video] : [])].map((item, idx) => (
             <div key={item.id} className="group relative overflow-hidden rounded-xl border border-navy/10 bg-navy/[0.03]">
               <div className="flex aspect-square items-center justify-center">
                 {item.type === 'PHOTO' ? (
@@ -183,6 +282,51 @@ export function ListingMediaManager({ listingId, media, onChange }: Props) {
                   <video src={item.url} className="h-full w-full object-cover" muted />
                 )}
               </div>
+
+              {item.type === 'PHOTO' && item.isPrimary && (
+                <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-md bg-forest px-2 py-1 text-[10.5px] font-bold text-white">
+                  <StarIcon className="h-3 w-3 fill-white stroke-white" />
+                  Primary
+                </span>
+              )}
+
+              {item.type === 'PHOTO' && (
+                <div className="absolute right-2 top-2 flex flex-col gap-1 opacity-0 transition group-hover:opacity-100">
+                  {!item.isPrimary && (
+                    <button
+                      type="button"
+                      onClick={() => handleSetPrimary(item.id)}
+                      disabled={primaryPending === item.id}
+                      className="rounded-md bg-white/85 p-1.5 text-navy transition hover:bg-white"
+                      aria-label="Set as primary photo"
+                      title="Set as primary photo"
+                    >
+                      <StarIcon className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => handleMove(item.id, -1)}
+                    disabled={reorderingId === item.id || idx === 0}
+                    className="rounded-md bg-white/85 p-1.5 text-navy transition hover:bg-white disabled:opacity-40"
+                    aria-label="Move photo earlier"
+                    title="Move earlier"
+                  >
+                    <ArrowUpIcon className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleMove(item.id, 1)}
+                    disabled={reorderingId === item.id || idx === photos.length - 1}
+                    className="rounded-md bg-white/85 p-1.5 text-navy transition hover:bg-white disabled:opacity-40"
+                    aria-label="Move photo later"
+                    title="Move later"
+                  >
+                    <ArrowDownIcon className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
+
               <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-black/60 to-transparent px-2.5 py-2 text-xs text-white">
                 <span>
                   {item.type === 'PHOTO'

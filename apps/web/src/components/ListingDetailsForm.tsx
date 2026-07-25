@@ -5,6 +5,11 @@ import { api } from '../lib/api';
 import { Button, Field, Input, Select, Textarea } from './ui';
 import { DynamicSpecFields } from './DynamicSpecFields';
 import { INDIA_STATES, INDIA_STATES_AND_CITIES } from '../lib/india-locations';
+import { IMPORT_COUNTRIES } from '../lib/countries';
+import { scrollToFirstError, useFieldRefs } from '../lib/form-errors';
+
+const CURRENT_YEAR = new Date().getFullYear();
+const YEAR_OPTIONS = Array.from({ length: CURRENT_YEAR - 1950 + 1 }, (_, i) => CURRENT_YEAR - i);
 
 export interface ListingDetailsValues {
   title: string;
@@ -14,6 +19,8 @@ export interface ListingDetailsValues {
   machineMake: string;
   machineModel: string;
   manufactureYear: string;
+  origin: 'INDIAN' | 'IMPORTED';
+  importedCountry: string;
   askingPrice: string;
   locationCity: string;
   locationState: string;
@@ -23,7 +30,6 @@ export interface ListingDetailsValues {
   specs: Record<string, string>;
   conditionGrade: string;
   runningHours: string;
-  serialNumber: string;
   negotiable: boolean;
 }
 
@@ -34,7 +40,9 @@ export const EMPTY_LISTING_DETAILS: ListingDetailsValues = {
   machineSubcategory: '',
   machineMake: '',
   machineModel: '',
-  manufactureYear: String(new Date().getFullYear() - 1),
+  manufactureYear: '',
+  origin: 'INDIAN',
+  importedCountry: '',
   askingPrice: '',
   locationCity: '',
   locationState: '',
@@ -43,7 +51,6 @@ export const EMPTY_LISTING_DETAILS: ListingDetailsValues = {
   specs: {},
   conditionGrade: '',
   runningHours: '',
-  serialNumber: '',
   negotiable: false,
 };
 
@@ -55,7 +62,10 @@ export function listingDetailsToPayload(values: ListingDetailsValues) {
     machineSubcategory: values.machineSubcategory || undefined,
     machineMake: values.machineMake,
     machineModel: values.machineModel,
-    manufactureYear: Number(values.manufactureYear),
+    // Explicit null (not undefined) so clearing the field on an edit actually clears it, not just skips the update.
+    manufactureYear: values.manufactureYear ? Number(values.manufactureYear) : null,
+    origin: values.origin,
+    importedCountry: values.origin === 'IMPORTED' ? values.importedCountry || undefined : undefined,
     askingPrice: Number(values.askingPrice),
     locationCity: values.locationCity,
     locationState: values.locationState,
@@ -63,8 +73,7 @@ export function listingDetailsToPayload(values: ListingDetailsValues) {
     catalogCategoryId: values.catalogCategoryId || undefined,
     specs: values.catalogCategoryId && Object.keys(values.specs).length > 0 ? values.specs : undefined,
     conditionGrade: values.conditionGrade || undefined,
-    runningHours: values.runningHours ? Number(values.runningHours) : undefined,
-    serialNumber: values.serialNumber || undefined,
+    runningHours: values.runningHours ? Number(values.runningHours) : null,
     negotiable: values.negotiable,
   };
 }
@@ -83,6 +92,9 @@ export function ListingDetailsForm({
   const [values, setValues] = useState(initial);
   const [catGroups, setCatGroups] = useState<CategoryGroupDto[]>([]);
   const [specFields, setSpecFields] = useState<CategorySpecTemplateDto[]>([]);
+  const [runningHoursNA, setRunningHoursNA] = useState(initial.runningHours === '');
+  const [attempted, setAttempted] = useState(false);
+  const { refs, setFieldRef } = useFieldRefs<HTMLElement>();
 
   const set = <K extends keyof ListingDetailsValues>(key: K, value: ListingDetailsValues[K]) =>
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -124,7 +136,7 @@ export function ListingDetailsForm({
   const titleValid = values.title.trim().length >= 5;
   const descriptionValid = values.description.trim().length >= 20;
   const priceValid = Number(values.askingPrice) > 0;
-  const yearValid = Number(values.manufactureYear) >= 1950;
+  const originValid = values.origin !== 'IMPORTED' || values.importedCountry.trim() !== '';
 
   // Required spec fields must be filled
   const requiredSpecs = specFields.filter((f) => f.isRequired);
@@ -139,19 +151,25 @@ export function ListingDetailsForm({
     values.locationCity.trim() &&
     values.locationState.trim() &&
     priceValid &&
-    yearValid &&
+    originValid &&
     specsValid;
 
-  const missing: string[] = [];
-  if (!titleValid) missing.push(`Title needs at least 5 characters (${values.title.trim().length}/5)`);
-  if (!descriptionValid) missing.push(`Description needs at least 20 characters (${values.description.trim().length}/20)`);
-  if (!values.machineCategory.trim()) missing.push('Machine category is required');
-  if (!values.machineMake.trim()) missing.push('Make is required');
-  if (!values.machineModel.trim()) missing.push('Model is required');
-  if (!yearValid) missing.push('Manufacture year must be 1950 or later');
-  if (!priceValid) missing.push('Asking price must be greater than 0');
-  if (!values.locationState.trim()) missing.push('State is required');
-  if (!values.locationCity.trim()) missing.push('City is required');
+  // Field-keyed errors, in the same order the fields appear on screen — drives both
+  // the summary banner and scrollToFirstError (which jumps to the first key with both
+  // a truthy error and a registered ref).
+  const fieldOrder = ['title', 'description', 'machineCategory', 'machineMake', 'machineModel', 'importedCountry', 'askingPrice', 'locationState', 'locationCity'];
+  const fieldErrors: Record<string, string | false> = {
+    title: !titleValid && `Title needs at least 5 characters (${values.title.trim().length}/5)`,
+    description: !descriptionValid && `Description needs at least 20 characters (${values.description.trim().length}/20)`,
+    machineCategory: !values.machineCategory.trim() && 'Machine category is required',
+    machineMake: !values.machineMake.trim() && 'Make is required',
+    machineModel: !values.machineModel.trim() && 'Model is required',
+    askingPrice: !priceValid && 'Asking price must be greater than 0',
+    importedCountry: !originValid && 'Country of import is required for imported machines',
+    locationState: !values.locationState.trim() && 'State is required',
+    locationCity: !values.locationCity.trim() && 'City is required',
+  };
+  const missing = Object.values(fieldErrors).filter((v): v is string => !!v);
   requiredSpecs.forEach((f) => {
     if (!(values.specs[f.fieldKey] ?? '').trim()) missing.push(`${f.fieldLabel} is required`);
   });
@@ -160,16 +178,30 @@ export function ListingDetailsForm({
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        if (valid) void onSubmit(values);
+        setAttempted(true);
+        if (valid) {
+          void onSubmit(values);
+        } else {
+          scrollToFirstError(fieldOrder, fieldErrors, refs);
+        }
       }}
       className="space-y-5"
     >
       <Field label="Listing title" hint="Be specific — make, model and key spec helps buyers find you">
-        <Input value={values.title} onChange={(e) => set('title', e.target.value)} placeholder="2019 Hyundai R140 Excavator, well-maintained" required minLength={5} maxLength={160} />
+        <Input
+          ref={setFieldRef('title')}
+          value={values.title}
+          onChange={(e) => set('title', e.target.value)}
+          placeholder="2019 Hyundai R140 Excavator, well-maintained"
+          required
+          minLength={5}
+          maxLength={160}
+        />
       </Field>
 
       <Field label="Description">
         <Textarea
+          ref={setFieldRef('description')}
           rows={5}
           value={values.description}
           onChange={(e) => set('description', e.target.value)}
@@ -183,6 +215,7 @@ export function ListingDetailsForm({
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Field label="Machine category">
           <Select
+            ref={setFieldRef('machineCategory')}
             value={values.machineCategory}
             onChange={(e) => handleCategoryChange(e.target.value)}
             required
@@ -217,26 +250,56 @@ export function ListingDetailsForm({
           </Select>
         </Field>
         <Field label="Make">
-          <Input value={values.machineMake} onChange={(e) => set('machineMake', e.target.value)} placeholder="Hyundai" required />
+          <Input ref={setFieldRef('machineMake')} value={values.machineMake} onChange={(e) => set('machineMake', e.target.value)} placeholder="Hyundai" required />
         </Field>
         <Field label="Model">
-          <Input value={values.machineModel} onChange={(e) => set('machineModel', e.target.value)} placeholder="R140LC-9" required />
+          <Input ref={setFieldRef('machineModel')} value={values.machineModel} onChange={(e) => set('machineModel', e.target.value)} placeholder="R140LC-9" required />
         </Field>
-        <Field label="Manufacture year">
+        <Field label="Year bought" hint="Leave as “Not available” if unknown">
+          <Select value={values.manufactureYear} onChange={(e) => set('manufactureYear', e.target.value)}>
+            <option value="">Not available</option>
+            {YEAR_OPTIONS.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </Select>
+        </Field>
+        <Field label="Make origin">
+          <Select
+            value={values.origin}
+            onChange={(e) => set('origin', e.target.value as ListingDetailsValues['origin'])}
+            required
+          >
+            <option value="INDIAN">Indian</option>
+            <option value="IMPORTED">Imported</option>
+          </Select>
+        </Field>
+        {values.origin === 'IMPORTED' && (
+          <Field label="Country of import">
+            <Select ref={setFieldRef('importedCountry')} value={values.importedCountry} onChange={(e) => set('importedCountry', e.target.value)} required>
+              <option value="">Select country</option>
+              {IMPORT_COUNTRIES.map((country) => (
+                <option key={country} value={country}>
+                  {country}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        )}
+        <Field label="Asking price (₹)">
           <Input
-            type="number"
-            min={1950}
-            max={new Date().getFullYear()}
-            value={values.manufactureYear}
-            onChange={(e) => set('manufactureYear', e.target.value)}
+            ref={setFieldRef('askingPrice')}
+            type="text"
+            inputMode="numeric"
+            value={values.askingPrice ? Number(values.askingPrice).toLocaleString('en-IN') : ''}
+            onChange={(e) => set('askingPrice', e.target.value.replace(/[^0-9]/g, ''))}
+            placeholder="18,50,000"
             required
           />
         </Field>
-        <Field label="Asking price (₹)">
-          <Input type="number" min={0} value={values.askingPrice} onChange={(e) => set('askingPrice', e.target.value)} placeholder="1850000" required />
-        </Field>
         <Field label="State">
-          <Select value={values.locationState} onChange={(e) => handleStateChange(e.target.value)} required>
+          <Select ref={setFieldRef('locationState')} value={values.locationState} onChange={(e) => handleStateChange(e.target.value)} required>
             <option value="">Select state</option>
             {INDIA_STATES.map((state) => (
               <option key={state} value={state}>
@@ -246,7 +309,7 @@ export function ListingDetailsForm({
           </Select>
         </Field>
         <Field label="City">
-          <Select value={values.locationCity} onChange={(e) => set('locationCity', e.target.value)} required disabled={!values.locationState}>
+          <Select ref={setFieldRef('locationCity')} value={values.locationCity} onChange={(e) => set('locationCity', e.target.value)} required disabled={!values.locationState}>
             <option value="">{values.locationState ? 'Select city' : 'Select state first'}</option>
             {cities.map((city) => (
               <option key={city} value={city}>
@@ -300,20 +363,28 @@ export function ListingDetailsForm({
                 </Select>
               </Field>
               <Field label="Running hours" hint="Verified odometer / hour-meter reading">
-                <Input
-                  type="number"
-                  min={0}
-                  value={values.runningHours}
-                  onChange={(e) => set('runningHours', e.target.value)}
-                  placeholder="4200"
-                />
-              </Field>
-              <Field label="Serial number" hint="Manufacturer plate / nameplate serial">
-                <Input
-                  value={values.serialNumber}
-                  onChange={(e) => set('serialNumber', e.target.value)}
-                  placeholder="SN-202194"
-                />
+                <div className="space-y-2">
+                  <Input
+                    type="number"
+                    min={0}
+                    value={values.runningHours}
+                    onChange={(e) => set('runningHours', e.target.value)}
+                    placeholder="4200"
+                    disabled={runningHoursNA}
+                  />
+                  <label className="flex items-center gap-2 text-[12.5px] font-medium text-muted cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={runningHoursNA}
+                      onChange={(e) => {
+                        setRunningHoursNA(e.target.checked);
+                        if (e.target.checked) set('runningHours', '');
+                      }}
+                      className="h-3.5 w-3.5 rounded border-line text-forest focus:ring-forest/30"
+                    />
+                    Not available
+                  </label>
+                </div>
               </Field>
               <div className="flex items-end pb-1">
                 <label className="flex items-center gap-2 text-sm font-semibold text-ink cursor-pointer">
@@ -331,7 +402,7 @@ export function ListingDetailsForm({
         </div>
       )}
 
-      {!valid && missing.length > 0 && (
+      {attempted && !valid && missing.length > 0 && (
         <div className="rounded-[10px] border border-copper-bdr bg-copper-bg p-4">
           <p className="text-[12.5px] font-bold text-copper-2">Before you continue:</p>
           <ul className="mt-1.5 list-inside list-disc space-y-0.5 text-[12.5px] text-copper-2">

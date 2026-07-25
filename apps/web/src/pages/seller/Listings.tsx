@@ -1,16 +1,20 @@
 ﻿import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { GstStatus } from '@machinebazaar/shared';
+import { GstStatus, ListingStatus } from '@machinebazaar/shared';
 import type { ListingDto } from '@machinebazaar/shared';
 import { api } from '../../lib/api';
 import { useAuth } from '../../lib/auth-context';
 import { formatInr } from '../../lib/format';
 import { Button, EmptyState, LoadingBlock, PageHeading, StatusBadge } from '../../components/ui';
-import { PlusIcon } from '../../components/icons';
+import { BoostListingModal } from '../../components/BoostListingModal';
+import { PlusIcon, StarIcon } from '../../components/icons';
+
+const BOOSTABLE_STATUSES: string[] = [ListingStatus.ACTIVE, ListingStatus.UNDER_OFFER];
 
 export function SellerListings() {
   const { user } = useAuth();
   const [listings, setListings] = useState<ListingDto[] | null>(null);
+  const [boostingId, setBoostingId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -70,21 +74,53 @@ export function SellerListings() {
                 <tr key={listing.id} className="transition hover:bg-navy/[0.02]">
                   <td className="px-5 py-4">
                     <p className="font-semibold text-navy">{listing.title}</p>
-                    <p className="text-navy/45">{listing.machineMake} · {listing.machineModel} · {listing.manufactureYear}</p>
+                    <p className="text-navy/45">{listing.machineMake} · {listing.machineModel}</p>
                   </td>
                   <td className="px-5 py-4 font-medium text-navy">{formatInr(listing.askingPrice)}</td>
-                  <td className="px-5 py-4"><StatusBadge status={listing.status} /></td>
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-2">
+                      <StatusBadge status={listing.status} />
+                      {listing.isBoosted && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-forest-bg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-forest">
+                          <StarIcon className="h-3 w-3" />
+                          Boosted
+                        </span>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-5 py-4 text-navy/45">{new Date(listing.updatedAt).toLocaleDateString('en-IN')}</td>
                   <td className="px-5 py-4 text-right">
-                    <Link to={`/seller/listings/${listing.id}/edit`} className="text-sm font-semibold text-accent hover:text-accent-dark">
-                      Manage
-                    </Link>
+                    <div className="flex items-center justify-end gap-3">
+                      {BOOSTABLE_STATUSES.includes(listing.status) && (
+                        <button
+                          type="button"
+                          onClick={() => setBoostingId(listing.id)}
+                          className="text-sm font-semibold text-copper hover:text-copper-2"
+                        >
+                          Boost
+                        </button>
+                      )}
+                      <Link to={`/seller/listings/${listing.id}/edit`} className="text-sm font-semibold text-accent hover:text-accent-dark">
+                        Manage
+                      </Link>
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+      )}
+
+      {boostingId && (
+        <BoostListingModal
+          listingId={boostingId}
+          open={!!boostingId}
+          onClose={() => {
+            setBoostingId(null);
+            api.get<ListingDto[]>('/listings/mine/all').then(({ data }) => setListings(data)).catch(() => {});
+          }}
+        />
       )}
     </div>
   );

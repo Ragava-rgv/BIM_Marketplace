@@ -1,5 +1,5 @@
 ﻿import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { api, apiErrorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth-context';
 import { Button, ErrorBanner, Field, Input, MonoLabel } from '../../components/ui';
@@ -46,6 +46,11 @@ export function AdminLogin() {
         <Field label="Password">
           <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="********" />
         </Field>
+        <div className="text-right">
+          <Link to="/forgot-password" className="text-[13px] font-bold text-forest hover:text-forest-2">
+            Forgot password?
+          </Link>
+        </div>
         <Button type="submit" disabled={submitting} className="w-full">
           {submitting ? 'Signing in...' : 'Sign in'}
           <ChevronRightIcon className="h-4 w-4" />

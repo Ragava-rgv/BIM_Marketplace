@@ -10,11 +10,14 @@ import {
   ClockIcon,
   DocumentIcon,
   RupeeIcon,
+  TrendDownIcon,
 } from '../../components/icons';
 
 interface AdminDashboardSummary {
   listingsPendingReview: number;
   listingsActive: number;
+  listingsSold: number;
+  listingsInactive: number;
   loansAwaitingAction: number;
   certificationsInProgress: number;
   commissionsPending: number;
@@ -29,7 +32,9 @@ const TILES: Array<{
   tone: string;
 }> = [
   { key: 'listingsPendingReview', label: 'Listings pending review', icon: ClockIcon, to: '/admin/listings', tone: 'text-amber-600 bg-amber-50' },
-  { key: 'listingsActive', label: 'Active listings', icon: CheckCircleIcon, to: '/admin/listings', tone: 'text-emerald-600 bg-emerald-50' },
+  { key: 'listingsActive', label: 'Active listings', icon: CheckCircleIcon, to: '/admin/listings?status=ACTIVE', tone: 'text-emerald-600 bg-emerald-50' },
+  { key: 'listingsSold', label: 'Sold listings', icon: RupeeIcon, to: '/admin/listings?status=SOLD', tone: 'text-forest bg-forest-bg' },
+  { key: 'listingsInactive', label: 'Inactive listings', icon: TrendDownIcon, to: '/admin/listings?status=WITHDRAWN', tone: 'text-navy/60 bg-navy/[0.06]' },
   { key: 'loansAwaitingAction', label: 'Loans awaiting action', icon: BankIcon, to: '/admin/loan-applications', tone: 'text-accent bg-accent/10' },
   { key: 'certificationsInProgress', label: 'Certifications in progress', icon: DocumentIcon, to: '/admin/certifications', tone: 'text-navy bg-navy/[0.06]' },
   { key: 'commissionsPending', label: 'Commissions pending', icon: RupeeIcon, to: '/admin/transactions', tone: 'text-amber-600 bg-amber-50' },

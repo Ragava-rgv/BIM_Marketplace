@@ -1,4 +1,4 @@
-import { ComplexityTier } from '@prisma/client';
+import { ComplexityTier, ListingOrigin } from '@prisma/client';
 export declare class CreateListingDto {
     title: string;
     description: string;
@@ -6,7 +6,9 @@ export declare class CreateListingDto {
     machineSubcategory?: string;
     machineMake: string;
     machineModel: string;
-    manufactureYear: number;
+    manufactureYear?: number | null;
+    origin: ListingOrigin;
+    importedCountry?: string;
     askingPrice: number;
     locationCity: string;
     locationState: string;
@@ -14,7 +16,7 @@ export declare class CreateListingDto {
     catalogCategoryId?: string;
     specs?: Record<string, unknown>;
     conditionGrade?: string;
-    runningHours?: number;
+    runningHours?: number | null;
     serialNumber?: string;
     negotiable?: boolean;
 }

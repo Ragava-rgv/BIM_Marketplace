@@ -25,6 +25,7 @@ import { CreateListingDto } from './dto/create-listing.dto';
 import { UpdateListingDto } from './dto/update-listing.dto';
 import { QueryListingsDto } from './dto/query-listings.dto';
 import { UploadMediaDto } from './dto/upload-media.dto';
+import { ReorderMediaDto } from './dto/reorder-media.dto';
 
 const MAX_UPLOAD_BYTES = 250 * 1024 * 1024; // generous ceiling for >=60s operating-machine video
 
@@ -110,6 +111,28 @@ export class ListingsController {
   ) {
     await this.listings.removeMedia(user.id, id, mediaId);
     return { removed: true };
+  }
+
+  @Patch(':id/media/reorder')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.SELLER)
+  async reorderMedia(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() dto: ReorderMediaDto,
+  ) {
+    return this.listings.reorderMedia(user.id, id, dto.mediaIds);
+  }
+
+  @Patch(':id/media/:mediaId/primary')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.SELLER)
+  async setPrimaryMedia(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Param('mediaId') mediaId: string,
+  ) {
+    return this.listings.setPrimaryMedia(user.id, id, mediaId);
   }
 
   @Post(':id/submit')

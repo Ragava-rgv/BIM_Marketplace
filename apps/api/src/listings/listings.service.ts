@@ -83,7 +83,9 @@ export class ListingsService {
         machineSubcategory: dto.machineSubcategory ?? null,
         machineMake: dto.machineMake,
         machineModel: dto.machineModel,
-        manufactureYear: dto.manufactureYear,
+        manufactureYear: dto.manufactureYear ?? null,
+        origin: dto.origin,
+        importedCountry: dto.origin === 'IMPORTED' ? (dto.importedCountry ?? null) : null,
         askingPrice: new Prisma.Decimal(dto.askingPrice),
         locationCity: dto.locationCity,
         locationState: dto.locationState,
@@ -129,6 +131,8 @@ export class ListingsService {
       complexityTier,
       catalogCategoryId,
       specs,
+      origin,
+      importedCountry,
       ...rest
     } = dto as typeof dto & { catalogCategoryId?: string; specs?: Record<string, unknown> };
 
@@ -140,6 +144,9 @@ export class ListingsService {
         complexityTier: complexityTier as ComplexityTier | undefined,
         catalogCategoryId: catalogCategoryId ?? undefined,
         specs: specs !== undefined ? (specs as Prisma.InputJsonValue) : undefined,
+        origin,
+        // Clearing origin back to INDIAN (or leaving it untouched) drops any stale imported-country value.
+        importedCountry: origin === 'IMPORTED' ? importedCountry : origin === 'INDIAN' ? null : undefined,
       },
     });
   }
@@ -197,6 +204,8 @@ export class ListingsService {
         url: uploaded.url,
         capturedAt,
         orderIndex: existingPhotoCount,
+        // The first photo uploaded becomes primary by default; sellers can change it afterward.
+        isPrimary: existingPhotoCount === 0,
       },
     });
   }
@@ -244,6 +253,60 @@ export class ListingsService {
       throw new NotFoundException('Media item not found on this listing');
     }
     await this.prisma.listingMedia.delete({ where: { id: mediaId } });
+
+    // If the removed photo was primary, promote the next photo (by orderIndex) so a primary always exists.
+    if (media.isPrimary && media.type === MediaType.PHOTO) {
+      const next = await this.prisma.listingMedia.findFirst({
+        where: { listingId, type: MediaType.PHOTO },
+        orderBy: { orderIndex: 'asc' },
+      });
+      if (next) {
+        await this.prisma.listingMedia.update({ where: { id: next.id }, data: { isPrimary: true } });
+      }
+    }
+  }
+
+  /** Reorders a listing's media to match the given ID sequence (drives orderIndex; used for gallery drag/reorder). */
+  async reorderMedia(sellerId: string, listingId: string, mediaIds: string[]): Promise<ListingMedia[]> {
+    const listing = await this.findOwned(sellerId, listingId);
+    if (!MEDIA_UPDATABLE_STATUSES.includes(listing.status)) {
+      throw new ForbiddenException(`Media cannot be reordered while listing is in ${listing.status} status`);
+    }
+    const ownedIds = new Set(listing.media.map((m) => m.id));
+    if (mediaIds.length !== ownedIds.size || !mediaIds.every((id) => ownedIds.has(id))) {
+      throw new BadRequestException('mediaIds must include exactly the media items belonging to this listing');
+    }
+
+    await this.prisma.$transaction(
+      mediaIds.map((id, index) =>
+        this.prisma.listingMedia.update({ where: { id }, data: { orderIndex: index } }),
+      ),
+    );
+    return this.prisma.listingMedia.findMany({ where: { listingId }, orderBy: { orderIndex: 'asc' } });
+  }
+
+  /** Sets a single photo as the listing's primary image (card thumbnail + detail hero). */
+  async setPrimaryMedia(sellerId: string, listingId: string, mediaId: string): Promise<ListingMedia[]> {
+    const listing = await this.findOwned(sellerId, listingId);
+    if (!MEDIA_UPDATABLE_STATUSES.includes(listing.status)) {
+      throw new ForbiddenException(`Media cannot be changed while listing is in ${listing.status} status`);
+    }
+    const media = listing.media.find((m) => m.id === mediaId);
+    if (!media) {
+      throw new NotFoundException('Media item not found on this listing');
+    }
+    if (media.type !== MediaType.PHOTO) {
+      throw new BadRequestException('Only a photo can be set as the primary image');
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.listingMedia.updateMany({
+        where: { listingId, type: MediaType.PHOTO },
+        data: { isPrimary: false },
+      }),
+      this.prisma.listingMedia.update({ where: { id: mediaId }, data: { isPrimary: true } }),
+    ]);
+    return this.prisma.listingMedia.findMany({ where: { listingId }, orderBy: { orderIndex: 'asc' } });
   }
 
   private assertPhotoIsRecent(capturedAt: Date): void {
@@ -322,6 +385,35 @@ export class ListingsService {
     return this.prisma.listing.update({ where: { id: listing.id }, data: { status: ListingStatus.REJECTED } });
   }
 
+  /** Admin: mark a listing Sold — drops out of buyer results but stays on record (soft pattern). */
+  async markSold(listingId: string): Promise<Listing> {
+    const listing = await this.requireStatus(listingId, [ListingStatus.ACTIVE, ListingStatus.UNDER_OFFER]);
+    return this.prisma.listing.update({ where: { id: listing.id }, data: { status: ListingStatus.SOLD } });
+  }
+
+  /** Admin: mark a listing Inactive (withdrawn from buyer results without a sale). */
+  async markInactive(listingId: string): Promise<Listing> {
+    const listing = await this.requireStatus(listingId, [ListingStatus.ACTIVE, ListingStatus.UNDER_OFFER]);
+    return this.prisma.listing.update({ where: { id: listing.id }, data: { status: ListingStatus.WITHDRAWN } });
+  }
+
+  /** Admin: reactivate a Sold or Inactive listing back to the live marketplace. */
+  async reactivate(listingId: string): Promise<Listing> {
+    const listing = await this.requireStatus(listingId, [ListingStatus.SOLD, ListingStatus.WITHDRAWN]);
+    return this.prisma.listing.update({ where: { id: listing.id }, data: { status: ListingStatus.ACTIVE } });
+  }
+
+  private async requireStatus(listingId: string, allowed: ListingStatus[]): Promise<Listing> {
+    const listing = await this.prisma.listing.findUnique({ where: { id: listingId } });
+    if (!listing) {
+      throw new NotFoundException('Listing not found');
+    }
+    if (!allowed.includes(listing.status)) {
+      throw new BadRequestException(`Listing is in ${listing.status} status; expected one of ${allowed.join(', ')}`);
+    }
+    return listing;
+  }
+
   private async requirePendingReview(listingId: string): Promise<Listing> {
     const listing = await this.prisma.listing.findUnique({ where: { id: listingId } });
     if (!listing) {
@@ -343,7 +435,10 @@ export class ListingsService {
   async findPublicById(listingId: string): Promise<Listing & { media: ListingMedia[] }> {
     const listing = await this.prisma.listing.findFirst({
       where: { id: listingId, status: { in: [ListingStatus.ACTIVE, ListingStatus.UNDER_OFFER, ListingStatus.SOLD] } },
-      include: { media: { orderBy: { orderIndex: 'asc' } } },
+      include: {
+        media: { orderBy: { orderIndex: 'asc' } },
+        catalogCategory: { include: { specFields: { orderBy: { displayOrder: 'asc' } } } },
+      },
     });
     if (!listing) {
       throw new NotFoundException('Listing not found');
@@ -358,6 +453,7 @@ export class ListingsService {
       where: { id: listingId },
       include: {
         media: { orderBy: { orderIndex: 'asc' } },
+        catalogCategory: { include: { specFields: { orderBy: { displayOrder: 'asc' } } } },
         seller: {
           select: {
             id: true,
@@ -382,9 +478,46 @@ export class ListingsService {
   async adminList(query: AdminQueryListingsDto) {
     const where = await this.buildPublicWhere(query);
     if (query.status) {
-      (where as Prisma.ListingWhereInput).status = query.status;
+      where.status = query.status;
     }
-    return this.paginate(where, query);
+    if (query.sellerSearch) {
+      where.seller = {
+        OR: [
+          { fullName: { contains: query.sellerSearch, mode: 'insensitive' } },
+          { email: { contains: query.sellerSearch, mode: 'insensitive' } },
+          { phone: { contains: query.sellerSearch, mode: 'insensitive' } },
+        ],
+      };
+    }
+
+    const page = query.page ?? 1;
+    const pageSize = query.pageSize ?? 20;
+    const orderBy: Prisma.ListingOrderByWithRelationInput =
+      query.sort === 'price_asc'
+        ? { askingPrice: 'asc' }
+        : query.sort === 'price_desc'
+          ? { askingPrice: 'desc' }
+          : { createdAt: 'desc' };
+
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.listing.findMany({
+        where,
+        include: {
+          media: {
+            where: { type: MediaType.PHOTO },
+            orderBy: [{ isPrimary: 'desc' }, { orderIndex: 'asc' }],
+            take: 1,
+          },
+          seller: { select: { id: true, fullName: true, email: true, phone: true } },
+        },
+        orderBy,
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      this.prisma.listing.count({ where }),
+    ]);
+
+    return { items, total, page, pageSize };
   }
 
   private async buildPublicWhere(query: QueryListingsDto): Promise<Prisma.ListingWhereInput> {
@@ -401,6 +534,8 @@ export class ListingsService {
       if (sub) where.machineSubcategory = { equals: sub.name, mode: 'insensitive' };
     }
     if (query.make) where.machineMake = { equals: query.make, mode: 'insensitive' };
+    if (query.condition) where.conditionGrade = { equals: query.condition, mode: 'insensitive' };
+    if (query.origin) where.origin = query.origin;
     if (query.city) where.locationCity = { equals: query.city, mode: 'insensitive' };
     if (query.state) where.locationState = { equals: query.state, mode: 'insensitive' };
     if (query.yearMin || query.yearMax) {
@@ -426,15 +561,41 @@ export class ListingsService {
     return where;
   }
 
+  /** Clears stale `isBoosted` flags just-in-time, so sort order never trusts an expired boost (no cron job needed). */
+  private async sweepExpiredBoosts(): Promise<void> {
+    await this.prisma.listing.updateMany({
+      where: { isBoosted: true, boostExpiresAt: { lte: new Date() } },
+      data: { isBoosted: false },
+    });
+  }
+
   private async paginate(where: Prisma.ListingWhereInput, query: QueryListingsDto) {
+    await this.sweepExpiredBoosts();
+
     const page = query.page ?? 1;
     const pageSize = query.pageSize ?? 20;
+
+    const secondarySort: Prisma.ListingOrderByWithRelationInput =
+      query.sort === 'price_asc'
+        ? { askingPrice: 'asc' }
+        : query.sort === 'price_desc'
+          ? { askingPrice: 'desc' }
+          : query.sort === 'year_desc'
+            ? { manufactureYear: 'desc' }
+            : { createdAt: 'desc' };
+    const orderBy: Prisma.ListingOrderByWithRelationInput[] = [{ isBoosted: 'desc' }, secondarySort];
 
     const [items, total] = await this.prisma.$transaction([
       this.prisma.listing.findMany({
         where,
-        include: { media: { orderBy: { orderIndex: 'asc' }, take: 1 } },
-        orderBy: { createdAt: 'desc' },
+        include: {
+          media: {
+            where: { type: MediaType.PHOTO },
+            orderBy: [{ isPrimary: 'desc' }, { orderIndex: 'asc' }],
+            take: 1,
+          },
+        },
+        orderBy,
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
