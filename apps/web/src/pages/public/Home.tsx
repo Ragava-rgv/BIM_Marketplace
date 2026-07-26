@@ -8,6 +8,7 @@ import { ListingGridSkeleton } from '../../components/Skeleton';
 import { INDIA_STATES } from '../../lib/india-locations';
 import {
   ChevronRightIcon,
+  CloseIcon,
   ClockIcon,
   DocumentIcon,
   CheckCircleIcon,
@@ -106,6 +107,14 @@ export function Home() {
       .catch(() => { if (!cancelled) { setListings([]); setTotal(0); } });
     return () => { cancelled = true; };
   }, [selectedCategory, selectedSubcategory, selectedState, budgetIdx, brandInput]);
+
+  // Scroll to results only once the subtype panel has collapsed to its compact chip (after
+  // the re-render), so the scroll lands on the results' *final* position instead of a stale
+  // pre-collapse offset. Runs only when a subtype is picked, not when the chip clears it.
+  useEffect(() => {
+    if (!selectedSubcategory) return;
+    document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth' });
+  }, [selectedSubcategory]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -256,17 +265,38 @@ export function Home() {
               <p className="mb-2.5 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-muted">
                 {expandedCat.name} — subtypes
               </p>
-              <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+
+              {/* Mobile: once a machine type is picked, collapse the full subtype grid into a
+                  compact chip so results land right below without scrolling past the whole
+                  list — tapping the chip clears the pick and reopens the grid to change it.
+                  Desktop keeps the full grid visible either way (more room, less scroll cost). */}
+              {selectedSubcategory && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedSubcategory('')}
+                  className="mb-1 flex items-center gap-2 rounded-full border border-copper bg-[#FEF6EC] px-3.5 py-2 text-[12.5px] font-semibold text-copper lg:hidden"
+                >
+                  <span className="flex-1 truncate text-left">{selectedSubcategory}</span>
+                  {(() => {
+                    const activeSub = expandedSubs.find((s) => s.name === selectedSubcategory);
+                    return activeSub && activeSub.listingCount > 0 ? (
+                      <span className="shrink-0 rounded-full bg-copper px-1.5 py-0.5 font-mono text-[9.5px] font-bold text-white">
+                        {activeSub.listingCount.toLocaleString('en-IN')}
+                      </span>
+                    ) : null;
+                  })()}
+                  <CloseIcon className="h-3.5 w-3.5 shrink-0" />
+                </button>
+              )}
+
+              <div className={`grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 ${selectedSubcategory ? 'hidden lg:grid' : ''}`}>
                 {expandedSubs.map((sub) => {
                   const isActive = selectedSubcategory === sub.name;
                   return (
                     <button
                       key={sub.id}
                       type="button"
-                      onClick={() => {
-                        setSelectedSubcategory(isActive ? '' : sub.name);
-                        document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth' });
-                      }}
+                      onClick={() => setSelectedSubcategory(isActive ? '' : sub.name)}
                       className={`flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-[12px] font-semibold transition ${
                         isActive
                           ? 'border-copper bg-[#FEF6EC] text-copper'
@@ -309,11 +339,14 @@ export function Home() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          {/* Mobile: 3 compact columns so the whole set reads at a glance with minimal
+              scrolling; widens to the original 4/3-image tiles from sm: up. */}
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-5">
             {categories.map((cat) => {
               const CatIcon = CATEGORY_ICON_MAP[cat.slug] ?? MachineIcon;
               const subCount = cat.subcategories?.length ?? 0;
               const isActive = selectedCategory === cat.name;
+              const image = cat.thumbnailUrl || cat.imageUrl;
               return (
                 <button
                   key={cat.id}
@@ -322,18 +355,22 @@ export function Home() {
                     handleCategoryChipClick(cat);
                     document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className={`group relative overflow-hidden rounded-[14px] border text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-[#101828] hover:shadow-[0_12px_28px_rgba(15,30,26,0.08)] ${
+                  className={`group relative overflow-hidden rounded-[10px] border text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-[#101828] hover:shadow-[0_12px_28px_rgba(15,30,26,0.08)] sm:rounded-[14px] ${
                     isActive ? 'border-copper bg-[#FEF6EC]' : 'border-line bg-white'
                   }`}
                 >
-                  <div className={`flex aspect-[4/3] items-center justify-center ${isActive ? 'bg-[#FEF6EC]' : 'bg-gradient-to-br from-paper-2 to-paper'}`}>
-                    <CatIcon className={`h-10 w-10 ${isActive ? 'text-copper' : 'text-muted'}`} />
+                  <div className={`flex aspect-square items-center justify-center sm:aspect-[4/3] ${isActive ? 'bg-[#FEF6EC]' : 'bg-gradient-to-br from-paper-2 to-paper'}`}>
+                    {image ? (
+                      <img src={image} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      <CatIcon className={`h-7 w-7 sm:h-10 sm:w-10 ${isActive ? 'text-copper' : 'text-muted'}`} />
+                    )}
                   </div>
-                  <div className="p-3.5 pb-4">
-                    <p className={`text-[13px] font-bold leading-tight tracking-[-0.2px] ${isActive ? 'text-copper' : 'text-ink'}`}>
+                  <div className="p-1.5 pb-2 sm:p-3.5 sm:pb-4">
+                    <p className={`line-clamp-2 text-[10.5px] font-bold leading-tight tracking-[-0.1px] sm:line-clamp-1 sm:text-[13px] sm:tracking-[-0.2px] ${isActive ? 'text-copper' : 'text-ink'}`}>
                       {cat.name}
                     </p>
-                    <div className="mt-1 flex items-center gap-1.5">
+                    <div className="mt-1 hidden items-center gap-1.5 sm:flex">
                       {subCount > 0 && (
                         <p className="font-mono text-[10.5px] font-medium text-muted">
                           {subCount} types
@@ -487,7 +524,7 @@ export function Home() {
           {/* Results */}
           <div className="rounded-[14px] border border-line bg-white p-5">
             {listings === null ? (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
                 <ListingGridSkeleton />
               </div>
             ) : listings.length === 0 ? (
@@ -501,7 +538,7 @@ export function Home() {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
                   {listings.map((listing) => (
                     <ListingCard key={listing.id} listing={listing} />
                   ))}

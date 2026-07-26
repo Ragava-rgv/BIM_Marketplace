@@ -483,14 +483,14 @@ export function ListingDetail() {
         {related === null ? (
           <div className="mt-14">
             <MonoLabel className="text-copper">— Similar machines</MonoLabel>
-            <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-2 sm:gap-5 xl:grid-cols-4">
               <ListingGridSkeleton count={4} />
             </div>
           </div>
         ) : related.length > 0 ? (
           <div className="mt-14">
             <MonoLabel className="text-copper">— Similar machines</MonoLabel>
-            <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-2 sm:gap-5 xl:grid-cols-4">
               {related.map((item) => (
                 <ListingCard key={item.id} listing={item} />
               ))}

@@ -22,7 +22,7 @@ export function ListingCard({ listing }: { listing: ListingDto }) {
       className="group flex flex-col overflow-hidden rounded-xl border border-[#E4E7EC] bg-white transition-all duration-[180ms] hover:border-[#2D6A4F] hover:shadow-[0_8px_28px_rgba(16,24,40,.08)]"
     >
       {/* â"€â"€ Media area â"€â"€ */}
-      <div className="relative flex h-[168px] items-center justify-center overflow-hidden border-b border-[#E4E7EC] bg-[#F9FAFB]">
+      <div className="relative flex h-[110px] items-center justify-center overflow-hidden border-b border-[#E4E7EC] bg-[#F9FAFB] sm:h-[168px]">
         {/* Grid backdrop */}
         <div className="pointer-events-none absolute inset-0"
           style={{
@@ -89,53 +89,53 @@ export function ListingCard({ listing }: { listing: ListingDto }) {
       </div>
 
       {/* â"€â"€ Card body â"€â"€ */}
-      <div className="flex flex-1 flex-col p-[14px] pb-4">
+      <div className="flex flex-1 flex-col p-2.5 pb-3 sm:p-[14px] sm:pb-4">
         {/* Title */}
-        <p className="truncate text-[15.5px] font-bold tracking-[-0.2px] text-[#101828]">
+        <p className="truncate text-[12.5px] font-bold tracking-[-0.1px] text-[#101828] sm:text-[15.5px] sm:tracking-[-0.2px]">
           {listing.title}
         </p>
 
         {/* Seller / GST row */}
-        <div className="mb-3 mt-[3px] flex items-center gap-1.5 text-[12px] font-medium text-[#667085]">
-          <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-[#EDF7F2]">
+        <div className="mb-1.5 mt-0.5 flex items-center gap-1.5 truncate text-[10.5px] font-medium text-[#667085] sm:mb-3 sm:mt-[3px] sm:text-[12px]">
+          <span className="hidden h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-[#EDF7F2] sm:flex">
             <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
               <polyline points="1.5 4 3.2 5.8 6.5 2.2" stroke="#2D6A4F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </span>
-          {listing.machineMake} · {listing.machineModel} · GST verified
+          <span className="truncate">{listing.machineMake} · {listing.machineModel} · GST verified</span>
         </div>
 
         {/* Spec strip — 2 cells */}
-        <div className="mb-3 grid grid-cols-2 overflow-hidden rounded-[9px] border border-[#E4E7EC]">
-          <div className="border-r border-[#E4E7EC] bg-[#FCFCFD] px-2.5 py-2">
-            <p className="mb-[2px] font-mono text-[8.5px] font-semibold uppercase tracking-[0.08em] text-[#667085]">Tier</p>
-            <p className="font-mono text-[12px] font-semibold text-[#101828]">{listing.complexityTier}</p>
+        <div className="mb-1.5 grid grid-cols-2 overflow-hidden rounded-[9px] border border-[#E4E7EC] sm:mb-3">
+          <div className="border-r border-[#E4E7EC] bg-[#FCFCFD] px-1.5 py-1 sm:px-2.5 sm:py-2">
+            <p className="mb-[2px] hidden font-mono text-[8.5px] font-semibold uppercase tracking-[0.08em] text-[#667085] sm:block">Tier</p>
+            <p className="truncate font-mono text-[10px] font-semibold text-[#101828] sm:text-[12px]">{listing.complexityTier}</p>
           </div>
-          <div className="bg-[#FCFCFD] px-2.5 py-2">
-            <p className="mb-[2px] font-mono text-[8.5px] font-semibold uppercase tracking-[0.08em] text-[#667085]">Type</p>
-            <p className="truncate font-mono text-[12px] font-semibold text-[#101828]">{listing.machineCategory}</p>
+          <div className="bg-[#FCFCFD] px-1.5 py-1 sm:px-2.5 sm:py-2">
+            <p className="mb-[2px] hidden font-mono text-[8.5px] font-semibold uppercase tracking-[0.08em] text-[#667085] sm:block">Type</p>
+            <p className="truncate font-mono text-[10px] font-semibold text-[#101828] sm:text-[12px]">{listing.machineCategory}</p>
           </div>
         </div>
 
         {/* Location */}
-        <div className="mb-3.5 flex items-center gap-[5px] text-[12px] font-medium text-[#667085]">
-          <MapPinIcon className="h-[13px] w-[13px] shrink-0 stroke-[#667085]" />
-          {listing.locationCity}, {listing.locationState}
+        <div className="mb-1.5 flex items-center gap-[5px] truncate text-[10.5px] font-medium text-[#667085] sm:mb-3.5 sm:text-[12px]">
+          <MapPinIcon className="h-3 w-3 shrink-0 stroke-[#667085] sm:h-[13px] sm:w-[13px]" />
+          <span className="truncate">{listing.locationCity}, {listing.locationState}</span>
         </div>
 
         {/* Footer: price + actions */}
-        <div className="mt-auto flex items-center justify-between border-t border-[#E4E7EC] pt-[13px]">
-          <div>
-            <p className="mb-[1px] font-mono text-[9px] font-semibold uppercase tracking-[0.08em] text-[#667085]">Asking</p>
-            <p className="font-mono text-[21px] font-extrabold leading-[1.1] tracking-[-0.5px] text-[#101828]">
+        <div className="mt-auto flex items-center justify-between border-t border-[#E4E7EC] pt-2 sm:pt-[13px]">
+          <div className="min-w-0">
+            <p className="mb-[1px] hidden font-mono text-[9px] font-semibold uppercase tracking-[0.08em] text-[#667085] sm:block">Asking</p>
+            <p className="truncate font-mono text-[15px] font-extrabold leading-[1.1] tracking-[-0.3px] text-[#101828] sm:text-[21px] sm:tracking-[-0.5px]">
               {formatInr(listing.askingPrice)}
             </p>
           </div>
-          <div className="flex items-center gap-[7px]">
-            <span className="flex h-[38px] w-[38px] items-center justify-center rounded-lg border border-[#D0D5DD] bg-white transition hover:border-[#101828]">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-[7px]">
+            <span className="hidden h-[38px] w-[38px] items-center justify-center rounded-lg border border-[#D0D5DD] bg-white transition hover:border-[#101828] sm:flex">
               <EyeIcon className="h-[15px] w-[15px] stroke-[#344054]" />
             </span>
-            <span className="flex h-[38px] items-center rounded-lg bg-[#1B4332] px-4 text-[13px] font-semibold text-white transition group-hover:bg-[#2D6A4F]">
+            <span className="flex h-8 items-center rounded-lg bg-[#1B4332] px-2.5 text-[11.5px] font-semibold text-white transition group-hover:bg-[#2D6A4F] sm:h-[38px] sm:px-4 sm:text-[13px]">
               Enquire
             </span>
           </div>

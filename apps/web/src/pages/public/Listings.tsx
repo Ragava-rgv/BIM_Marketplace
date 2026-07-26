@@ -626,7 +626,7 @@ export function Listings() {
             />
           ) : (
             <>
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3">
                 {interleaveAds(result.items, ads).map((entry) =>
                   entry.kind === 'ad' ? (
                     <AdTile key={`ad-${entry.ad.id}`} ad={entry.ad} />
@@ -795,7 +795,7 @@ export function Listings() {
                   </p>
                   <SortSelect value={filters.sort} onChange={(v) => update('sort', v)} />
                 </div>
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3">
                   {interleaveAds(result.items, ads).map((entry) =>
                     entry.kind === 'ad' ? (
                       <AdTile key={`ad-${entry.ad.id}`} ad={entry.ad} />
