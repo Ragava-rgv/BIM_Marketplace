@@ -76,6 +76,7 @@ function ScheduleTable({
 
   return (
     <div className="overflow-hidden rounded-xl border border-navy/10">
+      <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead className="bg-navy/[0.02] text-left text-xs font-semibold uppercase tracking-wide text-navy/40">
           <tr>
@@ -119,6 +120,7 @@ function ScheduleTable({
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

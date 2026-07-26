@@ -5,7 +5,7 @@ import { useAuth } from '../lib/auth-context';
 import { useWishlist } from '../lib/wishlist-context';
 import { TickerBar } from '../components/TickerBar';
 import { BimIcon, BimLogoDark } from '../components/BimLogo';
-import { ChevronRightIcon, CloseIcon, HeartIcon, MenuIcon } from '../components/icons';
+import { ChevronRightIcon, CloseIcon, HeartIcon, MenuIcon, PlusIcon } from '../components/icons';
 import { INDIA_STATES } from '../lib/india-locations';
 
 const NAV_LINKS = [
@@ -20,23 +20,44 @@ function dashboardPath(user: { role: UserRole; activeMode: string; canSell: bool
   return '/buyer/dashboard';
 }
 
-/** Always-visible "Sell" CTA — the primary header action, routed by the viewer's current capability. */
-function SellButton({ className = '' }: { className?: string }) {
+/** Routes to the right place for the viewer's current capability — shared by the header Sell
+    button, the drawer's Sell button, and the mobile floating Sell button, so the routing rule
+    only lives in one place. */
+function useSellNavigate() {
   const { user } = useAuth();
   const navigate = useNavigate();
-
-  const go = () => {
+  return () => {
     if (!user) return navigate('/signup');
     if (!user.canSell) return navigate('/buyer/switch-to-seller');
     navigate('/seller/listings/new');
   };
+}
 
+/** Always-visible "Sell" CTA — the primary header action, routed by the viewer's current capability. */
+function SellButton({ className = '' }: { className?: string }) {
+  const go = useSellNavigate();
   return (
     <button
       type="button"
       onClick={go}
       className={`inline-flex items-center gap-1.5 rounded-lg bg-copper px-[18px] py-2.5 text-[13.5px] font-bold text-white transition hover:bg-copper-2 ${className}`}
     >
+      Sell
+    </button>
+  );
+}
+
+/** Mobile-only floating pill, always reachable while scrolling (OLX-style "+ SELL" FAB). */
+function FloatingSellButton() {
+  const go = useSellNavigate();
+  return (
+    <button
+      type="button"
+      onClick={go}
+      aria-label="Sell a machine"
+      className="fixed bottom-20 right-5 z-30 flex items-center gap-1.5 rounded-full bg-copper px-5 py-3 text-[13.5px] font-bold text-white shadow-[0_8px_24px_rgba(180,83,9,0.35)] transition hover:bg-copper-2 md:hidden"
+    >
+      <PlusIcon className="h-4 w-4" />
       Sell
     </button>
   );
@@ -205,7 +226,7 @@ export function PublicLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen flex-col overflow-x-hidden bg-white">
       <div className="flex h-9 items-center justify-center bg-forest px-4 text-center">
         <p className="flex items-center gap-2.5 text-[12.5px] font-medium text-white/90">
           <span className="rounded-full bg-white/15 px-2.5 py-0.5 font-mono text-[10.5px] font-bold uppercase tracking-[0.04em] text-white">
@@ -259,6 +280,13 @@ export function PublicLayout() {
             <SellButton className="shrink-0" />
           </div>
 
+          {/* Mobile-only: compact location selector next to the hamburger (OLX pattern —
+              hamburger, logo, location on the right, single line). Search gets its own
+              full-width row below instead of competing for space here. */}
+          <div className="ml-auto flex items-center gap-1 md:hidden">
+            <LocationSelect />
+          </div>
+
           <button
             type="button"
             className="rounded-lg p-2 text-ink md:hidden"
@@ -269,12 +297,17 @@ export function PublicLayout() {
           </button>
         </div>
 
-        {/* Row 2 — search is the dominant element here since it has the whole row to itself,
-            with only the compact location selector beside it. Desktop only (mobile search
-            lives in the hamburger menu instead, alongside the nav links). */}
-        <div className="mx-auto hidden max-w-7xl items-center gap-2 px-6 pb-3 pt-2.5 md:flex lg:px-[52px]">
+        {/* Row 2 — search is the dominant element here since it has the whole row to itself.
+            Desktop: search + location selector. Mobile: search + wishlist heart (location
+            already lives in Row 1 next to the hamburger on mobile). */}
+        <div className="mx-auto flex max-w-7xl items-center gap-2 px-6 pb-3 pt-2.5 lg:px-[52px]">
           <HeaderSearch />
-          <LocationSelect />
+          <div className="hidden md:block">
+            <LocationSelect />
+          </div>
+          <div className="md:hidden">
+            <WishlistLink />
+          </div>
         </div>
 
         {menuOpen && (
@@ -328,6 +361,8 @@ export function PublicLayout() {
       <main className="flex-1">
         <Outlet />
       </main>
+
+      <FloatingSellButton />
 
       <footer className="bg-ink px-6 py-14 text-white/50 lg:px-[52px]">
         <div className="mx-auto max-w-7xl">

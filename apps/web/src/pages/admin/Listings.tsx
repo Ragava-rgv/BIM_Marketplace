@@ -208,6 +208,7 @@ export function AdminListings() {
         <EmptyState title="Nothing here" description="No listings match the current filters." />
       ) : (
         <div className="overflow-hidden rounded-2xl border border-navy/10 bg-white">
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="border-b border-navy/10 bg-navy/[0.02] text-left text-xs font-semibold uppercase tracking-wide text-navy/40">
               <tr>
@@ -294,6 +295,7 @@ export function AdminListings() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

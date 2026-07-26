@@ -57,6 +57,7 @@ export function BuyerLoans() {
         />
       ) : (
         <div className="mt-6 overflow-hidden rounded-2xl border border-navy/10 bg-white">
+          <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="bg-navy/[0.03] text-xs font-semibold uppercase tracking-wide text-navy/40">
               <tr>
@@ -89,6 +90,7 @@ export function BuyerLoans() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

@@ -4,11 +4,12 @@ import type { AdvertisementDto, CategoryDto, ListingDto, PaginatedResult } from 
 import { api } from '../../lib/api';
 import { ListingCard } from '../../components/ListingCard';
 import { Button, EmptyState, Input } from '../../components/ui';
-import { ChevronRightIcon, CloseIcon, SearchIcon } from '../../components/icons';
+import { ChevronRightIcon, CloseIcon, SearchIcon, SlidersIcon } from '../../components/icons';
 import { INDIA_STATES } from '../../lib/india-locations';
 import { ActiveFilters } from '../../components/FilterChips';
 import { SortSelect } from '../../components/SortSelect';
 import { ListingGridSkeleton } from '../../components/Skeleton';
+import { FilterSheet } from '../../components/FilterSheet';
 
 type GridEntry = { kind: 'listing'; listing: ListingDto } | { kind: 'ad'; ad: AdvertisementDto };
 
@@ -94,6 +95,200 @@ const BUDGET_RANGES = [
   { label: '₹50L — ₹1Cr', min: '5000000', max: '10000000' },
   { label: 'Above ₹1Cr', min: '10000000', max: '' },
 ];
+
+/**
+ * The full filter set (search, category tree, make, state, budget, condition, origin) —
+ * shared by the desktop sidebar (always visible, lg+) and the mobile filter bottom sheet
+ * (opened on demand), so both surfaces stay in sync with a single field implementation.
+ */
+function FilterFields({
+  filters,
+  categories,
+  inputSearch,
+  handleSearchInput,
+  handleCategoryChange,
+  update,
+  applyFilters,
+}: {
+  filters: Filters;
+  categories: CategoryDto[];
+  inputSearch: string;
+  handleSearchInput: (value: string) => void;
+  handleCategoryChange: (cat: string) => void;
+  update: <K extends keyof Filters>(key: K, value: Filters[K]) => void;
+  applyFilters: (f: Filters) => void;
+}) {
+  return (
+    <div className="space-y-5">
+      {/* Search */}
+      <div>
+        <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">Search</p>
+        <div className="relative">
+          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+          <Input
+            placeholder="Title, make, model..."
+            className="pl-9"
+            value={inputSearch}
+            onChange={(e) => handleSearchInput(e.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* Category — expandable tree */}
+      <div>
+        <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">Category</p>
+        <div className="space-y-0.5">
+          <button
+            type="button"
+            onClick={() => handleCategoryChange('')}
+            className={`flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-[12.5px] font-semibold transition ${
+              !filters.category ? 'bg-[#101828] text-white' : 'text-slate hover:bg-paper'
+            }`}
+          >
+            All categories
+          </button>
+          {categories.map((cat) => {
+            const isActive = filters.category === cat.name;
+            const isExpanded = isActive && (cat.subcategories?.length ?? 0) > 0;
+            return (
+              <div key={cat.id}>
+                <button
+                  type="button"
+                  onClick={() => handleCategoryChange(isActive ? '' : cat.name)}
+                  className={`flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-[12.5px] font-semibold transition ${
+                    isActive ? 'bg-copper text-white' : 'text-slate hover:bg-paper'
+                  }`}
+                >
+                  <span className="flex-1 line-clamp-1">{cat.name}</span>
+                  <span className={`ml-1.5 shrink-0 font-mono text-[9.5px] font-bold ${isActive ? 'text-white/70' : 'text-muted'}`}>
+                    {cat.listingCount > 0 ? cat.listingCount.toLocaleString('en-IN') : ''}
+                  </span>
+                </button>
+                {isExpanded && (
+                  <div className="ml-2.5 mt-0.5 space-y-0.5 border-l border-line pl-2.5">
+                    <button
+                      type="button"
+                      onClick={() => update('subcategory', '')}
+                      className={`flex w-full items-center rounded px-2 py-1 text-left text-[11.5px] font-semibold transition ${
+                        !filters.subcategory ? 'text-copper' : 'text-muted hover:text-ink'
+                      }`}
+                    >
+                      All {cat.name}
+                    </button>
+                    {(cat.subcategories ?? []).map((sub) => (
+                      <button
+                        key={sub.id}
+                        type="button"
+                        onClick={() => update('subcategory', filters.subcategory === sub.name ? '' : sub.name)}
+                        className={`flex w-full items-center justify-between rounded px-2 py-1 text-left text-[11.5px] font-semibold transition ${
+                          filters.subcategory === sub.name ? 'text-copper' : 'text-muted hover:text-ink'
+                        }`}
+                      >
+                        <span className="flex-1 line-clamp-1">{sub.name}</span>
+                        {sub.listingCount > 0 && (
+                          <span className={`shrink-0 rounded-full px-1.5 py-0.5 font-mono text-[9px] font-bold ${
+                            filters.subcategory === sub.name ? 'bg-copper text-white' : 'bg-paper-2 text-muted'
+                          }`}>
+                            {sub.listingCount.toLocaleString('en-IN')}
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Make */}
+      <div>
+        <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">Make</p>
+        <Input
+          placeholder="e.g. HMT, BFW, Mazak"
+          value={filters.make}
+          onChange={(e) => update('make', e.target.value)}
+        />
+      </div>
+
+      {/* State */}
+      <div>
+        <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">State</p>
+        <select
+          value={filters.state}
+          onChange={(e) => update('state', e.target.value)}
+          className={`${selectCls} w-full`}
+          style={{ backgroundImage: SELECT_ARROW }}
+        >
+          <option value="">All India</option>
+          {INDIA_STATES.map((s) => (
+            <option key={s} value={s}>{s}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Budget */}
+      <div>
+        <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">Budget (INR)</p>
+        <div className="space-y-1.5">
+          {BUDGET_RANGES.map((range) => {
+            const active = filters.priceMin === range.min && filters.priceMax === range.max;
+            return (
+              <button
+                key={range.label}
+                type="button"
+                onClick={() => {
+                  const next = { ...filters, priceMin: range.min, priceMax: range.max };
+                  applyFilters(next);
+                }}
+                className={`w-full rounded-lg border px-3 py-2 text-left text-[13px] font-medium transition ${
+                  active
+                    ? 'border-forest bg-forest-bg text-forest'
+                    : 'border-line bg-white text-muted hover:border-line-2 hover:text-ink'
+                }`}
+              >
+                {range.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Condition */}
+      <div>
+        <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">Condition</p>
+        <select
+          value={filters.condition}
+          onChange={(e) => update('condition', e.target.value)}
+          className={`${selectCls} w-full`}
+          style={{ backgroundImage: SELECT_ARROW }}
+        >
+          <option value="">Any</option>
+          {CONDITION_OPTIONS.map((c) => (
+            <option key={c.value} value={c.value}>{c.label}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Origin */}
+      <div>
+        <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">Origin</p>
+        <select
+          value={filters.origin}
+          onChange={(e) => update('origin', e.target.value)}
+          className={`${selectCls} w-full`}
+          style={{ backgroundImage: SELECT_ARROW }}
+        >
+          <option value="">Any</option>
+          {ORIGIN_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+      </div>
+    </div>
+  );
+}
 
 export function Listings() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -226,6 +421,11 @@ export function Listings() {
   const selectedCat = categories.find((c) => c.name === filters.category);
   const subcategories = selectedCat?.subcategories?.map((s) => s.name) ?? [];
   const totalPages = result ? Math.max(1, Math.ceil(result.total / result.pageSize)) : 1;
+  // Counts filters other than search/sort, since those already have their own visible affordances.
+  const activeFilterCount = [
+    filters.category, filters.subcategory, filters.make, filters.state,
+    filters.priceMin, filters.priceMax, filters.condition, filters.origin,
+  ].filter(Boolean).length;
 
   // â"€â"€â"€ SEARCH MODE â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
   if (isSearchMode) {
@@ -463,173 +663,15 @@ export function Listings() {
           {/* SIDEBAR */}
           <aside className="hidden w-64 shrink-0 lg:block">
             <form onSubmit={(e) => { e.preventDefault(); applyFilters({ ...filters, search: inputSearch }); }} className="space-y-5">
-              {/* Search */}
-              <div>
-                <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">Search</p>
-                <div className="relative">
-                  <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
-                  <Input
-                    placeholder="Title, make, model..."
-                    className="pl-9"
-                    value={inputSearch}
-                    onChange={(e) => handleSearchInput(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {/* Category — expandable tree */}
-              <div>
-                <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">Category</p>
-                <div className="space-y-0.5">
-                  <button
-                    type="button"
-                    onClick={() => handleCategoryChange('')}
-                    className={`flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-[12.5px] font-semibold transition ${
-                      !filters.category ? 'bg-[#101828] text-white' : 'text-slate hover:bg-paper'
-                    }`}
-                  >
-                    All categories
-                  </button>
-                  {categories.map((cat) => {
-                    const isActive = filters.category === cat.name;
-                    const isExpanded = isActive && (cat.subcategories?.length ?? 0) > 0;
-                    return (
-                      <div key={cat.id}>
-                        <button
-                          type="button"
-                          onClick={() => handleCategoryChange(isActive ? '' : cat.name)}
-                          className={`flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-[12.5px] font-semibold transition ${
-                            isActive ? 'bg-copper text-white' : 'text-slate hover:bg-paper'
-                          }`}
-                        >
-                          <span className="flex-1 line-clamp-1">{cat.name}</span>
-                          <span className={`ml-1.5 shrink-0 font-mono text-[9.5px] font-bold ${isActive ? 'text-white/70' : 'text-muted'}`}>
-                            {cat.listingCount > 0 ? cat.listingCount.toLocaleString('en-IN') : ''}
-                          </span>
-                        </button>
-                        {isExpanded && (
-                          <div className="ml-2.5 mt-0.5 space-y-0.5 border-l border-line pl-2.5">
-                            <button
-                              type="button"
-                              onClick={() => update('subcategory', '')}
-                              className={`flex w-full items-center rounded px-2 py-1 text-left text-[11.5px] font-semibold transition ${
-                                !filters.subcategory ? 'text-copper' : 'text-muted hover:text-ink'
-                              }`}
-                            >
-                              All {cat.name}
-                            </button>
-                            {(cat.subcategories ?? []).map((sub) => (
-                              <button
-                                key={sub.id}
-                                type="button"
-                                onClick={() => update('subcategory', filters.subcategory === sub.name ? '' : sub.name)}
-                                className={`flex w-full items-center justify-between rounded px-2 py-1 text-left text-[11.5px] font-semibold transition ${
-                                  filters.subcategory === sub.name ? 'text-copper' : 'text-muted hover:text-ink'
-                                }`}
-                              >
-                                <span className="flex-1 line-clamp-1">{sub.name}</span>
-                                {sub.listingCount > 0 && (
-                                  <span className={`shrink-0 rounded-full px-1.5 py-0.5 font-mono text-[9px] font-bold ${
-                                    filters.subcategory === sub.name ? 'bg-copper text-white' : 'bg-paper-2 text-muted'
-                                  }`}>
-                                    {sub.listingCount.toLocaleString('en-IN')}
-                                  </span>
-                                )}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Make */}
-              <div>
-                <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">Make</p>
-                <Input
-                  placeholder="e.g. HMT, BFW, Mazak"
-                  value={filters.make}
-                  onChange={(e) => update('make', e.target.value)}
-                />
-              </div>
-
-              {/* State */}
-              <div>
-                <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">State</p>
-                <select
-                  value={filters.state}
-                  onChange={(e) => update('state', e.target.value)}
-                  className={`${selectCls} w-full`}
-                  style={{ backgroundImage: SELECT_ARROW }}
-                >
-                  <option value="">All India</option>
-                  {INDIA_STATES.map((s) => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Budget */}
-              <div>
-                <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">Budget (INR)</p>
-                <div className="space-y-1.5">
-                  {BUDGET_RANGES.map((range) => {
-                    const active = filters.priceMin === range.min && filters.priceMax === range.max;
-                    return (
-                      <button
-                        key={range.label}
-                        type="button"
-                        onClick={() => {
-                          const next = { ...filters, priceMin: range.min, priceMax: range.max };
-                          applyFilters(next);
-                        }}
-                        className={`w-full rounded-lg border px-3 py-2 text-left text-[13px] font-medium transition ${
-                          active
-                            ? 'border-forest bg-forest-bg text-forest'
-                            : 'border-line bg-white text-muted hover:border-line-2 hover:text-ink'
-                        }`}
-                      >
-                        {range.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Condition */}
-              <div>
-                <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">Condition</p>
-                <select
-                  value={filters.condition}
-                  onChange={(e) => update('condition', e.target.value)}
-                  className={`${selectCls} w-full`}
-                  style={{ backgroundImage: SELECT_ARROW }}
-                >
-                  <option value="">Any</option>
-                  {CONDITION_OPTIONS.map((c) => (
-                    <option key={c.value} value={c.value}>{c.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Origin */}
-              <div>
-                <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">Origin</p>
-                <select
-                  value={filters.origin}
-                  onChange={(e) => update('origin', e.target.value)}
-                  className={`${selectCls} w-full`}
-                  style={{ backgroundImage: SELECT_ARROW }}
-                >
-                  <option value="">Any</option>
-                  {ORIGIN_OPTIONS.map((o) => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
-                  ))}
-                </select>
-              </div>
-
+              <FilterFields
+                filters={filters}
+                categories={categories}
+                inputSearch={inputSearch}
+                handleSearchInput={handleSearchInput}
+                handleCategoryChange={handleCategoryChange}
+                update={update}
+                applyFilters={applyFilters}
+              />
               <div className="flex flex-col gap-2 pt-2">
                 <Button type="submit">
                   Apply filters
@@ -642,9 +684,35 @@ export function Listings() {
             </form>
           </aside>
 
+          {/* Mobile filter bottom sheet — same fields as the desktop sidebar above */}
+          <FilterSheet
+            open={filtersOpen}
+            onClose={() => setFiltersOpen(false)}
+            footer={
+              <div className="flex gap-2">
+                <Button type="button" onClick={() => setFiltersOpen(false)} className="flex-1 justify-center">
+                  Apply
+                </Button>
+                <Button type="button" variant="ghost" onClick={() => { clearAll(); setFiltersOpen(false); }}>
+                  Clear all
+                </Button>
+              </div>
+            }
+          >
+            <FilterFields
+              filters={filters}
+              categories={categories}
+              inputSearch={inputSearch}
+              handleSearchInput={handleSearchInput}
+              handleCategoryChange={handleCategoryChange}
+              update={update}
+              applyFilters={applyFilters}
+            />
+          </FilterSheet>
+
           {/* MAIN CONTENT */}
           <div className="min-w-0 flex-1">
-            {/* Mobile search bar */}
+            {/* Mobile search bar + Filters trigger (opens the bottom sheet with the full filter set) */}
             <div className="mb-5 flex gap-2 lg:hidden">
               <div className="relative flex-1">
                 <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
@@ -655,28 +723,19 @@ export function Listings() {
                   onChange={(e) => handleSearchInput(e.target.value)}
                 />
               </div>
-              <select
-                value={filters.category}
-                onChange={(e) => handleCategoryChange(e.target.value)}
-                className={`${selectCls} w-auto`}
-                style={{ backgroundImage: SELECT_ARROW }}
+              <button
+                type="button"
+                onClick={() => setFiltersOpen(true)}
+                className="relative flex shrink-0 items-center gap-1.5 rounded-lg border border-line bg-white px-3.5 py-2 text-[13px] font-semibold text-ink transition hover:border-ink"
               >
-                <option value="">Category</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.name}>{cat.name}</option>
-                ))}
-              </select>
-              <select
-                value={filters.state}
-                onChange={(e) => update('state', e.target.value)}
-                className={`${selectCls} w-auto`}
-                style={{ backgroundImage: SELECT_ARROW }}
-              >
-                <option value="">All India</option>
-                {INDIA_STATES.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
+                <SlidersIcon className="h-4 w-4" />
+                Filters
+                {activeFilterCount > 0 && (
+                  <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-copper px-1 font-mono text-[9.5px] font-bold text-white">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
             </div>
 
             {/* Category chips (browse mode — full cloud) */}

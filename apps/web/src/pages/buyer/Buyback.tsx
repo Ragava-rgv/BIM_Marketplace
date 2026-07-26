@@ -58,6 +58,7 @@ function OfferCard({ offer, onChanged }: { offer: BuybackOfferDto; onChanged: ()
         <div className="mt-4 border-t border-navy/10 pt-4">
           <MonoLabel>Buyback value table</MonoLabel>
           <div className="mt-2 overflow-hidden rounded-xl border border-navy/10">
+            <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-navy/[0.02] text-left text-xs font-semibold uppercase tracking-wide text-navy/40">
                 <tr>
@@ -76,6 +77,7 @@ function OfferCard({ offer, onChanged }: { offer: BuybackOfferDto; onChanged: ()
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
       )}

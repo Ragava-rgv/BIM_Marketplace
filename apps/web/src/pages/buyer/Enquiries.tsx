@@ -55,6 +55,7 @@ export function BuyerEnquiries() {
         />
       ) : (
         <div className="overflow-hidden rounded-2xl border border-line bg-white">
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="border-b border-line bg-paper text-left text-xs font-semibold uppercase tracking-wide text-muted">
               <tr>
@@ -85,6 +86,7 @@ export function BuyerEnquiries() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

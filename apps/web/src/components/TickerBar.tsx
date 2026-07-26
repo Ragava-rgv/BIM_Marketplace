@@ -28,7 +28,7 @@ export function TickerBar() {
   const track = [...listings, ...listings];
 
   return (
-    <div className="overflow-hidden border-b border-white/10 bg-ink py-2.5">
+    <div className="max-w-full overflow-hidden border-b border-white/10 bg-ink py-2.5">
       <div className="flex w-max ticker-track">
         {track.map((listing, idx) => (
           <Link

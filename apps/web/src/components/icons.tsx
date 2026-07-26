@@ -27,6 +27,15 @@ export const SearchIcon = (props: SVGProps<SVGSVGElement>) => (
   </Icon>
 );
 
+export const SlidersIcon = (props: SVGProps<SVGSVGElement>) => (
+  <Icon {...props}>
+    <path d="M3 6h18M3 12h18M3 18h18" />
+    <circle cx="15" cy="6" r="2" fill="currentColor" stroke="none" />
+    <circle cx="8" cy="12" r="2" fill="currentColor" stroke="none" />
+    <circle cx="17" cy="18" r="2" fill="currentColor" stroke="none" />
+  </Icon>
+);
+
 export const MachineIcon = (props: SVGProps<SVGSVGElement>) => (
   <Icon {...props}>
     <rect x="3" y="9" width="13" height="9" rx="1.5" />

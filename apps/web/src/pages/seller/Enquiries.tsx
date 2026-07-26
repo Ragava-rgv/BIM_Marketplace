@@ -47,6 +47,7 @@ export function SellerEnquiries() {
         <EmptyState title="No enquiries yet" description="When a buyer shows interest in one of your listings, it will appear here." />
       ) : (
         <div className="overflow-hidden rounded-2xl border border-line bg-white">
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="border-b border-line bg-paper text-left text-xs font-semibold uppercase tracking-wide text-muted">
               <tr>
@@ -80,6 +81,7 @@ export function SellerEnquiries() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

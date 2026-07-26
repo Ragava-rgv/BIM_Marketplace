@@ -151,6 +151,7 @@ export function AdminBuyerSubscriptions() {
       ) : (
         <>
           <div className="overflow-hidden rounded-2xl border border-navy/10 bg-white">
+            <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="border-b border-navy/10 bg-navy/[0.02] text-left text-xs font-semibold uppercase tracking-wide text-navy/40">
                 <tr>
@@ -196,6 +197,7 @@ export function AdminBuyerSubscriptions() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
 
           {totalPages > 1 && (
