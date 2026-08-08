@@ -6,6 +6,7 @@ const swagger_1 = require("@nestjs/swagger");
 const app_module_1 = require("./app.module");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
+    app.getHttpAdapter().getInstance().set('trust proxy', 1);
     app.enableCors({ origin: true, credentials: true });
     app.setGlobalPrefix('api', {
         exclude: [{ path: 'media/{*splat}', method: common_1.RequestMethod.ALL }],

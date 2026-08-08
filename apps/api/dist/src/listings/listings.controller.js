@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const platform_express_1 = require("@nestjs/platform-express");
 const client_1 = require("@prisma/client");
 const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
+const optional_jwt_auth_guard_1 = require("../common/guards/optional-jwt-auth.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
 const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
@@ -35,8 +36,8 @@ let ListingsController = class ListingsController {
     async browse(query) {
         return this.listings.browse(query);
     }
-    async getOne(id) {
-        return this.listings.findPublicById(id);
+    async getOne(id, user, req) {
+        return this.listings.findPublicById(id, user, req.ip);
     }
     async create(user, dto) {
         return this.listings.create(user.id, dto);
@@ -80,9 +81,12 @@ __decorate([
 ], ListingsController.prototype, "browse", null);
 __decorate([
     (0, common_1.Get)(':id'),
+    (0, common_1.UseGuards)(optional_jwt_auth_guard_1.OptionalJwtAuthGuard),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object, Object]),
     __metadata("design:returntype", Promise)
 ], ListingsController.prototype, "getOne", null);
 __decorate([

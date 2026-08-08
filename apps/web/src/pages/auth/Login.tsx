@@ -1,5 +1,6 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { UserRole } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth-context';
@@ -17,6 +18,7 @@ function dashboardPathForRole(role: UserRole): string {
 }
 
 export function Login() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { authenticate } = useAuth();
@@ -37,7 +39,7 @@ export function Login() {
       const target = state.from?.pathname ?? dashboardPathForRole(profile.role);
       navigate(target, { replace: true });
     } catch (err) {
-      setError(apiErrorMessage(err, 'Invalid mobile number or password.'));
+      setError(apiErrorMessage(err, t('auth.login.errorDefault')));
     } finally {
       setSubmitting(false);
     }
@@ -45,25 +47,25 @@ export function Login() {
 
   return (
     <div>
-      <MonoLabel className="text-copper">— Welcome back</MonoLabel>
-      <h1 className="mt-2 font-display text-[32px] font-medium tracking-[-0.6px] text-ink">Log in to BIM</h1>
-      <p className="mt-2 text-[14px] text-muted">Enter your registered mobile number and password.</p>
+      <MonoLabel className="text-copper">— {t('auth.login.eyebrow')}</MonoLabel>
+      <h1 className="mt-2 font-display text-[32px] font-medium tracking-[-0.6px] text-ink">{t('auth.login.title')}</h1>
+      <p className="mt-2 text-[14px] text-muted">{t('auth.login.subtitle')}</p>
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-5">
         {error && <ErrorBanner message={error} />}
-        <Field label="Mobile number" hint="10-digit Indian mobile number">
+        <Field label={t('auth.login.phoneLabel')} hint={t('auth.login.phoneHint')}>
           <Input
             inputMode="numeric"
-            placeholder="98765 43210"
+            placeholder={t('auth.login.phonePlaceholder')}
             value={phone}
             onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
             required
           />
         </Field>
-        <Field label="Password">
+        <Field label={t('auth.login.passwordLabel')}>
           <Input
             type="password"
-            placeholder="********"
+            placeholder={t('auth.login.passwordPlaceholder')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -72,25 +74,25 @@ export function Login() {
         </Field>
         <div className="text-right">
           <Link to="/forgot-password" className="text-[13px] font-bold text-forest hover:text-forest-2">
-            Forgot password?
+            {t('auth.login.forgotPassword')}
           </Link>
         </div>
         <Button type="submit" disabled={submitting || phone.length !== 10 || password.length < 8} className="w-full">
-          {submitting ? 'Signing in...' : 'Log in'}
+          {submitting ? t('auth.login.submitting') : t('auth.login.submit')}
           <ChevronRightIcon className="h-4 w-4" />
         </Button>
       </form>
 
       <p className="mt-6 text-[14px] text-muted">
-        New to BIM?{' '}
+        {t('auth.login.newToBim')}{' '}
         <Link to="/signup" className="font-bold text-forest hover:text-forest-2">
-          Create an account
+          {t('auth.login.createAccount')}
         </Link>
       </p>
       <p className="mt-2 text-[14px] text-muted">
-        Are you an administrator?{' '}
+        {t('auth.login.areYouAdmin')}{' '}
         <Link to="/admin/login" className="font-bold text-forest hover:text-forest-2">
-          Admin login
+          {t('auth.login.adminLogin')}
         </Link>
       </p>
     </div>

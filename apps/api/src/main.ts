@@ -6,6 +6,10 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Behind Railway's proxy in production — without this, req.ip is the proxy's address, not the
+  // real client IP (used to dedupe anonymous listing views).
+  app.getHttpAdapter().getInstance().set('trust proxy', 1);
+
   app.enableCors({ origin: true, credentials: true });
   // MediaController serves files at /media/... to match StorageService.getUrl() and the Vite /media proxy —
   // exclude it from the global /api prefix.

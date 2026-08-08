@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import type { AdvertisementDto } from '@machinebazaar/shared';
+import { useTranslation } from 'react-i18next';
+import { AdPlacement, type AdvertisementDto } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import {
   Button,
@@ -10,6 +11,7 @@ import {
   Input,
   LoadingBlock,
   PageHeading,
+  Select,
   SuccessBanner,
 } from '../../components/ui';
 import { PlusIcon, TrashIcon } from '../../components/icons';
@@ -21,6 +23,9 @@ interface AdFormValues {
   position: string;
   sortOrder: string;
   isActive: boolean;
+  placement: AdPlacement;
+  startsAt: string;
+  endsAt: string;
 }
 
 const EMPTY_FORM: AdFormValues = {
@@ -29,6 +34,9 @@ const EMPTY_FORM: AdFormValues = {
   position: '0',
   sortOrder: '0',
   isActive: true,
+  placement: AdPlacement.IN_GRID,
+  startsAt: '',
+  endsAt: '',
 };
 
 function adToForm(ad: AdvertisementDto): AdFormValues {
@@ -38,6 +46,9 @@ function adToForm(ad: AdvertisementDto): AdFormValues {
     position: String(ad.position),
     sortOrder: String(ad.sortOrder),
     isActive: ad.isActive,
+    placement: ad.placement,
+    startsAt: ad.startsAt ? ad.startsAt.slice(0, 10) : '',
+    endsAt: ad.endsAt ? ad.endsAt.slice(0, 10) : '',
   };
 }
 
@@ -48,6 +59,9 @@ function buildFormData(values: AdFormValues, file: File | null): FormData {
   form.append('position', values.position);
   form.append('sortOrder', values.sortOrder);
   form.append('isActive', String(values.isActive));
+  form.append('placement', values.placement);
+  if (values.startsAt) form.append('startsAt', new Date(values.startsAt).toISOString());
+  if (values.endsAt) form.append('endsAt', new Date(values.endsAt).toISOString());
   if (file) form.append('image', file);
   return form;
 }
@@ -65,6 +79,7 @@ function AdForm({
   onCancel?: () => void;
   submitLabel: string;
 }) {
+  const { t } = useTranslation();
   const [form, setForm] = useState<AdFormValues>(initial);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -76,8 +91,8 @@ function AdForm({
 
   const fieldOrder = ['title', 'position'];
   const fieldErrors: Record<string, string | false> = {
-    title: form.title.trim().length < 1 && 'Title is required',
-    position: !(Number(form.position) >= 0) && 'Position must be 0 or greater',
+    title: form.title.trim().length < 1 && t('admin.advertisements.validation.titleRequired'),
+    position: !(Number(form.position) >= 0) && t('admin.advertisements.validation.positionInvalid'),
   };
   const valid = Object.values(fieldErrors).every((v) => !v);
 
@@ -89,7 +104,7 @@ function AdForm({
     }
     const file = fileInput.current?.files?.[0] ?? null;
     if (requireImage && !file) {
-      setError('An image is required.');
+      setError(t('admin.advertisements.imageRequired'));
       return;
     }
     setSubmitting(true);
@@ -97,7 +112,7 @@ function AdForm({
     try {
       await onSave(form, file);
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not save advertisement.'));
+      setError(apiErrorMessage(err, t('admin.advertisements.saveError')));
     } finally {
       setSubmitting(false);
     }
@@ -107,19 +122,31 @@ function AdForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && <ErrorBanner message={error} />}
       <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-4">
-        <Field label="Title" hint="Internal label, not shown to buyers">
-          <Input ref={setFieldRef('title')} value={form.title} onChange={(e) => set('title', e.target.value)} placeholder="Q3 finance partner banner" required />
+        <Field label={t('admin.advertisements.fields.title')} hint={t('admin.advertisements.fields.titleHint')}>
+          <Input ref={setFieldRef('title')} value={form.title} onChange={(e) => set('title', e.target.value)} placeholder={t('admin.advertisements.fields.titlePlaceholder')} required />
         </Field>
-        <Field label="Link URL (optional)">
+        <Field label={t('admin.advertisements.fields.linkUrl')}>
           <Input value={form.linkUrl} onChange={(e) => set('linkUrl', e.target.value)} placeholder="https://…" />
         </Field>
-        <Field label="Position" hint="Grid slot interval index">
+        <Field label={t('admin.advertisements.fields.position')} hint={t('admin.advertisements.fields.positionHint')}>
           <Input ref={setFieldRef('position')} type="number" min={0} value={form.position} onChange={(e) => set('position', e.target.value)} required />
         </Field>
-        <Field label="Sort order" hint="Lower = shown first among ads">
+        <Field label={t('admin.advertisements.fields.sortOrder')} hint={t('admin.advertisements.fields.sortOrderHint')}>
           <Input type="number" min={0} value={form.sortOrder} onChange={(e) => set('sortOrder', e.target.value)} />
         </Field>
-        <Field label={requireImage ? 'Image' : 'Replace image (optional)'}>
+        <Field label={t('admin.advertisements.fields.placement')} hint={t('admin.advertisements.fields.placementHint')}>
+          <Select value={form.placement} onChange={(e) => set('placement', e.target.value as AdPlacement)}>
+            <option value={AdPlacement.IN_GRID}>{t('admin.advertisements.fields.placementInGrid')}</option>
+            <option value={AdPlacement.HOME_BANNER}>{t('admin.advertisements.fields.placementHomeBanner')}</option>
+          </Select>
+        </Field>
+        <Field label={t('admin.advertisements.fields.startsAt')} hint={t('admin.advertisements.fields.dateRangeHint')}>
+          <Input type="date" value={form.startsAt} onChange={(e) => set('startsAt', e.target.value)} />
+        </Field>
+        <Field label={t('admin.advertisements.fields.endsAt')}>
+          <Input type="date" value={form.endsAt} onChange={(e) => set('endsAt', e.target.value)} />
+        </Field>
+        <Field label={requireImage ? t('admin.advertisements.fields.image') : t('admin.advertisements.fields.replaceImage')}>
           <input
             ref={fileInput}
             type="file"
@@ -135,17 +162,17 @@ function AdForm({
               onChange={(e) => set('isActive', e.target.checked)}
               className="h-4 w-4 rounded border-navy/20 accent-accent"
             />
-            Active (shown in listing grid)
+            {t('admin.advertisements.fields.activeCheckbox')}
           </label>
         </div>
       </div>
       <div className="flex gap-3">
         <Button type="submit" disabled={!valid || submitting}>
-          {submitting ? 'Saving...' : submitLabel}
+          {submitting ? t('admin.advertisements.saving') : submitLabel}
         </Button>
         {onCancel && (
           <Button type="button" variant="ghost" onClick={onCancel}>
-            Cancel
+            {t('common:common.button.cancel')}
           </Button>
         )}
       </div>
@@ -154,6 +181,7 @@ function AdForm({
 }
 
 function AdRow({ ad, onChanged }: { ad: AdvertisementDto; onChanged: () => void }) {
+  const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -167,14 +195,14 @@ function AdRow({ ad, onChanged }: { ad: AdvertisementDto; onChanged: () => void 
   };
 
   const remove = async () => {
-    if (!confirm(`Delete "${ad.title}" advertisement? This cannot be undone.`)) return;
+    if (!confirm(t('admin.advertisements.deleteConfirm', { title: ad.title }))) return;
     setDeleting(true);
     setError(null);
     try {
       await api.delete(`/advertisements/${ad.id}`);
       onChanged();
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not delete this advertisement.'));
+      setError(apiErrorMessage(err, t('admin.advertisements.deleteError')));
       setDeleting(false);
     }
   };
@@ -182,9 +210,9 @@ function AdRow({ ad, onChanged }: { ad: AdvertisementDto; onChanged: () => void 
   if (editing) {
     return (
       <div className="border-t border-navy/10 p-5">
-        <p className="mb-4 font-semibold text-navy">Editing: {ad.title}</p>
+        <p className="mb-4 font-semibold text-navy">{t('admin.advertisements.editing', { title: ad.title })}</p>
         {error && <div className="mb-3"><ErrorBanner message={error} /></div>}
-        <AdForm initial={adToForm(ad)} requireImage={false} onSave={save} onCancel={() => setEditing(false)} submitLabel="Save changes" />
+        <AdForm initial={adToForm(ad)} requireImage={false} onSave={save} onCancel={() => setEditing(false)} submitLabel={t('admin.advertisements.saveChanges')} />
       </div>
     );
   }
@@ -205,18 +233,34 @@ function AdRow({ ad, onChanged }: { ad: AdvertisementDto; onChanged: () => void 
       <td className="px-5 py-4">
         <span
           className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${
+            ad.placement === 'HOME_BANNER'
+              ? 'bg-copper-bg text-copper-2 ring-copper-bdr'
+              : 'bg-navy/[0.05] text-navy/70 ring-navy/10'
+          }`}
+        >
+          {ad.placement === 'HOME_BANNER' ? t('admin.advertisements.fields.placementHomeBanner') : t('admin.advertisements.fields.placementInGrid')}
+        </span>
+        {(ad.startsAt || ad.endsAt) && (
+          <p className="mt-1 text-[11px] text-navy/40">
+            {ad.startsAt ? new Date(ad.startsAt).toLocaleDateString('en-IN') : '—'} → {ad.endsAt ? new Date(ad.endsAt).toLocaleDateString('en-IN') : '—'}
+          </p>
+        )}
+      </td>
+      <td className="px-5 py-4">
+        <span
+          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${
             ad.isActive
               ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20'
               : 'bg-slate-100 text-slate-600 ring-slate-500/20'
           }`}
         >
-          {ad.isActive ? 'Active' : 'Inactive'}
+          {ad.isActive ? t('admin.advertisements.active') : t('admin.advertisements.inactive')}
         </span>
       </td>
       <td className="px-5 py-4">
         <div className="flex items-center justify-end gap-2">
           <Button variant="ghost" onClick={() => setEditing(true)}>
-            Edit
+            {t('common:common.button.edit')}
           </Button>
           <Button variant="ghost" disabled={deleting} onClick={remove}>
             <TrashIcon className="h-4 w-4 text-red-500" />
@@ -228,6 +272,7 @@ function AdRow({ ad, onChanged }: { ad: AdvertisementDto; onChanged: () => void 
 }
 
 export function AdminAdvertisements() {
+  const { t } = useTranslation();
   const [ads, setAds] = useState<AdvertisementDto[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [reload, setReload] = useState(0);
@@ -244,11 +289,11 @@ export function AdminAdvertisements() {
       .catch((err) => {
         if (!cancelled) {
           setAds([]);
-          setError(apiErrorMessage(err, 'Could not load advertisements.'));
+          setError(apiErrorMessage(err, t('admin.advertisements.loadError')));
         }
       });
     return () => { cancelled = true; };
-  }, [reload]);
+  }, [reload, t]);
 
   const createAd = async (values: AdFormValues, file: File | null) => {
     await api.post('/advertisements', buildFormData(values, file), {
@@ -263,15 +308,15 @@ export function AdminAdvertisements() {
   return (
     <div>
       <PageHeading
-        eyebrow="Admin console"
-        title="Ad slots"
-        description="Manage the display-ad blocks interleaved into the buyer listing grid. Organic listing order is never disturbed by ads."
+        eyebrow={t('admin.advertisements.eyebrow')}
+        title={t('admin.advertisements.title')}
+        description={t('admin.advertisements.description')}
       />
 
       {error && <div className="mb-5"><ErrorBanner message={error} /></div>}
       {createSuccess && (
         <div className="mb-5">
-          <SuccessBanner message="Advertisement created successfully." />
+          <SuccessBanner message={t('admin.advertisements.createSuccess')} />
         </div>
       )}
 
@@ -279,14 +324,14 @@ export function AdminAdvertisements() {
         {showCreate ? (
           <Card>
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-display text-lg text-navy">New advertisement</h2>
+              <h2 className="font-display text-lg text-navy">{t('admin.advertisements.newAdTitle')}</h2>
             </div>
-            <AdForm initial={EMPTY_FORM} requireImage onSave={createAd} onCancel={() => setShowCreate(false)} submitLabel="Create ad" />
+            <AdForm initial={EMPTY_FORM} requireImage onSave={createAd} onCancel={() => setShowCreate(false)} submitLabel={t('admin.advertisements.createAd')} />
           </Card>
         ) : (
           <Button onClick={() => setShowCreate(true)}>
             <PlusIcon className="h-4 w-4" />
-            New ad slot
+            {t('admin.advertisements.newAdSlot')}
           </Button>
         )}
       </div>
@@ -294,16 +339,17 @@ export function AdminAdvertisements() {
       {ads === null ? (
         <LoadingBlock />
       ) : ads.length === 0 ? (
-        <EmptyState title="No ad slots yet" description="Add your first ad using the button above." />
+        <EmptyState title={t('admin.advertisements.emptyTitle')} description={t('admin.advertisements.emptyDescription')} />
       ) : (
         <div className="overflow-hidden rounded-2xl border border-navy/10 bg-white">
           <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="border-b border-navy/10 bg-navy/[0.02] text-left text-xs font-semibold uppercase tracking-wide text-navy/40">
               <tr>
-                <th className="px-5 py-3">Ad</th>
-                <th className="px-5 py-3">Position</th>
-                <th className="px-5 py-3">Status</th>
+                <th className="px-5 py-3">{t('admin.advertisements.columns.ad')}</th>
+                <th className="px-5 py-3">{t('admin.advertisements.columns.position')}</th>
+                <th className="px-5 py-3">{t('admin.advertisements.columns.placement')}</th>
+                <th className="px-5 py-3">{t('admin.advertisements.columns.status')}</th>
                 <th className="px-5 py-3" />
               </tr>
             </thead>

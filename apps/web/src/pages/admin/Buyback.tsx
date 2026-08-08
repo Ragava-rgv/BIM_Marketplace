@@ -1,5 +1,6 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { BuybackOfferDto, BuybackScheduleEntryDto, LoanApplicationDto } from '@machinebazaar/shared';
 import { BuybackStatus, CertificationStatus } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
@@ -7,6 +8,7 @@ import { formatDateTime, formatInr } from '../../lib/format';
 import { Button, Card, EmptyState, ErrorBanner, Field, Input, LoadingBlock, MonoLabel, PageHeading, StatusBadge, Textarea } from '../../components/ui';
 
 function EligibleApplications({ loans, onInitiated }: { loans: LoanApplicationDto[]; onInitiated: () => void }) {
+  const { t } = useTranslation();
   const [actingId, setActingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,7 +25,7 @@ function EligibleApplications({ loans, onInitiated }: { loans: LoanApplicationDt
       await api.post(`/buyback/from-loan/${loanId}`);
       onInitiated();
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not create a buyback agreement for this application.'));
+      setError(apiErrorMessage(err, t('admin.buyback.initiateError')));
     } finally {
       setActingId(null);
     }
@@ -31,7 +33,7 @@ function EligibleApplications({ loans, onInitiated }: { loans: LoanApplicationDt
 
   return (
     <div className="mb-8">
-      <MonoLabel>Eligible for a buyback agreement</MonoLabel>
+      <MonoLabel>{t('admin.buyback.eligibleHeading')}</MonoLabel>
       <div className="mt-3 space-y-3">
         {error && <ErrorBanner message={error} />}
         {eligible.map((loan) => {
@@ -41,16 +43,16 @@ function EligibleApplications({ loans, onInitiated }: { loans: LoanApplicationDt
               <div>
                 <p className="font-display text-lg text-navy">
                   <Link to={`/listings/${loan.listingId}`} className="hover:text-accent">
-                    {loan.listing?.title ?? `Listing ${loan.listingId.slice(0, 8)}...`}
+                    {loan.listing?.title ?? t('admin.buyback.listingFallback', { id: loan.listingId.slice(0, 8) })}
                   </Link>
                 </p>
                 <p className="mt-1 text-sm text-navy/55">
-                  {loan.buyer?.fullName} · Loan approved {formatDateTime(loan.createdAt)}
-                  {certifiedValue != null ? ` · Certified value ${formatInr(certifiedValue)}` : ''}
+                  {t('admin.buyback.loanApprovedLine', { buyer: loan.buyer?.fullName, time: formatDateTime(loan.createdAt) })}
+                  {certifiedValue != null ? t('admin.buyback.certifiedValueSuffix', { value: formatInr(certifiedValue) }) : ''}
                 </p>
               </div>
               <Button disabled={actingId === loan.id} onClick={() => initiate(loan.id)}>
-                {actingId === loan.id ? 'Creating...' : 'Initiate buyback agreement'}
+                {actingId === loan.id ? t('admin.buyback.creating') : t('admin.buyback.initiateAgreement')}
               </Button>
             </Card>
           );
@@ -69,6 +71,7 @@ function ScheduleTable({
   editable: boolean;
   onChange: (schedule: BuybackScheduleEntryDto[]) => void;
 }) {
+  const { t } = useTranslation();
   const update = (index: number, field: 'retainedValuePct' | 'buybackValue', value: string) => {
     const next = schedule.map((entry, i) => (i === index ? { ...entry, [field]: value } : entry));
     onChange(next);
@@ -80,15 +83,15 @@ function ScheduleTable({
       <table className="w-full text-sm">
         <thead className="bg-navy/[0.02] text-left text-xs font-semibold uppercase tracking-wide text-navy/40">
           <tr>
-            <th className="px-4 py-2">Year</th>
-            <th className="px-4 py-2">Retained value (%)</th>
-            <th className="px-4 py-2">Buyback value</th>
+            <th className="px-4 py-2">{t('admin.buyback.columns.year')}</th>
+            <th className="px-4 py-2">{t('admin.buyback.columns.retainedValue')}</th>
+            <th className="px-4 py-2">{t('admin.buyback.columns.buybackValue')}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-navy/10">
           {schedule.map((entry, index) => (
             <tr key={entry.yearOffset}>
-              <td className="px-4 py-2 font-medium text-navy">{entry.yearOffset === 0 ? 'Now' : `+${entry.yearOffset} yr`}</td>
+              <td className="px-4 py-2 font-medium text-navy">{entry.yearOffset === 0 ? t('admin.buyback.now') : t('admin.buyback.yearOffset', { year: entry.yearOffset })}</td>
               <td className="px-4 py-2">
                 {editable ? (
                   <Input
@@ -126,6 +129,7 @@ function ScheduleTable({
 }
 
 function AgreementCard({ offer, onChanged }: { offer: BuybackOfferDto; onChanged: () => void }) {
+  const { t } = useTranslation();
   const [schedule, setSchedule] = useState<BuybackScheduleEntryDto[]>(offer.depreciationSchedule ?? []);
   const [buybackWindowYears, setBuybackWindowYears] = useState(String(offer.agreementTerms?.buybackWindowYears ?? ''));
   const [noticePeriodDays, setNoticePeriodDays] = useState(String(offer.agreementTerms?.noticePeriodDays ?? ''));
@@ -152,7 +156,7 @@ function AgreementCard({ offer, onChanged }: { offer: BuybackOfferDto; onChanged
       });
       onChanged();
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not save the agreement.'));
+      setError(apiErrorMessage(err, t('admin.buyback.saveAgreementError')));
     } finally {
       setSaving(false);
     }
@@ -165,7 +169,7 @@ function AgreementCard({ offer, onChanged }: { offer: BuybackOfferDto; onChanged
       await api.post(`/buyback/${offer.id}/${action}`);
       onChanged();
     } catch (err) {
-      setError(apiErrorMessage(err, `Could not ${action} this offer.`));
+      setError(apiErrorMessage(err, action === 'accept' ? t('admin.buyback.acceptError') : t('admin.buyback.completeError')));
     } finally {
       setActing(false);
     }
@@ -181,17 +185,18 @@ function AgreementCard({ offer, onChanged }: { offer: BuybackOfferDto; onChanged
                 {offer.listing.title}
               </Link>
             ) : (
-              offer.machineReference ?? 'Machine'
+              offer.machineReference ?? t('admin.buyback.machineFallback')
             )}
           </p>
           <p className="mt-1 text-sm text-navy/55">
             {offer.listing && `${offer.listing.machineMake} ${offer.listing.machineModel} · ${offer.listing.manufactureYear} · `}
-            Machine age {offer.machineAgeYears} yr · Created {formatDateTime(offer.createdAt)}
+            {t('admin.buyback.machineAgeLine', { age: offer.machineAgeYears, time: formatDateTime(offer.createdAt) })}
           </p>
           <p className="mt-1 text-sm text-navy/55">
-            Original price {formatInr(offer.originalPrice)}
-            {offer.certifiedValue ? ` · Certified value ${formatInr(offer.certifiedValue)}` : ''} · Current buyback offer{' '}
-            {formatInr(offer.offerAmount)}
+            {t('admin.buyback.originalPrice', { price: formatInr(offer.originalPrice) })}
+            {offer.certifiedValue ? t('admin.buyback.certifiedValueSuffix', { value: formatInr(offer.certifiedValue) }) : ''}
+            {' '}
+            {t('admin.buyback.currentOffer', { amount: formatInr(offer.offerAmount) })}
           </p>
         </div>
         <StatusBadge status={offer.status} />
@@ -204,16 +209,16 @@ function AgreementCard({ offer, onChanged }: { offer: BuybackOfferDto; onChanged
       )}
 
       <div className="mt-4 border-t border-navy/10 pt-4">
-        <MonoLabel>Buyback value table</MonoLabel>
+        <MonoLabel>{t('admin.buyback.valueTable')}</MonoLabel>
         <div className="mt-2">
           <ScheduleTable schedule={schedule} editable={editable} onChange={setSchedule} />
         </div>
       </div>
 
       <div className="mt-4 border-t border-navy/10 pt-4">
-        <MonoLabel>Agreement terms</MonoLabel>
+        <MonoLabel>{t('admin.buyback.agreementTerms')}</MonoLabel>
         <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label="Buyback window (years)">
+          <Field label={t('admin.buyback.fields.buybackWindow')}>
             <Input
               type="number"
               min={1}
@@ -223,7 +228,7 @@ function AgreementCard({ offer, onChanged }: { offer: BuybackOfferDto; onChanged
               disabled={!editable}
             />
           </Field>
-          <Field label="Notice period (days)">
+          <Field label={t('admin.buyback.fields.noticePeriod')}>
             <Input
               type="number"
               min={0}
@@ -235,7 +240,7 @@ function AgreementCard({ offer, onChanged }: { offer: BuybackOfferDto; onChanged
           </Field>
         </div>
         <div className="mt-3">
-          <Field label="Conditions">
+          <Field label={t('admin.buyback.fields.conditions')}>
             <Textarea rows={5} value={conditions} onChange={(e) => setConditions(e.target.value)} disabled={!editable} />
           </Field>
         </div>
@@ -244,17 +249,17 @@ function AgreementCard({ offer, onChanged }: { offer: BuybackOfferDto; onChanged
       <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-navy/10 pt-4">
         {editable && (
           <Button disabled={saving} onClick={save}>
-            {saving ? 'Saving...' : 'Save agreement'}
+            {saving ? t('admin.buyback.saving') : t('admin.buyback.saveAgreement')}
           </Button>
         )}
         {offer.status === BuybackStatus.QUOTED && (
           <Button variant="secondary" disabled={acting} onClick={() => act('accept')}>
-            Mark accepted
+            {t('admin.buyback.markAccepted')}
           </Button>
         )}
         {offer.status === BuybackStatus.ACCEPTED && (
           <Button variant="secondary" disabled={acting} onClick={() => act('complete')}>
-            Mark completed
+            {t('admin.buyback.markCompleted')}
           </Button>
         )}
       </div>
@@ -263,6 +268,7 @@ function AgreementCard({ offer, onChanged }: { offer: BuybackOfferDto; onChanged
 }
 
 export function AdminBuyback() {
+  const { t } = useTranslation();
   const [loans, setLoans] = useState<LoanApplicationDto[] | null>(null);
   const [offers, setOffers] = useState<BuybackOfferDto[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -286,20 +292,20 @@ export function AdminBuyback() {
       .catch((err) => {
         if (!cancelled) {
           setOffers([]);
-          setError(apiErrorMessage(err, 'Could not load buyback agreements.'));
+          setError(apiErrorMessage(err, t('admin.buyback.loadError')));
         }
       });
     return () => {
       cancelled = true;
     };
-  }, [reload]);
+  }, [reload, t]);
 
   return (
     <div>
       <PageHeading
-        eyebrow="Admin console"
-        title="Buyback agreements"
-        description="Once a financed loan's certification is completed, initiate a buyback agreement anchored on the certified value. Edit the value table and terms before the seller accepts."
+        eyebrow={t('admin.buyback.eyebrow')}
+        title={t('admin.buyback.title')}
+        description={t('admin.buyback.description')}
       />
 
       {error && (
@@ -314,12 +320,12 @@ export function AdminBuyback() {
         <>
           <EligibleApplications loans={loans} onInitiated={() => setReload((n) => n + 1)} />
 
-          <MonoLabel>Agreements</MonoLabel>
+          <MonoLabel>{t('admin.buyback.agreements')}</MonoLabel>
           <div className="mt-3">
             {offers.length === 0 ? (
               <EmptyState
-                title="No buyback agreements yet"
-                description="Agreements appear here once initiated from a certified, financed loan application above."
+                title={t('admin.buyback.emptyTitle')}
+                description={t('admin.buyback.emptyDescription')}
               />
             ) : (
               <div className="space-y-4">

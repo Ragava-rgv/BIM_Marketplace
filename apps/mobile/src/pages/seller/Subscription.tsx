@@ -1,23 +1,15 @@
 ﻿import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { SubscriptionStatusDto, SubscriptionPlanConfigDto, RazorpayOrderDto } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import { AppLayout } from '../../components/AppLayout';
 import { formatInr, formatDate } from '../../lib/format';
 import { CheckIcon, ChevronRightIcon } from '../../components/icons';
-
-function loadRazorpayScript(): Promise<boolean> {
-  return new Promise((resolve) => {
-    if ((window as Record<string, unknown>).Razorpay) { resolve(true); return; }
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-}
+import { loadRazorpayScript } from '../../lib/razorpay';
 
 export function SellerSubscription() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [status, setStatus] = useState<SubscriptionStatusDto | null>(null);
   const [plans, setPlans] = useState<SubscriptionPlanConfigDto[]>([]);
@@ -47,9 +39,10 @@ export function SellerSubscription() {
     setError(null);
     setSuccessMsg(null);
     try {
-      const loaded = await loadRazorpayScript();
-      if (!loaded) {
-        setError('Could not load payment gateway. Please check your connection and try again.');
+      try {
+        await loadRazorpayScript();
+      } catch {
+        setError(t('seller.subscription.error.loadPaymentGateway'));
         setUpgrading(null);
         return;
       }
@@ -58,12 +51,12 @@ export function SellerSubscription() {
         planId: plan.id,
       });
 
-      const rzp = new (window as Record<string, unknown>).Razorpay({
+      const rzp = new window.Razorpay({
         key: order.keyId,
         amount: order.amount,
         currency: order.currency,
         name: 'BIM',
-        description: `${plan.displayName} subscription`,
+        description: t('seller.subscription.razorpayDescription', { planName: plan.displayName }),
         order_id: order.razorpayOrderId,
         handler: async (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
           try {
@@ -74,9 +67,9 @@ export function SellerSubscription() {
               razorpaySignature: response.razorpay_signature,
             });
             await fetchStatus();
-            setSuccessMsg(`${plan.displayName} plan activated successfully!`);
+            setSuccessMsg(t('seller.subscription.success.planActivated', { planName: plan.displayName }));
           } catch (err) {
-            setError(apiErrorMessage(err, 'Payment completed but activation failed. Contact support.'));
+            setError(apiErrorMessage(err, t('seller.subscription.error.activationFailed')));
           } finally {
             setUpgrading(null);
           }
@@ -87,9 +80,9 @@ export function SellerSubscription() {
         prefill: {},
         theme: { color: '#E8820C' },
       });
-      (rzp as { open: () => void }).open();
+      rzp.open();
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not initiate payment. Please try again.'));
+      setError(apiErrorMessage(err, t('seller.subscription.error.initiateFailed')));
       setUpgrading(null);
     }
   };
@@ -101,8 +94,8 @@ export function SellerSubscription() {
           <ChevronRightIcon className="w-4 h-4 text-gray-500 rotate-180" />
         </button>
         <div>
-          <h1 className="text-[17px] font-extrabold text-ink tracking-[-0.3px]">Subscription</h1>
-          <p className="text-[11px] text-gray-500">Manage your listing plan</p>
+          <h1 className="text-[17px] font-extrabold text-ink tracking-[-0.3px]">{t('seller.subscription.header.title')}</h1>
+          <p className="text-[11px] text-gray-500">{t('seller.subscription.header.subtitle')}</p>
         </div>
       </div>
 
@@ -128,15 +121,15 @@ export function SellerSubscription() {
             {/* Current plan card */}
             {status && (
               <div className="bg-forest rounded-[13px] px-4 py-4">
-                <p className="font-mono text-[9px] text-[#9BD8B8] font-semibold tracking-[0.1em] mb-2">CURRENT PLAN</p>
+                <p className="font-mono text-[9px] text-[#9BD8B8] font-semibold tracking-[0.1em] mb-2">{t('seller.subscription.currentPlan.heading')}</p>
                 <p className="text-[18px] font-extrabold text-white mb-1">
                   {status.subscription?.planConfig?.displayName ?? status.plan}
                 </p>
                 <div className="grid grid-cols-3 gap-2 mt-3">
                   {[
-                    ['Quota', `${status.listingQuota} listing${status.listingQuota !== 1 ? 's' : ''}`],
-                    ['Active', String(status.activeListingsCount)],
-                    ['Remaining', String(status.remainingSlots)],
+                    [t('seller.subscription.currentPlan.quota'), t('seller.subscription.currentPlan.listingCount', { count: status.listingQuota })],
+                    [t('seller.subscription.currentPlan.active'), String(status.activeListingsCount)],
+                    [t('seller.subscription.currentPlan.remaining'), String(status.remainingSlots)],
                   ].map(([label, value]) => (
                     <div key={label} className="bg-white/10 rounded-[8px] px-2 py-2 text-center">
                       <p className="font-mono text-[8px] text-white/55 mb-0.5">{label.toUpperCase()}</p>
@@ -146,7 +139,7 @@ export function SellerSubscription() {
                 </div>
                 {status.subscription?.expiresAt && (
                   <p className="text-[11px] text-white/55 mt-3">
-                    Expires {formatDate(status.subscription.expiresAt)}
+                    {t('seller.subscription.currentPlan.expires', { date: formatDate(status.subscription.expiresAt) })}
                   </p>
                 )}
               </div>
@@ -171,12 +164,12 @@ export function SellerSubscription() {
                       </p>
                       {isCurrent && (
                         <span className="text-[9.5px] font-bold text-forest bg-forest/10 px-2 py-0.5 rounded-full">
-                          CURRENT
+                          {t('seller.subscription.plan.current')}
                         </span>
                       )}
                     </div>
                     <p className={`text-[12.5px] ${isCurrent ? 'text-forest/70' : 'text-gray-500'}`}>
-                      {plan.isFree ? 'Free forever' : `${formatInr(plan.priceInr)} / ${plan.durationDays} days`}
+                      {plan.isFree ? t('seller.subscription.plan.freeForever') : t('seller.subscription.plan.priceDuration', { price: formatInr(plan.priceInr), days: plan.durationDays })}
                     </p>
                   </div>
 
@@ -185,18 +178,18 @@ export function SellerSubscription() {
                       <div className="flex items-center gap-2">
                         <CheckIcon className="w-3.5 h-3.5 text-forest flex-shrink-0" />
                         <p className="text-[12px] text-gray-600">
-                          Up to {plan.listingQuota} active listing{plan.listingQuota !== 1 ? 's' : ''}
+                          {t('seller.subscription.plan.upToListings', { count: plan.listingQuota })}
                         </p>
                       </div>
                       {!plan.isFree && (
                         <>
                           <div className="flex items-center gap-2">
                             <CheckIcon className="w-3.5 h-3.5 text-forest flex-shrink-0" />
-                            <p className="text-[12px] text-gray-600">Priority admin review</p>
+                            <p className="text-[12px] text-gray-600">{t('seller.subscription.plan.priorityReview')}</p>
                           </div>
                           <div className="flex items-center gap-2">
                             <CheckIcon className="w-3.5 h-3.5 text-forest flex-shrink-0" />
-                            <p className="text-[12px] text-gray-600">Featured in search results</p>
+                            <p className="text-[12px] text-gray-600">{t('seller.subscription.plan.featuredSearch')}</p>
                           </div>
                         </>
                       )}
@@ -214,12 +207,12 @@ export function SellerSubscription() {
                         }`}
                       >
                         {isUpgrading
-                          ? 'Opening payment...'
+                          ? t('seller.subscription.plan.openingPayment')
                           : isCurrent
-                            ? 'Current plan'
+                            ? t('seller.subscription.plan.currentPlanButton')
                             : status?.subscription
-                              ? 'Renew / Upgrade'
-                              : `Upgrade to ${plan.displayName}`}
+                              ? t('seller.subscription.plan.renewUpgrade')
+                              : t('seller.subscription.plan.upgradeTo', { planName: plan.displayName })}
                       </button>
                     )}
                   </div>

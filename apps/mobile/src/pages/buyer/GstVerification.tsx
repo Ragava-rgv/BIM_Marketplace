@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { GstStatus } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth-context';
@@ -12,6 +13,7 @@ const inputCls =
   'w-full h-[50px] bg-gray-50 border border-gray-200 rounded-[12px] px-4 text-[14px] text-ink font-mono font-medium placeholder-gray-400 outline-none focus:border-forest focus:bg-white transition uppercase tracking-widest';
 
 export function BuyerGstVerification() {
+  const { t } = useTranslation();
   const { user, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [gstNumber, setGstNumber] = useState(user?.gstNumber ?? '');
@@ -24,6 +26,8 @@ export function BuyerGstVerification() {
   const isActive = user.gstStatus === GstStatus.ACTIVE;
   const valid = GSTIN_RE.test(gstNumber.toUpperCase());
 
+  const whyItems = t('buyer.gstVerification.whyItems', { returnObjects: true }) as string[];
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -32,9 +36,9 @@ export function BuyerGstVerification() {
     try {
       await api.post('/gst/verify', { gstNumber: gstNumber.toUpperCase() });
       await refreshProfile();
-      setSuccess('GST verified successfully — your account is now active.');
+      setSuccess(t('buyer.gstVerification.success'));
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not verify that GSTIN. Please check the number and try again.'));
+      setError(apiErrorMessage(err, t('buyer.gstVerification.error')));
     } finally {
       setLoading(false);
     }
@@ -48,8 +52,8 @@ export function BuyerGstVerification() {
           <ChevronRightIcon className="w-4 h-4 text-gray-500 rotate-180" />
         </button>
         <div>
-          <p className="font-mono text-[9.5px] font-semibold text-copper tracking-[0.08em]">BUYER REQUIREMENT</p>
-          <h1 className="text-[17px] font-extrabold text-ink tracking-[-0.3px]">GST Verification</h1>
+          <p className="font-mono text-[9.5px] font-semibold text-copper tracking-[0.08em]">{t('buyer.gstVerification.badge')}</p>
+          <h1 className="text-[17px] font-extrabold text-ink tracking-[-0.3px]">{t('buyer.gstVerification.title')}</h1>
         </div>
       </div>
 
@@ -64,7 +68,7 @@ export function BuyerGstVerification() {
             <ShieldIcon className={`w-5 h-5 ${isActive ? 'text-green-txt' : 'text-gray-500'}`} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-semibold text-gray-500 mb-0.5">GST status</p>
+            <p className="text-[11px] font-semibold text-gray-500 mb-0.5">{t('buyer.gstVerification.statusLabel')}</p>
             <div className="flex items-center gap-2">
               <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2 py-0.5 rounded-full ${
                 isActive ? 'bg-green-txt/10 text-green-txt' :
@@ -75,7 +79,7 @@ export function BuyerGstVerification() {
                   isActive ? 'bg-green-txt' :
                   user.gstStatus === GstStatus.INACTIVE ? 'bg-red-500' : 'bg-gray-400'
                 }`} />
-                {user.gstStatus}
+                {t(`common:status.gst.${user.gstStatus}`)}
               </span>
               {user.businessName && (
                 <span className="text-[12px] font-semibold text-ink truncate">{user.businessName}</span>
@@ -92,10 +96,9 @@ export function BuyerGstVerification() {
           <div className="bg-green-bg border border-green-bdr rounded-[13px] px-4 py-4 flex items-start gap-3">
             <CheckIcon className="w-5 h-5 text-green-txt mt-0.5 flex-shrink-0" />
             <div>
-              <p className="text-[13px] font-bold text-green-txt mb-1">GST verification complete</p>
+              <p className="text-[13px] font-bold text-green-txt mb-1">{t('buyer.gstVerification.verified.title')}</p>
               <p className="text-[12px] text-green-txt/80 leading-relaxed">
-                Your GSTIN <span className="font-mono font-semibold">{user.gstNumber}</span> is verified and active.
-                You can apply for machine financing through our lending partners.
+                {t('buyer.gstVerification.verified.prefix')} <span className="font-mono font-semibold">{user.gstNumber}</span> {t('buyer.gstVerification.verified.suffix')}
               </p>
             </div>
           </div>
@@ -103,14 +106,9 @@ export function BuyerGstVerification() {
           <>
             {/* Why it matters */}
             <div className="bg-white border border-gray-200 rounded-[13px] px-4 py-4">
-              <p className="text-[13px] font-bold text-ink mb-3">Why GST verification matters</p>
-              {[
-                'Required to apply for machine loans (buyers)',
-                'Builds trust with sellers and our team',
-                'Mandatory for commission-tracked transactions',
-                'Browsing listings does not require GST',
-              ].map((item) => (
-                <div key={item} className="flex items-start gap-2.5 mb-2 last:mb-0">
+              <p className="text-[13px] font-bold text-ink mb-3">{t('buyer.gstVerification.whyTitle')}</p>
+              {whyItems.map((item, i) => (
+                <div key={i} className="flex items-start gap-2.5 mb-2 last:mb-0">
                   <CheckIcon className="w-3.5 h-3.5 text-forest mt-0.5 flex-shrink-0" />
                   <p className="text-[12px] text-gray-600">{item}</p>
                 </div>
@@ -119,16 +117,15 @@ export function BuyerGstVerification() {
 
             {/* Verification form */}
             <div className="bg-white border border-gray-200 rounded-[13px] px-4 py-4">
-              <p className="text-[13px] font-bold text-ink mb-1">Enter your GSTIN</p>
+              <p className="text-[13px] font-bold text-ink mb-1">{t('buyer.gstVerification.formTitle')}</p>
               <p className="text-[11.5px] text-gray-500 mb-4 leading-relaxed">
-                We validate your number through the Masters India API and auto-fill your business name.
-                This only applies for loan applications — you can browse freely without GST.
+                {t('buyer.gstVerification.formDescription')}
               </p>
 
               <form onSubmit={handleSubmit} className="space-y-3">
                 <div>
                   <label className="block text-[11px] font-semibold text-gray-600 mb-1">
-                    GSTIN <span className="text-red-500">*</span>
+                    {t('buyer.gstVerification.gstinLabel')} <span className="text-red-500">*</span>
                   </label>
                   <input
                     value={gstNumber}
@@ -138,7 +135,7 @@ export function BuyerGstVerification() {
                     maxLength={15}
                   />
                   <p className="mt-1 text-[10.5px] text-gray-400">
-                    15-character GST identification number
+                    {t('buyer.gstVerification.gstinHint')}
                   </p>
                 </div>
 
@@ -158,7 +155,7 @@ export function BuyerGstVerification() {
                   disabled={!valid || loading}
                   className="w-full h-[50px] bg-forest text-white rounded-[13px] text-[14.5px] font-bold disabled:opacity-50"
                 >
-                  {loading ? 'Verifying with Masters India…' : 'Verify GSTIN'}
+                  {loading ? t('buyer.gstVerification.verifying') : t('buyer.gstVerification.verifyButton')}
                 </button>
               </form>
             </div>

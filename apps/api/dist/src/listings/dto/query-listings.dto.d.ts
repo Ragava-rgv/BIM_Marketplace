@@ -1,4 +1,4 @@
-import { ListingOrigin, ListingStatus } from '@prisma/client';
+import { ListingCondition, ListingOrigin, ListingStatus } from '@prisma/client';
 export declare class QueryListingsDto {
     category?: string;
     subcategory?: string;
@@ -14,6 +14,7 @@ export declare class QueryListingsDto {
     search?: string;
     condition?: string;
     origin?: ListingOrigin;
+    conditionType?: ListingCondition;
     sort?: 'newest' | 'price_asc' | 'price_desc' | 'year_desc';
     page?: number;
     pageSize?: number;

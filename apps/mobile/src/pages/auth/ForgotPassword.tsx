@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { UserRole } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth-context';
@@ -9,6 +10,7 @@ function dashboardPath(role: UserRole): string {
 }
 
 export function ForgotPassword() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { authenticate } = useAuth();
 
@@ -31,7 +33,7 @@ export function ForgotPassword() {
       await api.post('/auth/password/forgot', { phone });
       setStep('reset');
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not find an account with that mobile number.'));
+      setError(apiErrorMessage(err, t('auth.forgotPassword.accountNotFoundError')));
     } finally {
       setSending(false);
     }
@@ -45,7 +47,7 @@ export function ForgotPassword() {
       await api.post('/auth/password/forgot', { phone });
       setResent(true);
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not resend the code. Please try again.'));
+      setError(apiErrorMessage(err, t('auth.forgotPassword.resendError')));
     } finally {
       setResending(false);
     }
@@ -55,7 +57,7 @@ export function ForgotPassword() {
     e.preventDefault();
     setError(null);
     if (newPassword !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError(t('auth.forgotPassword.passwordMismatch'));
       return;
     }
     setResetting(true);
@@ -67,7 +69,7 @@ export function ForgotPassword() {
       const profile = await authenticate(data);
       navigate(dashboardPath(profile.role), { replace: true });
     } catch (err) {
-      setError(apiErrorMessage(err, "That code didn't match or has expired. Please try again."));
+      setError(apiErrorMessage(err, t('auth.forgotPassword.resetError')));
     } finally {
       setResetting(false);
     }
@@ -83,24 +85,24 @@ export function ForgotPassword() {
           </svg>
         </div>
         <p className="text-[13px] text-white/65 text-center">
-          {step === 'phone' ? 'Reset your password' : `OTP sent to +91 ${phone}`}
+          {step === 'phone' ? t('auth.forgotPassword.headerPrompt') : t('auth.forgotPassword.otpSentTo', { phone })}
         </p>
         {step === 'reset' && import.meta.env.DEV && (
-          <p className="text-[11px] text-white/45 text-center mt-1">Check the API console for the code.</p>
+          <p className="text-[11px] text-white/45 text-center mt-1">{t('auth.forgotPassword.devHint')}</p>
         )}
       </div>
 
       <div className="bg-white rounded-t-[24px] px-6 pt-6" style={{ paddingBottom: `calc(env(safe-area-inset-bottom) + 24px)` }}>
         {step === 'phone' ? (
           <>
-            <h2 className="text-[20px] font-extrabold text-ink tracking-[-0.4px] mb-1">Forgot password</h2>
+            <h2 className="text-[20px] font-extrabold text-ink tracking-[-0.4px] mb-1">{t('auth.forgotPassword.title')}</h2>
             <p className="text-[13px] text-gray-500 mb-6">
-              Enter your registered mobile number and we&apos;ll send a one-time code.
+              {t('auth.forgotPassword.subtitle')}
             </p>
 
             <form onSubmit={handleSendOtp} className="space-y-3">
               <div>
-                <label className="block text-[11.5px] font-semibold text-gray-600 mb-1">Mobile number</label>
+                <label className="block text-[11.5px] font-semibold text-gray-600 mb-1">{t('auth.forgotPassword.mobileNumberLabel')}</label>
                 <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-[12px] h-[52px] px-4 focus-within:border-forest focus-within:bg-white transition">
                   <span className="text-[14px] font-bold text-ink flex-shrink-0">+91</span>
                   <span className="w-px h-5 bg-gray-200 flex-shrink-0" />
@@ -108,7 +110,7 @@ export function ForgotPassword() {
                     type="tel"
                     inputMode="numeric"
                     maxLength={10}
-                    placeholder="98765 43210"
+                    placeholder={t('auth.forgotPassword.phonePlaceholder')}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                     className="flex-1 bg-transparent text-[15px] font-medium text-ink placeholder-gray-400 outline-none"
@@ -124,23 +126,23 @@ export function ForgotPassword() {
 
               <button type="submit" disabled={sending || phone.length !== 10}
                 className="w-full h-[52px] bg-forest text-white rounded-[13px] text-[15px] font-bold disabled:opacity-50 mt-1">
-                {sending ? 'Sending…' : 'Send OTP →'}
+                {sending ? t('auth.forgotPassword.sending') : t('auth.forgotPassword.sendOtp')}
               </button>
             </form>
 
             <button onClick={() => navigate('/login')}
               className="mt-4 w-full text-center text-[12.5px] text-gray-500 font-medium">
-              ← Back to sign in
+              {t('auth.forgotPassword.backToSignIn')}
             </button>
           </>
         ) : (
           <>
-            <h2 className="text-[20px] font-extrabold text-ink tracking-[-0.4px] mb-1">Enter OTP & new password</h2>
-            <p className="text-[13px] text-gray-500 mb-6">6-digit code sent to your mobile number.</p>
+            <h2 className="text-[20px] font-extrabold text-ink tracking-[-0.4px] mb-1">{t('auth.forgotPassword.otpTitle')}</h2>
+            <p className="text-[13px] text-gray-500 mb-6">{t('auth.forgotPassword.otpSubtitle')}</p>
 
             <form onSubmit={handleReset} className="space-y-3">
               <div>
-                <label className="block text-[11.5px] font-semibold text-gray-600 mb-1">One-time code</label>
+                <label className="block text-[11.5px] font-semibold text-gray-600 mb-1">{t('auth.forgotPassword.oneTimeCodeLabel')}</label>
                 <input
                   type="text"
                   inputMode="numeric"
@@ -154,7 +156,7 @@ export function ForgotPassword() {
               </div>
 
               <div>
-                <label className="block text-[11.5px] font-semibold text-gray-600 mb-1">New password</label>
+                <label className="block text-[11.5px] font-semibold text-gray-600 mb-1">{t('auth.forgotPassword.newPasswordLabel')}</label>
                 <input
                   type="password"
                   placeholder="••••••••"
@@ -166,7 +168,7 @@ export function ForgotPassword() {
               </div>
 
               <div>
-                <label className="block text-[11.5px] font-semibold text-gray-600 mb-1">Confirm new password</label>
+                <label className="block text-[11.5px] font-semibold text-gray-600 mb-1">{t('auth.forgotPassword.confirmPasswordLabel')}</label>
                 <input
                   type="password"
                   placeholder="••••••••"
@@ -179,7 +181,7 @@ export function ForgotPassword() {
 
               {resent && (
                 <p className="text-[12px] text-green-txt font-medium text-center bg-green-bg border border-green-bdr rounded-[9px] px-3 py-2">
-                  A new code has been sent.
+                  {t('auth.forgotPassword.resentNotice')}
                 </p>
               )}
               {error && (
@@ -193,18 +195,18 @@ export function ForgotPassword() {
                 disabled={resetting || code.length < 4 || newPassword.length < 8 || confirmPassword.length < 8}
                 className="w-full h-[52px] bg-forest text-white rounded-[13px] text-[15px] font-bold disabled:opacity-50 mt-1"
               >
-                {resetting ? 'Resetting…' : 'Reset password & sign in →'}
+                {resetting ? t('auth.forgotPassword.resetting') : t('auth.forgotPassword.resetSubmit')}
               </button>
             </form>
 
             <button onClick={handleResend} disabled={resending}
               className="mt-4 w-full text-center text-[12px] text-forest font-bold disabled:opacity-50">
-              {resending ? 'Resending…' : "Didn't get a code? Resend"}
+              {resending ? t('auth.forgotPassword.resendingLabel') : t('auth.forgotPassword.resendLabel')}
             </button>
 
             <button onClick={() => setStep('phone')}
               className="mt-2 w-full text-center text-[12px] text-gray-500 font-medium">
-              ← Change mobile number
+              {t('auth.forgotPassword.changeNumber')}
             </button>
           </>
         )}

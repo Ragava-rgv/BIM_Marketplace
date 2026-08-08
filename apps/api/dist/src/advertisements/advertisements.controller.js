@@ -28,8 +28,8 @@ let AdvertisementsController = class AdvertisementsController {
     constructor(service) {
         this.service = service;
     }
-    listActive() {
-        return this.service.listActive();
+    listActive(placement) {
+        return this.service.listActive(placement && Object.values(client_1.AdPlacement).includes(placement) ? placement : client_1.AdPlacement.IN_GRID);
     }
     listAll() {
         return this.service.listAll();
@@ -50,8 +50,9 @@ let AdvertisementsController = class AdvertisementsController {
 exports.AdvertisementsController = AdvertisementsController;
 __decorate([
     (0, common_1.Get)(),
+    __param(0, (0, common_1.Query)('placement')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], AdvertisementsController.prototype, "listActive", null);
 __decorate([

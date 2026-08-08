@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { ListingDto } from '@machinebazaar/shared';
 import { api } from '../../lib/api';
 import { AppLayout } from '../../components/AppLayout';
@@ -14,6 +15,7 @@ const STATUS_STYLE: Record<string, string> = {
 };
 
 export function SellerListings() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [listings, setListings] = useState<ListingDto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,13 +31,13 @@ export function SellerListings() {
     <AppLayout>
       <div className="bg-white border-b border-gray-200 px-4 pt-4 pb-3 flex items-center justify-between">
         <div>
-          <h1 className="text-[19px] font-extrabold text-ink tracking-[-0.4px]">My Listings</h1>
-          <p className="text-[12px] text-gray-500 mt-0.5">{listings.length} total</p>
+          <h1 className="text-[19px] font-extrabold text-ink tracking-[-0.4px]">{t('seller.listings.title')}</h1>
+          <p className="text-[12px] text-gray-500 mt-0.5">{t('seller.listings.totalCount', { count: listings.length })}</p>
         </div>
         <button onClick={() => navigate('/seller/listings/new')}
           className="flex items-center gap-1.5 bg-forest text-white text-[12px] font-bold px-3 py-2 rounded-[10px]">
           <PlusIcon className="w-3.5 h-3.5 stroke-white stroke-[2.5px]" />
-          New
+          {t('seller.listings.new')}
         </button>
       </div>
 
@@ -49,11 +51,11 @@ export function SellerListings() {
             <div className="w-14 h-14 rounded-full bg-forest/10 flex items-center justify-center mx-auto mb-3">
               <MachineIcon className="w-7 h-7 text-forest" />
             </div>
-            <p className="text-[14px] font-semibold text-ink mb-1">No listings yet</p>
-            <p className="text-[12px] text-gray-500 mb-4">List your first machine to start receiving buyer enquiries.</p>
+            <p className="text-[14px] font-semibold text-ink mb-1">{t('seller.listings.emptyTitle')}</p>
+            <p className="text-[12px] text-gray-500 mb-4">{t('seller.listings.emptyDescription')}</p>
             <button onClick={() => navigate('/seller/listings/new')}
               className="bg-forest text-white text-[13px] font-bold px-5 py-2.5 rounded-[11px]">
-              List a machine
+              {t('seller.listings.listMachine')}
             </button>
           </div>
         ) : (
@@ -71,7 +73,7 @@ export function SellerListings() {
                     <span className={`inline-flex items-center text-[9px] font-bold px-1.5 py-0.5 rounded-[5px] mb-1 ${
                       STATUS_STYLE[l.status] ?? 'bg-gray-100 text-gray-600'
                     }`}>
-                      {l.status.replace(/_/g, ' ')}
+                      {t(`common:status.listing.${l.status}`)}
                     </span>
                     <p className="text-[13px] font-bold text-ink truncate">{l.title}</p>
                     <p className="font-mono text-[8.5px] text-gray-500 font-semibold mt-0.5">
@@ -87,7 +89,7 @@ export function SellerListings() {
                   onClick={() => navigate(`/seller/listings/${l.id}/edit`)}
                   className="text-[11px] font-semibold text-forest"
                 >
-                  Manage →
+                  {t('seller.listings.manage')}
                 </button>
               </div>
             </div>

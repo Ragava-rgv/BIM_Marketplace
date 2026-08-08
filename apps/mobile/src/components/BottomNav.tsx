@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../lib/auth-context';
 import { UserRole, GstStatus } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../lib/api';
@@ -8,6 +9,7 @@ import { HomeIcon, SearchIcon, PlusIcon, InboxIcon, ProfileIcon } from './icons'
 type Sheet = 'gst-required' | 'switch-confirm' | 'switching' | null;
 
 export function BottomNav() {
+  const { t } = useTranslation();
   const { user, authenticate } = useAuth();
   const navigate = useNavigate();
   const [sheet, setSheet] = useState<Sheet>(null);
@@ -39,7 +41,7 @@ export function BottomNav() {
       setSheet(null);
       navigate('/seller/dashboard', { replace: true });
     } catch (err) {
-      setSwitchError(apiErrorMessage(err, 'Could not switch account. Please try again.'));
+      setSwitchError(apiErrorMessage(err, t('components.bottomNav.switchAccountError')));
       setLoading(false);
     }
   };
@@ -61,8 +63,8 @@ export function BottomNav() {
     <>
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 flex items-start pt-2"
         style={{ paddingBottom: `calc(env(safe-area-inset-bottom) + 4px)` }}>
-        {navItem('/', HomeIcon, 'Home')}
-        {navItem('/search', SearchIcon, 'Search')}
+        {navItem('/', HomeIcon, t('components.bottomNav.home'))}
+        {navItem('/search', SearchIcon, t('components.bottomNav.search'))}
 
         {/* Center FAB */}
         <div className="flex flex-col items-center gap-0.5 flex-1">
@@ -70,11 +72,11 @@ export function BottomNav() {
             className="-mt-[15px] w-11 h-11 rounded-full bg-copper flex items-center justify-center shadow-[0_4px_12px_rgba(232,130,12,.3)]">
             <PlusIcon className="w-[19px] h-[19px] stroke-white stroke-[2.2px]" />
           </button>
-          <span className="text-[9.5px] font-bold text-ink mt-0.5">Sell</span>
+          <span className="text-[9.5px] font-bold text-ink mt-0.5">{t('common:nav.sell')}</span>
         </div>
 
-        {navItem(inboxPath, InboxIcon, 'Enquiries')}
-        {navItem('/profile', ProfileIcon, 'Profile')}
+        {navItem(inboxPath, InboxIcon, t('components.bottomNav.enquiries'))}
+        {navItem('/profile', ProfileIcon, t('common:nav.profile'))}
       </nav>
 
       {/* ── Sheet: GST not verified ── */}
@@ -94,15 +96,16 @@ export function BottomNav() {
             </div>
 
             <h2 className="text-[18px] font-extrabold text-ink tracking-[-0.3px] mb-1">
-              GST verification required
+              {t('components.bottomNav.gstRequiredTitle')}
             </h2>
             <p className="text-[13px] text-gray-500 leading-relaxed mb-5">
-              To sell on BIM, your GST must be verified and active. Complete GST verification first — it only takes a few minutes.
+              {t('components.bottomNav.gstRequiredBody')}
             </p>
 
             <div className="bg-copper-bg border border-copper-bdr rounded-[12px] px-3.5 py-3 mb-5">
               <p className="text-[12px] font-semibold text-copper">
-                Current status: <span className="uppercase">{user?.gstStatus ?? 'UNVERIFIED'}</span>
+                {t('components.bottomNav.currentStatus')}{' '}
+                <span className="uppercase">{t(`common:status.gst.${user?.gstStatus ?? 'UNVERIFIED'}`)}</span>
               </p>
             </div>
 
@@ -110,12 +113,12 @@ export function BottomNav() {
               <button
                 onClick={() => { setSheet(null); navigate('/buyer/gst-verification'); }}
                 className="w-full h-[50px] bg-copper text-white rounded-[13px] text-[14.5px] font-bold">
-                Verify GST now →
+                {t('components.bottomNav.verifyGstNow')}
               </button>
               <button
                 onClick={() => setSheet(null)}
                 className="w-full h-[46px] bg-gray-100 text-gray-700 rounded-[13px] text-[14px] font-semibold">
-                Cancel
+                {t('common:common.button.cancel')}
               </button>
             </div>
           </div>
@@ -141,24 +144,24 @@ export function BottomNav() {
               <div>
                 <span className="inline-flex items-center gap-1.5 bg-green-bg border border-green-bdr text-green-txt text-[10px] font-bold px-2 py-0.5 rounded-full mb-0.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#12B76A]" />
-                  GST ACTIVE
+                  {t('components.bottomNav.gstActiveBadge')}
                 </span>
                 <p className="text-[12px] text-gray-500 font-mono">{user?.gstNumber}</p>
               </div>
             </div>
 
             <h2 className="text-[18px] font-extrabold text-ink tracking-[-0.3px] mb-1">
-              Switch to seller account?
+              {t('components.bottomNav.switchTitle')}
             </h2>
             <p className="text-[13px] text-gray-500 leading-relaxed mb-3">
-              Your GST is verified. Switch your account to <span className="font-semibold text-ink">Seller</span> to start listing machines. You'll be redirected to your seller dashboard.
+              {t('components.bottomNav.switchBodyPrefix')} <span className="font-semibold text-ink">{t('common:role.seller')}</span> {t('components.bottomNav.switchBodySuffix')}
             </p>
 
             <div className="bg-gray-50 border border-gray-200 rounded-[12px] px-3.5 py-3 mb-5 space-y-1">
               {[
-                'Your existing data, GST and profile are kept',
-                'You can list machines immediately after switching',
-                'This action cannot be reversed from the app',
+                t('components.bottomNav.switchBullets.dataKept'),
+                t('components.bottomNav.switchBullets.listImmediately'),
+                t('components.bottomNav.switchBullets.cannotReverse'),
               ].map((line) => (
                 <div key={line} className="flex items-start gap-2">
                   <svg className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" fill="none" stroke="#101828" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 12 12">
@@ -178,11 +181,11 @@ export function BottomNav() {
             <div className="space-y-2.5">
               <button onClick={handleSwitch} disabled={loading}
                 className="w-full h-[50px] bg-forest text-white rounded-[13px] text-[14.5px] font-bold disabled:opacity-60">
-                {loading ? 'Switching account…' : 'Yes, switch to seller →'}
+                {loading ? t('components.bottomNav.switching') : t('components.bottomNav.switchConfirm')}
               </button>
               <button onClick={() => setSheet(null)} disabled={loading}
                 className="w-full h-[46px] bg-gray-100 text-gray-700 rounded-[13px] text-[14px] font-semibold disabled:opacity-50">
-                Cancel
+                {t('common:common.button.cancel')}
               </button>
             </div>
           </div>

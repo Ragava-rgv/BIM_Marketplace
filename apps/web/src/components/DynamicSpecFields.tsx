@@ -1,4 +1,5 @@
-﻿import type { CategorySpecTemplateDto } from '@machinebazaar/shared';
+﻿import { useTranslation } from 'react-i18next';
+import type { CategorySpecTemplateDto } from '@machinebazaar/shared';
 import { Field, Input, Select } from './ui';
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
  * Values are always stored as strings; the API/backend coerces numbers and booleans.
  */
 export function DynamicSpecFields({ fields, values, onChange }: Props) {
+  const { t } = useTranslation();
   if (fields.length === 0) return null;
 
   return (
@@ -19,7 +21,7 @@ export function DynamicSpecFields({ fields, values, onChange }: Props) {
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-navy/10" />
         <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
-          Machine specifications
+          {t('components.dynamicSpecFields.sectionHeading')}
         </span>
         <div className="h-px flex-1 bg-navy/10" />
       </div>
@@ -42,6 +44,7 @@ function SpecFieldInput({
   value: string;
   onChange: (v: string) => void;
 }) {
+  const { t } = useTranslation();
   const labelWithUnit = field.unit ? `${field.fieldLabel} (${field.unit})` : field.fieldLabel;
 
   switch (field.fieldType) {
@@ -54,7 +57,7 @@ function SpecFieldInput({
               value={value}
               onChange={(e) => onChange(e.target.value)}
               required={field.isRequired}
-              placeholder="0"
+              placeholder={t('components.dynamicSpecFields.numberPlaceholder')}
               className={field.unit ? 'pr-14' : ''}
             />
             {field.unit && (
@@ -70,7 +73,7 @@ function SpecFieldInput({
       return (
         <Field label={labelWithUnit} hint={field.helpText ?? undefined} required={field.isRequired}>
           <Select value={value} onChange={(e) => onChange(e.target.value)} required={field.isRequired}>
-            <option value="">Select...</option>
+            <option value="">{t('components.dynamicSpecFields.selectPlaceholder')}</option>
             {field.options.map((opt) => (
               <option key={opt} value={opt}>{opt}</option>
             ))}
@@ -82,9 +85,9 @@ function SpecFieldInput({
       return (
         <Field label={labelWithUnit} hint={field.helpText ?? undefined} required={field.isRequired}>
           <Select value={value} onChange={(e) => onChange(e.target.value)} required={field.isRequired}>
-            <option value="">Select...</option>
-            <option value="true">Yes</option>
-            <option value="false">No</option>
+            <option value="">{t('components.dynamicSpecFields.selectPlaceholder')}</option>
+            <option value="true">{t('common:common.label.yes')}</option>
+            <option value="false">{t('common:common.label.no')}</option>
           </Select>
         </Field>
       );

@@ -14,7 +14,7 @@ import {
   Min,
   ValidateIf,
 } from 'class-validator';
-import { ComplexityTier, ListingOrigin } from '@prisma/client';
+import { ComplexityTier, ListingCondition, ListingOrigin } from '@prisma/client';
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -78,6 +78,10 @@ export class CreateListingDto {
   @IsOptional()
   @IsIn(['SIMPLE', 'STANDARD', 'COMPLEX'])
   complexityTier?: ComplexityTier;
+
+  /** Old / New — required, the seller must always choose. Distinct from conditionGrade (A/B/C quality). */
+  @IsIn(['OLD', 'NEW'])
+  condition: ListingCondition;
 
   // Catalog system fields (optional — listings without a catalogCategoryId use legacy string-based category)
   @IsOptional()

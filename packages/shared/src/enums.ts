@@ -31,6 +31,11 @@ export enum ListingOrigin {
   IMPORTED = 'IMPORTED',
 }
 
+export enum ListingCondition {
+  OLD = 'OLD',
+  NEW = 'NEW',
+}
+
 export enum MediaType {
   PHOTO = 'PHOTO',
   VIDEO = 'VIDEO',
@@ -103,6 +108,24 @@ export enum SpecFilterType {
   range = 'range',
   exact = 'exact',
   none = 'none',
+}
+
+export enum SupportedLanguage {
+  EN = 'EN',
+  TA = 'TA',
+  HI = 'HI',
+}
+
+/** Data-driven language switcher source of truth — add a new entry here (+ locale JSON pair) to support another language. */
+export const LANGUAGE_OPTIONS: { code: SupportedLanguage; glyph: string; nativeLabel: string }[] = [
+  { code: SupportedLanguage.EN, glyph: 'A', nativeLabel: 'English' },
+  { code: SupportedLanguage.TA, glyph: 'அ', nativeLabel: 'தமிழ்' },
+  { code: SupportedLanguage.HI, glyph: 'अ', nativeLabel: 'हिन्दी' },
+];
+
+export enum AdPlacement {
+  IN_GRID = 'IN_GRID',
+  HOME_BANNER = 'HOME_BANNER',
 }
 
 /** Commission split: 2% total, 1% buyer + 1% seller (non-negotiable, see project_spec.md §8.6) */

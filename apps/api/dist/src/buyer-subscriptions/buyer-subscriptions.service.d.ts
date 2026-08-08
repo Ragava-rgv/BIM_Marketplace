@@ -143,9 +143,9 @@ export declare class BuyerSubscriptionsService {
             deletedAt: Date | null;
             sellerId: string;
             listingId: string;
+            viewedAt: Date;
             buyerId: string;
             buyerSubscriptionId: string;
-            viewedAt: Date;
         })[];
         total: number;
         page: number;

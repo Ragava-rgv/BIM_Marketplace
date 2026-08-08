@@ -12,7 +12,9 @@ import {
   ListingStatus,
   MediaType,
   Prisma,
+  UserRole,
 } from '@prisma/client';
+import type { AuthenticatedUser } from '../auth/types/jwt-payload.interface';
 import {
   MAX_LISTING_PHOTOS,
   MIN_LISTING_PHOTOS,
@@ -28,7 +30,11 @@ import type { UpdateListingDto } from './dto/update-listing.dto';
 import type { QueryListingsDto, AdminQueryListingsDto } from './dto/query-listings.dto';
 import type { UploadMediaDto } from './dto/upload-media.dto';
 
+// Governs submitForReview: only a draft/rejected listing can be sent into the review queue.
 const EDITABLE_STATUSES: ListingStatus[] = [ListingStatus.DRAFT, ListingStatus.REJECTED];
+// Governs update(): sellers may also edit a listing's own details while it's already live,
+// without going through withdraw + resubmit + re-review.
+const DETAILS_EDITABLE_STATUSES: ListingStatus[] = [ListingStatus.DRAFT, ListingStatus.REJECTED, ListingStatus.ACTIVE];
 // Media can be refreshed on live listings without re-triggering a full review
 const MEDIA_UPDATABLE_STATUSES: ListingStatus[] = [
   ListingStatus.DRAFT,
@@ -90,6 +96,7 @@ export class ListingsService {
         locationCity: dto.locationCity,
         locationState: dto.locationState,
         complexityTier: (dto.complexityTier as ComplexityTier) ?? ComplexityTier.STANDARD,
+        condition: dto.condition,
         catalogCategoryId: dto.catalogCategoryId ?? null,
         specs: validatedSpecs ? (validatedSpecs as Prisma.InputJsonValue) : Prisma.JsonNull,
         conditionGrade: dto.conditionGrade ?? null,
@@ -122,7 +129,7 @@ export class ListingsService {
 
   async update(sellerId: string, listingId: string, dto: UpdateListingDto): Promise<Listing> {
     const listing = await this.findOwned(sellerId, listingId);
-    if (!EDITABLE_STATUSES.includes(listing.status)) {
+    if (!DETAILS_EDITABLE_STATUSES.includes(listing.status)) {
       throw new ForbiddenException(`Listing cannot be edited while in ${listing.status} status`);
     }
 
@@ -377,7 +384,10 @@ export class ListingsService {
 
   async approve(listingId: string): Promise<Listing> {
     const listing = await this.requirePendingReview(listingId);
-    return this.prisma.listing.update({ where: { id: listing.id }, data: { status: ListingStatus.ACTIVE } });
+    return this.prisma.listing.update({
+      where: { id: listing.id },
+      data: { status: ListingStatus.ACTIVE, postedAt: listing.postedAt ?? new Date() },
+    });
   }
 
   async reject(listingId: string): Promise<Listing> {
@@ -400,7 +410,10 @@ export class ListingsService {
   /** Admin: reactivate a Sold or Inactive listing back to the live marketplace. */
   async reactivate(listingId: string): Promise<Listing> {
     const listing = await this.requireStatus(listingId, [ListingStatus.SOLD, ListingStatus.WITHDRAWN]);
-    return this.prisma.listing.update({ where: { id: listing.id }, data: { status: ListingStatus.ACTIVE } });
+    return this.prisma.listing.update({
+      where: { id: listing.id },
+      data: { status: ListingStatus.ACTIVE, postedAt: listing.postedAt ?? new Date() },
+    });
   }
 
   private async requireStatus(listingId: string, allowed: ListingStatus[]): Promise<Listing> {
@@ -432,7 +445,11 @@ export class ListingsService {
     return this.paginate({ ...where, status: ListingStatus.ACTIVE }, query);
   }
 
-  async findPublicById(listingId: string): Promise<Listing & { media: ListingMedia[] }> {
+  async findPublicById(
+    listingId: string,
+    viewer?: AuthenticatedUser,
+    ip?: string,
+  ): Promise<Listing & { media: ListingMedia[] }> {
     const listing = await this.prisma.listing.findFirst({
       where: { id: listingId, status: { in: [ListingStatus.ACTIVE, ListingStatus.UNDER_OFFER, ListingStatus.SOLD] } },
       include: {
@@ -443,7 +460,40 @@ export class ListingsService {
     if (!listing) {
       throw new NotFoundException('Listing not found');
     }
+
+    const isOwnListing = viewer?.id === listing.sellerId;
+    const isAdmin = viewer?.role === UserRole.ADMIN;
+    if (!isOwnListing && !isAdmin) {
+      const viewerKey = viewer ? `user:${viewer.id}` : `ip:${ip ?? 'unknown'}`;
+      try {
+        const counted = await this.recordView(listing.id, viewerKey);
+        if (counted) listing.viewCount += 1;
+      } catch {
+        // View tracking is best-effort — never let it break listing display.
+      }
+    }
+
     return listing;
+  }
+
+  /** Rolling 24h dedupe: returns true if this view was newly counted (and increments viewCount),
+      false if this viewerKey already has a view recorded for this listing within the last 24h. */
+  private async recordView(listingId: string, viewerKey: string): Promise<boolean> {
+    const existing = await this.prisma.listingView.findUnique({
+      where: { listingId_viewerKey: { listingId, viewerKey } },
+    });
+    if (existing && Date.now() - existing.viewedAt.getTime() < 24 * 60 * 60 * 1000) {
+      return false;
+    }
+    await this.prisma.$transaction([
+      this.prisma.listingView.upsert({
+        where: { listingId_viewerKey: { listingId, viewerKey } },
+        create: { listingId, viewerKey },
+        update: { viewedAt: new Date() },
+      }),
+      this.prisma.listing.update({ where: { id: listingId }, data: { viewCount: { increment: 1 } } }),
+    ]);
+    return true;
   }
 
   // -- Admin queue -------------------------------------------------------------
@@ -536,6 +586,7 @@ export class ListingsService {
     if (query.make) where.machineMake = { equals: query.make, mode: 'insensitive' };
     if (query.condition) where.conditionGrade = { equals: query.condition, mode: 'insensitive' };
     if (query.origin) where.origin = query.origin;
+    if (query.conditionType) where.condition = query.conditionType;
     if (query.city) where.locationCity = { equals: query.city, mode: 'insensitive' };
     if (query.state) where.locationState = { equals: query.state, mode: 'insensitive' };
     if (query.yearMin || query.yearMax) {

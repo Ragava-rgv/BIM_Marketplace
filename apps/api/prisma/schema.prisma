@@ -57,6 +57,11 @@ enum ListingOrigin {
   IMPORTED
 }
 
+enum ListingCondition {
+  OLD
+  NEW
+}
+
 enum MediaType {
   PHOTO
   VIDEO
@@ -111,6 +116,12 @@ enum SubscriptionStatus {
   CANCELLED
 }
 
+enum SupportedLanguage {
+  EN
+  TA
+  HI
+}
+
 // ---------------------------------------------------------------------------
 // Models
 // ---------------------------------------------------------------------------
@@ -131,6 +142,7 @@ model User {
   address       String?
   activeMode    String    @default("BUYER") @map("active_mode")
   canSell       Boolean   @default(false) @map("can_sell")
+  preferredLanguage SupportedLanguage @default(EN) @map("preferred_language")
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
@@ -203,11 +215,14 @@ model Listing {
   subcategoryId      String?        @map("subcategory_id")
   specs              Json?
   conditionGrade     String?        @map("condition_grade")
+  condition          ListingCondition @default(OLD)
   runningHours       Int?           @map("running_hours")
   serialNumber       String?        @map("serial_number")
   negotiable         Boolean        @default(false)
   isBoosted          Boolean        @default(false) @map("is_boosted")
   boostExpiresAt     DateTime?      @map("boost_expires_at")
+  postedAt           DateTime?      @map("posted_at")
+  viewCount          Int            @default(0) @map("view_count")
   createdAt          DateTime       @default(now()) @map("created_at")
   updatedAt          DateTime       @updatedAt @map("updated_at")
 
@@ -224,10 +239,25 @@ model Listing {
   contactViews     ContactView[]
   wishlistedBy     Wishlist[]
   boosts           ListingBoost[]
+  views            ListingView[]
 
   @@index([status])
   @@index([machineCategory])
   @@map("listings")
+}
+
+/** Rolling-24h dedupe record for listing detail-page views — viewerKey is "user:<userId>" for
+    logged-in viewers or "ip:<address>" for guests (no anonymous device-id infra exists yet). */
+model ListingView {
+  id        String   @id @default(uuid())
+  listingId String   @map("listing_id")
+  viewerKey String   @map("viewer_key")
+  viewedAt  DateTime @default(now()) @map("viewed_at")
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([listingId, viewerKey])
+  @@map("listing_views")
 }
 
 model Wishlist {
@@ -632,17 +662,25 @@ model ListingBoost {
   @@map("listing_boosts")
 }
 
+enum AdPlacement {
+  IN_GRID
+  HOME_BANNER
+}
+
 model Advertisement {
-  id        String    @id @default(uuid())
+  id        String      @id @default(uuid())
   title     String
-  imageUrl  String    @map("image_url")
-  linkUrl   String?   @map("link_url")
-  position  Int       @default(0)
-  isActive  Boolean   @default(true) @map("is_active")
-  sortOrder Int       @default(0) @map("sort_order")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
+  imageUrl  String      @map("image_url")
+  linkUrl   String?     @map("link_url")
+  position  Int         @default(0)
+  placement AdPlacement @default(IN_GRID)
+  startsAt  DateTime?   @map("starts_at")
+  endsAt    DateTime?   @map("ends_at")
+  isActive  Boolean     @default(true) @map("is_active")
+  sortOrder Int         @default(0) @map("sort_order")
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+  deletedAt DateTime?   @map("deleted_at")
 
   @@map("advertisements")
 }

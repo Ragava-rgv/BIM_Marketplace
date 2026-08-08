@@ -1,4 +1,5 @@
-﻿import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { CategoryGroupDto, CategoryDto, CategorySpecTemplateDto, SubcategoryDto } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import {
@@ -57,6 +58,7 @@ type AdminCategory = CategoryDto & {
 };
 
 export function AdminCatalogManager() {
+  const { t } = useTranslation();
   const [groups, setGroups] = useState<CategoryGroupDto[]>([]);
   const [allCats, setAllCats] = useState<AdminCategory[]>([]);
   const [selectedCatId, setSelectedCatId] = useState<string | null>(null);
@@ -99,7 +101,8 @@ export function AdminCatalogManager() {
   };
 
   useEffect(() => {
-    load().catch(() => setError('Could not load catalog data')).finally(() => setLoading(false));
+    load().catch(() => setError(t('admin.catalogManager.loadError'))).finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const flash = (msg: string) => {
@@ -107,7 +110,7 @@ export function AdminCatalogManager() {
     setTimeout(() => setSuccess(null), 4000);
   };
 
-  // â"€â"€ Group actions â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
+  // ── Group actions ─────────────────────────────────────────────
 
   const handleAddGroup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,25 +121,25 @@ export function AdminCatalogManager() {
       await api.post('/admin/catalog/groups', { name: newGroupName.trim() });
       setNewGroupName('');
       await load();
-      flash('Group created');
+      flash(t('admin.catalogManager.groupCreated'));
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not create group'));
+      setError(apiErrorMessage(err, t('admin.catalogManager.groupCreateError')));
     } finally { setAddingGroup(false); }
   };
 
   const handleDeleteGroup = async (id: string, name: string) => {
-    if (!confirm(`Delete group "${name}"? This fails if it still has categories.`)) return;
+    if (!confirm(t('admin.catalogManager.deleteGroupConfirm', { name }))) return;
     setError(null);
     try {
       await api.delete(`/admin/catalog/groups/${id}`);
       await load();
-      flash('Group deleted');
+      flash(t('admin.catalogManager.groupDeleted'));
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not delete group'));
+      setError(apiErrorMessage(err, t('admin.catalogManager.groupDeleteError')));
     }
   };
 
-  // â"€â"€ Category actions â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
+  // ── Category actions ─────────────────────────────────────────────
 
   const handleAddCategory = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -153,9 +156,9 @@ export function AdminCatalogManager() {
       setNewCat(EMPTY_CAT);
       setShowCatForm(false);
       await load();
-      flash('Category created');
+      flash(t('admin.catalogManager.categoryCreated'));
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not create category'));
+      setError(apiErrorMessage(err, t('admin.catalogManager.categoryCreateError')));
     } finally { setAddingCat(false); }
   };
 
@@ -168,22 +171,24 @@ export function AdminCatalogManager() {
         await api.patch(`/admin/catalog/categories/${cat.id}`, { isActive: true });
       }
       await load();
-      flash(`${cat.name} ${cat.isActive ? 'deactivated' : 'activated'}`);
+      flash(cat.isActive
+        ? t('admin.catalogManager.itemDeactivated', { name: cat.name })
+        : t('admin.catalogManager.itemActivated', { name: cat.name }));
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not update category'));
+      setError(apiErrorMessage(err, t('admin.catalogManager.categoryUpdateError')));
     }
   };
 
   const handleDeleteCategory = async (cat: AdminCategory) => {
     const listingCount = cat._count?.listings ?? 0;
     if (listingCount > 0) {
-      alert(`Cannot delete: ${listingCount} listing(s) reference this category. Deactivate it instead.`);
+      alert(t('admin.catalogManager.cannotDeleteCategory', { count: listingCount }));
       return;
     }
     const subCount = cat.subcategories?.length ?? 0;
     const msg = subCount > 0
-      ? `Permanently delete "${cat.name}" and its ${subCount} subcategory/ies? This cannot be undone.`
-      : `Permanently delete "${cat.name}"? This cannot be undone.`;
+      ? t('admin.catalogManager.deleteCategoryWithSubsConfirm', { name: cat.name, count: subCount })
+      : t('admin.catalogManager.deleteCategoryConfirm', { name: cat.name });
     if (!confirm(msg)) return;
     setDeletingCatId(cat.id);
     setError(null);
@@ -191,9 +196,9 @@ export function AdminCatalogManager() {
       await api.delete(`/admin/catalog/categories/${cat.id}`);
       if (selectedCatId === cat.id) setSelectedCatId(null);
       await load();
-      flash('Category deleted');
+      flash(t('admin.catalogManager.categoryDeleted'));
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not delete category'));
+      setError(apiErrorMessage(err, t('admin.catalogManager.categoryDeleteError')));
     } finally { setDeletingCatId(null); }
   };
 
@@ -208,13 +213,13 @@ export function AdminCatalogManager() {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       await load();
-      flash('Category image updated');
+      flash(t('admin.catalogManager.categoryImageUpdated'));
     } catch (err) {
-      setError(apiErrorMessage(err, 'Image upload failed'));
+      setError(apiErrorMessage(err, t('admin.catalogManager.imageUploadError')));
     } finally { setUploadingCatImage(false); }
   };
 
-  // â"€â"€ Subcategory actions â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
+  // ── Subcategory actions ─────────────────────────────────────────────
 
   const handleAddSubcategory = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -232,9 +237,9 @@ export function AdminCatalogManager() {
       setNewSub(EMPTY_SUB);
       setShowSubForm(false);
       await load();
-      flash('Subcategory added');
+      flash(t('admin.catalogManager.subcategoryAdded'));
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not add subcategory'));
+      setError(apiErrorMessage(err, t('admin.catalogManager.subcategoryAddError')));
     } finally { setAddingSub(false); }
   };
 
@@ -247,22 +252,24 @@ export function AdminCatalogManager() {
         await api.patch(`/admin/catalog/subcategories/${sub.id}`, { isActive: true });
       }
       await load();
-      flash(`${sub.name} ${sub.isActive ? 'deactivated' : 'activated'}`);
+      flash(sub.isActive
+        ? t('admin.catalogManager.itemDeactivated', { name: sub.name })
+        : t('admin.catalogManager.itemActivated', { name: sub.name }));
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not update subcategory'));
+      setError(apiErrorMessage(err, t('admin.catalogManager.subcategoryUpdateError')));
     }
   };
 
   const handleDeleteSubcategory = async (sub: SubcategoryDto) => {
-    if (!confirm(`Permanently delete subcategory "${sub.name}"?`)) return;
+    if (!confirm(t('admin.catalogManager.deleteSubcategoryConfirm', { name: sub.name }))) return;
     setDeletingSubId(sub.id);
     setError(null);
     try {
       await api.delete(`/admin/catalog/subcategories/${sub.id}`);
       await load();
-      flash('Subcategory deleted');
+      flash(t('admin.catalogManager.subcategoryDeleted'));
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not delete subcategory'));
+      setError(apiErrorMessage(err, t('admin.catalogManager.subcategoryDeleteError')));
     } finally { setDeletingSubId(null); }
   };
 
@@ -277,13 +284,13 @@ export function AdminCatalogManager() {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       await load();
-      flash(`Image updated for ${sub.name}`);
+      flash(t('admin.catalogManager.subImageUpdated', { name: sub.name }));
     } catch (err) {
-      setError(apiErrorMessage(err, 'Image upload failed'));
+      setError(apiErrorMessage(err, t('admin.catalogManager.imageUploadError')));
     } finally { setUploadingSubImageId(null); }
   };
 
-  // â"€â"€ Spec field actions â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
+  // ── Spec field actions ─────────────────────────────────────────────
 
   const handleAddSpecField = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -307,26 +314,26 @@ export function AdminCatalogManager() {
       setNewField(EMPTY_FIELD);
       setShowFieldForm(false);
       await load();
-      flash('Spec field added');
+      flash(t('admin.catalogManager.specFieldAdded'));
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not add spec field'));
+      setError(apiErrorMessage(err, t('admin.catalogManager.specFieldAddError')));
     } finally { setAddingField(false); }
   };
 
   const handleDeleteSpecField = async (fieldId: string, label: string) => {
-    if (!confirm(`Remove field "${label}"? Existing listing specs keep their data but the field won't appear in forms.`)) return;
+    if (!confirm(t('admin.catalogManager.deleteSpecFieldConfirm', { label }))) return;
     setDeletingFieldId(fieldId);
     setError(null);
     try {
       await api.delete(`/admin/catalog/spec-fields/${fieldId}`);
       await load();
-      flash('Spec field removed');
+      flash(t('admin.catalogManager.specFieldRemoved'));
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not delete spec field'));
+      setError(apiErrorMessage(err, t('admin.catalogManager.specFieldDeleteError')));
     } finally { setDeletingFieldId(null); }
   };
 
-  // â"€â"€ Render â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
+  // ── Render ─────────────────────────────────────────────
 
   const selectedCat = allCats.find((c) => c.id === selectedCatId) ?? null;
 
@@ -343,9 +350,9 @@ export function AdminCatalogManager() {
   return (
     <div>
       <PageHeading
-        eyebrow="Admin · catalog"
-        title="Machine Catalog Manager"
-        description="Add machine types, subcategories and spec fields. Everything here is data — no code changes needed to add a new machine type."
+        eyebrow={t('admin.catalogManager.eyebrow')}
+        title={t('admin.catalogManager.title')}
+        description={t('admin.catalogManager.description')}
       />
 
       {error && <div className="mb-5"><ErrorBanner message={error} /></div>}
@@ -353,16 +360,16 @@ export function AdminCatalogManager() {
 
       <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
 
-        {/* â"€â"€ Left panel â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€ */}
+        {/* ── Left panel ───────────────────────────────────── */}
         <div className="space-y-5">
           {/* Groups */}
           <Card>
-            <h2 className="mb-3 text-sm font-bold text-ink">Category groups</h2>
+            <h2 className="mb-3 text-sm font-bold text-ink">{t('admin.catalogManager.categoryGroups')}</h2>
             <form onSubmit={(e) => void handleAddGroup(e)} className="flex gap-2">
               <Input
                 value={newGroupName}
                 onChange={(e) => setNewGroupName(e.target.value)}
-                placeholder="New group name"
+                placeholder={t('admin.catalogManager.newGroupPlaceholder')}
                 className="flex-1"
               />
               <Button type="submit" disabled={addingGroup || !newGroupName.trim()}>
@@ -376,7 +383,7 @@ export function AdminCatalogManager() {
                   <button
                     onClick={() => void handleDeleteGroup(g.id, g.name)}
                     className="text-red-500 hover:text-red-700 transition"
-                    title="Delete group"
+                    title={t('admin.catalogManager.deleteGroupTitle')}
                   >
                     <TrashIcon className="h-3.5 w-3.5" />
                   </button>
@@ -389,17 +396,17 @@ export function AdminCatalogManager() {
           <Card>
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-sm font-bold text-ink">
-                Categories <span className="font-mono text-[11px] text-muted">({allCats.length})</span>
+                {t('admin.catalogManager.categories')} <span className="font-mono text-[11px] text-muted">({allCats.length})</span>
               </h2>
               <Button variant="ghost" onClick={() => setShowCatForm((v) => !v)} className="!px-2.5 !py-1 text-xs">
-                {showCatForm ? 'Cancel' : '+ New'}
+                {showCatForm ? t('common:common.button.cancel') : t('admin.catalogManager.newShort')}
               </Button>
             </div>
 
             {showCatForm && (
               <form onSubmit={(e) => void handleAddCategory(e)} className="mb-4 space-y-3 rounded-lg border border-line bg-navy/[.02] p-4">
-                <h3 className="text-xs font-bold uppercase tracking-wide text-muted">New category</h3>
-                <Field label="Name">
+                <h3 className="text-xs font-bold uppercase tracking-wide text-muted">{t('admin.catalogManager.newCategory')}</h3>
+                <Field label={t('admin.catalogManager.fields.name')}>
                   <Input
                     value={newCat.name}
                     onChange={(e) => setNewCat((v) => ({
@@ -411,20 +418,20 @@ export function AdminCatalogManager() {
                     required
                   />
                 </Field>
-                <Field label="Slug" hint="Auto-filled — edit if needed">
+                <Field label={t('admin.catalogManager.fields.slug')} hint={t('admin.catalogManager.fields.slugHint')}>
                   <Input value={newCat.slug} onChange={(e) => setNewCat((v) => ({ ...v, slug: e.target.value }))} placeholder="press-brake" required />
                 </Field>
-                <Field label="Group">
+                <Field label={t('admin.catalogManager.fields.group')}>
                   <Select value={newCat.groupId} onChange={(e) => setNewCat((v) => ({ ...v, groupId: e.target.value }))}>
-                    <option value="">No group</option>
+                    <option value="">{t('admin.catalogManager.noGroup')}</option>
                     {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
                   </Select>
                 </Field>
-                <Field label="Description">
+                <Field label={t('admin.catalogManager.fields.description')}>
                   <Textarea rows={2} value={newCat.description} onChange={(e) => setNewCat((v) => ({ ...v, description: e.target.value }))} />
                 </Field>
                 <Button type="submit" disabled={addingCat || !newCat.name.trim() || !newCat.slug.trim()}>
-                  {addingCat ? 'Adding...' : 'Add category'}
+                  {addingCat ? t('admin.catalogManager.adding') : t('admin.catalogManager.addCategory')}
                 </Button>
               </form>
             )}
@@ -447,12 +454,12 @@ export function AdminCatalogManager() {
                     <div>
                       <p className="font-semibold">{cat.name}</p>
                       <p className={`text-[11px] ${cat.id === selectedCatId ? 'text-white/65' : 'text-muted'}`}>
-                        {cat.group?.name ?? 'No group'}
+                        {cat.group?.name ?? t('admin.catalogManager.noGroup')}
                         {' · '}
-                        {cat._count?.listings ?? 0} listings
+                        {t('admin.catalogManager.listingsCount', { count: cat._count?.listings ?? 0 })}
                         {' · '}
-                        {cat.subcategories?.length ?? 0} subcats
-                        {!cat.isActive && ' · inactive'}
+                        {t('admin.catalogManager.subcatsCount', { count: cat.subcategories?.length ?? 0 })}
+                        {!cat.isActive && ` · ${t('admin.catalogManager.inactive')}`}
                       </p>
                     </div>
                     <ChevronRightIcon className={`h-3.5 w-3.5 flex-shrink-0 ${cat.id === selectedCatId ? 'text-white/70' : 'text-muted group-hover:text-ink'}`} />
@@ -463,7 +470,7 @@ export function AdminCatalogManager() {
           </Card>
         </div>
 
-        {/* â"€â"€ Right panel â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€ */}
+        {/* ── Right panel ───────────────────────────────────── */}
         {selectedCat ? (
           <div className="space-y-5">
 
@@ -476,11 +483,11 @@ export function AdminCatalogManager() {
                     <p className="mt-0.5 text-sm text-muted">{selectedCat.description}</p>
                   )}
                   <p className="mt-1 font-mono text-[11px] text-muted">
-                    slug: {selectedCat.slug}
+                    {t('admin.catalogManager.slugLabel')}: {selectedCat.slug}
                     {' · '}
-                    <span className="text-copper font-semibold">{selectedCat._count?.listings ?? 0} listings</span>
+                    <span className="text-copper font-semibold">{t('admin.catalogManager.listingsCount', { count: selectedCat._count?.listings ?? 0 })}</span>
                     {' · '}
-                    {selectedCat.subcategories?.length ?? 0} subcategories
+                    {t('admin.catalogManager.subcategoriesCount', { count: selectedCat.subcategories?.length ?? 0 })}
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -489,7 +496,7 @@ export function AdminCatalogManager() {
                     onClick={() => void handleToggleCatActive(selectedCat)}
                     className="!py-1.5 text-xs"
                   >
-                    {selectedCat.isActive ? 'Deactivate' : 'Activate'}
+                    {selectedCat.isActive ? t('admin.catalogManager.deactivate') : t('admin.catalogManager.activate')}
                   </Button>
                   <Button
                     variant="danger"
@@ -497,14 +504,14 @@ export function AdminCatalogManager() {
                     disabled={deletingCatId === selectedCat.id}
                     className="!py-1.5 text-xs"
                   >
-                    {deletingCatId === selectedCat.id ? 'Deleting...' : 'Delete'}
+                    {deletingCatId === selectedCat.id ? t('admin.catalogManager.deleting') : t('common:common.button.delete')}
                   </Button>
                 </div>
               </div>
 
               {/* Category image */}
               <div>
-                <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-muted">Category image</p>
+                <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-muted">{t('admin.catalogManager.categoryImage')}</p>
                 <div className="flex items-center gap-4">
                   {selectedCat.imageUrl ? (
                     <img
@@ -514,7 +521,7 @@ export function AdminCatalogManager() {
                     />
                   ) : (
                     <div className="flex h-16 w-24 items-center justify-center rounded-lg border border-dashed border-line bg-navy/[.02]">
-                      <span className="text-[11px] text-muted">No image</span>
+                      <span className="text-[11px] text-muted">{t('admin.catalogManager.noImage')}</span>
                     </div>
                   )}
                   <div>
@@ -525,7 +532,7 @@ export function AdminCatalogManager() {
                       className="!py-1.5 text-xs flex items-center gap-1.5"
                     >
                       <UploadIcon className="h-3.5 w-3.5" />
-                      {uploadingCatImage ? 'Uploading...' : 'Upload image'}
+                      {uploadingCatImage ? t('admin.catalogManager.uploading') : t('admin.catalogManager.uploadImage')}
                     </Button>
                     <input
                       ref={catImageRef}
@@ -534,31 +541,31 @@ export function AdminCatalogManager() {
                       className="sr-only"
                       onChange={(e) => void handleUploadCategoryImage(e)}
                     />
-                    <p className="mt-1 text-[11px] text-muted">JPG, PNG, WebP — shown in browse grid</p>
+                    <p className="mt-1 text-[11px] text-muted">{t('admin.catalogManager.imageFormatsHint')}</p>
                   </div>
                 </div>
               </div>
             </Card>
 
-            {/* â"€â"€ Subcategories â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€ */}
+            {/* ── Subcategories ───────────────────────────────── */}
             <Card>
               <div className="mb-3 flex items-center justify-between">
                 <h3 className="text-sm font-bold text-ink">
-                  Subcategories <span className="font-mono text-[11px] text-muted">({selectedCat.subcategories?.length ?? 0})</span>
+                  {t('admin.catalogManager.subcategories')} <span className="font-mono text-[11px] text-muted">({selectedCat.subcategories?.length ?? 0})</span>
                 </h3>
                 <button
                   onClick={() => setShowSubForm((v) => !v)}
                   className="flex items-center gap-1 text-xs font-semibold text-forest hover:text-forest-2 transition"
                 >
                   <PlusIcon className="h-3.5 w-3.5" />
-                  {showSubForm ? 'Cancel' : 'Add subcategory'}
+                  {showSubForm ? t('common:common.button.cancel') : t('admin.catalogManager.addSubcategory')}
                 </button>
               </div>
 
               {showSubForm && (
                 <form onSubmit={(e) => void handleAddSubcategory(e)} className="mb-4 grid grid-cols-2 gap-3 rounded-lg border border-line bg-navy/[.02] p-4">
-                  <h4 className="col-span-2 text-xs font-bold uppercase tracking-wide text-muted">New subcategory</h4>
-                  <Field label="Name">
+                  <h4 className="col-span-2 text-xs font-bold uppercase tracking-wide text-muted">{t('admin.catalogManager.newSubcategory')}</h4>
+                  <Field label={t('admin.catalogManager.fields.name')}>
                     <Input
                       value={newSub.name}
                       onChange={(e) => setNewSub((v) => ({
@@ -570,17 +577,17 @@ export function AdminCatalogManager() {
                       required
                     />
                   </Field>
-                  <Field label="Slug" hint="Auto-filled">
+                  <Field label={t('admin.catalogManager.fields.slug')} hint={t('admin.catalogManager.fields.autoFilled')}>
                     <Input value={newSub.slug} onChange={(e) => setNewSub((v) => ({ ...v, slug: e.target.value }))} placeholder="cnc-turning-centres" required />
                   </Field>
                   <div className="col-span-2">
-                    <Field label="Description">
+                    <Field label={t('admin.catalogManager.fields.description')}>
                       <Textarea rows={2} value={newSub.description} onChange={(e) => setNewSub((v) => ({ ...v, description: e.target.value }))} />
                     </Field>
                   </div>
                   <div className="col-span-2">
                     <Button type="submit" disabled={addingSub || !newSub.name.trim() || !newSub.slug.trim()}>
-                      {addingSub ? 'Adding...' : 'Add subcategory'}
+                      {addingSub ? t('admin.catalogManager.adding') : t('admin.catalogManager.addSubcategory')}
                     </Button>
                   </div>
                 </form>
@@ -588,7 +595,7 @@ export function AdminCatalogManager() {
 
               {(selectedCat.subcategories?.length ?? 0) === 0 ? (
                 <p className="rounded-lg border border-dashed border-line py-6 text-center text-sm text-muted">
-                  No subcategories yet.
+                  {t('admin.catalogManager.noSubcategoriesYet')}
                 </p>
               ) : (
                 <ul className="divide-y divide-line rounded-lg border border-line overflow-hidden">
@@ -600,7 +607,7 @@ export function AdminCatalogManager() {
                           <img src={sub.imageUrl} alt={sub.name} className="h-9 w-12 rounded object-cover border border-line" />
                         ) : (
                           <div className="flex h-9 w-12 items-center justify-center rounded border border-dashed border-line bg-navy/[.02]">
-                            <span className="text-[9px] text-muted">No img</span>
+                            <span className="text-[9px] text-muted">{t('admin.catalogManager.noImageShort')}</span>
                           </div>
                         )}
                       </div>
@@ -613,7 +620,7 @@ export function AdminCatalogManager() {
 
                       {/* Status badge */}
                       {!sub.isActive && (
-                        <span className="rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-600">inactive</span>
+                        <span className="rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-600">{t('admin.catalogManager.inactive')}</span>
                       )}
 
                       {/* Actions */}
@@ -623,7 +630,7 @@ export function AdminCatalogManager() {
                           onClick={() => subImageRefs.current[sub.id]?.click()}
                           disabled={uploadingSubImageId === sub.id}
                           className="p-1.5 text-muted hover:text-ink transition"
-                          title="Upload image"
+                          title={t('admin.catalogManager.uploadImageTitle')}
                         >
                           {uploadingSubImageId === sub.id
                             ? <span className="text-[10px]">...</span>
@@ -643,7 +650,7 @@ export function AdminCatalogManager() {
                           onClick={() => void handleToggleSubActive(sub)}
                           className="rounded px-2 py-0.5 text-[11px] font-semibold text-muted hover:text-ink border border-line transition"
                         >
-                          {sub.isActive ? 'Deactivate' : 'Activate'}
+                          {sub.isActive ? t('admin.catalogManager.deactivate') : t('admin.catalogManager.activate')}
                         </button>
 
                         {/* Hard delete */}
@@ -651,7 +658,7 @@ export function AdminCatalogManager() {
                           onClick={() => void handleDeleteSubcategory(sub)}
                           disabled={deletingSubId === sub.id}
                           className="p-1.5 text-red-400 hover:text-red-600 transition"
-                          title="Delete subcategory"
+                          title={t('admin.catalogManager.deleteSubcategoryTitle')}
                         >
                           <TrashIcon className="h-3.5 w-3.5" />
                         </button>
@@ -662,23 +669,31 @@ export function AdminCatalogManager() {
               )}
             </Card>
 
-            {/* â"€â"€ Spec fields â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€ */}
+            {/* ── Spec fields ───────────────────────────────── */}
             <Card>
               <div className="mb-4">
                 <h3 className="text-sm font-bold text-ink mb-2">
-                  Spec fields <span className="font-mono text-[11px] text-muted">({selectedCat.specFields?.length ?? 0})</span>
+                  {t('admin.catalogManager.specFields')} <span className="font-mono text-[11px] text-muted">({selectedCat.specFields?.length ?? 0})</span>
                 </h3>
 
                 {(selectedCat.specFields?.length ?? 0) === 0 ? (
                   <p className="rounded-lg border border-dashed border-line py-6 text-center text-sm text-muted">
-                    No spec fields yet — add one below to make the listing form dynamic for this category.
+                    {t('admin.catalogManager.noSpecFieldsYet')}
                   </p>
                 ) : (
                   <div className="overflow-x-auto rounded-lg border border-line">
                     <table className="w-full text-sm">
                       <thead className="bg-navy/[.03] text-xs font-bold uppercase tracking-wide text-muted">
                         <tr>
-                          {['Field key', 'Label', 'Type', 'Unit', 'Required', 'Filterable', ''].map((h) => (
+                          {[
+                            t('admin.catalogManager.columns.fieldKey'),
+                            t('admin.catalogManager.columns.label'),
+                            t('admin.catalogManager.columns.type'),
+                            t('admin.catalogManager.columns.unit'),
+                            t('admin.catalogManager.columns.required'),
+                            t('admin.catalogManager.columns.filterable'),
+                            '',
+                          ].map((h) => (
                             <th key={h} className="px-3 py-2.5 text-left">{h}</th>
                           ))}
                         </tr>
@@ -696,20 +711,20 @@ export function AdminCatalogManager() {
                             <td className="px-3 py-2.5 font-mono text-[12px] text-muted">{f.unit ?? '—'}</td>
                             <td className="px-3 py-2.5">
                               {f.isRequired
-                                ? <span className="text-[11px] font-bold text-copper">Yes</span>
-                                : <span className="text-[11px] text-muted">No</span>}
+                                ? <span className="text-[11px] font-bold text-copper">{t('common:common.label.yes')}</span>
+                                : <span className="text-[11px] text-muted">{t('common:common.label.no')}</span>}
                             </td>
                             <td className="px-3 py-2.5">
                               {f.isFilterable
                                 ? <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[11px] font-semibold text-accent">{f.filterType}</span>
-                                : <span className="text-[11px] text-muted">No</span>}
+                                : <span className="text-[11px] text-muted">{t('common:common.label.no')}</span>}
                             </td>
                             <td className="px-3 py-2.5">
                               <button
                                 onClick={() => void handleDeleteSpecField(f.id, f.fieldLabel)}
                                 disabled={deletingFieldId === f.id}
                                 className="text-red-400 hover:text-red-600 transition"
-                                title={`Remove ${f.fieldLabel}`}
+                                title={t('admin.catalogManager.removeFieldTitle', { label: f.fieldLabel })}
                               >
                                 <TrashIcon className="h-3.5 w-3.5" />
                               </button>
@@ -729,13 +744,13 @@ export function AdminCatalogManager() {
                   className="flex items-center gap-1.5 text-sm font-semibold text-forest hover:text-forest-2 transition"
                 >
                   <PlusIcon className="h-4 w-4" />
-                  {showFieldForm ? 'Cancel' : 'Add spec field'}
+                  {showFieldForm ? t('common:common.button.cancel') : t('admin.catalogManager.addSpecField')}
                 </button>
 
                 {showFieldForm && (
                   <form onSubmit={(e) => void handleAddSpecField(e)} className="mt-4 grid grid-cols-2 gap-4 rounded-lg border border-line bg-navy/[.02] p-5">
-                    <h3 className="col-span-2 text-xs font-bold uppercase tracking-wide text-muted">New spec field</h3>
-                    <Field label="Field key" hint="snake_case, e.g. max_rpm">
+                    <h3 className="col-span-2 text-xs font-bold uppercase tracking-wide text-muted">{t('admin.catalogManager.newSpecField')}</h3>
+                    <Field label={t('admin.catalogManager.fields.fieldKey')} hint={t('admin.catalogManager.fields.fieldKeyHint')}>
                       <Input
                         value={newField.fieldKey}
                         onChange={(e) => setNewField((v) => ({ ...v, fieldKey: e.target.value.toLowerCase().replace(/\s+/g, '_') }))}
@@ -743,7 +758,7 @@ export function AdminCatalogManager() {
                         required
                       />
                     </Field>
-                    <Field label="Field label" hint="Human-readable">
+                    <Field label={t('admin.catalogManager.fields.fieldLabel')} hint={t('admin.catalogManager.fields.fieldLabelHint')}>
                       <Input
                         value={newField.fieldLabel}
                         onChange={(e) => setNewField((v) => ({ ...v, fieldLabel: e.target.value }))}
@@ -751,15 +766,15 @@ export function AdminCatalogManager() {
                         required
                       />
                     </Field>
-                    <Field label="Type">
+                    <Field label={t('admin.catalogManager.fields.type')}>
                       <Select
                         value={newField.fieldType}
                         onChange={(e) => setNewField((v) => ({ ...v, fieldType: e.target.value as SpecFieldType }))}
                       >
-                        {FIELD_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                        {FIELD_TYPES.map((ft) => <option key={ft} value={ft}>{ft}</option>)}
                       </Select>
                     </Field>
-                    <Field label="Unit" hint="mm, ton, HP — leave blank if none">
+                    <Field label={t('admin.catalogManager.fields.unit')} hint={t('admin.catalogManager.fields.unitHint')}>
                       <Input
                         value={newField.unit}
                         onChange={(e) => setNewField((v) => ({ ...v, unit: e.target.value }))}
@@ -768,7 +783,7 @@ export function AdminCatalogManager() {
                     </Field>
                     {newField.fieldType === 'select' && (
                       <div className="col-span-2">
-                        <Field label="Options" hint="Comma-separated, e.g. Horizontal,Vertical">
+                        <Field label={t('admin.catalogManager.fields.options')} hint={t('admin.catalogManager.fields.optionsHint')}>
                           <Input
                             value={newField.options}
                             onChange={(e) => setNewField((v) => ({ ...v, options: e.target.value }))}
@@ -785,7 +800,7 @@ export function AdminCatalogManager() {
                           onChange={(e) => setNewField((v) => ({ ...v, isRequired: e.target.checked }))}
                           className="h-4 w-4 rounded border-line text-forest focus:ring-forest/30"
                         />
-                        Required
+                        {t('admin.catalogManager.fields.required')}
                       </label>
                       <label className="flex items-center gap-2 text-sm font-medium text-ink">
                         <input
@@ -794,21 +809,21 @@ export function AdminCatalogManager() {
                           onChange={(e) => setNewField((v) => ({ ...v, isFilterable: e.target.checked }))}
                           className="h-4 w-4 rounded border-line text-forest focus:ring-forest/30"
                         />
-                        Filterable
+                        {t('admin.catalogManager.fields.filterable')}
                       </label>
                     </div>
                     {newField.isFilterable && (
-                      <Field label="Filter type">
+                      <Field label={t('admin.catalogManager.fields.filterType')}>
                         <Select
                           value={newField.filterType}
                           onChange={(e) => setNewField((v) => ({ ...v, filterType: e.target.value as SpecFilterType }))}
                         >
-                          {FILTER_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                          {FILTER_TYPES.map((ft) => <option key={ft} value={ft}>{ft}</option>)}
                         </Select>
                       </Field>
                     )}
                     <div className="col-span-2">
-                      <Field label="Help text" hint="Optional tooltip shown in the listing form">
+                      <Field label={t('admin.catalogManager.fields.helpText')} hint={t('admin.catalogManager.fields.helpTextHint')}>
                         <Input
                           value={newField.helpText}
                           onChange={(e) => setNewField((v) => ({ ...v, helpText: e.target.value }))}
@@ -818,7 +833,7 @@ export function AdminCatalogManager() {
                     </div>
                     <div className="col-span-2">
                       <Button type="submit" disabled={addingField || !newField.fieldKey.trim() || !newField.fieldLabel.trim()}>
-                        {addingField ? 'Adding...' : 'Add field'}
+                        {addingField ? t('admin.catalogManager.adding') : t('admin.catalogManager.addField')}
                       </Button>
                     </div>
                   </form>
@@ -828,7 +843,7 @@ export function AdminCatalogManager() {
           </div>
         ) : (
           <div className="flex h-64 items-center justify-center rounded-2xl border border-dashed border-line">
-            <p className="text-sm text-muted">Select a category on the left to manage its subcategories and spec fields.</p>
+            <p className="text-sm text-muted">{t('admin.catalogManager.selectCategoryPrompt')}</p>
           </div>
         )}
       </div>

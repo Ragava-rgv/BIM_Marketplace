@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { ListingDto } from '@machinebazaar/shared';
 import { MACHINE_CATEGORIES } from '@machinebazaar/shared';
 import { api } from '../lib/api';
@@ -8,7 +9,7 @@ import { AppLayout } from '../components/AppLayout';
 import { ListingCard } from '../components/ListingCard';
 import { SearchIcon, MapPinIcon } from '../components/icons';
 
-// Short chip labels for horizontal scroll
+// Short chip labels for horizontal scroll — English fallback if a t() key is somehow missing
 const CAT_SHORT: Record<string, string> = {
   metalworking:           'Metal',
   'sheet-metal':          'Sheet Metal',
@@ -247,6 +248,7 @@ function shortSubcat(name: string) {
 }
 
 export function Home() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -255,6 +257,8 @@ export function Home() {
   const [showAllSubs, setShowAllSubs] = useState(false);
   const [certified, setCertified] = useState(false);
   const [loanEligible, setLoanEligible] = useState(false);
+  const [importedOnly, setImportedOnly] = useState(false);
+  const [newOnly, setNewOnly] = useState(false);
   const [listings, setListings] = useState<ListingDto[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -269,11 +273,21 @@ export function Home() {
     if (activeSub) params.subcategory = activeSub;
     if (certified) params.certified = 'true';
     if (loanEligible) params.loanEligible = 'true';
+    if (importedOnly) params.origin = 'IMPORTED';
+    if (newOnly) params.conditionType = 'NEW';
     api.get<{ items: ListingDto[]; total: number }>('/listings', { params })
       .then(({ data }) => { setListings(data.items); setTotal(data.total); })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [activeCatId, activeSub, certified, loanEligible]);
+  }, [activeCatId, activeSub, certified, loanEligible, importedOnly, newOnly]);
+
+  // Scroll to results only once the subtype tile grid has collapsed to its compact chip (after
+  // the re-render), so the scroll lands on the results' final position instead of a stale
+  // pre-collapse offset. Runs only when a subtype is picked, not when the chip clears it.
+  useEffect(() => {
+    if (!activeSub) return;
+    document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth' });
+  }, [activeSub]);
 
   function selectCategory(id: string | null) {
     setActiveCatId(id);
@@ -312,7 +326,7 @@ export function Home() {
               <p className="text-[17px] font-extrabold text-white tracking-[-0.4px] leading-none">BIM</p>
               <div className="flex items-center gap-1 font-mono text-[8.5px] font-semibold text-white/50 tracking-[0.08em] mt-[2px]">
                 <MapPinIcon className="w-2 h-2 stroke-white/50" />
-                INDIA
+                {t('home.indiaLabel')}
               </div>
             </div>
           </div>
@@ -324,7 +338,7 @@ export function Home() {
           ) : (
             <button onClick={() => navigate('/login')}
               className="text-[12px] font-semibold text-white/80 bg-white/10 border border-white/20 rounded-lg px-3 py-1.5">
-              Sign in
+              {t('home.signIn')}
             </button>
           )}
         </div>
@@ -334,66 +348,66 @@ export function Home() {
           className="w-full bg-white rounded-[10px] h-[42px] flex items-center gap-2.5 px-[13px] text-left">
           <SearchIcon className="w-[15px] h-[15px] text-gray-500 flex-shrink-0" />
           <span className="text-[13px] text-gray-500 font-medium">
-            Search <strong className="text-ink font-semibold">machines, makes, models...</strong>
+            {t('home.searchPrefix')} <strong className="text-ink font-semibold">{t('home.searchPlaceholder')}</strong>
           </span>
         </button>
       </div>
 
       {/* ── Trust strip ── */}
-      <div className="flex gap-1.5 px-[14px] pt-[10px] pb-1 overflow-x-auto">
-        {['840 GST verified', '12 bank partners', '24h review'].map(t => (
-          <span key={t} className="flex-shrink-0 inline-flex items-center gap-1.5 bg-white border border-gray-200 rounded-full px-[11px] py-[5px] text-[10.5px] font-semibold text-gray-700">
+      <div className="flex gap-1.5 px-[14px] pt-[7px] pb-1 overflow-x-auto">
+        {[t('home.trust.gstVerified'), t('home.trust.bankPartners'), t('home.trust.review')].map(label => (
+          <span key={label} className="flex-shrink-0 inline-flex items-center gap-1.5 bg-white border border-gray-200 rounded-full px-[11px] py-[5px] text-[10.5px] font-semibold text-gray-700">
             <span className="w-1.5 h-1.5 rounded-full bg-copper" />
-            {t}
+            {label}
           </span>
         ))}
       </div>
 
       {/* ── Category chips (horizontal scroll) ── */}
-      <div className="flex gap-1.5 px-[14px] pt-[9px] pb-1 overflow-x-auto">
+      <div className="flex gap-1.5 px-[14px] pt-[6px] pb-1 overflow-x-auto">
         <button onClick={() => selectCategory(null)}
           className={`flex-shrink-0 px-[13px] py-[7px] rounded-[9px] border text-[11.5px] font-semibold transition ${
             activeCatId === null ? 'bg-copper-bg border-copper-bdr text-copper' : 'bg-white border-gray-200 text-gray-600'
           }`}>
-          All
+          {t('home.filters.all')}
         </button>
         {MACHINE_CATEGORIES.map(cat => (
           <button key={cat.id} onClick={() => selectCategory(cat.id)}
             className={`flex-shrink-0 px-[13px] py-[7px] rounded-[9px] border text-[11.5px] font-semibold transition ${
               activeCatId === cat.id ? 'bg-copper-bg border-copper-bdr text-copper' : 'bg-white border-gray-200 text-gray-600'
             }`}>
-            {CAT_SHORT[cat.id]}
+            {t(`home.categoryShort.${cat.id}`, CAT_SHORT[cat.id])}
           </button>
         ))}
       </div>
 
-      {/* ── Browse by industry (All view) — centered card grid ── */}
+      {/* ── Browse by industry (All view) — compact 3-col grid so listings arrive sooner ── */}
       {!selectedCat && (
-        <div className="px-[14px] pt-[14px]">
-          <p className="font-mono text-[10px] font-semibold text-gray-400 tracking-[0.09em] uppercase mb-[11px]">
-            Browse by industry
+        <div className="px-[14px] pt-[10px]">
+          <p className="font-mono text-[10px] font-semibold text-gray-400 tracking-[0.09em] uppercase mb-[7px]">
+            {t('home.browseByIndustry')}
           </p>
 
-          {/* 2-col grid with icon-on-top stacked cards */}
-          <div className="grid grid-cols-2 gap-[9px] mb-[20px]">
+          {/* 3-col grid with small icon-on-top stacked cards */}
+          <div className="grid grid-cols-3 gap-[6px] mb-[10px]">
             {MACHINE_CATEGORIES.map(cat => {
               const [dark, light] = CAT_COLORS[cat.id] ?? ['#334155', '#F1F5F9'];
               const subCount = ((cat as unknown) as { subcategories?: string[] }).subcategories?.length ?? 0;
               return (
                 <button key={cat.id} onClick={() => selectCategory(cat.id)}
-                  className="flex flex-col items-center bg-white border border-gray-200 rounded-[14px] pt-[16px] pb-[13px] px-[8px] text-center active:scale-[.96] transition-transform">
-                  <div className="w-[50px] h-[50px] rounded-[13px] flex items-center justify-center mb-[10px]"
+                  className="flex flex-col items-center bg-white border border-gray-200 rounded-[11px] pt-[9px] pb-[7px] px-[4px] text-center active:scale-[.96] transition-transform">
+                  <div className="w-[32px] h-[32px] rounded-[9px] flex items-center justify-center mb-[5px]"
                     style={{ background: light }}>
-                    <CategorySvg id={cat.id} color={dark} size={28} />
+                    <CategorySvg id={cat.id} color={dark} size={18} />
                   </div>
                   {/* Category name */}
-                  <p className="text-[12px] font-bold text-ink leading-[1.3] mb-[3px]">
-                    {CAT_SHORT[cat.id]}
+                  <p className="text-[9.5px] font-bold text-ink leading-[1.2] mb-[2px] line-clamp-1">
+                    {t(`home.categoryShort.${cat.id}`, CAT_SHORT[cat.id])}
                   </p>
                   {/* Type count badge */}
-                  <span className="inline-flex items-center gap-1 px-[7px] py-[2.5px] rounded-full text-[9.5px] font-semibold"
+                  <span className="inline-flex items-center gap-1 px-[5px] py-[1px] rounded-full text-[8px] font-semibold"
                     style={{ background: light, color: dark }}>
-                    {subCount} types
+                    {t('home.typesCount', { count: subCount })}
                   </span>
                 </button>
               );
@@ -401,10 +415,10 @@ export function Home() {
           </div>
 
           {/* Divider before listing feed */}
-          <div className="flex items-center gap-2 mb-[11px]">
+          <div className="flex items-center gap-2 mb-[7px]">
             <div className="flex-1 h-px bg-gray-200" />
             <span className="font-mono text-[9px] font-semibold text-gray-400 tracking-[0.09em] uppercase">
-              Recent listings
+              {t('home.recentListings')}
             </span>
             <div className="flex-1 h-px bg-gray-200" />
           </div>
@@ -423,90 +437,102 @@ export function Home() {
                 <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 10 10">
                   <polyline points="6.5 2 3 5 6.5 8" />
                 </svg>
-                All
+                {t('home.filters.all')}
               </button>
               <svg className="w-2.5 h-2.5 text-gray-300" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 10 10">
                 <polyline points="3.5 2 6.5 5 3.5 8" />
               </svg>
-              <span className="text-[10.5px] font-bold text-ink">{CAT_SHORT[selectedCat.id]}</span>
-              <span className="ml-auto text-[9.5px] font-medium text-gray-400">{activeSubs.length} types</span>
+              <span className="text-[10.5px] font-bold text-ink">{t(`home.categoryShort.${selectedCat.id}`, CAT_SHORT[selectedCat.id])}</span>
+              <span className="ml-auto text-[9.5px] font-medium text-gray-400">{t('home.typesCount', { count: activeSubs.length })}</span>
             </div>
 
-            {/* 3-column subcategory tiles */}
-            <div className="grid grid-cols-3 gap-[7px] mb-2">
-              {subsToShow.map(sub => {
-                const isActive = activeSub === sub;
-                return (
-                  <button key={sub}
-                    onClick={() => setActiveSub(isActive ? null : sub)}
-                    className="flex flex-col items-center text-center rounded-[11px] pt-[10px] pb-[8px] px-[4px] border transition active:scale-95"
-                    style={{ background: isActive ? light : '#fff', borderColor: isActive ? `${dark}60` : '#E5E7EB' }}>
-                    <div className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center mb-[6px] transition-colors"
-                      style={{ background: isActive ? dark : light }}>
-                      <CategorySvg id={selectedCat.id} color={isActive ? '#fff' : dark} size={16} />
-                    </div>
-                    <p className="text-[9px] font-semibold leading-[1.3] line-clamp-2 px-[2px]"
-                      style={{ color: isActive ? dark : '#374151' }}>
-                      {shortSubcat(sub)}
-                    </p>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Expand button */}
-            {!showAllSubs && hiddenSubCount > 0 && (
-              <button onClick={() => setShowAllSubs(true)}
-                className="w-full mb-2 text-[11px] font-semibold py-[7px] rounded-[9px] bg-copper-bg border border-copper-bdr text-copper">
-                + {hiddenSubCount} more types
+            {/* Once a machine type is picked, collapse the tile grid into a compact chip so
+                results land right below without scrolling past the whole subtype list —
+                tapping the chip clears the pick and reopens the grid to change it. */}
+            {activeSub ? (
+              <button onClick={() => setActiveSub(null)}
+                className="w-full flex items-center gap-1.5 mb-2 bg-copper-bg border border-copper-bdr text-copper rounded-[11px] px-3 py-2.5">
+                <span className="text-[10px] font-medium text-copper/70 shrink-0">{t('home.filteredLabel')}</span>
+                <span className="flex-1 text-left text-[12px] font-bold truncate">{shortSubcat(activeSub)}</span>
+                <span className="opacity-60 text-[15px] leading-none shrink-0">×</span>
               </button>
-            )}
+            ) : (
+              <>
+                {/* 3-column subcategory tiles */}
+                <div className="grid grid-cols-3 gap-[7px] mb-2">
+                  {subsToShow.map(sub => (
+                    <button key={sub}
+                      onClick={() => setActiveSub(sub)}
+                      className="flex flex-col items-center text-center rounded-[11px] pt-[10px] pb-[8px] px-[4px] border transition active:scale-95"
+                      style={{ background: '#fff', borderColor: '#E5E7EB' }}>
+                      <div className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center mb-[6px] transition-colors"
+                        style={{ background: light }}>
+                        <CategorySvg id={selectedCat.id} color={dark} size={16} />
+                      </div>
+                      <p className="text-[9px] font-semibold leading-[1.3] line-clamp-2 px-[2px]" style={{ color: '#374151' }}>
+                        {shortSubcat(sub)}
+                      </p>
+                    </button>
+                  ))}
+                </div>
 
-            {/* Active subcategory badge */}
-            {activeSub && (
-              <div className="flex items-center gap-1.5 mb-1">
-                <span className="text-[10px] text-gray-400 font-medium">Filtered:</span>
-                <span className="inline-flex items-center gap-1 bg-copper-bg border border-copper-bdr text-copper text-[10px] font-bold px-2 py-[3px] rounded-full">
-                  {activeSub}
-                  <button onClick={() => setActiveSub(null)} className="ml-0.5 opacity-60 text-[13px] leading-none">×</button>
-                </span>
-              </div>
+                {/* Expand button */}
+                {!showAllSubs && hiddenSubCount > 0 && (
+                  <button onClick={() => setShowAllSubs(true)}
+                    className="w-full mb-2 text-[11px] font-semibold py-[7px] rounded-[9px] bg-copper-bg border border-copper-bdr text-copper">
+                    {t('home.moreTypes', { count: hiddenSubCount })}
+                  </button>
+                )}
+              </>
             )}
           </div>
         );
       })()}
 
       {/* ── Quick filter pills ── */}
-      <div className="flex gap-1.5 px-[14px] pt-[8px] pb-1">
+      <div className="flex gap-1.5 px-[14px] pt-[8px] pb-1 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
         <button onClick={() => setCertified(!certified)}
           className={`flex-shrink-0 flex items-center gap-1.5 px-[13px] py-[7px] rounded-[9px] border text-[11.5px] font-semibold transition ${
             certified ? 'bg-copper-bg border-copper-bdr text-copper' : 'bg-white border-gray-200 text-gray-600'
           }`}>
           {certified && <span className="w-1.5 h-1.5 rounded-full bg-copper" />}
-          Certified
+          {t('home.filters.certified')}
         </button>
         <button onClick={() => setLoanEligible(!loanEligible)}
           className={`flex-shrink-0 flex items-center gap-1.5 px-[13px] py-[7px] rounded-[9px] border text-[11.5px] font-semibold transition ${
             loanEligible ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-white border-gray-200 text-gray-600'
           }`}>
           {loanEligible && <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />}
-          Loan eligible
+          {t('home.filters.loanEligible')}
+        </button>
+        <button onClick={() => setImportedOnly(!importedOnly)}
+          className={`flex-shrink-0 flex items-center gap-1.5 px-[13px] py-[7px] rounded-[9px] border text-[11.5px] font-semibold transition ${
+            importedOnly ? 'bg-copper-bg border-copper-bdr text-copper' : 'bg-white border-gray-200 text-gray-600'
+          }`}>
+          {importedOnly && <span className="w-1.5 h-1.5 rounded-full bg-copper" />}
+          {t('home.filters.imported')}
+        </button>
+        <button onClick={() => setNewOnly(!newOnly)}
+          className={`flex-shrink-0 flex items-center gap-1.5 px-[13px] py-[7px] rounded-[9px] border text-[11.5px] font-semibold transition ${
+            newOnly ? 'bg-ink border-ink text-white' : 'bg-white border-gray-200 text-gray-600'
+          }`}>
+          {t('common:listing.conditionNew')}
         </button>
       </div>
 
       {/* ── Results count ── */}
-      <div className="flex items-center justify-between px-4 py-2">
+      <div id="results-section" className="flex items-center justify-between px-4 py-2">
         <span className="font-mono text-[10.5px] font-semibold text-gray-500 tracking-[0.04em]">
           <span className="text-copper font-bold">{total}</span>
-          {' '}MACHINES
+          {' '}{t('home.resultsCount.machines')}
           {activeSub
             ? ` · ${shortSubcat(activeSub)}`
             : selectedCat
-              ? ` · ${CAT_SHORT[selectedCat.id]}`
+              ? ` · ${t(`home.categoryShort.${selectedCat.id}`, CAT_SHORT[selectedCat.id])}`
               : ''}
         </span>
         <button className="text-[11px] font-semibold text-ink flex items-center gap-1">
-          Latest
+          {t('home.sort.latest')}
           <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" viewBox="0 0 10 10">
             <polyline points="2.5 4 5 6.5 7.5 4" />
           </svg>
@@ -521,11 +547,11 @@ export function Home() {
           ))
         ) : listings.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-[13px] font-semibold text-gray-500 mb-3">No machines found</p>
+            <p className="text-[13px] font-semibold text-gray-500 mb-3">{t('home.empty.title')}</p>
             {(activeSub || activeCatId) && (
               <button onClick={() => { setActiveSub(null); setActiveCatId(null); }}
                 className="text-[12px] font-semibold text-copper border border-copper-bdr bg-copper-bg rounded-[9px] px-4 py-2">
-                Clear filters
+                {t('common:common.button.clearFilters')}
               </button>
             )}
           </div>

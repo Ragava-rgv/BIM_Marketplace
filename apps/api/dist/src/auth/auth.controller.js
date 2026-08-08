@@ -33,6 +33,13 @@ __decorate([
     (0, class_validator_1.IsIn)(['BUYER', 'SELLER']),
     __metadata("design:type", String)
 ], SwitchModeDto.prototype, "mode", void 0);
+class SwitchLanguageDto {
+    language;
+}
+__decorate([
+    (0, class_validator_1.IsIn)(['EN', 'TA', 'HI']),
+    __metadata("design:type", String)
+], SwitchLanguageDto.prototype, "language", void 0);
 let AuthController = class AuthController {
     auth;
     constructor(auth) {
@@ -72,6 +79,9 @@ let AuthController = class AuthController {
     }
     async switchMode(user, dto) {
         return this.auth.switchMode(user.id, dto.mode);
+    }
+    async switchLanguage(user, dto) {
+        return this.auth.switchLanguage(user.id, dto.language);
     }
     async logout(dto) {
         await this.auth.logout(dto.refreshToken);
@@ -169,6 +179,16 @@ __decorate([
     __metadata("design:paramtypes", [Object, SwitchModeDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "switchMode", null);
+__decorate([
+    (0, common_1.Post)('language'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, SwitchLanguageDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "switchLanguage", null);
 __decorate([
     (0, common_1.Post)('logout'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),

@@ -8,13 +8,14 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
-import { UserRole } from '@prisma/client';
+import { AdPlacement, UserRole } from '@prisma/client';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -27,10 +28,10 @@ const imageUpload = FileInterceptor('image', { storage: memoryStorage() });
 export class AdvertisementsController {
   constructor(private readonly service: AdvertisementsService) {}
 
-  /** Public — active ad slots for the buyer listing grid interleave. */
+  /** Public — active ad slots. Defaults to in-grid listing interleave; pass ?placement=HOME_BANNER for the home-page banner slot. */
   @Get()
-  listActive() {
-    return this.service.listActive();
+  listActive(@Query('placement') placement?: AdPlacement) {
+    return this.service.listActive(placement && Object.values(AdPlacement).includes(placement) ? placement : AdPlacement.IN_GRID);
   }
 
   @Get('admin/all')

@@ -11,6 +11,9 @@ import type { AuthenticatedUser } from './types/jwt-payload.interface';
 declare class SwitchModeDto {
     mode: 'BUYER' | 'SELLER';
 }
+declare class SwitchLanguageDto {
+    language: 'EN' | 'TA' | 'HI';
+}
 export declare class AuthController {
     private readonly auth;
     constructor(auth: AuthService);
@@ -28,6 +31,7 @@ export declare class AuthController {
         locationState: any;
         activeMode: any;
         canSell: any;
+        preferredLanguage: import("@prisma/client").$Enums.SupportedLanguage;
         createdAt: string;
         updatedAt: string;
     }>;
@@ -60,6 +64,25 @@ export declare class AuthController {
         locationState: any;
         activeMode: any;
         canSell: any;
+        preferredLanguage: import("@prisma/client").$Enums.SupportedLanguage;
+        createdAt: string;
+        updatedAt: string;
+    }>;
+    switchLanguage(user: AuthenticatedUser, dto: SwitchLanguageDto): Promise<{
+        id: string;
+        role: import("@prisma/client").$Enums.UserRole;
+        email: string | null;
+        phone: string;
+        fullName: string;
+        phoneVerified: boolean;
+        gstNumber: string | null;
+        businessName: string | null;
+        gstStatus: import("@prisma/client").$Enums.GstStatus;
+        locationCity: any;
+        locationState: any;
+        activeMode: any;
+        canSell: any;
+        preferredLanguage: import("@prisma/client").$Enums.SupportedLanguage;
         createdAt: string;
         updatedAt: string;
     }>;

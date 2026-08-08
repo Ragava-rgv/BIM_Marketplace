@@ -1,9 +1,10 @@
+import { AdPlacement } from '@prisma/client';
 import { AdvertisementsService } from './advertisements.service';
 import { CreateAdvertisementDto, UpdateAdvertisementDto } from './dto/advertisement.dto';
 export declare class AdvertisementsController {
     private readonly service;
     constructor(service: AdvertisementsService);
-    listActive(): import("@prisma/client").Prisma.PrismaPromise<{
+    listActive(placement?: AdPlacement): import("@prisma/client").Prisma.PrismaPromise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -11,9 +12,12 @@ export declare class AdvertisementsController {
         sortOrder: number;
         deletedAt: Date | null;
         imageUrl: string;
+        startsAt: Date | null;
         title: string;
         linkUrl: string | null;
         position: number;
+        placement: import("@prisma/client").$Enums.AdPlacement;
+        endsAt: Date | null;
     }[]>;
     listAll(): import("@prisma/client").Prisma.PrismaPromise<{
         id: string;
@@ -23,9 +27,12 @@ export declare class AdvertisementsController {
         sortOrder: number;
         deletedAt: Date | null;
         imageUrl: string;
+        startsAt: Date | null;
         title: string;
         linkUrl: string | null;
         position: number;
+        placement: import("@prisma/client").$Enums.AdPlacement;
+        endsAt: Date | null;
     }[]>;
     create(dto: CreateAdvertisementDto, file?: Express.Multer.File): Promise<{
         id: string;
@@ -35,9 +42,12 @@ export declare class AdvertisementsController {
         sortOrder: number;
         deletedAt: Date | null;
         imageUrl: string;
+        startsAt: Date | null;
         title: string;
         linkUrl: string | null;
         position: number;
+        placement: import("@prisma/client").$Enums.AdPlacement;
+        endsAt: Date | null;
     }>;
     update(id: string, dto: UpdateAdvertisementDto, file?: Express.Multer.File): Promise<{
         id: string;
@@ -47,9 +57,12 @@ export declare class AdvertisementsController {
         sortOrder: number;
         deletedAt: Date | null;
         imageUrl: string;
+        startsAt: Date | null;
         title: string;
         linkUrl: string | null;
         position: number;
+        placement: import("@prisma/client").$Enums.AdPlacement;
+        endsAt: Date | null;
     }>;
     remove(id: string): Promise<{
         id: string;
@@ -59,9 +72,12 @@ export declare class AdvertisementsController {
         sortOrder: number;
         deletedAt: Date | null;
         imageUrl: string;
+        startsAt: Date | null;
         title: string;
         linkUrl: string | null;
         position: number;
+        placement: import("@prisma/client").$Enums.AdPlacement;
+        endsAt: Date | null;
     }>;
     purge(id: string): Promise<{
         id: string;
@@ -71,8 +87,11 @@ export declare class AdvertisementsController {
         sortOrder: number;
         deletedAt: Date | null;
         imageUrl: string;
+        startsAt: Date | null;
         title: string;
         linkUrl: string | null;
         position: number;
+        placement: import("@prisma/client").$Enums.AdPlacement;
+        endsAt: Date | null;
     }>;
 }

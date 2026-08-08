@@ -28,6 +28,7 @@ class CreateListingDto {
     locationCity;
     locationState;
     complexityTier;
+    condition;
     catalogCategoryId;
     specs;
     conditionGrade;
@@ -107,6 +108,10 @@ __decorate([
     (0, class_validator_1.IsIn)(['SIMPLE', 'STANDARD', 'COMPLEX']),
     __metadata("design:type", String)
 ], CreateListingDto.prototype, "complexityTier", void 0);
+__decorate([
+    (0, class_validator_1.IsIn)(['OLD', 'NEW']),
+    __metadata("design:type", String)
+], CreateListingDto.prototype, "condition", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsUUID)(),

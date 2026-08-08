@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { UserRole } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth-context';
@@ -14,6 +15,7 @@ interface LocationState {
 }
 
 export function VerifyOtp() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { state } = useLocation() as { state: LocationState | null };
   const { authenticate } = useAuth();
@@ -33,11 +35,11 @@ export function VerifyOtp() {
       <div className="min-h-screen bg-forest flex flex-col">
         <div className="flex-1" />
         <div className="bg-white rounded-t-[24px] px-6 pt-6" style={{ paddingBottom: `calc(env(safe-area-inset-bottom) + 24px)` }}>
-          <h2 className="text-[20px] font-extrabold text-ink mb-2">Session expired</h2>
-          <p className="text-[13px] text-gray-500 mb-5">Please start again from sign in or sign up.</p>
+          <h2 className="text-[20px] font-extrabold text-ink mb-2">{t('auth.verifyOtp.sessionExpiredTitle')}</h2>
+          <p className="text-[13px] text-gray-500 mb-5">{t('auth.verifyOtp.sessionExpiredBody')}</p>
           <button onClick={() => navigate('/login')}
             className="w-full h-[52px] bg-forest text-white rounded-[13px] text-[15px] font-bold">
-            Back to Sign in
+            {t('auth.verifyOtp.backToSignIn')}
           </button>
         </div>
       </div>
@@ -68,7 +70,7 @@ export function VerifyOtp() {
       const profile = await authenticate(data);
       navigate(dashboardPath(profile.role), { replace: true });
     } catch (err) {
-      setError(apiErrorMessage(err, 'Invalid OTP. Please try again.'));
+      setError(apiErrorMessage(err, t('auth.verifyOtp.invalidOtp')));
       setDigits(['', '', '', '', '', '']);
       refs[0].current?.focus();
     } finally {
@@ -84,7 +86,7 @@ export function VerifyOtp() {
       await api.post('/auth/otp/send', { phone, purpose });
       setResent(true);
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not resend OTP. Please try again.'));
+      setError(apiErrorMessage(err, t('auth.verifyOtp.resendError')));
     } finally {
       setResending(false);
     }
@@ -105,15 +107,15 @@ export function VerifyOtp() {
             <line x1="12" y1="18" x2="12.01" y2="18" strokeWidth="2.5" />
           </svg>
         </div>
-        <p className="text-[13px] text-white/65 text-center">OTP sent to +91 {phone}</p>
+        <p className="text-[13px] text-white/65 text-center">{t('auth.verifyOtp.otpSentTo', { phone })}</p>
         {import.meta.env.DEV && (
-          <p className="text-[11px] text-white/45 text-center mt-1">Check the API console for the code.</p>
+          <p className="text-[11px] text-white/45 text-center mt-1">{t('auth.verifyOtp.devHint')}</p>
         )}
       </div>
 
       <div className="bg-white rounded-t-[24px] px-6 pt-6" style={{ paddingBottom: `calc(env(safe-area-inset-bottom) + 24px)` }}>
-        <h2 className="text-[20px] font-extrabold text-ink tracking-[-0.4px] mb-1">Enter OTP</h2>
-        <p className="text-[13px] text-gray-500 mb-6">6-digit code sent to your mobile number.</p>
+        <h2 className="text-[20px] font-extrabold text-ink tracking-[-0.4px] mb-1">{t('auth.verifyOtp.title')}</h2>
+        <p className="text-[13px] text-gray-500 mb-6">{t('auth.verifyOtp.subtitle')}</p>
 
         <form onSubmit={handleSubmit}>
           <div className="flex gap-2.5 justify-center mb-5">
@@ -130,7 +132,7 @@ export function VerifyOtp() {
 
           {resent && (
             <p className="text-[12px] text-green-txt font-medium text-center mb-3 bg-green-bg border border-green-bdr rounded-[9px] px-3 py-2">
-              A new code has been sent.
+              {t('auth.verifyOtp.resentNotice')}
             </p>
           )}
           {error && (
@@ -141,18 +143,18 @@ export function VerifyOtp() {
 
           <button type="submit" disabled={loading || digits.join('').length < 6}
             className="w-full h-[52px] bg-forest text-white rounded-[13px] text-[15px] font-bold disabled:opacity-50">
-            {loading ? 'Verifying…' : 'Verify & continue →'}
+            {loading ? t('auth.verifyOtp.verifying') : t('auth.verifyOtp.submit')}
           </button>
         </form>
 
         <button onClick={handleResend} disabled={resending}
           className="mt-4 w-full text-center text-[12px] text-forest font-bold disabled:opacity-50">
-          {resending ? 'Resending…' : "Didn't get a code? Resend"}
+          {resending ? t('auth.verifyOtp.resendingLabel') : t('auth.verifyOtp.resendLabel')}
         </button>
 
         <button onClick={() => navigate(-1)}
           className="mt-2 w-full text-center text-[12px] text-gray-500 font-medium">
-          ← Go back
+          {t('auth.verifyOtp.goBack')}
         </button>
       </div>
     </div>

@@ -1,5 +1,6 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { ListingDto, ListingMediaDto } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import { formatInr } from '../../lib/format';
@@ -13,9 +14,14 @@ import { ListingMediaManager } from '../../components/ListingMediaManager';
 import { Button, Card, ErrorBanner, PageHeading, SuccessBanner } from '../../components/ui';
 import { CheckCircleIcon } from '../../components/icons';
 
-const STEPS = ['Details', 'Media', 'Review'] as const;
+const STEP_KEYS = [
+  'seller.newListing.steps.details',
+  'seller.newListing.steps.media',
+  'seller.newListing.steps.review',
+] as const;
 
 export function NewListing() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [listing, setListing] = useState<ListingDto | null>(null);
@@ -40,7 +46,7 @@ export function NewListing() {
       setMedia(data.media ?? []);
       setStep(1);
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not save your listing details. Please check the form and try again.'));
+      setError(apiErrorMessage(err, t('seller.newListing.errors.createFailed')));
     } finally {
       setCreating(false);
     }
@@ -54,7 +60,7 @@ export function NewListing() {
       await api.post(`/listings/${listing.id}/submit`);
       setSubmitted(true);
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not submit this listing for review yet — check the media requirements above.'));
+      setError(apiErrorMessage(err, t('seller.newListing.errors.submitFailed')));
     } finally {
       setSubmitting(false);
     }
@@ -66,16 +72,15 @@ export function NewListing() {
         <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
           <CheckCircleIcon className="h-7 w-7" />
         </span>
-        <h1 className="mt-5 font-display text-3xl text-navy">Submitted for review</h1>
+        <h1 className="mt-5 font-display text-3xl text-navy">{t('seller.newListing.submitted.title')}</h1>
         <p className="mt-3 text-sm leading-relaxed text-navy/60">
-          <span className="font-semibold text-navy">{listing.title}</span> is now in our review
-          queue. Our admin team checks listing details and proof media before approving it to go
-          live — you&apos;ll see its status update on your listings page.
+          <span className="font-semibold text-navy">{listing.title}</span>{' '}
+          {t('seller.newListing.submitted.description')}
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Button onClick={() => navigate('/seller/listings')}>Go to my listings</Button>
+          <Button onClick={() => navigate('/seller/listings')}>{t('seller.newListing.submitted.goToListings')}</Button>
           <Button variant="ghost" onClick={() => navigate(`/seller/listings/${listing.id}/edit`)}>
-            View this listing
+            {t('seller.newListing.submitted.viewListing')}
           </Button>
         </div>
       </div>
@@ -85,16 +90,16 @@ export function NewListing() {
   return (
     <div>
       <PageHeading
-        eyebrow="New listing"
-        title="Create a listing in three steps"
-        description="Fill in the machine details, add proof media that meets our requirements, then submit for admin review."
+        eyebrow={t('seller.newListing.eyebrow')}
+        title={t('seller.newListing.title')}
+        description={t('seller.newListing.description')}
       />
 
       <ol className="mb-8 flex items-center gap-3">
-        {STEPS.map((label, idx) => {
+        {STEP_KEYS.map((labelKey, idx) => {
           const reachable = idx <= step;
           return (
-            <li key={label} className="flex items-center gap-3">
+            <li key={labelKey} className="flex items-center gap-3">
               <button
                 type="button"
                 disabled={!reachable}
@@ -113,10 +118,10 @@ export function NewListing() {
                   {idx < step ? <CheckCircleIcon className="h-4 w-4" /> : idx + 1}
                 </span>
                 <span className={`text-sm font-medium ${idx === step ? 'text-navy' : reachable ? 'text-navy/70' : 'text-navy/45'}`}>
-                  {label}
+                  {t(labelKey)}
                 </span>
               </button>
-              {idx < STEPS.length - 1 && <span className="h-px w-10 bg-navy/10" />}
+              {idx < STEP_KEYS.length - 1 && <span className="h-px w-10 bg-navy/10" />}
             </li>
           );
         })}
@@ -126,7 +131,7 @@ export function NewListing() {
 
       {step === 0 && (
         <Card className="max-w-2xl">
-          <ListingDetailsForm initial={details ?? EMPTY_LISTING_DETAILS} submitLabel="Save & continue to media" submitting={creating} onSubmit={handleCreate} />
+          <ListingDetailsForm initial={details ?? EMPTY_LISTING_DETAILS} submitLabel={t('seller.newListing.saveContinue')} submitting={creating} onSubmit={handleCreate} />
         </Card>
       )}
 
@@ -135,7 +140,7 @@ export function NewListing() {
           <ListingMediaManager listingId={listing.id} media={media} onChange={setMedia} />
           <div className="flex justify-end">
             <Button onClick={() => setStep(2)} disabled={!mediaReady}>
-              Continue to review
+              {t('seller.newListing.continueToReview')}
             </Button>
           </div>
         </div>
@@ -148,18 +153,18 @@ export function NewListing() {
             <p className="mt-2 text-sm leading-relaxed text-navy/60">{details.description}</p>
             <dl className="mt-5 grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
               {[
-                ['Category', details.machineCategory],
-                ['Make / model', `${details.machineMake} ${details.machineModel}`],
-                ['Year', details.manufactureYear || 'Not available'],
+                [t('seller.newListing.review.category'), details.machineCategory],
+                [t('seller.newListing.review.makeModel'), `${details.machineMake} ${details.machineModel}`],
+                [t('seller.newListing.review.year'), details.manufactureYear || t('common:common.label.notAvailable')],
                 [
-                  'Origin',
+                  t('seller.newListing.review.origin'),
                   details.origin === 'IMPORTED'
-                    ? `Imported${details.importedCountry ? ` (${details.importedCountry})` : ''}`
-                    : 'Indian',
+                    ? `${t('seller.newListing.review.imported')}${details.importedCountry ? ` (${details.importedCountry})` : ''}`
+                    : t('seller.newListing.review.indian'),
                 ],
-                ['Asking price', formatInr(details.askingPrice)],
-                ['Location', `${details.locationCity}, ${details.locationState}`],
-                ['Complexity', details.complexityTier],
+                [t('seller.newListing.review.askingPrice'), formatInr(details.askingPrice)],
+                [t('seller.newListing.review.location'), `${details.locationCity}, ${details.locationState}`],
+                [t('seller.newListing.review.complexity'), details.complexityTier],
               ].map(([label, value]) => (
                 <div key={label}>
                   <dt className="text-xs font-semibold uppercase tracking-wide text-navy/40">{label}</dt>
@@ -168,16 +173,19 @@ export function NewListing() {
               ))}
             </dl>
             <p className="mt-5 text-sm text-navy/55">
-              {photos.length} photo{photos.length === 1 ? '' : 's'} and {video ? '1 running video' : 'no video'} attached.
+              {t('seller.newListing.review.mediaSummary', {
+                photoCount: t('seller.newListing.review.photoCount', { count: photos.length }),
+                videoPart: video ? t('seller.newListing.review.oneVideo') : t('seller.newListing.review.noVideo'),
+              })}
             </p>
           </Card>
-          <SuccessBanner message="Your media meets the minimum requirements — you're ready to submit for admin review." />
+          <SuccessBanner message={t('seller.newListing.review.mediaReadyMessage')} />
           <div className="flex flex-wrap gap-3">
             <Button onClick={handleSubmitForReview} disabled={submitting}>
-              {submitting ? 'Submitting...' : 'Submit for review'}
+              {submitting ? t('seller.newListing.review.submitting') : t('seller.newListing.review.submitForReview')}
             </Button>
             <Button variant="ghost" onClick={() => setStep(1)}>
-              Back to media
+              {t('seller.newListing.review.backToMedia')}
             </Button>
           </div>
         </div>

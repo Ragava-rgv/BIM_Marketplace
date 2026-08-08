@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type {
   BuyerSubscriptionPlanDto,
   BuyerSubscriptionStatusDto,
@@ -19,6 +20,7 @@ import {
 import { CheckCircleIcon } from '../../components/icons';
 
 export function BuyerSubscription() {
+  const { t } = useTranslation();
   const [status, setStatus] = useState<BuyerSubscriptionStatusDto | null>(null);
   const [plans, setPlans] = useState<BuyerSubscriptionPlanDto[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -40,10 +42,10 @@ export function BuyerSubscription() {
         }
       })
       .catch((err) => {
-        if (!cancelled) setError(apiErrorMessage(err, 'Could not load subscription details.'));
+        if (!cancelled) setError(apiErrorMessage(err, t('buyer.subscription.errorLoad')));
       });
     return () => { cancelled = true; };
-  }, [reload]);
+  }, [reload, t]);
 
   const upgrade = useCallback(
     async (plan: BuyerSubscriptionPlanDto) => {
@@ -61,7 +63,10 @@ export function BuyerSubscription() {
             amount: orderData.amount,
             currency: orderData.currency,
             name: 'BIM',
-            description: `${plan.displayName} — ${plan.contactViewQuota} contact views`,
+            description: t('buyer.subscription.razorpayDescription', {
+              planName: plan.displayName,
+              quota: plan.contactViewQuota,
+            }),
             order_id: orderData.razorpayOrderId,
             handler: async (resp: {
               razorpay_payment_id: string;
@@ -82,6 +87,8 @@ export function BuyerSubscription() {
                 reject(e);
               }
             },
+            // Sentinel string used only for internal control-flow (matched below to
+            // silently swallow a user-initiated dismiss) — never rendered to the user.
             modal: { ondismiss: () => reject(new Error('Payment cancelled')) },
             theme: { color: '#1a56db' },
           });
@@ -89,36 +96,36 @@ export function BuyerSubscription() {
         });
       } catch (err) {
         if ((err as Error).message !== 'Payment cancelled') {
-          setPayError(apiErrorMessage(err, 'Payment failed. Please try again.'));
+          setPayError(apiErrorMessage(err, t('buyer.subscription.errorPaymentFailed')));
         }
       } finally {
         setPaying(false);
       }
     },
-    [],
+    [t],
   );
 
   const orderedPlans = [...plans].sort((a, b) => (a.isFree === b.isFree ? 0 : a.isFree ? -1 : 1));
 
   const FEATURE_ROWS: Array<{ label: string; check: (plan: BuyerSubscriptionPlanDto) => boolean }> = [
-    { label: 'No expiry', check: (plan) => plan.durationDays == null },
-    { label: 'Assigned automatically on signup', check: (plan) => plan.isDefault },
-    { label: 'Unused views carry over on upgrade', check: (plan) => !plan.isFree },
-    { label: 'Priority support', check: (plan) => !plan.isFree },
+    { label: t('buyer.subscription.features.noExpiry'), check: (plan) => plan.durationDays == null },
+    { label: t('buyer.subscription.features.autoAssigned'), check: (plan) => plan.isDefault },
+    { label: t('buyer.subscription.features.carryOver'), check: (plan) => !plan.isFree },
+    { label: t('buyer.subscription.features.prioritySupport'), check: (plan) => !plan.isFree },
   ];
 
   return (
     <div>
       <PageHeading
-        eyebrow="Buyer workspace"
-        title="Contact view subscription"
-        description="Manage how many seller contacts you can reveal on BIM."
+        eyebrow={t('buyer.subscription.eyebrow')}
+        title={t('buyer.subscription.title')}
+        description={t('buyer.subscription.description')}
       />
 
       {error && <div className="mb-5"><ErrorBanner message={error} /></div>}
       {success && (
         <div className="mb-5">
-          <SuccessBanner message="Subscription activated! Your contact-view quota has been updated." />
+          <SuccessBanner message={t('buyer.subscription.successActivated')} />
         </div>
       )}
       {payError && (
@@ -133,27 +140,27 @@ export function BuyerSubscription() {
         <div className="space-y-6">
           {/* Current status */}
           <Card className="max-w-2xl">
-            <MonoLabel className="text-copper">Current plan</MonoLabel>
+            <MonoLabel className="text-copper">{t('buyer.subscription.currentPlanLabel')}</MonoLabel>
             <div className="mt-4 flex items-center justify-between">
               <div>
                 <p className="font-display text-2xl font-medium text-navy">
-                  {status.subscription.plan?.displayName ?? 'Free'}
+                  {status.subscription.plan?.displayName ?? t('buyer.subscription.freePlanFallback')}
                 </p>
                 <p className="mt-1 text-sm text-navy/55">
-                  {status.quotaTotal} contact view{status.quotaTotal !== 1 ? 's' : ''}
-                  {status.expiresAt ? ' / cycle' : ' — no expiry'}
+                  {t('buyer.subscription.quotaLine', { count: status.quotaTotal })}
+                  {status.expiresAt ? t('buyer.subscription.perCycle') : t('buyer.subscription.noExpirySuffix')}
                 </p>
               </div>
               <span className="rounded-full bg-navy/[0.06] px-3 py-1 text-[12px] font-bold uppercase tracking-wide text-navy/50">
-                {status.status}
+                {t(`common:status.subscription.${status.status}`)}
               </span>
             </div>
 
             <div className="mt-5 grid grid-cols-3 gap-3">
               {[
-                { label: 'Quota', value: status.quotaTotal },
-                { label: 'Used', value: status.quotaUsed },
-                { label: 'Remaining', value: status.quotaRemaining },
+                { label: t('buyer.subscription.stats.quota'), value: status.quotaTotal },
+                { label: t('buyer.subscription.stats.used'), value: status.quotaUsed },
+                { label: t('buyer.subscription.stats.remaining'), value: status.quotaRemaining },
               ].map((item) => (
                 <div
                   key={item.label}
@@ -167,7 +174,7 @@ export function BuyerSubscription() {
 
             {status.expiresAt && (
               <p className="mt-4 text-[13px] text-navy/55">
-                Subscription expires:{' '}
+                {t('buyer.subscription.expiresLabel')}{' '}
                 <span className="font-semibold text-navy">
                   {new Date(status.expiresAt).toLocaleDateString('en-IN', {
                     day: 'numeric',
@@ -185,7 +192,7 @@ export function BuyerSubscription() {
               <thead>
                 <tr className="border-b border-navy/10 bg-navy/[0.02]">
                   <th className="w-48 px-5 py-4 text-left align-bottom text-xs font-semibold uppercase tracking-wide text-navy/40">
-                    Plan
+                    {t('buyer.subscription.table.planHeader')}
                   </th>
                   {orderedPlans.map((plan) => {
                     const isCurrent = status.subscription.planId === plan.id;
@@ -196,13 +203,17 @@ export function BuyerSubscription() {
                           {plan.isFree ? '₹0' : formatInr(String(plan.priceInr))}
                           {!plan.isFree && (
                             <span className="ml-1 text-[12px] font-normal text-navy/45">
-                              /{plan.durationDays == null ? 'once' : plan.durationDays === 30 ? 'mo' : `${plan.durationDays}d`}
+                              /{plan.durationDays == null
+                                ? t('buyer.subscription.table.perOnce')
+                                : plan.durationDays === 30
+                                  ? t('buyer.subscription.table.perMonth')
+                                  : t('buyer.subscription.table.perDays', { days: plan.durationDays })}
                             </span>
                           )}
                         </p>
                         {isCurrent && (
                           <span className="mt-1.5 inline-block rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-emerald-700">
-                            Current
+                            {t('buyer.subscription.table.currentBadge')}
                           </span>
                         )}
                       </th>
@@ -212,7 +223,7 @@ export function BuyerSubscription() {
               </thead>
               <tbody>
                 <tr className="border-b border-navy/10">
-                  <td className="px-5 py-3 font-semibold text-navy/60">Contact views</td>
+                  <td className="px-5 py-3 font-semibold text-navy/60">{t('buyer.subscription.table.contactViewsLabel')}</td>
                   {orderedPlans.map((plan) => (
                     <td key={plan.id} className="px-5 py-3 text-center font-semibold text-navy">
                       {plan.contactViewQuota}
@@ -220,10 +231,10 @@ export function BuyerSubscription() {
                   ))}
                 </tr>
                 <tr className="border-b border-navy/10">
-                  <td className="px-5 py-3 font-semibold text-navy/60">Duration</td>
+                  <td className="px-5 py-3 font-semibold text-navy/60">{t('buyer.subscription.table.durationLabel')}</td>
                   {orderedPlans.map((plan) => (
                     <td key={plan.id} className="px-5 py-3 text-center text-navy/70">
-                      {plan.durationDays == null ? 'No expiry' : `${plan.durationDays} days`}
+                      {plan.durationDays == null ? t('buyer.subscription.table.durationNoExpiry') : t('buyer.subscription.table.durationDays', { days: plan.durationDays })}
                     </td>
                   ))}
                 </tr>
@@ -249,11 +260,11 @@ export function BuyerSubscription() {
                       <td key={plan.id} className="px-5 py-4 text-center">
                         {plan.isFree ? (
                           <span className="text-[12px] font-semibold text-navy/40">
-                            {isCurrent ? 'Current plan' : 'Assigned automatically'}
+                            {isCurrent ? t('buyer.subscription.table.currentPlanCell') : t('buyer.subscription.table.assignedAutomatically')}
                           </span>
                         ) : (
                           <Button onClick={() => upgrade(plan)} disabled={paying} className="w-full">
-                            {paying ? 'Processing...' : isCurrent ? 'Renew' : 'Upgrade'}
+                            {paying ? t('buyer.subscription.actions.processing') : isCurrent ? t('buyer.subscription.actions.renew') : t('buyer.subscription.actions.upgrade')}
                           </Button>
                         )}
                       </td>
@@ -263,7 +274,7 @@ export function BuyerSubscription() {
               </tbody>
             </table>
           </div>
-          <p className="text-center text-[11.5px] text-navy/45">Secure payment via Razorpay</p>
+          <p className="text-center text-[11.5px] text-navy/45">{t('buyer.subscription.securePayment')}</p>
         </div>
       )}
     </div>

@@ -62,6 +62,14 @@
   h4 {
     @apply font-display font-extrabold tracking-tight text-navy;
   }
+
+  /* Indic script fonts, loaded on demand by lib/fonts.ts only when that locale is active */
+  :root[lang="ta"] body {
+    font-family: "Noto Sans Tamil", var(--font-sans);
+  }
+  :root[lang="hi"] body {
+    font-family: "Noto Sans Devanagari", var(--font-sans);
+  }
 }
 
 @layer utilities {

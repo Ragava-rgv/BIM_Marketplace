@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { QUOTA_ALERT_AFTER_USED, QUOTA_ALERT_REMAINING_THRESHOLD } from '@machinebazaar/shared';
 import { Modal, Button } from './ui';
 
@@ -19,17 +20,18 @@ export function QuotaAlertModal({
   quotaTotal: number;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const quotaRemaining = Math.max(0, quotaTotal - quotaUsed);
 
   return (
-    <Modal open={open} onClose={onClose} title="Your contact views remaining">
+    <Modal open={open} onClose={onClose} title={t('components.quotaAlertModal.title')}>
       <div className="rounded-xl border border-forest-bdr bg-forest-bg p-6 text-center">
         <p className="font-mono text-4xl font-bold text-forest tracking-tight">
           {quotaUsed}/{quotaTotal}
         </p>
         <p className="mt-1.5 text-sm text-forest/80">
-          You have viewed {quotaUsed} of {quotaTotal} contacts
+          {t('components.quotaAlertModal.viewedCount', { used: quotaUsed, total: quotaTotal })}
         </p>
         <div className="mt-3 h-2 overflow-hidden rounded-full bg-white">
           <div
@@ -46,10 +48,10 @@ export function QuotaAlertModal({
             navigate('/buyer/subscription');
           }}
         >
-          View more contacts
+          {t('components.quotaAlertModal.viewMoreContacts')}
         </Button>
         <Button variant="ghost" onClick={onClose}>
-          Continue
+          {t('common:common.button.continue')}
         </Button>
       </div>
     </Modal>

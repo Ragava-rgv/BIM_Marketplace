@@ -1,18 +1,24 @@
+import { useTranslation } from 'react-i18next';
 import { DashboardShell } from './DashboardShell';
 import { BankIcon, ChatIcon, MachineIcon, PlusIcon, RupeeIcon, SearchIcon, ShieldCheckIcon, TrendDownIcon, TruckIcon } from '../components/icons';
 
-const ITEMS = [
-  { to: '/buyer/dashboard', label: 'Dashboard', icon: MachineIcon, end: true },
-  { to: '/listings', label: 'Browse listings', icon: SearchIcon },
-  { to: '/buyer/enquiries', label: 'Enquiries', icon: ChatIcon },
-  { to: '/buyer/saved', label: 'Saved listings', icon: TruckIcon },
-  { to: '/buyer/subscription', label: 'Contact views', icon: RupeeIcon },
-  { to: '/buyer/loans', label: 'Loan applications', icon: BankIcon },
-  { to: '/buyer/buyback', label: 'Buyback agreements', icon: TrendDownIcon },
-  { to: '/buyer/gst-verification', label: 'GST verification', icon: ShieldCheckIcon },
-  { to: '/buyer/switch-to-seller', label: 'Start selling', icon: PlusIcon },
-];
+function useBuyerNavItems() {
+  const { t } = useTranslation();
+  return [
+    { to: '/buyer/dashboard', label: t('layout.buyerLayout.nav.dashboard'), icon: MachineIcon, end: true },
+    { to: '/listings', label: t('layout.buyerLayout.nav.browseListings'), icon: SearchIcon },
+    { to: '/buyer/enquiries', label: t('layout.buyerLayout.nav.enquiries'), icon: ChatIcon },
+    { to: '/buyer/saved', label: t('layout.buyerLayout.nav.savedListings'), icon: TruckIcon },
+    { to: '/buyer/subscription', label: t('layout.buyerLayout.nav.contactViews'), icon: RupeeIcon },
+    { to: '/buyer/loans', label: t('layout.buyerLayout.nav.loanApplications'), icon: BankIcon },
+    { to: '/buyer/buyback', label: t('layout.buyerLayout.nav.buybackAgreements'), icon: TrendDownIcon },
+    { to: '/buyer/gst-verification', label: t('layout.buyerLayout.nav.gstVerification'), icon: ShieldCheckIcon },
+    { to: '/buyer/switch-to-seller', label: t('layout.buyerLayout.nav.startSelling'), icon: PlusIcon },
+  ];
+}
 
 export function BuyerLayout() {
-  return <DashboardShell title="Buyer workspace" items={ITEMS} />;
+  const { t } = useTranslation();
+  const items = useBuyerNavItems();
+  return <DashboardShell title={t('layout.buyerLayout.title')} items={items} />;
 }

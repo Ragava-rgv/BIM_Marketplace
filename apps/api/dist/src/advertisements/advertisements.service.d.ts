@@ -1,3 +1,4 @@
+import { AdPlacement } from '@prisma/client';
 import { StorageService } from '../storage/storage.service';
 import { PrismaService } from '../prisma/prisma.service';
 import type { CreateAdvertisementDto, UpdateAdvertisementDto } from './dto/advertisement.dto';
@@ -13,11 +14,14 @@ export declare class AdvertisementsService {
         sortOrder: number;
         deletedAt: Date | null;
         imageUrl: string;
+        startsAt: Date | null;
         title: string;
         linkUrl: string | null;
         position: number;
+        placement: import("@prisma/client").$Enums.AdPlacement;
+        endsAt: Date | null;
     }[]>;
-    listActive(): import("@prisma/client").Prisma.PrismaPromise<{
+    listActive(placement?: AdPlacement): import("@prisma/client").Prisma.PrismaPromise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -25,9 +29,12 @@ export declare class AdvertisementsService {
         sortOrder: number;
         deletedAt: Date | null;
         imageUrl: string;
+        startsAt: Date | null;
         title: string;
         linkUrl: string | null;
         position: number;
+        placement: import("@prisma/client").$Enums.AdPlacement;
+        endsAt: Date | null;
     }[]>;
     findById(id: string): Promise<{
         id: string;
@@ -37,9 +44,12 @@ export declare class AdvertisementsService {
         sortOrder: number;
         deletedAt: Date | null;
         imageUrl: string;
+        startsAt: Date | null;
         title: string;
         linkUrl: string | null;
         position: number;
+        placement: import("@prisma/client").$Enums.AdPlacement;
+        endsAt: Date | null;
     }>;
     create(dto: CreateAdvertisementDto, file: Express.Multer.File | undefined): Promise<{
         id: string;
@@ -49,9 +59,12 @@ export declare class AdvertisementsService {
         sortOrder: number;
         deletedAt: Date | null;
         imageUrl: string;
+        startsAt: Date | null;
         title: string;
         linkUrl: string | null;
         position: number;
+        placement: import("@prisma/client").$Enums.AdPlacement;
+        endsAt: Date | null;
     }>;
     update(id: string, dto: UpdateAdvertisementDto, file: Express.Multer.File | undefined): Promise<{
         id: string;
@@ -61,9 +74,12 @@ export declare class AdvertisementsService {
         sortOrder: number;
         deletedAt: Date | null;
         imageUrl: string;
+        startsAt: Date | null;
         title: string;
         linkUrl: string | null;
         position: number;
+        placement: import("@prisma/client").$Enums.AdPlacement;
+        endsAt: Date | null;
     }>;
     remove(id: string): Promise<{
         id: string;
@@ -73,9 +89,12 @@ export declare class AdvertisementsService {
         sortOrder: number;
         deletedAt: Date | null;
         imageUrl: string;
+        startsAt: Date | null;
         title: string;
         linkUrl: string | null;
         position: number;
+        placement: import("@prisma/client").$Enums.AdPlacement;
+        endsAt: Date | null;
     }>;
     purge(id: string): Promise<{
         id: string;
@@ -85,8 +104,11 @@ export declare class AdvertisementsService {
         sortOrder: number;
         deletedAt: Date | null;
         imageUrl: string;
+        startsAt: Date | null;
         title: string;
         linkUrl: string | null;
         position: number;
+        placement: import("@prisma/client").$Enums.AdPlacement;
+        endsAt: Date | null;
     }>;
 }

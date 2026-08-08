@@ -1,6 +1,7 @@
 ﻿import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import type { AuthTokensDto, UserDto } from '@machinebazaar/shared';
+import type { AuthTokensDto, SupportedLanguage, UserDto } from '@machinebazaar/shared';
 import { api, clearTokens, getAccessToken, getRefreshToken, setTokens } from './api';
+import i18n from './i18n';
 
 interface AuthContextValue {
   user: UserDto | null;
@@ -10,6 +11,8 @@ interface AuthContextValue {
   refreshProfile: () => Promise<void>;
   /** Persist active mode preference (BUYER | SELLER) to server and update local state. */
   switchMode: (mode: 'BUYER' | 'SELLER') => Promise<void>;
+  /** Persist language preference to server (signed-in users) and switch the active UI language immediately. */
+  switchLanguage: (language: SupportedLanguage) => Promise<void>;
   /** First-time enablement of seller capability (requires GST ACTIVE) — sets canSell + role + activeMode. */
   switchToSeller: () => Promise<void>;
   logout: () => Promise<void>;
@@ -58,6 +61,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data);
   }, []);
 
+  const switchLanguage = useCallback(async (language: SupportedLanguage) => {
+    await i18n.changeLanguage(language.toLowerCase());
+    if (!getAccessToken()) return;
+    const { data } = await api.post<UserDto>('/auth/language', { language });
+    setUser(data);
+  }, []);
+
   const switchToSeller = useCallback(async () => {
     const { data } = await api.post<AuthTokensDto>('/auth/switch-to-seller');
     await authenticate(data);
@@ -77,8 +87,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, loading, authenticate, refreshProfile: async () => { await loadProfile(); }, switchMode, switchToSeller, logout }),
-    [user, loading, authenticate, loadProfile, switchMode, switchToSeller, logout],
+    () => ({ user, loading, authenticate, refreshProfile: async () => { await loadProfile(); }, switchMode, switchLanguage, switchToSeller, logout }),
+    [user, loading, authenticate, loadProfile, switchMode, switchLanguage, switchToSeller, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

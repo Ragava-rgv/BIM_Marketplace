@@ -1,5 +1,6 @@
 ﻿import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { UserRole } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import { INDIA_STATES, INDIA_STATES_AND_CITIES } from '../../lib/india-locations';
@@ -8,25 +9,15 @@ import { ChevronRightIcon, MachineIcon, TruckIcon } from '../../components/icons
 
 const ROLE_OPTIONS: {
   role: 'BUYER' | 'SELLER';
-  title: string;
-  body: string;
+  key: string;
   icon: typeof MachineIcon;
 }[] = [
-  {
-    role: 'SELLER',
-    title: 'I want to sell machinery',
-    body: 'List your machines after GST verification, with proof-backed media and admin review.',
-    icon: MachineIcon,
-  },
-  {
-    role: 'BUYER',
-    title: 'I want to buy machinery',
-    body: 'Browse listings, send enquiries safely, and apply for financing when you are ready.',
-    icon: TruckIcon,
-  },
+  { role: 'SELLER', key: 'seller', icon: MachineIcon },
+  { role: 'BUYER', key: 'buyer', icon: TruckIcon },
 ];
 
 export function Signup() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [role, setRole] = useState<'BUYER' | 'SELLER' | null>(null);
   const [fullName, setFullName] = useState('');
@@ -71,7 +62,7 @@ export function Signup() {
       });
       navigate('/verify-otp', { state: { phone, purpose: 'SIGNUP' } });
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not create your account. Please check your details and try again.'));
+      setError(apiErrorMessage(err, t('auth.signup.errorDefault')));
     } finally {
       setSubmitting(false);
     }
@@ -80,12 +71,12 @@ export function Signup() {
   if (!role) {
     return (
       <div>
-        <MonoLabel className="text-copper">— Get started</MonoLabel>
+        <MonoLabel className="text-copper">— {t('auth.signup.eyebrow')}</MonoLabel>
         <h1 className="mt-2 font-display text-[32px] font-medium tracking-[-0.6px] text-ink">
-          Create your account
+          {t('auth.signup.title')}
         </h1>
         <p className="mt-2 text-[14px] text-muted">
-          First, tell us how you plan to use BIM.
+          {t('auth.signup.subtitle')}
         </p>
 
         <div className="mt-8 space-y-3">
@@ -101,10 +92,10 @@ export function Signup() {
               </span>
               <span>
                 <span className="block text-[15px] font-bold tracking-[-0.2px] text-ink">
-                  {option.title}
+                  {t(`auth.signup.roleOptions.${option.key}.title`)}
                 </span>
                 <span className="mt-1 block text-[13px] leading-[1.6] text-muted">
-                  {option.body}
+                  {t(`auth.signup.roleOptions.${option.key}.body`)}
                 </span>
               </span>
             </button>
@@ -112,9 +103,9 @@ export function Signup() {
         </div>
 
         <p className="mt-6 text-[14px] text-muted">
-          Already have an account?{' '}
+          {t('auth.signup.alreadyHaveAccount')}{' '}
           <Link to="/login" className="font-bold text-forest hover:text-forest-2">
-            Log in
+            {t('common:nav.login')}
           </Link>
         </p>
       </div>
@@ -128,75 +119,75 @@ export function Signup() {
         onClick={() => setRole(null)}
         className="mb-4 text-[13.5px] font-semibold text-muted hover:text-ink"
       >
-        ← Change account type
+        ← {t('auth.signup.changeAccountType')}
       </button>
       <MonoLabel className="text-copper">
-        — Signing up as a {role === UserRole.SELLER ? 'seller' : 'buyer'}
+        — {t('auth.signup.signingUpAs', { role: role === UserRole.SELLER ? t('common:role.seller') : t('common:role.buyer') })}
       </MonoLabel>
       <h1 className="mt-2 font-display text-[32px] font-medium tracking-[-0.6px] text-ink">
-        Tell us about yourself
+        {t('auth.signup.tellUsAboutYourself')}
       </h1>
       <p className="mt-1 text-[13px] text-muted">
-        Fields marked <span className="font-semibold text-red-500">*</span> are required.
+        {t('auth.signup.fieldsMarked')} <span className="font-semibold text-red-500">*</span> {t('auth.signup.areRequired')}
       </p>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-5">
         {error && <ErrorBanner message={error} />}
 
-        <Field label="Full name" required>
+        <Field label={t('auth.signup.fullNameLabel')} required>
           <Input
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             required
             minLength={2}
-            placeholder="Your full name"
+            placeholder={t('auth.signup.fullNamePlaceholder')}
           />
         </Field>
 
-        <Field label="Mobile number" required hint="We'll send an OTP to verify this number">
+        <Field label={t('auth.signup.mobileLabel')} required hint={t('auth.signup.mobileHint')}>
           <Input
             inputMode="numeric"
-            placeholder="98765 43210"
+            placeholder={t('auth.signup.mobilePlaceholder')}
             value={phone}
             onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
             required
           />
           {phone.length > 0 && phone.length < 10 && (
             <span className="mt-1 block text-xs text-red-500">
-              Enter a valid 10-digit mobile number
+              {t('auth.signup.mobileError')}
             </span>
           )}
         </Field>
 
-        <Field label="Password" required hint="At least 8 characters">
+        <Field label={t('auth.signup.passwordLabel')} required hint={t('auth.signup.passwordHint')}>
           <Input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={8}
-            placeholder="********"
+            placeholder={t('auth.signup.passwordPlaceholder')}
           />
         </Field>
 
-        <Field label="Email" required>
+        <Field label={t('auth.signup.emailLabel')} required>
           <Input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            placeholder="you@business.com"
+            placeholder={t('auth.signup.emailPlaceholder')}
           />
         </Field>
 
         {/* State first, then city cascade */}
-        <Field label="State" required hint="Select your state first">
+        <Field label={t('auth.signup.stateLabel')} required hint={t('auth.signup.stateHint')}>
           <Select
             value={locationState}
             onChange={(e) => handleStateChange(e.target.value)}
             required
           >
-            <option value="">— Select state —</option>
+            <option value="">{t('auth.signup.selectStatePlaceholder')}</option>
             {INDIA_STATES.map((s) => (
               <option key={s} value={s}>
                 {s}
@@ -206,9 +197,9 @@ export function Signup() {
         </Field>
 
         <Field
-          label="City"
+          label={t('auth.signup.cityLabel')}
           required
-          hint={!locationState ? 'Select a state above to see cities' : undefined}
+          hint={!locationState ? t('auth.signup.cityHintSelectState') : undefined}
         >
           <Select
             value={locationCity}
@@ -216,7 +207,7 @@ export function Signup() {
             required
             disabled={!locationState}
           >
-            <option value="">— Select city —</option>
+            <option value="">{t('auth.signup.selectCityPlaceholder')}</option>
             {cities.map((c) => (
               <option key={c} value={c}>
                 {c}
@@ -226,15 +217,15 @@ export function Signup() {
         </Field>
 
         <Button type="submit" disabled={!isValid} className="w-full">
-          {submitting ? 'Creating account...' : 'Create account & verify number'}
+          {submitting ? t('auth.signup.submitting') : t('auth.signup.submit')}
           <ChevronRightIcon className="h-4 w-4" />
         </Button>
       </form>
 
       <p className="mt-6 text-[14px] text-muted">
-        Already have an account?{' '}
+        {t('auth.signup.alreadyHaveAccount')}{' '}
         <Link to="/login" className="font-bold text-forest hover:text-forest-2">
-          Log in
+          {t('common:nav.login')}
         </Link>
       </p>
     </div>

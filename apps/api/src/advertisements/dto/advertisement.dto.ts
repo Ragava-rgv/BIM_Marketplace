@@ -1,6 +1,7 @@
 import { Transform, Type } from 'class-transformer';
-import { IsBoolean, IsInt, IsOptional, IsString, IsUrl, Length, Min } from 'class-validator';
+import { IsBoolean, IsDateString, IsEnum, IsInt, IsOptional, IsString, IsUrl, Length, Min } from 'class-validator';
 import { PartialType } from '@nestjs/mapped-types';
+import { AdPlacement } from '@prisma/client';
 
 /** Multipart form fields always arrive as strings (unlike JSON bodies), so booleans need explicit parsing. */
 function toBoolean({ value }: { value: unknown }): unknown {
@@ -35,6 +36,18 @@ export class CreateAdvertisementDto {
   @Transform(toBoolean)
   @IsBoolean()
   isActive?: boolean;
+
+  @IsOptional()
+  @IsEnum(AdPlacement)
+  placement?: AdPlacement;
+
+  @IsOptional()
+  @IsDateString()
+  startsAt?: string;
+
+  @IsOptional()
+  @IsDateString()
+  endsAt?: string;
 }
 
 export class UpdateAdvertisementDto extends PartialType(CreateAdvertisementDto) {}

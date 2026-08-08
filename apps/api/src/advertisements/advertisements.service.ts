@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { AdPlacement } from '@prisma/client';
 import { StorageService, ADVERTISEMENT_IMAGES_DIR } from '../storage/storage.service';
 import { PrismaService } from '../prisma/prisma.service';
 import type { CreateAdvertisementDto, UpdateAdvertisementDto } from './dto/advertisement.dto';
@@ -17,10 +18,19 @@ export class AdvertisementsService {
     });
   }
 
-  /** Public — active ads for the buyer listing grid interleave. */
-  listActive() {
+  /** Public — active ads for a given placement (in-grid listing interleave or the home banner). */
+  listActive(placement: AdPlacement = AdPlacement.IN_GRID) {
+    const now = new Date();
     return this.prisma.advertisement.findMany({
-      where: { isActive: true, deletedAt: null },
+      where: {
+        isActive: true,
+        deletedAt: null,
+        placement,
+        AND: [
+          { OR: [{ startsAt: null }, { startsAt: { lte: now } }] },
+          { OR: [{ endsAt: null }, { endsAt: { gte: now } }] },
+        ],
+      },
       orderBy: [{ position: 'asc' }, { sortOrder: 'asc' }],
     });
   }
@@ -40,6 +50,9 @@ export class AdvertisementsService {
         imageUrl: uploaded.url,
         linkUrl: dto.linkUrl ?? null,
         position: dto.position ?? 0,
+        placement: dto.placement ?? AdPlacement.IN_GRID,
+        startsAt: dto.startsAt ? new Date(dto.startsAt) : null,
+        endsAt: dto.endsAt ? new Date(dto.endsAt) : null,
         sortOrder: dto.sortOrder ?? 0,
         isActive: dto.isActive ?? true,
       },
@@ -55,6 +68,9 @@ export class AdvertisementsService {
         ...(dto.title !== undefined && { title: dto.title }),
         ...(dto.linkUrl !== undefined && { linkUrl: dto.linkUrl }),
         ...(dto.position !== undefined && { position: dto.position }),
+        ...(dto.placement !== undefined && { placement: dto.placement }),
+        ...(dto.startsAt !== undefined && { startsAt: dto.startsAt ? new Date(dto.startsAt) : null }),
+        ...(dto.endsAt !== undefined && { endsAt: dto.endsAt ? new Date(dto.endsAt) : null }),
         ...(dto.sortOrder !== undefined && { sortOrder: dto.sortOrder }),
         ...(dto.isActive !== undefined && { isActive: dto.isActive }),
         ...(imageUrl !== undefined && { imageUrl }),

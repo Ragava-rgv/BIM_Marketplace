@@ -1,5 +1,6 @@
 import { forwardRef } from 'react';
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react';
+import { useTranslation } from 'react-i18next';
 import { humanizeStatus } from '../lib/format';
 
 export function PageHeading({ eyebrow, title, description }: { eyebrow?: string; title: string; description?: string }) {
@@ -164,10 +165,11 @@ export function EmptyState({ title, description, action }: { title: string; desc
 }
 
 export function Spinner({ className = '' }: { className?: string }) {
+  const { t } = useTranslation();
   return (
     <span
       className={`inline-block h-5 w-5 animate-spin rounded-full border-2 border-line border-t-forest ${className}`}
-      aria-label="Loading"
+      aria-label={t('common:common.label.loading')}
     />
   );
 }
@@ -209,6 +211,7 @@ export function Modal({
   children: ReactNode;
   footer?: ReactNode;
 }) {
+  const { t } = useTranslation();
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 p-0 sm:items-center sm:p-6">
@@ -219,7 +222,7 @@ export function Modal({
             <button
               type="button"
               onClick={onClose}
-              aria-label="Close"
+              aria-label={t('common:common.button.close')}
               className="ml-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-paper-2 hover:text-ink"
             >
               ×

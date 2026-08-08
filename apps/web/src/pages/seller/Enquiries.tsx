@@ -1,4 +1,5 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { SellerEnquiryDto } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import { formatDateTime } from '../../lib/format';
@@ -6,6 +7,7 @@ import { EmptyState, ErrorBanner, LoadingBlock, PageHeading, StatusBadge } from 
 import { MapPinIcon } from '../../components/icons';
 
 export function SellerEnquiries() {
+  const { t } = useTranslation();
   const [enquiries, setEnquiries] = useState<SellerEnquiryDto[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,7 +21,7 @@ export function SellerEnquiries() {
       .catch((err) => {
         if (!cancelled) {
           setEnquiries([]);
-          setError(apiErrorMessage(err, 'Could not load enquiries.'));
+          setError(apiErrorMessage(err, t('seller.enquiries.errors.loadFailed')));
         }
       });
     return () => {
@@ -30,9 +32,9 @@ export function SellerEnquiries() {
   return (
     <div>
       <PageHeading
-        eyebrow="Seller workspace"
-        title="Enquiries"
-        description="Buyers who have shown interest in your listings. Our team has their full details and will be in touch with you to coordinate."
+        eyebrow={t('seller.enquiries.eyebrow')}
+        title={t('seller.enquiries.title')}
+        description={t('seller.enquiries.description')}
       />
 
       {error && (
@@ -44,18 +46,18 @@ export function SellerEnquiries() {
       {enquiries === null ? (
         <LoadingBlock />
       ) : enquiries.length === 0 ? (
-        <EmptyState title="No enquiries yet" description="When a buyer shows interest in one of your listings, it will appear here." />
+        <EmptyState title={t('seller.enquiries.emptyState.title')} description={t('seller.enquiries.emptyState.description')} />
       ) : (
         <div className="overflow-hidden rounded-2xl border border-line bg-white">
           <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="border-b border-line bg-paper text-left text-xs font-semibold uppercase tracking-wide text-muted">
               <tr>
-                <th className="px-5 py-3">Listing</th>
-                <th className="px-5 py-3">Interested buyer</th>
-                <th className="px-5 py-3">Location</th>
-                <th className="px-5 py-3">Status</th>
-                <th className="px-5 py-3">Received</th>
+                <th className="px-5 py-3">{t('seller.enquiries.table.listing')}</th>
+                <th className="px-5 py-3">{t('seller.enquiries.table.interestedBuyer')}</th>
+                <th className="px-5 py-3">{t('seller.enquiries.table.location')}</th>
+                <th className="px-5 py-3">{t('seller.enquiries.table.status')}</th>
+                <th className="px-5 py-3">{t('seller.enquiries.table.received')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">

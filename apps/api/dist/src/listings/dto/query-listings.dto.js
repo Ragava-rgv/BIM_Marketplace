@@ -28,6 +28,7 @@ class QueryListingsDto {
     search;
     condition;
     origin;
+    conditionType;
     sort;
     page = 1;
     pageSize = 20;
@@ -107,6 +108,11 @@ __decorate([
     (0, class_validator_1.IsIn)(['INDIAN', 'IMPORTED']),
     __metadata("design:type", String)
 ], QueryListingsDto.prototype, "origin", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsIn)(['OLD', 'NEW']),
+    __metadata("design:type", String)
+], QueryListingsDto.prototype, "conditionType", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsIn)(['newest', 'price_asc', 'price_desc', 'year_desc']),

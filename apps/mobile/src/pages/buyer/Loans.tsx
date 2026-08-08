@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { LoanApplicationDto } from '@machinebazaar/shared';
 import { api } from '../../lib/api';
 import { AppLayout } from '../../components/AppLayout';
@@ -15,16 +16,8 @@ const STATUS_STYLE: Record<string, string> = {
   REJECTED: 'bg-red-50 text-red-600',
 };
 
-const STATUS_LABEL: Record<string, string> = {
-  DRAFT: 'Draft',
-  SUBMITTED: 'Submitted',
-  CERT_PENDING: 'Certification pending',
-  WITH_PARTNER: 'With bank/NBFC',
-  APPROVED: 'Approved',
-  REJECTED: 'Rejected',
-};
-
 export function BuyerLoans() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [loans, setLoans] = useState<LoanApplicationDto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,8 +39,8 @@ export function BuyerLoans() {
             <ChevronRightIcon className="w-4 h-4 text-gray-500 rotate-180" />
           </button>
           <div>
-            <h1 className="text-[17px] font-extrabold text-ink tracking-[-0.3px]">Loan Applications</h1>
-            <p className="text-[11px] text-gray-500">{loans.length} application{loans.length !== 1 ? 's' : ''}</p>
+            <h1 className="text-[17px] font-extrabold text-ink tracking-[-0.3px]">{t('buyer.loans.title')}</h1>
+            <p className="text-[11px] text-gray-500">{t('buyer.loans.applicationCount', { count: loans.length })}</p>
           </div>
         </div>
         <button
@@ -55,7 +48,7 @@ export function BuyerLoans() {
           className="flex items-center gap-1.5 bg-forest text-white text-[12px] font-bold px-3 py-2 rounded-[10px]"
         >
           <PlusIcon className="w-3.5 h-3.5 stroke-white stroke-[2.5px]" />
-          New
+          {t('buyer.loans.new')}
         </button>
       </div>
 
@@ -69,13 +62,13 @@ export function BuyerLoans() {
             <div className="w-14 h-14 rounded-full bg-forest/10 flex items-center justify-center mx-auto mb-3">
               <RupeeIcon className="w-7 h-7 text-forest" />
             </div>
-            <p className="text-[14px] font-semibold text-ink mb-1">No loan applications yet</p>
+            <p className="text-[14px] font-semibold text-ink mb-1">{t('buyer.loans.emptyTitle')}</p>
             <p className="text-[12px] text-gray-500 mb-4">
-              Find a machine and apply for financing through our partner banks and NBFCs.
+              {t('buyer.loans.emptyDescription')}
             </p>
             <button onClick={() => navigate('/buyer/loans/new')}
               className="bg-forest text-white text-[13px] font-bold px-5 py-2.5 rounded-[11px]">
-              Apply for a loan
+              {t('buyer.loans.applyButton')}
             </button>
           </div>
         ) : (
@@ -84,12 +77,12 @@ export function BuyerLoans() {
               <div className="px-4 py-3">
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <p className="text-[13px] font-bold text-ink flex-1 min-w-0 truncate">
-                    {loan.listing?.title ?? 'Loan application'}
+                    {loan.listing?.title ?? t('buyer.loans.loanFallback')}
                   </p>
                   <span className={`text-[9.5px] font-bold px-2 py-0.5 rounded-[5px] flex-shrink-0 ${
                     STATUS_STYLE[loan.status] ?? 'bg-gray-100 text-gray-600'
                   }`}>
-                    {STATUS_LABEL[loan.status] ?? loan.status.replace(/_/g, ' ')}
+                    {t(`common:status.loan.${loan.status}`)}
                   </span>
                 </div>
 
@@ -101,25 +94,25 @@ export function BuyerLoans() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <p className="font-mono text-[9px] text-gray-400 font-semibold tracking-[0.06em] mb-0.5">AMOUNT</p>
+                    <p className="font-mono text-[9px] text-gray-400 font-semibold tracking-[0.06em] mb-0.5">{t('buyer.loans.labels.amount')}</p>
                     <p className="text-[13px] font-bold text-ink">{formatInr(loan.amountRequested)}</p>
                   </div>
                   {loan.partner && (
                     <div>
-                      <p className="font-mono text-[9px] text-gray-400 font-semibold tracking-[0.06em] mb-0.5">ROUTED TO</p>
+                      <p className="font-mono text-[9px] text-gray-400 font-semibold tracking-[0.06em] mb-0.5">{t('buyer.loans.labels.routedTo')}</p>
                       <p className="text-[12px] font-semibold text-ink">{loan.partner.name}</p>
                     </div>
                   )}
                   {loan.status === 'APPROVED' && loan.referralCommission && (
                     <div>
-                      <p className="font-mono text-[9px] text-gray-400 font-semibold tracking-[0.06em] mb-0.5">COMMISSION</p>
+                      <p className="font-mono text-[9px] text-gray-400 font-semibold tracking-[0.06em] mb-0.5">{t('buyer.loans.labels.commission')}</p>
                       <p className="text-[12px] font-semibold text-ink">{formatInr(loan.referralCommission)}</p>
                     </div>
                   )}
                 </div>
               </div>
               <div className="border-t border-gray-100 bg-gray-25 px-4 py-2">
-                <p className="text-[10.5px] text-gray-400">Applied {formatDate(loan.createdAt)}</p>
+                <p className="text-[10.5px] text-gray-400">{t('buyer.loans.appliedOn', { date: formatDate(loan.createdAt) })}</p>
               </div>
             </div>
           ))

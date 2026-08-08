@@ -20,6 +20,7 @@ export declare class GstController {
         address: string | null;
         activeMode: string;
         canSell: boolean;
+        preferredLanguage: import("@prisma/client").$Enums.SupportedLanguage;
         createdAt: Date;
         updatedAt: Date;
     }>;

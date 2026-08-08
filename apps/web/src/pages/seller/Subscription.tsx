@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type {
   RazorpayOrderDto,
   SubscriptionPlanConfigDto,
@@ -19,7 +20,17 @@ import {
 } from '../../components/ui';
 import { CheckCircleIcon } from '../../components/icons';
 
+const FEATURE_ROWS = [
+  { key: 'gstVerification', labelKey: 'seller.subscription.features.gstVerification' },
+  { key: 'adminReviewed', labelKey: 'seller.subscription.features.adminReviewed' },
+  { key: 'enquiryNotifications', labelKey: 'seller.subscription.features.enquiryNotifications' },
+  { key: 'priorityReview', labelKey: 'seller.subscription.features.priorityReview' },
+  { key: 'subcategoryTagging', labelKey: 'seller.subscription.features.subcategoryTagging' },
+] as const;
+const freeFeatureSupport = [true, true, true, false, false];
+
 export function SellerSubscription() {
+  const { t } = useTranslation();
   const [status, setStatus] = useState<SubscriptionStatusDto | null>(null);
   const [plans, setPlans] = useState<SubscriptionPlanConfigDto[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -41,10 +52,10 @@ export function SellerSubscription() {
         }
       })
       .catch((err) => {
-        if (!cancelled) setError(apiErrorMessage(err, 'Could not load subscription details.'));
+        if (!cancelled) setError(apiErrorMessage(err, t('seller.subscription.errors.loadFailed')));
       });
     return () => { cancelled = true; };
-  }, [reload]);
+  }, [reload, t]);
 
   const upgrade = useCallback(
     async (plan: SubscriptionPlanConfigDto) => {
@@ -90,38 +101,29 @@ export function SellerSubscription() {
         });
       } catch (err) {
         if ((err as Error).message !== 'Payment cancelled') {
-          setPayError(apiErrorMessage(err, 'Payment failed. Please try again.'));
+          setPayError(apiErrorMessage(err, t('seller.subscription.errors.paymentFailed')));
         }
       } finally {
         setPaying(false);
       }
     },
-    [],
+    [t],
   );
 
   const orderedPlans = [...plans].sort((a, b) => (a.isFree === b.isFree ? 0 : a.isFree ? -1 : 1));
 
-  const FEATURE_ROWS = [
-    'GST verification required',
-    'Admin-reviewed listings',
-    'Enquiry notifications',
-    'Priority listing review',
-    'Subcategory tagging',
-  ];
-  const freeFeatureSupport = [true, true, true, false, false];
-
   return (
     <div>
       <PageHeading
-        eyebrow="Seller workspace"
-        title="Listing subscription"
-        description="Manage how many machines you can list on BIM."
+        eyebrow={t('seller.subscription.eyebrow')}
+        title={t('seller.subscription.title')}
+        description={t('seller.subscription.description')}
       />
 
       {error && <div className="mb-5"><ErrorBanner message={error} /></div>}
       {success && (
         <div className="mb-5">
-          <SuccessBanner message="Subscription activated! Your listing quota has been updated." />
+          <SuccessBanner message={t('seller.subscription.activatedMessage')} />
         </div>
       )}
       {payError && (
@@ -136,16 +138,16 @@ export function SellerSubscription() {
         <div className="space-y-6">
           {/* Current status */}
           <Card className="max-w-2xl">
-            <MonoLabel className="text-copper">Current plan</MonoLabel>
+            <MonoLabel className="text-copper">{t('seller.subscription.currentPlan')}</MonoLabel>
             <div className="mt-4 flex items-center justify-between">
               <div>
                 <p className="font-display text-2xl font-medium text-navy">
                   {status.subscription?.planConfig?.displayName ??
-                    (status.plan === SubscriptionPlan.STANDARD ? 'Standard' : 'Free')}
+                    (status.plan === SubscriptionPlan.STANDARD ? t('common:plan.STANDARD') : t('common:plan.FREE'))}
                 </p>
                 <p className="mt-1 text-sm text-navy/55">
-                  {status.listingQuota} listing slot{status.listingQuota !== 1 ? 's' : ''}
-                  {status.plan === SubscriptionPlan.FREE ? ' — free forever' : ' / month'}
+                  {t('seller.subscription.listingSlots', { count: status.listingQuota })}
+                  {status.plan === SubscriptionPlan.FREE ? ` — ${t('seller.subscription.freeForever')}` : ` / ${t('seller.subscription.perMonth')}`}
                 </p>
               </div>
               <span
@@ -155,15 +157,15 @@ export function SellerSubscription() {
                     : 'bg-navy/[0.06] text-navy/50'
                 }`}
               >
-                {status.plan}
+                {t(`common:plan.${status.plan}`)}
               </span>
             </div>
 
             <div className="mt-5 grid grid-cols-3 gap-3">
               {[
-                { label: 'Listing quota', value: status.listingQuota },
-                { label: 'Active listings', value: status.activeListingsCount },
-                { label: 'Remaining slots', value: status.remainingSlots },
+                { label: t('seller.subscription.stats.listingQuota'), value: status.listingQuota },
+                { label: t('seller.subscription.stats.activeListings'), value: status.activeListingsCount },
+                { label: t('seller.subscription.stats.remainingSlots'), value: status.remainingSlots },
               ].map((item) => (
                 <div
                   key={item.label}
@@ -177,7 +179,7 @@ export function SellerSubscription() {
 
             {status.subscription && (
               <p className="mt-4 text-[13px] text-navy/55">
-                Subscription expires:{' '}
+                {t('seller.subscription.expiresLabel')}{' '}
                 <span className="font-semibold text-navy">
                   {new Date(status.subscription.expiresAt).toLocaleDateString('en-IN', {
                     day: 'numeric',
@@ -195,7 +197,7 @@ export function SellerSubscription() {
               <thead>
                 <tr className="border-b border-navy/10 bg-navy/[0.02]">
                   <th className="w-40 px-5 py-4 text-left align-bottom text-xs font-semibold uppercase tracking-wide text-navy/40">
-                    Plan
+                    {t('seller.subscription.table.plan')}
                   </th>
                   {orderedPlans.map((plan) => {
                     const isCurrent =
@@ -208,13 +210,13 @@ export function SellerSubscription() {
                           {plan.isFree ? '₹0' : formatInr(String(plan.priceInr))}
                           {!plan.isFree && (
                             <span className="ml-1 text-[12px] font-normal text-navy/45">
-                              /{plan.durationDays === 30 ? 'mo' : `${plan.durationDays}d`}
+                              /{plan.durationDays === 30 ? t('seller.subscription.abbrev.month') : t('seller.subscription.abbrev.days', { count: plan.durationDays })}
                             </span>
                           )}
                         </p>
                         {isCurrent && (
                           <span className="mt-1.5 inline-block rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-emerald-700">
-                            Current
+                            {t('seller.subscription.current')}
                           </span>
                         )}
                       </th>
@@ -224,7 +226,7 @@ export function SellerSubscription() {
               </thead>
               <tbody>
                 <tr className="border-b border-navy/10">
-                  <td className="px-5 py-3 font-semibold text-navy/60">Listing quota</td>
+                  <td className="px-5 py-3 font-semibold text-navy/60">{t('seller.subscription.table.listingQuota')}</td>
                   {orderedPlans.map((plan) => (
                     <td key={plan.id} className="px-5 py-3 text-center font-semibold text-navy">
                       {plan.listingQuota}
@@ -232,16 +234,16 @@ export function SellerSubscription() {
                   ))}
                 </tr>
                 <tr className="border-b border-navy/10">
-                  <td className="px-5 py-3 font-semibold text-navy/60">Duration</td>
+                  <td className="px-5 py-3 font-semibold text-navy/60">{t('seller.subscription.table.duration')}</td>
                   {orderedPlans.map((plan) => (
                     <td key={plan.id} className="px-5 py-3 text-center text-navy/70">
-                      {plan.durationDays} days
+                      {t('seller.subscription.daysCount', { count: plan.durationDays })}
                     </td>
                   ))}
                 </tr>
                 {FEATURE_ROWS.map((feature, idx) => (
-                  <tr key={feature} className="border-b border-navy/10">
-                    <td className="px-5 py-3 text-navy/60">{feature}</td>
+                  <tr key={feature.key} className="border-b border-navy/10">
+                    <td className="px-5 py-3 text-navy/60">{t(feature.labelKey)}</td>
                     {orderedPlans.map((plan) => {
                       const has = plan.isFree ? freeFeatureSupport[idx] : true;
                       return (
@@ -266,11 +268,11 @@ export function SellerSubscription() {
                       <td key={plan.id} className="px-5 py-4 text-center">
                         {plan.isFree ? (
                           <span className="text-[12px] font-semibold text-navy/40">
-                            {isCurrent ? 'Current plan' : 'Always included'}
+                            {isCurrent ? t('seller.subscription.currentPlanLabel') : t('seller.subscription.alwaysIncluded')}
                           </span>
                         ) : (
                           <Button onClick={() => upgrade(plan)} disabled={paying} className="w-full">
-                            {paying ? 'Processing...' : isCurrent ? 'Renew' : 'Upgrade'}
+                            {paying ? t('seller.subscription.processing') : isCurrent ? t('seller.subscription.renew') : t('seller.subscription.upgrade')}
                           </Button>
                         )}
                       </td>
@@ -280,7 +282,7 @@ export function SellerSubscription() {
               </tbody>
             </table>
           </div>
-          <p className="text-center text-[11.5px] text-navy/45">Secure payment via Razorpay</p>
+          <p className="text-center text-[11.5px] text-navy/45">{t('seller.subscription.securePayment')}</p>
         </div>
       )}
     </div>

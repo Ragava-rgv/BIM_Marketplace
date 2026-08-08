@@ -1,9 +1,10 @@
-﻿import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { CertificationDto } from '@machinebazaar/shared';
 import { CertificationStatus } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
-import { formatDateTime, formatInr, humanizeStatus } from '../../lib/format';
+import { formatDateTime, formatInr } from '../../lib/format';
 import { Button, Card, EmptyState, ErrorBanner, Field, LoadingBlock, PageHeading, Select, StatusBadge, Textarea } from '../../components/ui';
 import { DocumentIcon, DownloadIcon, UploadIcon } from '../../components/icons';
 import { exportToExcel } from '../../lib/export';
@@ -23,6 +24,7 @@ const NEXT_STATUS: Record<string, CertificationStatus[]> = {
 };
 
 function CertificationRow({ certification, onChanged }: { certification: CertificationDto; onChanged: () => void }) {
+  const { t } = useTranslation();
   const [status, setStatus] = useState<string>(certification.status);
   const [notes, setNotes] = useState(certification.inspectorNotes ?? '');
   const [report, setReport] = useState<InspectionReportValues>(inspectionReportToValues(certification.inspectionReport));
@@ -52,7 +54,7 @@ function CertificationRow({ certification, onChanged }: { certification: Certifi
       });
       onChanged();
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not update this certification.'));
+      setError(apiErrorMessage(err, t('admin.certifications.updateError')));
     } finally {
       setSaving(false);
     }
@@ -72,7 +74,7 @@ function CertificationRow({ certification, onChanged }: { certification: Certifi
       if (fileRef.current) fileRef.current.value = '';
       onChanged();
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not upload the certification report.'));
+      setError(apiErrorMessage(err, t('admin.certifications.uploadError')));
     } finally {
       setUploading(false);
     }
@@ -84,21 +86,25 @@ function CertificationRow({ certification, onChanged }: { certification: Certifi
         <div>
           <p className="font-display text-lg text-navy">
             <Link to={`/listings/${certification.listingId}`} className="hover:text-accent">
-              {certification.listing ? certification.listing.title : `Listing ${certification.listingId.slice(0, 8)}...`}
+              {certification.listing ? certification.listing.title : t('admin.certifications.listingFallback', { id: certification.listingId.slice(0, 8) })}
             </Link>
           </p>
           {certification.listing && (
             <p className="mt-1 text-sm text-navy/65">
               {certification.listing.machineCategory} · {certification.listing.machineMake} {certification.listing.machineModel} ·{' '}
-              {certification.listing.manufactureYear} · {certification.listing.locationCity}, {certification.listing.locationState} · Asking{' '}
-              {formatInr(certification.listing.askingPrice)}
+              {certification.listing.manufactureYear} · {certification.listing.locationCity}, {certification.listing.locationState} ·{' '}
+              {t('admin.certifications.asking', { price: formatInr(certification.listing.askingPrice) })}
             </p>
           )}
           <p className="mt-1 text-sm text-navy/55">
-            {certification.complexityTier} tier · Fee {formatInr(certification.fee)} · Requested {formatDateTime(certification.createdAt)}
+            {t('admin.certifications.tierFeeRequested', {
+              tier: certification.complexityTier,
+              fee: formatInr(certification.fee),
+              time: formatDateTime(certification.createdAt),
+            })}
           </p>
           {certification.completedAt && (
-            <p className="mt-0.5 text-sm text-navy/45">Completed {formatDateTime(certification.completedAt)}</p>
+            <p className="mt-0.5 text-sm text-navy/45">{t('admin.certifications.completedAt', { time: formatDateTime(certification.completedAt) })}</p>
           )}
         </div>
         <StatusBadge status={certification.status} />
@@ -111,27 +117,27 @@ function CertificationRow({ certification, onChanged }: { certification: Certifi
       )}
 
       <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Field label="Status" hint={options.length === 1 ? 'This certification is in a final state.' : undefined}>
+        <Field label={t('admin.certifications.fields.status')} hint={options.length === 1 ? t('admin.certifications.finalStateHint') : undefined}>
           <Select value={status} onChange={(e) => setStatus(e.target.value)} disabled={options.length === 1}>
             {options.map((opt) => (
               <option key={opt} value={opt}>
-                {humanizeStatus(opt)}
+                {t(`common:status.certification.${opt}`)}
               </option>
             ))}
           </Select>
         </Field>
 
-        <Field label="Inspector notes">
-          <Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Findings, condition notes, recommendations..." />
+        <Field label={t('admin.certifications.fields.inspectorNotes')}>
+          <Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={t('admin.certifications.fields.inspectorNotesPlaceholder')} />
         </Field>
       </div>
 
       <div className="mt-5 border-t border-navy/10 pt-5">
-        <p className="mb-3 text-sm font-semibold text-navy">Inspection report</p>
+        <p className="mb-3 text-sm font-semibold text-navy">{t('admin.certifications.inspectionReport')}</p>
         <CertificateTemplateForm values={report} onChange={setReport} />
         {completingNow && !reportValid && (
           <p className="mt-3 text-sm text-rose-600">
-            The inspection report must be filled in before this certification can be marked Completed.
+            {t('admin.certifications.reportRequiredWarning')}
           </p>
         )}
       </div>
@@ -141,7 +147,7 @@ function CertificationRow({ certification, onChanged }: { certification: Certifi
           <input ref={fileRef} type="file" accept="application/pdf" className="text-sm text-navy/65" />
           <Button variant="ghost" disabled={uploading} onClick={uploadReport}>
             <UploadIcon className="h-4 w-4" />
-            {uploading ? 'Uploading...' : 'Upload report'}
+            {uploading ? t('admin.certifications.uploading') : t('admin.certifications.uploadReport')}
           </Button>
           {certification.reportStorageKey && (
             <a
@@ -151,12 +157,12 @@ function CertificationRow({ certification, onChanged }: { certification: Certifi
               className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:underline"
             >
               <DocumentIcon className="h-4 w-4" />
-              View report
+              {t('admin.certifications.viewReport')}
             </a>
           )}
         </div>
         <Button disabled={saving || (completingNow && !reportValid)} onClick={save}>
-          {saving ? 'Saving...' : 'Save changes'}
+          {saving ? t('admin.certifications.saving') : t('admin.certifications.saveChanges')}
         </Button>
       </div>
     </Card>
@@ -164,6 +170,7 @@ function CertificationRow({ certification, onChanged }: { certification: Certifi
 }
 
 export function AdminCertifications() {
+  const { t } = useTranslation();
   const [certifications, setCertifications] = useState<CertificationDto[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [reload, setReload] = useState(0);
@@ -178,7 +185,7 @@ export function AdminCertifications() {
       .catch((err) => {
         if (!cancelled) {
           setCertifications([]);
-          setError(apiErrorMessage(err, 'Could not load certifications.'));
+          setError(apiErrorMessage(err, t('admin.certifications.loadError')));
         }
       });
     return () => {
@@ -218,13 +225,13 @@ export function AdminCertifications() {
     <div>
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <PageHeading
-          eyebrow="Admin console"
-          title="Certifications"
-          description="Independent inspection reports — created only as a side effect of a submitted loan application, never standalone. Move each through Requested -> In progress -> Completed and attach the final PDF report."
+          eyebrow={t('admin.certifications.eyebrow')}
+          title={t('admin.certifications.title')}
+          description={t('admin.certifications.description')}
         />
         <Button variant="ghost" disabled={!certifications?.length} onClick={downloadExcel}>
           <DownloadIcon className="h-4 w-4" />
-          Export Excel
+          {t('admin.certifications.exportExcel')}
         </Button>
       </div>
 
@@ -237,7 +244,7 @@ export function AdminCertifications() {
       {certifications === null ? (
         <LoadingBlock />
       ) : certifications.length === 0 ? (
-        <EmptyState title="No certifications yet" description="A certification is created automatically the moment a buyer submits a loan application." />
+        <EmptyState title={t('admin.certifications.emptyTitle')} description={t('admin.certifications.emptyDescription')} />
       ) : (
         <div className="space-y-4">
           {certifications.map((cert) => (

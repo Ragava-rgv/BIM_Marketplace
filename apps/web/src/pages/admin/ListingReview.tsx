@@ -1,5 +1,6 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { ListingDto } from '@machinebazaar/shared';
 import { ListingStatus } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
@@ -9,6 +10,7 @@ import { humanizeStatus } from '../../lib/format';
 import { ArrowLeftIcon, CheckCircleIcon, CloseIcon, PhotoIcon, VideoIcon } from '../../components/icons';
 
 export function AdminListingReview() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -28,12 +30,12 @@ export function AdminListingReview() {
         setActiveMediaId(data.media?.[0]?.id ?? null);
       })
       .catch((err) => {
-        if (!cancelled) setError(apiErrorMessage(err, 'This listing could not be found.'));
+        if (!cancelled) setError(apiErrorMessage(err, t('admin.listingReview.notFound')));
       });
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, t]);
 
   const act = async (action: 'approve' | 'reject') => {
     if (!listing) return;
@@ -43,7 +45,7 @@ export function AdminListingReview() {
       await api.post(`/admin/listings/${listing.id}/${action}`);
       navigate('/admin/listings');
     } catch (err) {
-      setError(apiErrorMessage(err, `Could not ${action} this listing.`));
+      setError(apiErrorMessage(err, action === 'approve' ? t('admin.listingReview.approveError') : t('admin.listingReview.rejectError')));
     } finally {
       setActing(false);
     }
@@ -55,7 +57,7 @@ export function AdminListingReview() {
         <ErrorBanner message={error} />
         <Link to="/admin/listings" className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-forest">
           <ArrowLeftIcon className="h-4 w-4" />
-          Back to review queue
+          {t('admin.listingReview.backToQueue')}
         </Link>
       </div>
     );
@@ -74,7 +76,7 @@ export function AdminListingReview() {
         className="mb-6 inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-muted transition hover:text-ink"
       >
         <ArrowLeftIcon className="h-4 w-4" />
-        Back to review queue
+        {t('admin.listingReview.backToQueue')}
       </Link>
 
       {error && (
@@ -112,7 +114,7 @@ export function AdminListingReview() {
                   }`}
                 >
                   <VideoIcon className="h-4 w-4" />
-                  Running video {video.durationSeconds ? `(${video.durationSeconds}s)` : ''}
+                  {t('admin.listingReview.runningVideo', { duration: video.durationSeconds ? `(${video.durationSeconds}s)` : '' })}
                 </button>
               )}
               {photos.map((photo, idx) => (
@@ -124,31 +126,31 @@ export function AdminListingReview() {
                     activeMediaId === photo.id ? 'border-forest' : 'border-transparent opacity-70 hover:opacity-100'
                   }`}
                 >
-                  <img src={photo.url} alt={`${listing.title} photo ${idx + 1}`} className="h-full w-full object-cover" />
+                  <img src={photo.url} alt={t('admin.listingReview.photoAlt', { title: listing.title, index: idx + 1 })} className="h-full w-full object-cover" />
                 </button>
               ))}
             </div>
           )}
 
           {photos.length === 0 && !video && (
-            <p className="mt-3 text-[13px] text-muted">No proof media has been uploaded for this listing yet.</p>
+            <p className="mt-3 text-[13px] text-muted">{t('admin.listingReview.noMedia')}</p>
           )}
 
           <div className="mt-10">
-            <MonoLabel className="text-copper">— Description</MonoLabel>
+            <MonoLabel className="text-copper">— {t('admin.listingReview.description')}</MonoLabel>
             <p className="mt-3 whitespace-pre-line text-[14.5px] leading-[1.75] text-slate">{listing.description}</p>
           </div>
 
           <div className="mt-10">
-            <MonoLabel className="text-copper">— Specifications</MonoLabel>
+            <MonoLabel className="text-copper">— {t('admin.listingReview.specifications')}</MonoLabel>
             <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
               {[
-                ['Category', listing.machineCategory],
-                ['Make', listing.machineMake],
-                ['Model', listing.machineModel],
-                ['Manufacture year', String(listing.manufactureYear)],
-                ['Location', `${listing.locationCity}, ${listing.locationState}`],
-                ['Complexity tier', listing.complexityTier],
+                [t('admin.listingReview.fields.category'), listing.machineCategory],
+                [t('admin.listingReview.fields.make'), listing.machineMake],
+                [t('admin.listingReview.fields.model'), listing.machineModel],
+                [t('admin.listingReview.fields.manufactureYear'), String(listing.manufactureYear)],
+                [t('admin.listingReview.fields.location'), `${listing.locationCity}, ${listing.locationState}`],
+                [t('admin.listingReview.fields.complexityTier'), listing.complexityTier],
               ].map(([label, value]) => (
                 <div key={label} className="rounded-xl border border-dashed border-line-2 bg-white p-4">
                   <MonoLabel>{label}</MonoLabel>
@@ -160,7 +162,7 @@ export function AdminListingReview() {
 
           {listing.catalogCategory?.specFields && listing.catalogCategory.specFields.length > 0 && (
             <div className="mt-10">
-              <MonoLabel className="text-copper">— {listing.catalogCategory.name} specifications</MonoLabel>
+              <MonoLabel className="text-copper">— {t('admin.listingReview.categorySpecifications', { category: listing.catalogCategory.name })}</MonoLabel>
               <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {listing.catalogCategory.specFields.map((field) => {
                   const { label, value } = formatSpecField(field, listing.specs?.[field.fieldKey]);
@@ -177,16 +179,16 @@ export function AdminListingReview() {
 
           {listing.seller && (
             <div className="mt-10">
-              <MonoLabel className="text-copper">— Seller contact</MonoLabel>
+              <MonoLabel className="text-copper">— {t('admin.listingReview.sellerContact')}</MonoLabel>
               <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {[
-                  ['Name', listing.seller.fullName],
-                  ['Phone', listing.seller.phone],
-                  ['Email', listing.seller.email ?? '—'],
-                  ['Business name', listing.seller.businessName ?? '—'],
-                  ['GST number', listing.seller.gstNumber ?? '—'],
-                  ['GST status', humanizeStatus(listing.seller.gstStatus)],
-                  ['Location', [listing.seller.locationCity, listing.seller.locationState].filter(Boolean).join(', ') || '—'],
+                  [t('admin.listingReview.fields.name'), listing.seller.fullName],
+                  [t('admin.listingReview.fields.phone'), listing.seller.phone],
+                  [t('admin.listingReview.fields.email'), listing.seller.email ?? '—'],
+                  [t('admin.listingReview.fields.businessName'), listing.seller.businessName ?? '—'],
+                  [t('admin.listingReview.fields.gstNumber'), listing.seller.gstNumber ?? '—'],
+                  [t('admin.listingReview.fields.gstStatus'), humanizeStatus(listing.seller.gstStatus)],
+                  [t('admin.listingReview.fields.location'), [listing.seller.locationCity, listing.seller.locationState].filter(Boolean).join(', ') || '—'],
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-xl border border-dashed border-line-2 bg-white p-4">
                     <MonoLabel>{label}</MonoLabel>
@@ -210,11 +212,15 @@ export function AdminListingReview() {
               {listing.title}
             </h1>
             <p className="mt-1.5 text-[12.5px] font-medium text-muted">
-              Seller {listing.seller?.fullName ?? `${listing.sellerId.slice(0, 8)}...`} · {listing.locationCity}, {listing.locationState}
+              {t('admin.listingReview.sellerLine', {
+                seller: listing.seller?.fullName ?? `${listing.sellerId.slice(0, 8)}...`,
+                city: listing.locationCity,
+                state: listing.locationState,
+              })}
             </p>
 
             <div className="mt-5 border-t border-line pt-5">
-              <MonoLabel>Asking price</MonoLabel>
+              <MonoLabel>{t('admin.listingReview.askingPrice')}</MonoLabel>
               <p className="mt-1 font-display text-[34px] font-medium leading-none tracking-[-0.5px] text-ink">
                 {formatInr(listing.askingPrice)}
               </p>
@@ -222,12 +228,12 @@ export function AdminListingReview() {
 
             <div className="mt-5 grid grid-cols-2 gap-2 border-t border-line pt-5 text-[12.5px] font-semibold text-muted">
               <div>
-                <MonoLabel>Photos</MonoLabel>
+                <MonoLabel>{t('admin.listingReview.photos')}</MonoLabel>
                 <p className="mt-0.5 text-ink">{photos.length}</p>
               </div>
               <div>
-                <MonoLabel>Video</MonoLabel>
-                <p className="mt-0.5 text-ink">{video ? `${video.durationSeconds ?? 0}s` : 'Not uploaded'}</p>
+                <MonoLabel>{t('admin.listingReview.video')}</MonoLabel>
+                <p className="mt-0.5 text-ink">{video ? `${video.durationSeconds ?? 0}s` : t('admin.listingReview.notUploaded')}</p>
               </div>
             </div>
 
@@ -235,15 +241,17 @@ export function AdminListingReview() {
               <div className="mt-6 flex flex-col gap-2.5">
                 <Button onClick={() => act('approve')} disabled={acting} className="w-full">
                   <CheckCircleIcon className="h-4 w-4" />
-                  Approve listing
+                  {t('admin.listingReview.approveListing')}
                 </Button>
                 <Button variant="ghost" onClick={() => act('reject')} disabled={acting} className="w-full">
                   <CloseIcon className="h-4 w-4" />
-                  Reject listing
+                  {t('admin.listingReview.rejectListing')}
                 </Button>
               </div>
             ) : (
-              <p className="mt-6 text-[13px] text-muted">No action needed — this listing is {listing.status}.</p>
+              <p className="mt-6 text-[13px] text-muted">
+                {t('admin.listingReview.noActionNeeded', { status: t(`common:status.listing.${listing.status}`) })}
+              </p>
             )}
           </div>
         </aside>

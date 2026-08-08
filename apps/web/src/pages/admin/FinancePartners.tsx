@@ -1,4 +1,5 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { FinancePartnerDto } from '@machinebazaar/shared';
 import { FinancePartnerType } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
@@ -6,6 +7,7 @@ import { Button, Card, EmptyState, ErrorBanner, Field, Input, LoadingBlock, Page
 import { BankIcon, PlusIcon } from '../../components/icons';
 
 function NewPartnerForm({ onCreated }: { onCreated: () => void }) {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [type, setType] = useState<string>(FinancePartnerType.BANK);
   const [referralRate, setReferralRate] = useState('');
@@ -23,7 +25,7 @@ function NewPartnerForm({ onCreated }: { onCreated: () => void }) {
       setType(FinancePartnerType.BANK);
       onCreated();
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not add this finance partner.'));
+      setError(apiErrorMessage(err, t('admin.financePartners.addError')));
     } finally {
       setSubmitting(false);
     }
@@ -31,8 +33,8 @@ function NewPartnerForm({ onCreated }: { onCreated: () => void }) {
 
   return (
     <Card>
-      <h2 className="font-display text-lg text-navy">Add a finance partner</h2>
-      <p className="mt-1 text-sm text-navy/55">Only active partners are offered to buyers when they apply for financing.</p>
+      <h2 className="font-display text-lg text-navy">{t('admin.financePartners.formTitle')}</h2>
+      <p className="mt-1 text-sm text-navy/55">{t('admin.financePartners.formDescription')}</p>
 
       {error && (
         <div className="mt-4">
@@ -41,16 +43,16 @@ function NewPartnerForm({ onCreated }: { onCreated: () => void }) {
       )}
 
       <form onSubmit={submit} className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Field label="Partner name">
-          <Input value={name} onChange={(e) => setName(e.target.value)} required minLength={2} placeholder="e.g. Sundaram Finance" />
+        <Field label={t('admin.financePartners.fields.partnerName')}>
+          <Input value={name} onChange={(e) => setName(e.target.value)} required minLength={2} placeholder={t('admin.financePartners.fields.partnerNamePlaceholder')} />
         </Field>
-        <Field label="Type">
+        <Field label={t('admin.financePartners.fields.type')}>
           <Select value={type} onChange={(e) => setType(e.target.value)}>
-            <option value={FinancePartnerType.BANK}>Bank</option>
-            <option value={FinancePartnerType.NBFC}>NBFC</option>
+            <option value={FinancePartnerType.BANK}>{t('admin.financePartners.type.BANK')}</option>
+            <option value={FinancePartnerType.NBFC}>{t('admin.financePartners.type.NBFC')}</option>
           </Select>
         </Field>
-        <Field label="Referral rate (%)" hint="Commission earned on approved loan amounts">
+        <Field label={t('admin.financePartners.fields.referralRate')} hint={t('admin.financePartners.fields.referralRateHint')}>
           <Input
             type="number"
             min={0}
@@ -58,13 +60,13 @@ function NewPartnerForm({ onCreated }: { onCreated: () => void }) {
             value={referralRate}
             onChange={(e) => setReferralRate(e.target.value)}
             required
-            placeholder="e.g. 1.5"
+            placeholder={t('admin.financePartners.fields.referralRatePlaceholder')}
           />
         </Field>
         <div className="sm:col-span-3">
           <Button type="submit" disabled={submitting}>
             <PlusIcon className="h-4 w-4" />
-            {submitting ? 'Adding...' : 'Add partner'}
+            {submitting ? t('admin.financePartners.adding') : t('admin.financePartners.addPartner')}
           </Button>
         </div>
       </form>
@@ -73,6 +75,7 @@ function NewPartnerForm({ onCreated }: { onCreated: () => void }) {
 }
 
 export function AdminFinancePartners() {
+  const { t } = useTranslation();
   const [partners, setPartners] = useState<FinancePartnerDto[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [actingId, setActingId] = useState<string | null>(null);
@@ -89,7 +92,7 @@ export function AdminFinancePartners() {
       .catch((err) => {
         if (!cancelled) {
           setPartners([]);
-          setError(apiErrorMessage(err, 'Could not load finance partners.'));
+          setError(apiErrorMessage(err, t('admin.financePartners.loadError')));
         }
       });
     return () => {
@@ -104,7 +107,7 @@ export function AdminFinancePartners() {
       await api.patch(`/finance-partners/${partner.id}`, { active: !partner.active });
       setReload((n) => n + 1);
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not update this partner.'));
+      setError(apiErrorMessage(err, t('admin.financePartners.updateError')));
     } finally {
       setActingId(null);
     }
@@ -113,9 +116,9 @@ export function AdminFinancePartners() {
   return (
     <div>
       <PageHeading
-        eyebrow="Admin console"
-        title="Finance partners"
-        description="Manage the banks and NBFCs buyers can apply to for financing, and the referral commission BIM earns on each approved loan."
+        eyebrow={t('admin.financePartners.eyebrow')}
+        title={t('admin.financePartners.title')}
+        description={t('admin.financePartners.description')}
       />
 
       {error && (
@@ -125,7 +128,7 @@ export function AdminFinancePartners() {
       )}
       {justCreated && (
         <div className="mb-5">
-          <SuccessBanner message="Finance partner added." />
+          <SuccessBanner message={t('admin.financePartners.addedSuccess')} />
         </div>
       )}
 
@@ -142,17 +145,17 @@ export function AdminFinancePartners() {
       {partners === null ? (
         <LoadingBlock />
       ) : partners.length === 0 ? (
-        <EmptyState title="No finance partners yet" description="Add a bank or NBFC above to start offering buyer financing." />
+        <EmptyState title={t('admin.financePartners.emptyTitle')} description={t('admin.financePartners.emptyDescription')} />
       ) : (
         <div className="overflow-hidden rounded-2xl border border-navy/10 bg-white">
           <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="border-b border-navy/10 bg-navy/[0.02] text-left text-xs font-semibold uppercase tracking-wide text-navy/40">
               <tr>
-                <th className="px-5 py-3">Partner</th>
-                <th className="px-5 py-3">Type</th>
-                <th className="px-5 py-3">Referral rate</th>
-                <th className="px-5 py-3">Status</th>
+                <th className="px-5 py-3">{t('admin.financePartners.columns.partner')}</th>
+                <th className="px-5 py-3">{t('admin.financePartners.columns.type')}</th>
+                <th className="px-5 py-3">{t('admin.financePartners.columns.referralRate')}</th>
+                <th className="px-5 py-3">{t('admin.financePartners.columns.status')}</th>
                 <th className="px-5 py-3" />
               </tr>
             </thead>
@@ -167,7 +170,7 @@ export function AdminFinancePartners() {
                       <span className="font-semibold text-navy">{partner.name}</span>
                     </div>
                   </td>
-                  <td className="px-5 py-4 text-navy/65">{partner.type === 'BANK' ? 'Bank' : 'NBFC'}</td>
+                  <td className="px-5 py-4 text-navy/65">{partner.type === 'BANK' ? t('admin.financePartners.type.BANK') : t('admin.financePartners.type.NBFC')}</td>
                   <td className="px-5 py-4 text-navy/65">{Number(partner.referralRate).toFixed(2)}%</td>
                   <td className="px-5 py-4">
                     <span
@@ -175,12 +178,12 @@ export function AdminFinancePartners() {
                         partner.active ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20' : 'bg-slate-100 text-slate-600 ring-slate-500/20'
                       }`}
                     >
-                      {partner.active ? 'Active' : 'Inactive'}
+                      {partner.active ? t('admin.financePartners.active') : t('admin.financePartners.inactive')}
                     </span>
                   </td>
                   <td className="px-5 py-4 text-right">
                     <Button variant="ghost" disabled={actingId === partner.id} onClick={() => toggleActive(partner)}>
-                      {partner.active ? 'Deactivate' : 'Activate'}
+                      {partner.active ? t('admin.financePartners.deactivate') : t('admin.financePartners.activate')}
                     </Button>
                   </td>
                 </tr>

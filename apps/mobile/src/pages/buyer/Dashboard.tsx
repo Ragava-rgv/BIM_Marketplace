@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { GstStatus } from '@machinebazaar/shared';
 import type { EnquiryDto, LoanApplicationDto } from '@machinebazaar/shared';
 import { api } from '../../lib/api';
@@ -19,6 +20,7 @@ const STATUS_STYLE: Record<string, string> = {
 };
 
 export function BuyerDashboard() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [enquiries, setEnquiries] = useState<EnquiryDto[]>([]);
@@ -53,7 +55,7 @@ export function BuyerDashboard() {
             {initials}
           </div>
           <div>
-            <p className="text-[12px] text-white/65">Buyer workspace</p>
+            <p className="text-[12px] text-white/65">{t('buyer.dashboard.workspaceLabel')}</p>
             <p className="text-[19px] font-extrabold text-white tracking-[-0.4px]">
               {user.fullName.split(' ')[0]}
             </p>
@@ -63,7 +65,7 @@ export function BuyerDashboard() {
           isGstActive ? 'bg-white/15 text-white' : 'bg-copper-bg text-copper'
         }`}>
           <span className={`w-1.5 h-1.5 rounded-full ${isGstActive ? 'bg-[#6CE9A6]' : 'bg-copper'}`} />
-          GST {user.gstStatus}
+          {t('buyer.dashboard.gstLabel', { status: t(`common:status.gst.${user.gstStatus}`) })}
           {user.businessName ? ` · ${user.businessName}` : ''}
         </div>
       </div>
@@ -74,16 +76,16 @@ export function BuyerDashboard() {
           <div className="bg-copper-bg border border-copper-bdr rounded-[13px] px-4 py-3 flex items-start gap-3">
             <ShieldIcon className="w-4 h-4 text-copper mt-0.5 flex-shrink-0" />
             <div className="flex-1">
-              <p className="text-[12.5px] font-bold text-copper">GST verification needed for financing</p>
+              <p className="text-[12.5px] font-bold text-copper">{t('buyer.dashboard.gstBanner.title')}</p>
               <p className="text-[11px] text-copper/80 mt-0.5">
-                Browsing and enquiring is open to everyone. Verify GST to apply for machine loans.
+                {t('buyer.dashboard.gstBanner.description')}
               </p>
             </div>
             <button
               onClick={() => navigate('/buyer/gst-verification')}
               className="flex-shrink-0 text-[11px] font-bold text-copper bg-copper-bdr rounded-[8px] px-2.5 py-1"
             >
-              Verify
+              {t('buyer.dashboard.gstBanner.verifyButton')}
             </button>
           </div>
         )}
@@ -91,9 +93,9 @@ export function BuyerDashboard() {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-2">
           {[
-            { label: 'Saved', value: savedCount, path: '/buyer/saved' },
-            { label: 'Enquiries', value: loading ? '—' : enquiries.length, path: '/enquiries' },
-            { label: 'Loans', value: loading ? '—' : loans.length, path: '/buyer/loans' },
+            { label: t('buyer.dashboard.stats.saved'), value: savedCount, path: '/buyer/saved' },
+            { label: t('buyer.dashboard.stats.enquiries'), value: loading ? '—' : enquiries.length, path: '/enquiries' },
+            { label: t('buyer.dashboard.stats.loans'), value: loading ? '—' : loans.length, path: '/buyer/loans' },
           ].map(({ label, value, path }) => (
             <button key={label} onClick={() => navigate(path)}
               className="bg-white border border-gray-200 rounded-[12px] px-3 py-3 text-center">
@@ -111,8 +113,8 @@ export function BuyerDashboard() {
               <MachineIcon className="w-4 h-4 text-forest" />
             </div>
             <div className="flex-1 text-left">
-              <p className="text-[12.5px] font-bold text-ink">Browse machines</p>
-              <p className="text-[10.5px] text-gray-500">Find industrial machinery across India</p>
+              <p className="text-[12.5px] font-bold text-ink">{t('buyer.dashboard.actions.browse.title')}</p>
+              <p className="text-[10.5px] text-gray-500">{t('buyer.dashboard.actions.browse.description')}</p>
             </div>
             <ChevronRightIcon className="w-[11px] h-[11px] text-gray-400" />
           </button>
@@ -129,9 +131,9 @@ export function BuyerDashboard() {
               <RupeeIcon className={`w-4 h-4 ${isGstActive ? 'text-forest' : 'text-gray-400'}`} />
             </div>
             <div className="flex-1 text-left">
-              <p className="text-[12.5px] font-bold text-ink">Apply for loan</p>
+              <p className="text-[12.5px] font-bold text-ink">{t('buyer.dashboard.actions.loan.title')}</p>
               <p className="text-[10.5px] text-gray-500">
-                {isGstActive ? 'Finance a machine via our partner banks' : 'Requires GST verification first'}
+                {isGstActive ? t('buyer.dashboard.actions.loan.descriptionActive') : t('buyer.dashboard.actions.loan.descriptionInactive')}
               </p>
             </div>
             <ChevronRightIcon className="w-[11px] h-[11px] text-gray-400" />
@@ -145,8 +147,8 @@ export function BuyerDashboard() {
               </svg>
             </div>
             <div className="flex-1 text-left">
-              <p className="text-[12.5px] font-bold text-ink">Saved listings</p>
-              <p className="text-[10.5px] text-gray-500">{savedCount} machine{savedCount !== 1 ? 's' : ''} bookmarked</p>
+              <p className="text-[12.5px] font-bold text-ink">{t('buyer.dashboard.actions.saved.title')}</p>
+              <p className="text-[10.5px] text-gray-500">{t('buyer.dashboard.actions.saved.description', { count: savedCount })}</p>
             </div>
             <ChevronRightIcon className="w-[11px] h-[11px] text-gray-400" />
           </button>
@@ -156,10 +158,10 @@ export function BuyerDashboard() {
         {!loading && loans.length > 0 && (
           <div>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-[14px] font-bold text-ink">Recent applications</p>
+              <p className="text-[14px] font-bold text-ink">{t('buyer.dashboard.recentApplications.title')}</p>
               <button onClick={() => navigate('/buyer/loans')}
                 className="text-[11px] font-bold text-forest-2">
-                View all →
+                {t('common:common.button.viewAll')} →
               </button>
             </div>
             <div className="space-y-2">
@@ -167,7 +169,7 @@ export function BuyerDashboard() {
                 <div key={loan.id} className="bg-white border border-gray-200 rounded-[12px] px-4 py-3 flex items-center justify-between">
                   <div>
                     <p className="text-[12.5px] font-bold text-ink">
-                      {loan.listing?.title ?? 'Loan application'}
+                      {loan.listing?.title ?? t('buyer.dashboard.recentApplications.loanFallback')}
                     </p>
                     <p className="text-[11px] text-gray-500 mt-0.5">
                       {formatInr(loan.amountRequested)} · {formatDate(loan.createdAt)}
@@ -176,7 +178,7 @@ export function BuyerDashboard() {
                   <span className={`text-[9.5px] font-bold px-2 py-0.5 rounded-[5px] ${
                     STATUS_STYLE[loan.status] ?? 'bg-gray-100 text-gray-600'
                   }`}>
-                    {loan.status.replace(/_/g, ' ')}
+                    {t(`common:status.loan.${loan.status}`)}
                   </span>
                 </div>
               ))}
@@ -197,12 +199,12 @@ export function BuyerDashboard() {
           </div>
           <div className="flex-1">
             <p className={`text-[12.5px] font-bold ${isGstActive ? 'text-forest' : 'text-ink'}`}>
-              {isGstActive ? 'Ready to sell? Switch account' : 'Want to sell machinery?'}
+              {isGstActive ? t('buyer.dashboard.switchCta.titleActive') : t('buyer.dashboard.switchCta.titleInactive')}
             </p>
             <p className="text-[11px] text-gray-500 mt-0.5">
               {isGstActive
-                ? 'Your GST is active. Switch to a seller account to start listing.'
-                : 'Verify GST first, then switch your account to seller in one tap.'}
+                ? t('buyer.dashboard.switchCta.descriptionActive')
+                : t('buyer.dashboard.switchCta.descriptionInactive')}
             </p>
             <button
               onClick={() => navigate('/buyer/switch-to-seller')}
@@ -210,7 +212,7 @@ export function BuyerDashboard() {
                 isGstActive ? 'bg-forest text-white' : 'bg-gray-100 text-gray-700'
               }`}
             >
-              {isGstActive ? 'Switch to seller →' : 'Learn more →'}
+              {isGstActive ? t('buyer.dashboard.switchCta.buttonActive') : t('buyer.dashboard.switchCta.buttonInactive')}
             </button>
           </div>
         </div>

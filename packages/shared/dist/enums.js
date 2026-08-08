@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MACHINE_CATEGORIES = exports.QUOTA_ALERT_REMAINING_THRESHOLD = exports.QUOTA_ALERT_AFTER_USED = exports.DEFAULT_BUYER_CONTACT_VIEW_QUOTA = exports.CONTACT_REVEAL_PRICE_INR = exports.STANDARD_SUBSCRIPTION_PRICE_INR = exports.STANDARD_LISTING_QUOTA = exports.FREE_LISTING_QUOTA = exports.MIN_VIDEO_DURATION_SECONDS = exports.PHOTO_MAX_AGE_DAYS = exports.MAX_LISTING_PHOTOS = exports.MIN_LISTING_PHOTOS = exports.SELLER_COMMISSION_RATE = exports.BUYER_COMMISSION_RATE = exports.SpecFilterType = exports.SpecFieldType = exports.SubscriptionStatus = exports.SubscriptionPlan = exports.BuybackStatus = exports.FinancePartnerType = exports.LoanApplicationStatus = exports.CertificationConditionGrade = exports.CertificationStatus = exports.CommissionStatus = exports.EnquiryStatus = exports.MediaType = exports.ListingOrigin = exports.ComplexityTier = exports.ListingStatus = exports.GstStatus = exports.UserRole = void 0;
+exports.MACHINE_CATEGORIES = exports.QUOTA_ALERT_REMAINING_THRESHOLD = exports.QUOTA_ALERT_AFTER_USED = exports.DEFAULT_BUYER_CONTACT_VIEW_QUOTA = exports.CONTACT_REVEAL_PRICE_INR = exports.STANDARD_SUBSCRIPTION_PRICE_INR = exports.STANDARD_LISTING_QUOTA = exports.FREE_LISTING_QUOTA = exports.MIN_VIDEO_DURATION_SECONDS = exports.PHOTO_MAX_AGE_DAYS = exports.MAX_LISTING_PHOTOS = exports.MIN_LISTING_PHOTOS = exports.SELLER_COMMISSION_RATE = exports.BUYER_COMMISSION_RATE = exports.AdPlacement = exports.LANGUAGE_OPTIONS = exports.SupportedLanguage = exports.SpecFilterType = exports.SpecFieldType = exports.SubscriptionStatus = exports.SubscriptionPlan = exports.BuybackStatus = exports.FinancePartnerType = exports.LoanApplicationStatus = exports.CertificationConditionGrade = exports.CertificationStatus = exports.CommissionStatus = exports.EnquiryStatus = exports.MediaType = exports.ListingCondition = exports.ListingOrigin = exports.ComplexityTier = exports.ListingStatus = exports.GstStatus = exports.UserRole = void 0;
 var UserRole;
 (function (UserRole) {
     UserRole["SELLER"] = "SELLER";
@@ -34,6 +34,11 @@ var ListingOrigin;
     ListingOrigin["INDIAN"] = "INDIAN";
     ListingOrigin["IMPORTED"] = "IMPORTED";
 })(ListingOrigin || (exports.ListingOrigin = ListingOrigin = {}));
+var ListingCondition;
+(function (ListingCondition) {
+    ListingCondition["OLD"] = "OLD";
+    ListingCondition["NEW"] = "NEW";
+})(ListingCondition || (exports.ListingCondition = ListingCondition = {}));
 var MediaType;
 (function (MediaType) {
     MediaType["PHOTO"] = "PHOTO";
@@ -108,6 +113,23 @@ var SpecFilterType;
     SpecFilterType["exact"] = "exact";
     SpecFilterType["none"] = "none";
 })(SpecFilterType || (exports.SpecFilterType = SpecFilterType = {}));
+var SupportedLanguage;
+(function (SupportedLanguage) {
+    SupportedLanguage["EN"] = "EN";
+    SupportedLanguage["TA"] = "TA";
+    SupportedLanguage["HI"] = "HI";
+})(SupportedLanguage || (exports.SupportedLanguage = SupportedLanguage = {}));
+/** Data-driven language switcher source of truth — add a new entry here (+ locale JSON pair) to support another language. */
+exports.LANGUAGE_OPTIONS = [
+    { code: SupportedLanguage.EN, glyph: 'A', nativeLabel: 'English' },
+    { code: SupportedLanguage.TA, glyph: 'அ', nativeLabel: 'தமிழ்' },
+    { code: SupportedLanguage.HI, glyph: 'अ', nativeLabel: 'हिन्दी' },
+];
+var AdPlacement;
+(function (AdPlacement) {
+    AdPlacement["IN_GRID"] = "IN_GRID";
+    AdPlacement["HOME_BANNER"] = "HOME_BANNER";
+})(AdPlacement || (exports.AdPlacement = AdPlacement = {}));
 /** Commission split: 2% total, 1% buyer + 1% seller (non-negotiable, see project_spec.md §8.6) */
 exports.BUYER_COMMISSION_RATE = 0.01;
 exports.SELLER_COMMISSION_RATE = 0.01;

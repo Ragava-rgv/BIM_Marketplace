@@ -1,5 +1,6 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { GstStatus } from '@machinebazaar/shared';
 import { apiErrorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth-context';
@@ -17,6 +18,7 @@ import {
 } from '../../components/icons';
 
 export function BuyerSwitchToSeller() {
+  const { t } = useTranslation();
   const { user, switchMode, switchToSeller } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -29,9 +31,9 @@ export function BuyerSwitchToSeller() {
     return (
       <div>
         <PageHeading
-          eyebrow="Account"
-          title="Seller mode enabled"
-          description="You already have seller access. Use the dashboard toggle or header menu to switch between buyer and seller views."
+          eyebrow={t('buyer.switchToSeller.eyebrow')}
+          title={t('buyer.switchToSeller.alreadySeller.title')}
+          description={t('buyer.switchToSeller.alreadySeller.description')}
         />
         <Card>
           <div className="flex items-center gap-3 mb-5">
@@ -39,14 +41,14 @@ export function BuyerSwitchToSeller() {
               <ShieldCheckIcon className="h-5 w-5" />
             </span>
             <div>
-              <p className="font-semibold text-forest">Seller access is active</p>
+              <p className="font-semibold text-forest">{t('buyer.switchToSeller.alreadySeller.activeLabel')}</p>
               {user?.gstNumber && (
                 <p className="font-mono text-xs text-forest/70 mt-0.5">{user.gstNumber}</p>
               )}
             </div>
           </div>
           <p className="text-sm text-muted mb-4">
-            You can freely switch between buyer and seller mode at any time — your listings stay live regardless of which mode you're in.
+            {t('buyer.switchToSeller.alreadySeller.switchInfo')}
           </p>
           <div className="flex gap-3">
             <Button
@@ -55,11 +57,11 @@ export function BuyerSwitchToSeller() {
                 navigate('/seller/dashboard', { replace: true });
               }}
             >
-              Go to seller dashboard
+              {t('buyer.switchToSeller.alreadySeller.goToDashboard')}
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
             <Link to="/buyer/dashboard">
-              <Button variant="secondary">Stay in buyer mode</Button>
+              <Button variant="secondary">{t('buyer.switchToSeller.alreadySeller.stayBuyer')}</Button>
             </Link>
           </div>
         </Card>
@@ -74,17 +76,19 @@ export function BuyerSwitchToSeller() {
       await switchToSeller();
       navigate('/seller/dashboard', { replace: true });
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not enable seller mode. Please try again.'));
+      setError(apiErrorMessage(err, t('buyer.switchToSeller.errorEnable')));
       setLoading(false);
     }
   };
 
+  const benefitItems = t('buyer.switchToSeller.benefits.items', { returnObjects: true }) as string[];
+
   return (
     <div>
       <PageHeading
-        eyebrow="Account"
-        title="Enable seller mode"
-        description="Verify your GST to start listing machines. You can switch back to buyer mode any time — your listings stay live either way."
+        eyebrow={t('buyer.switchToSeller.eyebrow')}
+        title={t('buyer.switchToSeller.title')}
+        description={t('buyer.switchToSeller.description')}
       />
 
       {/* GST gate */}
@@ -95,26 +99,27 @@ export function BuyerSwitchToSeller() {
               <ShieldCheckIcon className="h-5 w-5" />
             </span>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-amber-800">GST verification required to sell</p>
+              <p className="font-semibold text-amber-800">{t('buyer.switchToSeller.gstGate.title')}</p>
               <p className="mt-1 text-sm text-amber-700 leading-relaxed">
-                GST verification is mandatory before enabling seller mode. It ensures buyers deal
-                only with verified businesses and enables commission-tracked transactions.
+                {t('buyer.switchToSeller.gstGate.description')}
               </p>
               <p className="mt-2 text-sm font-semibold text-amber-800">
-                Current status:{' '}
-                <span className="uppercase tracking-wide">{user?.gstStatus ?? 'UNVERIFIED'}</span>
+                {t('buyer.switchToSeller.gstGate.currentStatusLabel')}{' '}
+                <span className="uppercase tracking-wide">
+                  {t(`common:status.gst.${user?.gstStatus ?? GstStatus.UNVERIFIED}`)}
+                </span>
               </p>
             </div>
           </div>
           <div className="mt-5 flex gap-3">
             <Link to="/buyer/gst-verification">
               <Button>
-                Verify GST now
+                {t('buyer.switchToSeller.gstGate.verifyButton')}
                 <ChevronRightIcon className="h-4 w-4" />
               </Button>
             </Link>
             <Link to="/buyer/dashboard">
-              <Button variant="secondary">Back to dashboard</Button>
+              <Button variant="secondary">{t('buyer.switchToSeller.gstGate.backButton')}</Button>
             </Link>
           </div>
         </Card>
@@ -129,7 +134,7 @@ export function BuyerSwitchToSeller() {
                 <ShieldCheckIcon className="h-5 w-5" />
               </span>
               <div>
-                <p className="font-semibold text-forest">GST verified — you can enable seller mode</p>
+                <p className="font-semibold text-forest">{t('buyer.switchToSeller.gstVerified.title')}</p>
                 {user?.gstNumber && (
                   <p className="font-mono text-xs text-forest/70 mt-0.5">{user.gstNumber}</p>
                 )}
@@ -143,20 +148,15 @@ export function BuyerSwitchToSeller() {
                 <MachineIcon className="h-5 w-5 text-navy" />
               </span>
               <div>
-                <p className="font-semibold text-navy">What you get with seller mode</p>
+                <p className="font-semibold text-navy">{t('buyer.switchToSeller.benefits.title')}</p>
                 <p className="mt-1 text-sm text-muted">
-                  Seller mode is freely switchable — you can go back to buyer view any time.
+                  {t('buyer.switchToSeller.benefits.description')}
                 </p>
               </div>
             </div>
 
             <ul className="space-y-3 border-t border-line pt-4">
-              {[
-                'List machines and receive admin-vetted buyer enquiries',
-                'Access the seller dashboard, listings manager, and subscription plan',
-                'Switch back to buyer mode at any time — your listings stay live',
-                'Your buyer history (saved listings, loan applications) is unaffected',
-              ].map((text) => (
+              {benefitItems.map((text) => (
                 <li key={text} className="flex items-start gap-3">
                   <CheckCircleIcon className="mt-0.5 h-4 w-4 shrink-0 text-forest" />
                   <span className="text-sm text-navy">{text}</span>
@@ -169,11 +169,11 @@ export function BuyerSwitchToSeller() {
             {error && <ErrorBanner message={error} />}
             <div className="flex gap-3 mt-1">
               <Button onClick={handleEnable} disabled={loading}>
-                {loading ? 'Enabling...' : 'Enable seller mode'}
+                {loading ? t('buyer.switchToSeller.enabling') : t('buyer.switchToSeller.enableButton')}
                 {!loading && <ChevronRightIcon className="h-4 w-4" />}
               </Button>
               <Link to="/buyer/dashboard">
-                <Button variant="secondary" disabled={loading}>Cancel</Button>
+                <Button variant="secondary" disabled={loading}>{t('common:common.button.cancel')}</Button>
               </Link>
             </div>
           </Card>

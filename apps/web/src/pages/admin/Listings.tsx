@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { ListingDto } from '@machinebazaar/shared';
 import { ListingStatus } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
@@ -12,23 +13,28 @@ type ListingRow = Omit<ListingDto, 'seller'> & {
   seller?: { id: string; fullName: string; email: string | null; phone: string };
 };
 
-const STATUS_OPTIONS: Array<{ value: string; label: string }> = [
-  { value: '', label: 'All statuses' },
-  { value: ListingStatus.PENDING_REVIEW, label: 'Pending review' },
-  { value: ListingStatus.ACTIVE, label: 'Active' },
-  { value: ListingStatus.UNDER_OFFER, label: 'Under offer' },
-  { value: ListingStatus.SOLD, label: 'Sold' },
-  { value: ListingStatus.REJECTED, label: 'Rejected' },
-  { value: ListingStatus.WITHDRAWN, label: 'Inactive' },
-  { value: ListingStatus.DRAFT, label: 'Draft' },
-];
-
 type BulkAction = 'approve' | 'reject' | 'mark-sold' | 'mark-inactive' | 'reactivate';
 
+function useStatusOptions(): Array<{ value: string; label: string }> {
+  const { t } = useTranslation();
+  return [
+    { value: '', label: t('admin.listings.statusOptions.all') },
+    { value: ListingStatus.PENDING_REVIEW, label: t('common:status.listing.PENDING_REVIEW') },
+    { value: ListingStatus.ACTIVE, label: t('common:status.listing.ACTIVE') },
+    { value: ListingStatus.UNDER_OFFER, label: t('common:status.listing.UNDER_OFFER') },
+    { value: ListingStatus.SOLD, label: t('common:status.listing.SOLD') },
+    { value: ListingStatus.REJECTED, label: t('common:status.listing.REJECTED') },
+    { value: ListingStatus.WITHDRAWN, label: t('admin.listings.statusOptions.inactive') },
+    { value: ListingStatus.DRAFT, label: t('common:status.listing.DRAFT') },
+  ];
+}
+
 export function AdminListings() {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const status = searchParams.get('status') ?? '';
   const category = searchParams.get('category') ?? '';
+  const statusOptions = useStatusOptions();
 
   const [sellerSearch, setSellerSearch] = useState('');
   const [listings, setListings] = useState<ListingRow[] | null>(null);
@@ -54,7 +60,7 @@ export function AdminListings() {
       .catch((err) => {
         if (!cancelled) {
           setListings([]);
-          setError(apiErrorMessage(err, 'Could not load the listing queue.'));
+          setError(apiErrorMessage(err, t('admin.listings.loadError')));
         }
       });
     return () => {
@@ -74,7 +80,7 @@ export function AdminListings() {
       await api.post(`/admin/listings/${id}/${action}`);
       setReload((n) => n + 1);
     } catch (err) {
-      setError(apiErrorMessage(err, `Could not update this listing.`));
+      setError(apiErrorMessage(err, t('admin.listings.updateError')));
     } finally {
       setActingId(null);
     }
@@ -104,10 +110,14 @@ export function AdminListings() {
         '/admin/listings/bulk-status',
         { ids: Array.from(selected), action },
       );
-      setNotice(`${data.succeeded} listing(s) updated${data.failed.length ? `, ${data.failed.length} failed` : ''}.`);
+      setNotice(
+        data.failed.length
+          ? t('admin.listings.bulkResultWithFailures', { succeeded: data.succeeded, failed: data.failed.length })
+          : t('admin.listings.bulkResult', { succeeded: data.succeeded }),
+      );
       setReload((n) => n + 1);
     } catch (err) {
-      setError(apiErrorMessage(err, 'Bulk action failed.'));
+      setError(apiErrorMessage(err, t('admin.listings.bulkActionError')));
     } finally {
       setBulkActing(false);
     }
@@ -137,27 +147,27 @@ export function AdminListings() {
     <div>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <PageHeading
-          eyebrow="Admin console"
-          title="Listing management"
-          description="Approve or reject seller submissions, and manage the lifecycle of live listings (sold / inactive / reactivate)."
+          eyebrow={t('admin.listings.eyebrow')}
+          title={t('admin.listings.title')}
+          description={t('admin.listings.description')}
         />
         <Button variant="ghost" disabled={!listings?.length} onClick={downloadExcel}>
           <DownloadIcon className="h-4 w-4" />
-          Export Excel
+          {t('admin.listings.exportExcel')}
         </Button>
       </div>
 
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Field label="Status">
+        <Field label={t('admin.listings.filters.status')}>
           <Select value={status} onChange={(e) => setSearchParams(e.target.value ? { status: e.target.value } : {})}>
-            {STATUS_OPTIONS.map((opt) => (
+            {statusOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
               </option>
             ))}
           </Select>
         </Field>
-        <Field label="Category">
+        <Field label={t('admin.listings.filters.category')}>
           <Input
             value={category}
             onChange={(e) => {
@@ -166,14 +176,14 @@ export function AdminListings() {
               if (e.target.value) next.category = e.target.value;
               setSearchParams(next);
             }}
-            placeholder="e.g. Metal Working Machines"
+            placeholder={t('admin.listings.filters.categoryPlaceholder')}
           />
         </Field>
-        <Field label="Seller">
+        <Field label={t('admin.listings.filters.seller')}>
           <Input
             value={sellerSearch}
             onChange={(e) => setSellerSearch(e.target.value)}
-            placeholder="Search name, email or phone"
+            placeholder={t('admin.listings.filters.sellerPlaceholder')}
           />
         </Field>
       </div>
@@ -191,13 +201,13 @@ export function AdminListings() {
 
       {selected.size > 0 && (
         <div className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-navy/10 bg-navy/[0.02] px-4 py-3">
-          <span className="text-sm font-semibold text-navy">{selected.size} selected</span>
+          <span className="text-sm font-semibold text-navy">{t('admin.listings.selectedCount', { count: selected.size })}</span>
           <div className="ml-auto flex flex-wrap gap-2">
-            <Button variant="ghost" disabled={bulkActing} onClick={() => runBulkAction('approve')}>Approve</Button>
-            <Button variant="ghost" disabled={bulkActing} onClick={() => runBulkAction('reject')}>Reject</Button>
-            <Button variant="ghost" disabled={bulkActing} onClick={() => runBulkAction('mark-sold')}>Mark Sold</Button>
-            <Button variant="ghost" disabled={bulkActing} onClick={() => runBulkAction('mark-inactive')}>Mark Inactive</Button>
-            <Button variant="ghost" disabled={bulkActing} onClick={() => runBulkAction('reactivate')}>Reactivate</Button>
+            <Button variant="ghost" disabled={bulkActing} onClick={() => runBulkAction('approve')}>{t('common:admin.approval.approve')}</Button>
+            <Button variant="ghost" disabled={bulkActing} onClick={() => runBulkAction('reject')}>{t('common:admin.approval.reject')}</Button>
+            <Button variant="ghost" disabled={bulkActing} onClick={() => runBulkAction('mark-sold')}>{t('admin.listings.markSold')}</Button>
+            <Button variant="ghost" disabled={bulkActing} onClick={() => runBulkAction('mark-inactive')}>{t('admin.listings.markInactive')}</Button>
+            <Button variant="ghost" disabled={bulkActing} onClick={() => runBulkAction('reactivate')}>{t('admin.listings.reactivate')}</Button>
           </div>
         </div>
       )}
@@ -205,7 +215,7 @@ export function AdminListings() {
       {listings === null ? (
         <LoadingBlock />
       ) : listings.length === 0 ? (
-        <EmptyState title="Nothing here" description="No listings match the current filters." />
+        <EmptyState title={t('admin.listings.emptyTitle')} description={t('admin.listings.emptyDescription')} />
       ) : (
         <div className="overflow-hidden rounded-2xl border border-navy/10 bg-white">
           <div className="overflow-x-auto">
@@ -220,10 +230,10 @@ export function AdminListings() {
                     className="h-4 w-4 rounded border-navy/20"
                   />
                 </th>
-                <th className="px-5 py-3">Listing</th>
-                <th className="px-5 py-3">Seller</th>
-                <th className="px-5 py-3">Asking price</th>
-                <th className="px-5 py-3">Status</th>
+                <th className="px-5 py-3">{t('admin.listings.columns.listing')}</th>
+                <th className="px-5 py-3">{t('admin.listings.columns.seller')}</th>
+                <th className="px-5 py-3">{t('admin.listings.columns.askingPrice')}</th>
+                <th className="px-5 py-3">{t('admin.listings.columns.status')}</th>
                 <th className="px-5 py-3" />
               </tr>
             </thead>
@@ -267,28 +277,28 @@ export function AdminListings() {
                           onClick={() => act(listing.id, 'reject')}
                         >
                           <CloseIcon className="h-4 w-4" />
-                          Reject
+                          {t('common:admin.approval.reject')}
                         </Button>
                         <Button disabled={actingId === listing.id} onClick={() => act(listing.id, 'approve')}>
                           <CheckCircleIcon className="h-4 w-4" />
-                          Approve
+                          {t('common:admin.approval.approve')}
                         </Button>
                       </div>
                     ) : listing.status === ListingStatus.ACTIVE || listing.status === ListingStatus.UNDER_OFFER ? (
                       <div className="flex justify-end gap-2">
                         <Button variant="ghost" disabled={actingId === listing.id} onClick={() => act(listing.id, 'mark-inactive')}>
-                          Mark Inactive
+                          {t('admin.listings.markInactive')}
                         </Button>
                         <Button variant="ghost" disabled={actingId === listing.id} onClick={() => act(listing.id, 'mark-sold')}>
-                          Mark Sold
+                          {t('admin.listings.markSold')}
                         </Button>
                       </div>
                     ) : listing.status === ListingStatus.SOLD || listing.status === ListingStatus.WITHDRAWN ? (
                       <Button variant="ghost" disabled={actingId === listing.id} onClick={() => act(listing.id, 'reactivate')}>
-                        Reactivate
+                        {t('admin.listings.reactivate')}
                       </Button>
                     ) : (
-                      <span className="text-sm text-navy/35">No action needed</span>
+                      <span className="text-sm text-navy/35">{t('admin.listings.noActionNeeded')}</span>
                     )}
                   </td>
                 </tr>

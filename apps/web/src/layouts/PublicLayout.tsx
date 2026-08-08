@@ -1,18 +1,23 @@
 ﻿import { useEffect, useRef, useState } from 'react';
-import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { UserRole } from '@machinebazaar/shared';
 import { useAuth } from '../lib/auth-context';
 import { useWishlist } from '../lib/wishlist-context';
 import { TickerBar } from '../components/TickerBar';
 import { BimIcon, BimLogoDark } from '../components/BimLogo';
 import { ChevronRightIcon, CloseIcon, HeartIcon, MenuIcon, PlusIcon } from '../components/icons';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { INDIA_STATES } from '../lib/india-locations';
 
-const NAV_LINKS = [
-  { to: '/listings', label: 'Marketplace' },
-  { to: '/how-it-works', label: 'How it works' },
-  { to: '/about', label: 'About' },
-];
+function useNavLinks() {
+  const { t } = useTranslation();
+  return [
+    { to: '/listings', label: t('common:nav.marketplace') },
+    { to: '/how-it-works', label: t('common:nav.howItWorks') },
+    { to: '/about', label: t('layout.nav.about') },
+  ];
+}
 
 function dashboardPath(user: { role: UserRole; activeMode: string; canSell: boolean }): string {
   if (user.role === UserRole.ADMIN) return '/admin/dashboard';
@@ -35,6 +40,7 @@ function useSellNavigate() {
 
 /** Always-visible "Sell" CTA — the primary header action, routed by the viewer's current capability. */
 function SellButton({ className = '' }: { className?: string }) {
+  const { t } = useTranslation();
   const go = useSellNavigate();
   return (
     <button
@@ -42,32 +48,34 @@ function SellButton({ className = '' }: { className?: string }) {
       onClick={go}
       className={`inline-flex items-center gap-1.5 rounded-lg bg-copper px-[18px] py-2.5 text-[13.5px] font-bold text-white transition hover:bg-copper-2 ${className}`}
     >
-      Sell
+      {t('common:nav.sell')}
     </button>
   );
 }
 
 /** Mobile-only floating pill, always reachable while scrolling (OLX-style "+ SELL" FAB). */
 function FloatingSellButton() {
+  const { t } = useTranslation();
   const go = useSellNavigate();
   return (
     <button
       type="button"
       onClick={go}
-      aria-label="Sell a machine"
+      aria-label={t('layout.sell.aria')}
       className="fixed bottom-20 right-5 z-30 flex items-center gap-1.5 rounded-full bg-copper px-5 py-3 text-[13.5px] font-bold text-white shadow-[0_8px_24px_rgba(180,83,9,0.35)] transition hover:bg-copper-2 md:hidden"
     >
       <PlusIcon className="h-4 w-4" />
-      Sell
+      {t('common:nav.sell')}
     </button>
   );
 }
 
 function LocationSelect() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   return (
     <select
-      aria-label="Browse by state"
+      aria-label={t('layout.locationSelect.ariaLabel')}
       defaultValue=""
       onChange={(e) => {
         if (e.target.value) navigate(`/listings?state=${encodeURIComponent(e.target.value)}`);
@@ -75,7 +83,7 @@ function LocationSelect() {
       }}
       className="w-[110px] shrink-0 rounded-lg border border-line bg-white px-2.5 py-2.5 text-[13px] font-semibold text-slate outline-none transition hover:border-ink"
     >
-      <option value="">All India</option>
+      <option value="">{t('layout.locationSelect.allIndia')}</option>
       {INDIA_STATES.map((state) => (
         <option key={state} value={state}>
           {state}
@@ -86,6 +94,7 @@ function LocationSelect() {
 }
 
 function HeaderSearch() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [q, setQ] = useState('');
   return (
@@ -100,8 +109,8 @@ function HeaderSearch() {
         type="search"
         value={q}
         onChange={(e) => setQ(e.target.value)}
-        placeholder="Search machines, makes, models…"
-        aria-label="Search listings"
+        placeholder={t('layout.search.placeholder')}
+        aria-label={t('layout.search.ariaLabel')}
         className="w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-[13px] text-ink placeholder:text-muted outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/10"
       />
     </form>
@@ -109,13 +118,14 @@ function HeaderSearch() {
 }
 
 function WishlistLink() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { count } = useWishlist();
   if (!user) return null;
   return (
     <Link
       to="/buyer/saved"
-      aria-label="Wishlist"
+      aria-label={t('common:nav.wishlist')}
       className="relative inline-flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-lg border border-line text-ink transition hover:border-ink"
     >
       <HeartIcon className="h-[18px] w-[18px]" />
@@ -129,6 +139,7 @@ function WishlistLink() {
 }
 
 function ProfileDropdown() {
+  const { t } = useTranslation();
   const { user, switchMode, logout } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -185,7 +196,7 @@ function ProfileDropdown() {
             <p className="text-[11.5px] text-muted truncate">{user.phone}</p>
             <span className={`mt-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${isSeller ? 'bg-copper/10 text-copper-2' : 'bg-forest-bg text-forest'}`}>
               <span className="h-1.5 w-1.5 rounded-full bg-current" />
-              {isSeller ? 'Seller mode' : 'Buyer mode'}
+              {isSeller ? t('layout.profile.sellerMode') : t('layout.profile.buyerMode')}
             </span>
           </div>
           <div className="p-1.5">
@@ -194,7 +205,7 @@ function ProfileDropdown() {
               onClick={() => setOpen(false)}
               className="flex items-center gap-2.5 rounded-[8px] px-3 py-2 text-[13px] font-semibold text-ink hover:bg-paper transition"
             >
-              Go to dashboard
+              {t('common:nav.goToDashboard')}
               <ChevronRightIcon className="h-3.5 w-3.5 ml-auto text-muted" />
             </Link>
             {user.role !== UserRole.ADMIN && (
@@ -203,7 +214,11 @@ function ProfileDropdown() {
                 onClick={handleSwitch}
                 className="w-full flex items-center gap-2.5 rounded-[8px] px-3 py-2 text-[13px] font-semibold text-ink hover:bg-paper transition text-left"
               >
-                {isSeller ? 'Switch to Buyer mode' : (user.canSell ? 'Switch to Seller mode' : 'Enable Seller mode')}
+                {isSeller
+                  ? t('layout.profile.switchToBuyer')
+                  : user.canSell
+                    ? t('layout.profile.switchToSeller')
+                    : t('layout.profile.enableSeller')}
               </button>
             )}
             <div className="my-1 h-px bg-line" />
@@ -212,7 +227,7 @@ function ProfileDropdown() {
               onClick={handleLogout}
               className="w-full flex items-center gap-2.5 rounded-[8px] px-3 py-2 text-[13px] font-semibold text-red-600 hover:bg-red-50 transition text-left"
             >
-              Log out
+              {t('layout.profile.logout')}
             </button>
           </div>
         </div>
@@ -222,20 +237,25 @@ function ProfileDropdown() {
 }
 
 export function PublicLayout() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const navLinks = useNavLinks();
+  // The home page already has its own prominent hero search bar (with location merged in) —
+  // showing the header's Row 2 search there too was the second-search-bar duplicate bug.
+  const isHomeRoute = useLocation().pathname === '/';
 
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden bg-white">
       <div className="flex h-9 items-center justify-center bg-forest px-4 text-center">
         <p className="flex items-center gap-2.5 text-[12.5px] font-medium text-white/90">
           <span className="rounded-full bg-white/15 px-2.5 py-0.5 font-mono text-[10.5px] font-bold uppercase tracking-[0.04em] text-white">
-            New
+            {t('layout.banner.badge')}
           </span>
           <span className="hidden sm:inline">
-            Bank-accepted certification reports now available for <strong className="font-bold text-white">CNC, VMC and Press machines</strong>
+            {t('layout.banner.text')} <strong className="font-bold text-white">{t('layout.banner.highlight')}</strong>
           </span>
-          <span className="sm:hidden">Bank-accepted certification now available</span>
+          <span className="sm:hidden">{t('layout.banner.textShort')}</span>
         </p>
       </div>
 
@@ -250,7 +270,10 @@ export function PublicLayout() {
           </Link>
 
           <nav className="hidden shrink-0 items-center gap-1 md:flex">
-            {NAV_LINKS.map((link) => (
+            {/* The "All machines" mega-menu + quick chips live on the home page, directly
+                below the search bar, not in the header — keeps the header action cluster
+                (incl. the Sell button) from being squeezed on real-world window widths. */}
+            {navLinks.filter((link) => link.to !== '/listings').map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
@@ -266,6 +289,7 @@ export function PublicLayout() {
           </nav>
 
           <div className="hidden flex-1 items-center justify-end gap-2 md:flex">
+            <LanguageSwitcher />
             <WishlistLink />
             {user ? (
               <ProfileDropdown />
@@ -274,7 +298,7 @@ export function PublicLayout() {
                 to="/login"
                 className="shrink-0 whitespace-nowrap rounded-lg border border-line px-[18px] py-2.5 text-[13.5px] font-bold text-ink transition hover:border-ink"
               >
-                Sign in
+                {t('common:nav.login')}
               </Link>
             )}
             <SellButton className="shrink-0" />
@@ -284,6 +308,7 @@ export function PublicLayout() {
               hamburger, logo, location on the right, single line). Search gets its own
               full-width row below instead of competing for space here. */}
           <div className="ml-auto flex items-center gap-1 md:hidden">
+            <LanguageSwitcher compact />
             <LocationSelect />
           </div>
 
@@ -291,7 +316,7 @@ export function PublicLayout() {
             type="button"
             className="rounded-lg p-2 text-ink md:hidden"
             onClick={() => setMenuOpen((open) => !open)}
-            aria-label="Toggle menu"
+            aria-label={t('layout.menu.toggle')}
           >
             {menuOpen ? <CloseIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
           </button>
@@ -299,21 +324,25 @@ export function PublicLayout() {
 
         {/* Row 2 — search is the dominant element here since it has the whole row to itself.
             Desktop: search + location selector. Mobile: search + wishlist heart (location
-            already lives in Row 1 next to the hamburger on mobile). */}
-        <div className="mx-auto flex max-w-7xl items-center gap-2 px-6 pb-3 pt-2.5 lg:px-[52px]">
-          <HeaderSearch />
-          <div className="hidden md:block">
-            <LocationSelect />
+            already lives in Row 1 next to the hamburger on mobile).
+            Skipped entirely on the home route — Home.tsx's own hero search (with location
+            merged in) already covers this, and showing both was the duplicate-search-bar bug. */}
+        {!isHomeRoute && (
+          <div className="mx-auto flex max-w-7xl items-center gap-2 px-6 pb-3 pt-2.5 lg:px-[52px]">
+            <HeaderSearch />
+            <div className="hidden md:block">
+              <LocationSelect />
+            </div>
+            <div className="md:hidden">
+              <WishlistLink />
+            </div>
           </div>
-          <div className="md:hidden">
-            <WishlistLink />
-          </div>
-        </div>
+        )}
 
         {menuOpen && (
           <div className="border-t border-line px-6 py-4 md:hidden">
             <nav className="flex flex-col gap-3">
-              {NAV_LINKS.map((link) => (
+              {navLinks.map((link) => (
                 <NavLink
                   key={link.to}
                   to={link.to}
@@ -331,14 +360,14 @@ export function PublicLayout() {
                       onClick={() => setMenuOpen(false)}
                       className="rounded-lg bg-forest px-4 py-2.5 text-center text-sm font-bold text-white"
                     >
-                      Go to dashboard
+                      {t('common:nav.goToDashboard')}
                     </Link>
                     <Link
                       to="/buyer/saved"
                       onClick={() => setMenuOpen(false)}
                       className="rounded-lg border border-line px-4 py-2.5 text-center text-sm font-bold text-ink"
                     >
-                      Wishlist
+                      {t('common:nav.wishlist')}
                     </Link>
                   </>
                 )}
@@ -348,7 +377,7 @@ export function PublicLayout() {
                     onClick={() => setMenuOpen(false)}
                     className="rounded-lg border border-line px-4 py-2.5 text-center text-sm font-bold text-ink"
                   >
-                    Sign in
+                    {t('common:nav.login')}
                   </Link>
                 )}
                 <SellButton className="w-full justify-center py-2.5 text-sm" />
@@ -376,68 +405,67 @@ export function PublicLayout() {
                 </div>
               </div>
               <p className="mt-3.5 max-w-xs text-[13px] leading-relaxed text-white/45">
-                India&apos;s certified B2B marketplace for used industrial machinery. Backed by GST verification,
-                bank-accepted certification reports, and secure admin-mediated transactions.
+                {t('layout.footer.tagline')}
               </p>
               <p className="mt-4 font-mono text-[10.5px] font-medium tracking-[0.08em] text-copper">
-                CERTIFIED · GST-VERIFIED · ADMIN-MEDIATED
+                {t('layout.footer.certifiedBadge')}
               </p>
             </div>
 
             <div>
               <p className="mb-4 font-mono text-[10.5px] font-semibold uppercase tracking-[0.12em] text-white/40">
-                Marketplace
+                {t('layout.footer.marketplaceHeading')}
               </p>
               <ul className="space-y-2.5 text-[13px] font-medium text-white/60">
-                <li><Link to="/listings" className="transition hover:text-white">Browse machines</Link></li>
-                <li><Link to="/signup" className="transition hover:text-white">List a machine</Link></li>
-                <li><Link to="/listings" className="transition hover:text-white">Categories</Link></li>
+                <li><Link to="/listings" className="transition hover:text-white">{t('layout.footer.browseMachines')}</Link></li>
+                <li><Link to="/signup" className="transition hover:text-white">{t('layout.footer.listAMachine')}</Link></li>
+                <li><Link to="/listings" className="transition hover:text-white">{t('layout.footer.categories')}</Link></li>
               </ul>
             </div>
 
             <div>
               <p className="mb-4 font-mono text-[10.5px] font-semibold uppercase tracking-[0.12em] text-white/40">
-                Services
+                {t('layout.footer.servicesHeading')}
               </p>
               <ul className="space-y-2.5 text-[13px] font-medium text-white/60">
-                <li><Link to="/how-it-works" className="transition hover:text-white">Certification</Link></li>
-                <li><Link to="/how-it-works" className="transition hover:text-white">Finance &amp; loans</Link></li>
-                <li><Link to="/how-it-works" className="transition hover:text-white">Buyback</Link></li>
+                <li><Link to="/how-it-works" className="transition hover:text-white">{t('layout.footer.certification')}</Link></li>
+                <li><Link to="/how-it-works" className="transition hover:text-white">{t('layout.footer.financeLoans')}</Link></li>
+                <li><Link to="/how-it-works" className="transition hover:text-white">{t('layout.footer.buyback')}</Link></li>
               </ul>
             </div>
 
             <div>
               <p className="mb-4 font-mono text-[10.5px] font-semibold uppercase tracking-[0.12em] text-white/40">
-                Get started
+                {t('layout.footer.getStartedHeading')}
               </p>
               <ul className="space-y-2.5 text-[13px] font-medium text-white/60">
-                <li><Link to="/signup" className="transition hover:text-white">Sell a machine</Link></li>
-                <li><Link to="/signup" className="transition hover:text-white">Find a machine</Link></li>
-                <li><Link to="/login" className="transition hover:text-white">Log in</Link></li>
+                <li><Link to="/signup" className="transition hover:text-white">{t('layout.footer.sellAMachine')}</Link></li>
+                <li><Link to="/signup" className="transition hover:text-white">{t('layout.footer.findAMachine')}</Link></li>
+                <li><Link to="/login" className="transition hover:text-white">{t('layout.footer.logIn')}</Link></li>
               </ul>
             </div>
 
             <div>
               <p className="mb-4 font-mono text-[10.5px] font-semibold uppercase tracking-[0.12em] text-white/40">
-                Company
+                {t('layout.footer.companyHeading')}
               </p>
               <ul className="space-y-2.5 text-[13px] font-medium text-white/60">
-                <li><Link to="/about" className="transition hover:text-white">About</Link></li>
-                <li><Link to="/admin/login" className="transition hover:text-white">Admin login</Link></li>
+                <li><Link to="/about" className="transition hover:text-white">{t('layout.footer.about')}</Link></li>
+                <li><Link to="/admin/login" className="transition hover:text-white">{t('layout.footer.adminLogin')}</Link></li>
               </ul>
             </div>
           </div>
 
           <div className="flex flex-col gap-4 pt-7 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-white/30">Â© {new Date().getFullYear()} BIM — Big Industrial Machines Pvt. Ltd.</p>
+            <p className="text-xs text-white/30">{t('layout.footer.copyright', { year: new Date().getFullYear() })}</p>
             <div className="flex items-center gap-2.5">
               <span className="inline-flex items-center gap-[5px] rounded border border-white/10 px-2.5 py-1 font-mono text-[10.5px] font-semibold tracking-[0.04em] text-white/40">
                 <span className="h-[5px] w-[5px] rounded-full bg-forest-2 shadow-[0_0_0_2px_rgba(45,106,79,0.2)]" />
-                GST API · LIVE
+                {t('layout.footer.gstApiLive')}
               </span>
               <span className="inline-flex items-center gap-[5px] rounded border border-white/10 px-2.5 py-1 font-mono text-[10.5px] font-semibold tracking-[0.04em] text-white/40">
                 <span className="h-[5px] w-[5px] rounded-full bg-forest-2 shadow-[0_0_0_2px_rgba(45,106,79,0.2)]" />
-                SECURE PAYMENTS · 256-BIT
+                {t('layout.footer.securePayments')}
               </span>
             </div>
           </div>

@@ -9,12 +9,15 @@ export default defineConfig({
   },
   server: {
     proxy: {
+      // Explicit 127.0.0.1, not 'localhost' — on this machine 'localhost' can resolve to
+      // another unrelated project's dev server squatting on the IPv6 side of :3001, silently
+      // misrouting every API/media request to the wrong backend.
       '/api': {
-        target: 'http://localhost:3001',
+        target: 'http://127.0.0.1:3001',
         changeOrigin: true,
       },
       '/media': {
-        target: 'http://localhost:3001',
+        target: 'http://127.0.0.1:3001',
         changeOrigin: true,
       },
     },

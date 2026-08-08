@@ -21,6 +21,11 @@ class SwitchModeDto {
   mode: 'BUYER' | 'SELLER';
 }
 
+class SwitchLanguageDto {
+  @IsIn(['EN', 'TA', 'HI'])
+  language: 'EN' | 'TA' | 'HI';
+}
+
 @Controller('auth')
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
@@ -92,6 +97,13 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   async switchMode(@CurrentUser() user: AuthenticatedUser, @Body() dto: SwitchModeDto) {
     return this.auth.switchMode(user.id, dto.mode);
+  }
+
+  @Post('language')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async switchLanguage(@CurrentUser() user: AuthenticatedUser, @Body() dto: SwitchLanguageDto) {
+    return this.auth.switchLanguage(user.id, dto.language);
   }
 
   @Post('logout')

@@ -10,8 +10,9 @@ export default defineConfig({
   server: {
     port: 5174,
     proxy: {
-      '/api': { target: 'http://localhost:3001', changeOrigin: true },
-      '/media': { target: 'http://localhost:3001', changeOrigin: true },
+      // Explicit 127.0.0.1, not 'localhost' — see apps/web/vite.config.ts for why.
+      '/api': { target: 'http://127.0.0.1:3001', changeOrigin: true },
+      '/media': { target: 'http://127.0.0.1:3001', changeOrigin: true },
     },
   },
 });

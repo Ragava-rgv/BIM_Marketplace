@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdvertisementsService = void 0;
 const common_1 = require("@nestjs/common");
+const client_1 = require("@prisma/client");
 const storage_service_1 = require("../storage/storage.service");
 const prisma_service_1 = require("../prisma/prisma.service");
 let AdvertisementsService = class AdvertisementsService {
@@ -26,9 +27,18 @@ let AdvertisementsService = class AdvertisementsService {
             orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
         });
     }
-    listActive() {
+    listActive(placement = client_1.AdPlacement.IN_GRID) {
+        const now = new Date();
         return this.prisma.advertisement.findMany({
-            where: { isActive: true, deletedAt: null },
+            where: {
+                isActive: true,
+                deletedAt: null,
+                placement,
+                AND: [
+                    { OR: [{ startsAt: null }, { startsAt: { lte: now } }] },
+                    { OR: [{ endsAt: null }, { endsAt: { gte: now } }] },
+                ],
+            },
             orderBy: [{ position: 'asc' }, { sortOrder: 'asc' }],
         });
     }
@@ -48,6 +58,9 @@ let AdvertisementsService = class AdvertisementsService {
                 imageUrl: uploaded.url,
                 linkUrl: dto.linkUrl ?? null,
                 position: dto.position ?? 0,
+                placement: dto.placement ?? client_1.AdPlacement.IN_GRID,
+                startsAt: dto.startsAt ? new Date(dto.startsAt) : null,
+                endsAt: dto.endsAt ? new Date(dto.endsAt) : null,
                 sortOrder: dto.sortOrder ?? 0,
                 isActive: dto.isActive ?? true,
             },
@@ -62,6 +75,9 @@ let AdvertisementsService = class AdvertisementsService {
                 ...(dto.title !== undefined && { title: dto.title }),
                 ...(dto.linkUrl !== undefined && { linkUrl: dto.linkUrl }),
                 ...(dto.position !== undefined && { position: dto.position }),
+                ...(dto.placement !== undefined && { placement: dto.placement }),
+                ...(dto.startsAt !== undefined && { startsAt: dto.startsAt ? new Date(dto.startsAt) : null }),
+                ...(dto.endsAt !== undefined && { endsAt: dto.endsAt ? new Date(dto.endsAt) : null }),
                 ...(dto.sortOrder !== undefined && { sortOrder: dto.sortOrder }),
                 ...(dto.isActive !== undefined && { isActive: dto.isActive }),
                 ...(imageUrl !== undefined && { imageUrl }),

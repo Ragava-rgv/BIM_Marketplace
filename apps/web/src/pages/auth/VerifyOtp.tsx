@@ -1,5 +1,6 @@
 ﻿import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { UserRole } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth-context';
@@ -19,6 +20,7 @@ function dashboardPathForRole(role: UserRole): string {
 }
 
 export function VerifyOtp() {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const { authenticate } = useAuth();
@@ -35,16 +37,16 @@ export function VerifyOtp() {
   if (!state.phone) {
     return (
       <div>
-        <h1 className="font-display text-[32px] font-medium tracking-[-0.6px] text-ink">Verify your number</h1>
+        <h1 className="font-display text-[32px] font-medium tracking-[-0.6px] text-ink">{t('auth.verifyOtp.noPendingTitle')}</h1>
         <p className="mt-3 text-[14px] text-muted">
-          We couldn&apos;t find a pending verification. Please log in or sign up again to receive a fresh OTP.
+          {t('auth.verifyOtp.noPendingBody')}
         </p>
         <div className="mt-6 flex gap-3">
           <Link to="/login" className="rounded-lg bg-forest px-5 py-2.5 text-sm font-bold text-white hover:bg-forest-2">
-            Go to login
+            {t('auth.verifyOtp.goToLogin')}
           </Link>
           <Link to="/signup" className="rounded-lg border border-line px-5 py-2.5 text-sm font-bold text-ink hover:border-ink">
-            Sign up
+            {t('common:nav.signup')}
           </Link>
         </div>
       </div>
@@ -65,7 +67,7 @@ export function VerifyOtp() {
       const target = state.from?.pathname ?? dashboardPathForRole(profile.role);
       navigate(target, { replace: true });
     } catch (err) {
-      setError(apiErrorMessage(err, "That code didn't match. Please check it and try again."));
+      setError(apiErrorMessage(err, t('auth.verifyOtp.errorDefault')));
     } finally {
       setSubmitting(false);
     }
@@ -79,7 +81,7 @@ export function VerifyOtp() {
       await api.post('/auth/otp/send', { phone, purpose });
       setResent(true);
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not resend the code. Please try again shortly.'));
+      setError(apiErrorMessage(err, t('auth.verifyOtp.resendError')));
     } finally {
       setResending(false);
     }
@@ -87,20 +89,20 @@ export function VerifyOtp() {
 
   return (
     <div>
-      <MonoLabel className="text-copper">— Verify your number</MonoLabel>
-      <h1 className="mt-2 font-display text-[32px] font-medium tracking-[-0.6px] text-ink">Enter the OTP we sent</h1>
+      <MonoLabel className="text-copper">— {t('auth.verifyOtp.eyebrow')}</MonoLabel>
+      <h1 className="mt-2 font-display text-[32px] font-medium tracking-[-0.6px] text-ink">{t('auth.verifyOtp.title')}</h1>
       <p className="mt-2 text-[14px] text-muted">
-        We sent a one-time code to <span className="font-bold text-ink">+91 {phone}</span>.
-        {import.meta.env.DEV && ' In development, check the API server console for the code.'}
+        {t('auth.verifyOtp.sentTo')} <span className="font-bold text-ink">+91 {phone}</span>.
+        {import.meta.env.DEV && ` ${t('auth.verifyOtp.devHint')}`}
       </p>
 
       <form onSubmit={handleVerify} className="mt-8 space-y-5">
         {error && <ErrorBanner message={error} />}
-        {resent && <SuccessBanner message="A new code has been sent." />}
-        <Field label="One-time code">
+        {resent && <SuccessBanner message={t('auth.verifyOtp.resent')} />}
+        <Field label={t('auth.verifyOtp.otpLabel')}>
           <Input
             inputMode="numeric"
-            placeholder="******"
+            placeholder={t('auth.verifyOtp.otpPlaceholder')}
             value={code}
             onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 8))}
             required
@@ -108,7 +110,7 @@ export function VerifyOtp() {
           />
         </Field>
         <Button type="submit" disabled={submitting || code.length < 4} className="w-full">
-          {submitting ? 'Verifying...' : 'Verify & continue'}
+          {submitting ? t('auth.verifyOtp.verifying') : t('auth.verifyOtp.verifySubmit')}
           <ChevronRightIcon className="h-4 w-4" />
         </Button>
       </form>
@@ -119,7 +121,7 @@ export function VerifyOtp() {
         disabled={resending}
         className="mt-5 text-sm font-bold text-forest transition hover:text-forest-2 disabled:opacity-50"
       >
-        {resending ? 'Resending...' : "Didn't get a code? Resend it"}
+        {resending ? t('auth.verifyOtp.resending') : t('auth.verifyOtp.resendPrompt')}
       </button>
     </div>
   );

@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { CategoryGroupDto, CategorySpecTemplateDto } from '@machinebazaar/shared';
 import { MACHINE_CATEGORIES } from '@machinebazaar/shared';
 import { api } from '../lib/api';
@@ -25,6 +26,7 @@ export interface ListingDetailsValues {
   locationCity: string;
   locationState: string;
   complexityTier: 'SIMPLE' | 'STANDARD' | 'COMPLEX';
+  condition: 'OLD' | 'NEW';
   // Catalog system
   catalogCategoryId: string;
   specs: Record<string, string>;
@@ -47,6 +49,7 @@ export const EMPTY_LISTING_DETAILS: ListingDetailsValues = {
   locationCity: '',
   locationState: '',
   complexityTier: 'STANDARD',
+  condition: 'OLD',
   catalogCategoryId: '',
   specs: {},
   conditionGrade: '',
@@ -70,6 +73,7 @@ export function listingDetailsToPayload(values: ListingDetailsValues) {
     locationCity: values.locationCity,
     locationState: values.locationState,
     complexityTier: values.complexityTier,
+    condition: values.condition,
     catalogCategoryId: values.catalogCategoryId || undefined,
     specs: values.catalogCategoryId && Object.keys(values.specs).length > 0 ? values.specs : undefined,
     conditionGrade: values.conditionGrade || undefined,
@@ -89,6 +93,7 @@ export function ListingDetailsForm({
   submitting: boolean;
   onSubmit: (values: ListingDetailsValues) => void | Promise<void>;
 }) {
+  const { t } = useTranslation();
   const [values, setValues] = useState(initial);
   const [catGroups, setCatGroups] = useState<CategoryGroupDto[]>([]);
   const [specFields, setSpecFields] = useState<CategorySpecTemplateDto[]>([]);
@@ -159,19 +164,19 @@ export function ListingDetailsForm({
   // a truthy error and a registered ref).
   const fieldOrder = ['title', 'description', 'machineCategory', 'machineMake', 'machineModel', 'importedCountry', 'askingPrice', 'locationState', 'locationCity'];
   const fieldErrors: Record<string, string | false> = {
-    title: !titleValid && `Title needs at least 5 characters (${values.title.trim().length}/5)`,
-    description: !descriptionValid && `Description needs at least 20 characters (${values.description.trim().length}/20)`,
-    machineCategory: !values.machineCategory.trim() && 'Machine category is required',
-    machineMake: !values.machineMake.trim() && 'Make is required',
-    machineModel: !values.machineModel.trim() && 'Model is required',
-    askingPrice: !priceValid && 'Asking price must be greater than 0',
-    importedCountry: !originValid && 'Country of import is required for imported machines',
-    locationState: !values.locationState.trim() && 'State is required',
-    locationCity: !values.locationCity.trim() && 'City is required',
+    title: !titleValid && t('components.listingDetailsForm.errors.titleTooShort', { count: values.title.trim().length }),
+    description: !descriptionValid && t('components.listingDetailsForm.errors.descriptionTooShort', { count: values.description.trim().length }),
+    machineCategory: !values.machineCategory.trim() && t('components.listingDetailsForm.errors.machineCategoryRequired'),
+    machineMake: !values.machineMake.trim() && t('components.listingDetailsForm.errors.makeRequired'),
+    machineModel: !values.machineModel.trim() && t('components.listingDetailsForm.errors.modelRequired'),
+    askingPrice: !priceValid && t('components.listingDetailsForm.errors.askingPriceRequired'),
+    importedCountry: !originValid && t('components.listingDetailsForm.errors.importedCountryRequired'),
+    locationState: !values.locationState.trim() && t('components.listingDetailsForm.errors.stateRequired'),
+    locationCity: !values.locationCity.trim() && t('components.listingDetailsForm.errors.cityRequired'),
   };
   const missing = Object.values(fieldErrors).filter((v): v is string => !!v);
   requiredSpecs.forEach((f) => {
-    if (!(values.specs[f.fieldKey] ?? '').trim()) missing.push(`${f.fieldLabel} is required`);
+    if (!(values.specs[f.fieldKey] ?? '').trim()) missing.push(t('components.listingDetailsForm.errors.specFieldRequired', { field: f.fieldLabel }));
   });
 
   return (
@@ -187,25 +192,25 @@ export function ListingDetailsForm({
       }}
       className="space-y-5"
     >
-      <Field label="Listing title" hint="Be specific — make, model and key spec helps buyers find you">
+      <Field label={t('components.listingDetailsForm.titleLabel')} hint={t('components.listingDetailsForm.titleHint')}>
         <Input
           ref={setFieldRef('title')}
           value={values.title}
           onChange={(e) => set('title', e.target.value)}
-          placeholder="2019 Hyundai R140 Excavator, well-maintained"
+          placeholder={t('components.listingDetailsForm.titlePlaceholder')}
           required
           minLength={5}
           maxLength={160}
         />
       </Field>
 
-      <Field label="Description">
+      <Field label={t('components.listingDetailsForm.descriptionLabel')}>
         <Textarea
           ref={setFieldRef('description')}
           rows={5}
           value={values.description}
           onChange={(e) => set('description', e.target.value)}
-          placeholder="Describe condition, usage history, recent maintenance, included accessories…"
+          placeholder={t('components.listingDetailsForm.descriptionPlaceholder')}
           required
           minLength={20}
           maxLength={5000}
@@ -213,14 +218,14 @@ export function ListingDetailsForm({
       </Field>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <Field label="Machine category">
+        <Field label={t('components.listingDetailsForm.machineCategoryLabel')}>
           <Select
             ref={setFieldRef('machineCategory')}
             value={values.machineCategory}
             onChange={(e) => handleCategoryChange(e.target.value)}
             required
           >
-            <option value="">Select a category</option>
+            <option value="">{t('components.listingDetailsForm.selectCategory')}</option>
             {MACHINE_CATEGORIES.map((cat) => (
               <option key={cat.id} value={cat.label}>
                 {cat.label}
@@ -228,13 +233,13 @@ export function ListingDetailsForm({
             ))}
           </Select>
         </Field>
-        <Field label="Subcategory" hint="Optional — helps buyers find your machine faster">
+        <Field label={t('components.listingDetailsForm.subcategoryLabel')} hint={t('components.listingDetailsForm.subcategoryHint')}>
           <Select
             value={values.machineSubcategory}
             onChange={(e) => set('machineSubcategory', e.target.value)}
             disabled={subcategories.length === 0}
           >
-            <option value="">{subcategories.length ? 'Select subcategory' : 'Select a category first'}</option>
+            <option value="">{subcategories.length ? t('components.listingDetailsForm.selectSubcategory') : t('components.listingDetailsForm.selectCategoryFirst')}</option>
             {subcategories.map((sub) => (
               <option key={sub} value={sub}>
                 {sub}
@@ -242,22 +247,22 @@ export function ListingDetailsForm({
             ))}
           </Select>
         </Field>
-        <Field label="Complexity tier" hint="Drives certification fee if a buyer applies for financing">
+        <Field label={t('components.listingDetailsForm.complexityTierLabel')} hint={t('components.listingDetailsForm.complexityTierHint')}>
           <Select value={values.complexityTier} onChange={(e) => set('complexityTier', e.target.value as ListingDetailsValues['complexityTier'])}>
-            <option value="SIMPLE">Simple</option>
-            <option value="STANDARD">Standard</option>
-            <option value="COMPLEX">Complex</option>
+            <option value="SIMPLE">{t('components.listingDetailsForm.tierSimple')}</option>
+            <option value="STANDARD">{t('components.listingDetailsForm.tierStandard')}</option>
+            <option value="COMPLEX">{t('components.listingDetailsForm.tierComplex')}</option>
           </Select>
         </Field>
-        <Field label="Make">
-          <Input ref={setFieldRef('machineMake')} value={values.machineMake} onChange={(e) => set('machineMake', e.target.value)} placeholder="Hyundai" required />
+        <Field label={t('components.listingDetailsForm.makeLabel')}>
+          <Input ref={setFieldRef('machineMake')} value={values.machineMake} onChange={(e) => set('machineMake', e.target.value)} placeholder={t('components.listingDetailsForm.makePlaceholder')} required />
         </Field>
-        <Field label="Model">
-          <Input ref={setFieldRef('machineModel')} value={values.machineModel} onChange={(e) => set('machineModel', e.target.value)} placeholder="R140LC-9" required />
+        <Field label={t('components.listingDetailsForm.modelLabel')}>
+          <Input ref={setFieldRef('machineModel')} value={values.machineModel} onChange={(e) => set('machineModel', e.target.value)} placeholder={t('components.listingDetailsForm.modelPlaceholder')} required />
         </Field>
-        <Field label="Year bought" hint="Leave as “Not available” if unknown">
+        <Field label={t('components.listingDetailsForm.yearBoughtLabel')} hint={t('components.listingDetailsForm.yearBoughtHint')}>
           <Select value={values.manufactureYear} onChange={(e) => set('manufactureYear', e.target.value)}>
-            <option value="">Not available</option>
+            <option value="">{t('common:common.label.notAvailable')}</option>
             {YEAR_OPTIONS.map((year) => (
               <option key={year} value={year}>
                 {year}
@@ -265,20 +270,30 @@ export function ListingDetailsForm({
             ))}
           </Select>
         </Field>
-        <Field label="Make origin">
+        <Field label={t('components.listingDetailsForm.makeOriginLabel')}>
           <Select
             value={values.origin}
             onChange={(e) => set('origin', e.target.value as ListingDetailsValues['origin'])}
             required
           >
-            <option value="INDIAN">Indian</option>
-            <option value="IMPORTED">Imported</option>
+            <option value="INDIAN">{t('components.listingDetailsForm.originIndian')}</option>
+            <option value="IMPORTED">{t('components.listingDetailsForm.originImported')}</option>
+          </Select>
+        </Field>
+        <Field label={t('common:listing.condition')}>
+          <Select
+            value={values.condition}
+            onChange={(e) => set('condition', e.target.value as ListingDetailsValues['condition'])}
+            required
+          >
+            <option value="OLD">{t('common:listing.conditionOld')}</option>
+            <option value="NEW">{t('common:listing.conditionNew')}</option>
           </Select>
         </Field>
         {values.origin === 'IMPORTED' && (
-          <Field label="Country of import">
+          <Field label={t('components.listingDetailsForm.countryOfImportLabel')}>
             <Select ref={setFieldRef('importedCountry')} value={values.importedCountry} onChange={(e) => set('importedCountry', e.target.value)} required>
-              <option value="">Select country</option>
+              <option value="">{t('components.listingDetailsForm.selectCountry')}</option>
               {IMPORT_COUNTRIES.map((country) => (
                 <option key={country} value={country}>
                   {country}
@@ -287,20 +302,20 @@ export function ListingDetailsForm({
             </Select>
           </Field>
         )}
-        <Field label="Asking price (₹)">
+        <Field label={t('components.listingDetailsForm.askingPriceLabel')}>
           <Input
             ref={setFieldRef('askingPrice')}
             type="text"
             inputMode="numeric"
             value={values.askingPrice ? Number(values.askingPrice).toLocaleString('en-IN') : ''}
             onChange={(e) => set('askingPrice', e.target.value.replace(/[^0-9]/g, ''))}
-            placeholder="18,50,000"
+            placeholder={t('components.listingDetailsForm.askingPricePlaceholder')}
             required
           />
         </Field>
-        <Field label="State">
+        <Field label={t('components.listingDetailsForm.stateLabel')}>
           <Select ref={setFieldRef('locationState')} value={values.locationState} onChange={(e) => handleStateChange(e.target.value)} required>
-            <option value="">Select state</option>
+            <option value="">{t('components.listingDetailsForm.selectState')}</option>
             {INDIA_STATES.map((state) => (
               <option key={state} value={state}>
                 {state}
@@ -308,9 +323,9 @@ export function ListingDetailsForm({
             ))}
           </Select>
         </Field>
-        <Field label="City">
+        <Field label={t('components.listingDetailsForm.cityLabel')}>
           <Select ref={setFieldRef('locationCity')} value={values.locationCity} onChange={(e) => set('locationCity', e.target.value)} required disabled={!values.locationState}>
-            <option value="">{values.locationState ? 'Select city' : 'Select state first'}</option>
+            <option value="">{values.locationState ? t('components.listingDetailsForm.selectCity') : t('components.listingDetailsForm.selectStateFirst')}</option>
             {cities.map((city) => (
               <option key={city} value={city}>
                 {city}
@@ -324,15 +339,14 @@ export function ListingDetailsForm({
       {catGroups.length > 0 && (
         <div className="rounded-xl border border-line bg-navy/[.02] p-5 space-y-4">
           <div>
-            <p className="text-sm font-bold text-ink mb-0.5">Machine specification template</p>
+            <p className="text-sm font-bold text-ink mb-0.5">{t('components.listingDetailsForm.specTemplateHeading')}</p>
             <p className="text-[12.5px] text-muted leading-relaxed">
-              Select a catalog category to unlock spec fields specific to that machine type.
-              This helps buyers filter and compare machines accurately.
+              {t('components.listingDetailsForm.specTemplateDescription')}
             </p>
           </div>
-          <Field label="Catalog category">
+          <Field label={t('components.listingDetailsForm.catalogCategoryLabel')}>
             <Select value={values.catalogCategoryId} onChange={(e) => handleCatalogCatChange(e.target.value)}>
-              <option value="">None — use general category above</option>
+              <option value="">{t('components.listingDetailsForm.catalogCategoryNone')}</option>
               {catGroups.map((group) => (
                 <optgroup key={group.id} label={group.name}>
                   {group.categories.map((cat) => (
@@ -354,22 +368,22 @@ export function ListingDetailsForm({
           {/* Extra shared fields for catalog listings */}
           {values.catalogCategoryId && (
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-              <Field label="Condition grade" hint="A = excellent, B = good, C = fair">
+              <Field label={t('components.listingDetailsForm.conditionGradeLabel')} hint={t('components.listingDetailsForm.conditionGradeHint')}>
                 <Select value={values.conditionGrade} onChange={(e) => set('conditionGrade', e.target.value)}>
-                  <option value="">Select…</option>
-                  <option value="A">A — Excellent</option>
-                  <option value="B">B — Good</option>
-                  <option value="C">C — Fair</option>
+                  <option value="">{t('components.listingDetailsForm.selectEllipsis')}</option>
+                  <option value="A">{t('components.listingDetailsForm.gradeAExcellent')}</option>
+                  <option value="B">{t('components.listingDetailsForm.gradeBGood')}</option>
+                  <option value="C">{t('components.listingDetailsForm.gradeCFair')}</option>
                 </Select>
               </Field>
-              <Field label="Running hours" hint="Verified odometer / hour-meter reading">
+              <Field label={t('components.listingDetailsForm.runningHoursLabel')} hint={t('components.listingDetailsForm.runningHoursHint')}>
                 <div className="space-y-2">
                   <Input
                     type="number"
                     min={0}
                     value={values.runningHours}
                     onChange={(e) => set('runningHours', e.target.value)}
-                    placeholder="4200"
+                    placeholder={t('components.listingDetailsForm.runningHoursPlaceholder')}
                     disabled={runningHoursNA}
                   />
                   <label className="flex items-center gap-2 text-[12.5px] font-medium text-muted cursor-pointer">
@@ -382,7 +396,7 @@ export function ListingDetailsForm({
                       }}
                       className="h-3.5 w-3.5 rounded border-line text-forest focus:ring-forest/30"
                     />
-                    Not available
+                    {t('common:common.label.notAvailable')}
                   </label>
                 </div>
               </Field>
@@ -394,7 +408,7 @@ export function ListingDetailsForm({
                     onChange={(e) => set('negotiable', e.target.checked)}
                     className="h-4 w-4 rounded border-line text-forest focus:ring-forest/30"
                   />
-                  Price is negotiable
+                  {t('components.listingDetailsForm.priceNegotiable')}
                 </label>
               </div>
             </div>
@@ -404,7 +418,7 @@ export function ListingDetailsForm({
 
       {attempted && !valid && missing.length > 0 && (
         <div className="rounded-[10px] border border-copper-bdr bg-copper-bg p-4">
-          <p className="text-[12.5px] font-bold text-copper-2">Before you continue:</p>
+          <p className="text-[12.5px] font-bold text-copper-2">{t('components.listingDetailsForm.beforeYouContinue')}</p>
           <ul className="mt-1.5 list-inside list-disc space-y-0.5 text-[12.5px] text-copper-2">
             {missing.map((item) => (
               <li key={item}>{item}</li>
@@ -414,7 +428,7 @@ export function ListingDetailsForm({
       )}
 
       <Button type="submit" disabled={!valid || submitting}>
-        {submitting ? 'Saving…' : submitLabel}
+        {submitting ? t('components.listingDetailsForm.saving') : submitLabel}
       </Button>
     </form>
   );

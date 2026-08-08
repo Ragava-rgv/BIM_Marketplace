@@ -1,5 +1,6 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { GstStatus } from '@machinebazaar/shared';
 import type { ListingDto } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
@@ -9,6 +10,7 @@ import { Button, Card, ErrorBanner, Field, Input, LoadingBlock, PageHeading, Sel
 import { ChevronRightIcon, RupeeIcon, ShieldCheckIcon } from '../../components/icons';
 
 export function BuyerNewLoan() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -65,7 +67,7 @@ export function BuyerNewLoan() {
       setDone(true);
       setTimeout(() => navigate('/buyer/loans'), 1200);
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not submit your loan application. Please try again.'));
+      setError(apiErrorMessage(err, t('buyer.newLoan.errorSubmit')));
     } finally {
       setSubmitting(false);
     }
@@ -74,9 +76,9 @@ export function BuyerNewLoan() {
   return (
     <div className="mx-auto max-w-2xl">
       <PageHeading
-        eyebrow="Buyer workspace"
-        title="Apply for financing"
-        description="Submitting an application routes the listing for an independent certification. Once the certification is complete, our team will route your application to a suitable bank or NBFC partner."
+        eyebrow={t('buyer.newLoan.eyebrow')}
+        title={t('buyer.newLoan.title')}
+        description={t('buyer.newLoan.description')}
       />
 
       {!isGstActive ? (
@@ -84,21 +86,21 @@ export function BuyerNewLoan() {
           <div className="flex items-start gap-3">
             <ShieldCheckIcon className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
             <div>
-              <p className="font-semibold text-amber-800">Verify your GST to continue</p>
+              <p className="font-semibold text-amber-800">{t('buyer.newLoan.gstGate.title')}</p>
               <p className="mt-1 text-sm text-amber-700">
-                An ACTIVE GST registration is required before you can submit a loan application.
+                {t('buyer.newLoan.gstGate.description')}
               </p>
             </div>
           </div>
           <Link to="/buyer/gst-verification">
             <Button variant="secondary" className="whitespace-nowrap">
-              Verify GST now
+              {t('buyer.newLoan.gstGate.cta')}
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
           </Link>
         </Card>
       ) : done ? (
-        <SuccessBanner message="Your loan application was submitted. We've started the certification process and will route your application to a partner once it's complete." />
+        <SuccessBanner message={t('buyer.newLoan.successMessage')} />
       ) : listings === null ? (
         <LoadingBlock />
       ) : listings.length === 0 ? (
@@ -106,13 +108,12 @@ export function BuyerNewLoan() {
           <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-navy/[0.06] text-navy">
             <RupeeIcon className="h-6 w-6" />
           </span>
-          <p className="font-display text-lg text-navy">Save a listing first</p>
+          <p className="font-display text-lg text-navy">{t('buyer.newLoan.noSaved.title')}</p>
           <p className="max-w-sm text-sm text-navy/55">
-            Browse machines, save the one you&apos;re interested in, then come back here to apply
-            for financing against it.
+            {t('buyer.newLoan.noSaved.description')}
           </p>
           <Link to="/listings">
-            <Button>Browse listings</Button>
+            <Button>{t('buyer.newLoan.noSaved.browseButton')}</Button>
           </Link>
         </Card>
       ) : (
@@ -123,9 +124,9 @@ export function BuyerNewLoan() {
             </div>
           )}
           <form className="space-y-5" onSubmit={handleSubmit}>
-            <Field label="Listing">
+            <Field label={t('buyer.newLoan.form.listingLabel')}>
               <Select value={listingId} onChange={(e) => setListingId(e.target.value)} required>
-                <option value="">Select a saved listing...</option>
+                <option value="">{t('buyer.newLoan.form.listingPlaceholder')}</option>
                 {listings.map((listing) => (
                   <option key={listing.id} value={listing.id}>
                     {listing.title} · {formatInr(listing.askingPrice)}
@@ -134,7 +135,7 @@ export function BuyerNewLoan() {
               </Select>
             </Field>
 
-            <Field label="Amount requested (₹)" hint="Enter the loan amount you'd like to apply for.">
+            <Field label={t('buyer.newLoan.form.amountLabel')} hint={t('buyer.newLoan.form.amountHint')}>
               <Input
                 type="number"
                 min={1}
@@ -142,12 +143,12 @@ export function BuyerNewLoan() {
                 required
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder="e.g. 1500000"
+                placeholder={t('buyer.newLoan.form.amountPlaceholder')}
               />
             </Field>
 
             <Button type="submit" disabled={submitting} className="w-full">
-              {submitting ? 'Submitting...' : 'Submit application'}
+              {submitting ? t('buyer.newLoan.form.submitting') : t('buyer.newLoan.form.submit')}
             </Button>
           </form>
         </Card>

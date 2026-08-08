@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import type { UserDto } from '@machinebazaar/shared';
+import type { SupportedLanguage, UserDto } from '@machinebazaar/shared';
 import { api, clearTokens, getAccessToken, getRefreshToken, setTokens } from './api';
+import i18n from './i18n';
 
 interface AuthContextValue {
   user: UserDto | null;
@@ -9,6 +10,8 @@ interface AuthContextValue {
   refreshProfile: () => Promise<void>;
   /** Persist active mode preference (BUYER | SELLER) and update local state. */
   switchMode: (mode: 'BUYER' | 'SELLER') => Promise<void>;
+  /** Persist language preference to server (signed-in users) and switch the active UI language immediately. */
+  switchLanguage: (language: SupportedLanguage) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -19,13 +22,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const loadProfile = useCallback(async () => {
-    if (!getAccessToken()) { setUser(null); return null; }
+    if (!(await getAccessToken())) { setUser(null); return null; }
     try {
       const { data } = await api.get<UserDto>('/auth/me');
       setUser(data);
       return data;
     } catch {
-      clearTokens();
+      await clearTokens();
       setUser(null);
       return null;
     }
@@ -34,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => { loadProfile().finally(() => setLoading(false)); }, [loadProfile]);
 
   const authenticate = useCallback(async (tokens: { accessToken: string; refreshToken: string }) => {
-    setTokens(tokens.accessToken, tokens.refreshToken);
+    await setTokens(tokens.accessToken, tokens.refreshToken);
     const profile = await loadProfile();
     if (!profile) throw new Error('Could not load profile after sign in.');
     return profile;
@@ -45,16 +48,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data);
   }, []);
 
+  const switchLanguage = useCallback(async (language: SupportedLanguage) => {
+    await i18n.changeLanguage(language.toLowerCase());
+    if (!(await getAccessToken())) return;
+    const { data } = await api.post<UserDto>('/auth/language', { language });
+    setUser(data);
+  }, []);
+
   const logout = useCallback(async () => {
-    const refreshToken = getRefreshToken();
+    const refreshToken = await getRefreshToken();
     try { if (refreshToken) await api.post('/auth/logout', { refreshToken }); } catch {}
-    clearTokens();
+    await clearTokens();
     setUser(null);
   }, []);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, loading, authenticate, refreshProfile: async () => { await loadProfile(); }, switchMode, logout }),
-    [user, loading, authenticate, loadProfile, switchMode, logout],
+    () => ({ user, loading, authenticate, refreshProfile: async () => { await loadProfile(); }, switchMode, switchLanguage, logout }),
+    [user, loading, authenticate, loadProfile, switchMode, switchLanguage, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

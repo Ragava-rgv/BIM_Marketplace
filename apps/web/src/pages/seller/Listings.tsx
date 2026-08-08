@@ -1,5 +1,6 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { GstStatus, ListingStatus } from '@machinebazaar/shared';
 import type { ListingDto } from '@machinebazaar/shared';
 import { api } from '../../lib/api';
@@ -12,6 +13,7 @@ import { PlusIcon, StarIcon } from '../../components/icons';
 const BOOSTABLE_STATUSES: string[] = [ListingStatus.ACTIVE, ListingStatus.UNDER_OFFER];
 
 export function SellerListings() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [listings, setListings] = useState<ListingDto[] | null>(null);
   const [boostingId, setBoostingId] = useState<string | null>(null);
@@ -36,11 +38,11 @@ export function SellerListings() {
   return (
     <div>
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <PageHeading eyebrow="Seller workspace" title="My listings" description="Manage drafts, track review status and edit your published machines." />
+        <PageHeading eyebrow={t('seller.listings.eyebrow')} title={t('seller.listings.title')} description={t('seller.listings.description')} />
         <Link to="/seller/listings/new">
           <Button disabled={!isGstActive}>
             <PlusIcon className="h-4 w-4" />
-            New listing
+            {t('seller.listings.newListing')}
           </Button>
         </Link>
       </div>
@@ -49,11 +51,11 @@ export function SellerListings() {
         <LoadingBlock />
       ) : listings.length === 0 ? (
         <EmptyState
-          title="No listings yet"
-          description={isGstActive ? 'Create your first listing to start reaching buyers.' : 'Verify your GST registration to unlock listing creation.'}
+          title={t('seller.listings.emptyState.title')}
+          description={isGstActive ? t('seller.listings.emptyState.descriptionActive') : t('seller.listings.emptyState.descriptionInactive')}
           action={
             <Link to={isGstActive ? '/seller/listings/new' : '/seller/gst-verification'}>
-              <Button>{isGstActive ? 'Create a listing' : 'Verify GST'}</Button>
+              <Button>{isGstActive ? t('seller.listings.emptyState.createListing') : t('seller.listings.emptyState.verifyGst')}</Button>
             </Link>
           }
         />
@@ -63,10 +65,10 @@ export function SellerListings() {
           <table className="w-full text-sm">
             <thead className="border-b border-navy/10 bg-navy/[0.02] text-left text-xs font-semibold uppercase tracking-wide text-navy/40">
               <tr>
-                <th className="px-5 py-3">Listing</th>
-                <th className="px-5 py-3">Asking price</th>
-                <th className="px-5 py-3">Status</th>
-                <th className="px-5 py-3">Updated</th>
+                <th className="px-5 py-3">{t('seller.listings.table.listing')}</th>
+                <th className="px-5 py-3">{t('seller.listings.table.askingPrice')}</th>
+                <th className="px-5 py-3">{t('seller.listings.table.status')}</th>
+                <th className="px-5 py-3">{t('seller.listings.table.updated')}</th>
                 <th className="px-5 py-3" />
               </tr>
             </thead>
@@ -84,7 +86,7 @@ export function SellerListings() {
                       {listing.isBoosted && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-forest-bg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-forest">
                           <StarIcon className="h-3 w-3" />
-                          Boosted
+                          {t('seller.listings.boosted')}
                         </span>
                       )}
                     </div>
@@ -98,11 +100,11 @@ export function SellerListings() {
                           onClick={() => setBoostingId(listing.id)}
                           className="text-sm font-semibold text-copper hover:text-copper-2"
                         >
-                          Boost
+                          {t('seller.listings.boost')}
                         </button>
                       )}
                       <Link to={`/seller/listings/${listing.id}/edit`} className="text-sm font-semibold text-accent hover:text-accent-dark">
-                        Manage
+                        {t('seller.listings.manage')}
                       </Link>
                     </div>
                   </td>

@@ -1,7 +1,15 @@
-﻿import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { CheckCircleIcon, MachineIcon, ShieldCheckIcon } from '../components/icons';
 
 export function AuthLayout() {
+  const { t } = useTranslation();
+  const features = [
+    t('layout.authLayout.features.gstVerified'),
+    t('layout.authLayout.features.bankAccepted'),
+    t('layout.authLayout.features.buybackGuarantee'),
+  ];
+
   return (
     <div className="flex min-h-screen bg-white">
       <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-ink px-12 py-12 text-white lg:flex">
@@ -15,30 +23,25 @@ export function AuthLayout() {
           <span className="flex flex-col leading-none">
             <span className="font-display text-[19px] font-semibold tracking-[-0.4px] text-white">BIM</span>
             <span className="mt-[3px] font-mono text-[9.5px] font-medium uppercase tracking-[0.12em] text-copper">
-              Certified · Est. India
+              {t('layout.authLayout.certifiedBadge')}
             </span>
           </span>
         </Link>
 
         <div className="relative max-w-md">
           <p className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.14em] text-white/40">
-            India&apos;s B2B used-machinery marketplace
+            {t('layout.authLayout.eyebrow')}
           </p>
           <h1 className="mt-4 font-display text-[40px] font-medium leading-[1.1] tracking-[-1px] text-white">
-            Buy and sell industrial machinery with{' '}
-            <em className="font-normal not-italic italic text-copper">confidence.</em>
+            {t('layout.authLayout.title')}{' '}
+            <em className="font-normal not-italic italic text-copper">{t('layout.authLayout.titleHighlight')}</em>
           </h1>
           <p className="mt-4 text-[14.5px] leading-[1.7] text-white/55">
-            Verified GST sellers, certified machines, admin-mediated chat and secure commission-based transactions —
-            built for India&apos;s used-machinery trade.
+            {t('layout.authLayout.subtitle')}
           </p>
 
           <div className="mt-8 flex flex-col gap-2.5">
-            {[
-              'GST-verified seller and buyer accounts',
-              'Bank-accepted certification reports',
-              'Buyback guarantee on eligible machines',
-            ].map((item) => (
+            {features.map((item) => (
               <div key={item} className="flex items-center gap-2.5 text-[13px] font-medium text-white/75">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-copper/30 bg-copper/[0.18]">
                   <CheckCircleIcon className="h-2.5 w-2.5 text-copper" />
@@ -51,7 +54,7 @@ export function AuthLayout() {
 
         <div className="relative flex items-center gap-2.5 border-t border-white/10 pt-6 text-[13px] text-white/50">
           <ShieldCheckIcon className="h-4 w-4 shrink-0 text-forest-2" />
-          Contact details stay private until commission is settled.
+          {t('layout.authLayout.contactPrivacyNote')}
         </div>
       </div>
 

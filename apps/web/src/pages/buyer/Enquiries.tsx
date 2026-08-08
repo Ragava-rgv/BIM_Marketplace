@@ -1,11 +1,13 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { EnquiryDto } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import { formatDateTime, formatInr } from '../../lib/format';
 import { Button, EmptyState, ErrorBanner, LoadingBlock, PageHeading, StatusBadge } from '../../components/ui';
 
 export function BuyerEnquiries() {
+  const { t } = useTranslation();
   const [enquiries, setEnquiries] = useState<EnquiryDto[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,20 +21,20 @@ export function BuyerEnquiries() {
       .catch((err) => {
         if (!cancelled) {
           setEnquiries([]);
-          setError(apiErrorMessage(err, 'Could not load your enquiries.'));
+          setError(apiErrorMessage(err, t('buyer.enquiries.errorLoad')));
         }
       });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [t]);
 
   return (
     <div>
       <PageHeading
-        eyebrow="Buyer workspace"
-        title="My enquiries"
-        description="When you show interest in a listing, our team is notified and follows up with you directly — the seller is told only your name and location."
+        eyebrow={t('buyer.enquiries.eyebrow')}
+        title={t('buyer.enquiries.title')}
+        description={t('buyer.enquiries.description')}
       />
 
       {error && (
@@ -45,11 +47,11 @@ export function BuyerEnquiries() {
         <LoadingBlock />
       ) : enquiries.length === 0 ? (
         <EmptyState
-          title="No enquiries yet"
-          description="Browse listings and click 'Enquire' on one you're interested in."
+          title={t('buyer.enquiries.emptyTitle')}
+          description={t('buyer.enquiries.emptyDescription')}
           action={
             <Link to="/listings">
-              <Button>Browse listings</Button>
+              <Button>{t('buyer.enquiries.browseButton')}</Button>
             </Link>
           }
         />
@@ -59,10 +61,10 @@ export function BuyerEnquiries() {
           <table className="w-full text-sm">
             <thead className="border-b border-line bg-paper text-left text-xs font-semibold uppercase tracking-wide text-muted">
               <tr>
-                <th className="px-5 py-3">Listing</th>
-                <th className="px-5 py-3">Asking price</th>
-                <th className="px-5 py-3">Status</th>
-                <th className="px-5 py-3">Enquired on</th>
+                <th className="px-5 py-3">{t('buyer.enquiries.table.listing')}</th>
+                <th className="px-5 py-3">{t('buyer.enquiries.table.askingPrice')}</th>
+                <th className="px-5 py-3">{t('buyer.enquiries.table.status')}</th>
+                <th className="px-5 py-3">{t('buyer.enquiries.table.enquiredOn')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
@@ -74,7 +76,7 @@ export function BuyerEnquiries() {
                         {enquiry.listing.title}
                       </Link>
                     ) : (
-                      <span className="font-semibold text-ink">Listing</span>
+                      <span className="font-semibold text-ink">{t('buyer.enquiries.table.listingFallback')}</span>
                     )}
                   </td>
                   <td className="px-5 py-4 font-medium text-ink">{enquiry.listing ? formatInr(enquiry.listing.askingPrice) : '—'}</td>

@@ -1,4 +1,5 @@
 ﻿import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   MAX_LISTING_PHOTOS,
   MIN_LISTING_PHOTOS,
@@ -47,6 +48,7 @@ function formatMb(bytes: number): string {
  *   - exactly one running-machine video, >= 60 seconds, with timestamp overlay
  */
 export function ListingMediaManager({ listingId, media, onChange }: Props) {
+  const { t } = useTranslation();
   const fileInput = useRef<HTMLInputElement>(null);
   const [kind, setKind] = useState<UploadKind>('PHOTO');
   const [capturedAt, setCapturedAt] = useState(todayIso());
@@ -68,23 +70,23 @@ export function ListingMediaManager({ listingId, media, onChange }: Props) {
     e.preventDefault();
     const files = fileInput.current?.files;
     if (!files || files.length === 0) {
-      setError('Choose a file to upload first.');
+      setError(t('components.listingMediaManager.errors.chooseFile'));
       return;
     }
     if (kind === 'VIDEO' && video) {
-      setError('This listing already has a running video. Remove it before uploading a new one.');
+      setError(t('components.listingMediaManager.errors.videoAlreadyExists'));
       return;
     }
     if (kind === 'VIDEO' && files.length > 1) {
-      setError('Only one running video is allowed — please select a single file.');
+      setError(t('components.listingMediaManager.errors.onlyOneVideo'));
       return;
     }
     if (kind === 'PHOTO' && photos.length + files.length > MAX_LISTING_PHOTOS) {
-      setError(`A listing may have at most ${MAX_LISTING_PHOTOS} photos — you selected ${files.length}, which would exceed the limit.`);
+      setError(t('components.listingMediaManager.errors.tooManyPhotos', { max: MAX_LISTING_PHOTOS, selected: files.length }));
       return;
     }
     if (kind === 'VIDEO' && (!durationSeconds || Number(durationSeconds) < MIN_VIDEO_DURATION_SECONDS)) {
-      setError(`The running video must be at least ${MIN_VIDEO_DURATION_SECONDS} seconds long.`);
+      setError(t('components.listingMediaManager.errors.videoTooShort', { min: MIN_VIDEO_DURATION_SECONDS }));
       return;
     }
 
@@ -93,11 +95,14 @@ export function ListingMediaManager({ listingId, media, onChange }: Props) {
     for (const file of Array.from(files)) {
       const expectedType = kind === 'PHOTO' ? 'image/' : 'video/';
       if (!file.type.startsWith(expectedType)) {
-        setError(`"${file.name}" is not a valid ${kind === 'PHOTO' ? 'image' : 'video'} file.`);
+        setError(t('components.listingMediaManager.errors.invalidFileType', {
+          fileName: file.name,
+          expected: kind === 'PHOTO' ? t('components.listingMediaManager.fileTypeImage') : t('components.listingMediaManager.fileTypeVideo'),
+        }));
         return;
       }
       if (file.size > maxBytes) {
-        setError(`"${file.name}" is ${formatMb(file.size)}, which exceeds the ${formatMb(maxBytes)} limit.`);
+        setError(t('components.listingMediaManager.errors.fileTooLarge', { fileName: file.name, size: formatMb(file.size), limit: formatMb(maxBytes) }));
         return;
       }
     }
@@ -131,7 +136,7 @@ export function ListingMediaManager({ listingId, media, onChange }: Props) {
       if (fileInput.current) fileInput.current.value = '';
       setDurationSeconds('');
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not upload that file. Please check the requirements and try again.'));
+      setError(apiErrorMessage(err, t('components.listingMediaManager.errors.uploadFailed')));
     } finally {
       setUploading(false);
       setUploadProgress(null);
@@ -155,7 +160,7 @@ export function ListingMediaManager({ listingId, media, onChange }: Props) {
       const untouched = media.filter((m) => m.type !== 'PHOTO');
       onChange([...untouched, ...data.filter((m) => m.type === 'PHOTO')]);
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not reorder photos.'));
+      setError(apiErrorMessage(err, t('components.listingMediaManager.errors.reorderFailed')));
     } finally {
       setReorderingId(null);
     }
@@ -169,7 +174,7 @@ export function ListingMediaManager({ listingId, media, onChange }: Props) {
       const untouched = media.filter((m) => m.type !== 'PHOTO');
       onChange([...untouched, ...data.filter((m) => m.type === 'PHOTO')]);
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not set this photo as primary.'));
+      setError(apiErrorMessage(err, t('components.listingMediaManager.errors.setPrimaryFailed')));
     } finally {
       setPrimaryPending(null);
     }
@@ -182,7 +187,7 @@ export function ListingMediaManager({ listingId, media, onChange }: Props) {
       await api.delete(`/listings/${listingId}/media/${mediaId}`);
       onChange(media.filter((m) => m.id !== mediaId));
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not remove that file.'));
+      setError(apiErrorMessage(err, t('components.listingMediaManager.errors.removeFailed')));
     } finally {
       setRemovingId(null);
     }
@@ -194,41 +199,39 @@ export function ListingMediaManager({ listingId, media, onChange }: Props) {
         <GateRow
           ok={photoCountOk}
           icon={PhotoIcon}
-          label={`Photos: ${photos.length} / ${MIN_LISTING_PHOTOS}—${MAX_LISTING_PHOTOS}`}
-          hint={`Each must be timestamped and captured within the last ${PHOTO_MAX_AGE_DAYS} days.`}
+          label={t('components.listingMediaManager.photosGateLabel', { count: photos.length, min: MIN_LISTING_PHOTOS, max: MAX_LISTING_PHOTOS })}
+          hint={t('components.listingMediaManager.photosGateHint', { days: PHOTO_MAX_AGE_DAYS })}
         />
         <GateRow
           ok={videoOk}
           icon={VideoIcon}
-          label={video ? `Running video: ${video.durationSeconds ?? 0}s` : 'Running video: not uploaded'}
-          hint={`Exactly one video, at least ${MIN_VIDEO_DURATION_SECONDS}s, machine actively operating with timestamp overlay.`}
+          label={video ? t('components.listingMediaManager.videoGateLabelUploaded', { seconds: video.durationSeconds ?? 0 }) : t('components.listingMediaManager.videoGateLabelNotUploaded')}
+          hint={t('components.listingMediaManager.videoGateHint', { min: MIN_VIDEO_DURATION_SECONDS })}
         />
       </div>
 
       <div className="rounded-xl border border-navy/10 bg-navy/[0.02] p-4 text-sm text-navy/55">
         <p>
-          Tip: use the <span className="font-semibold text-navy">Timestamp Camera</span> app to
-          capture photos and video with a visible date/time overlay — this is what our review team
-          checks for.
+          {t('components.listingMediaManager.tipPrefix')} <span className="font-semibold text-navy">{t('components.listingMediaManager.tipAppName')}</span> {t('components.listingMediaManager.tipSuffix')}
         </p>
       </div>
 
       {error && <ErrorBanner message={error} />}
 
       <form onSubmit={handleUpload} className="grid grid-cols-1 gap-4 rounded-2xl border border-navy/10 bg-white p-5 sm:grid-cols-[160px_1fr_auto] sm:items-end">
-        <Field label="Media type">
+        <Field label={t('components.listingMediaManager.mediaTypeLabel')}>
           <Select value={kind} onChange={(e) => setKind(e.target.value as UploadKind)}>
-            <option value="PHOTO">Photo</option>
-            <option value="VIDEO">Running video</option>
+            <option value="PHOTO">{t('components.listingMediaManager.mediaTypePhoto')}</option>
+            <option value="VIDEO">{t('components.listingMediaManager.mediaTypeVideo')}</option>
           </Select>
         </Field>
 
         {kind === 'PHOTO' ? (
-          <Field label="Captured on" hint="Date shown on the timestamp overlay">
+          <Field label={t('components.listingMediaManager.capturedOnLabel')} hint={t('components.listingMediaManager.capturedOnHint')}>
             <Input type="date" value={capturedAt} max={todayIso()} onChange={(e) => setCapturedAt(e.target.value)} required />
           </Field>
         ) : (
-          <Field label="Duration (seconds)" hint={`Minimum ${MIN_VIDEO_DURATION_SECONDS} seconds`}>
+          <Field label={t('components.listingMediaManager.durationLabel')} hint={t('components.listingMediaManager.durationHint', { min: MIN_VIDEO_DURATION_SECONDS })}>
             <Input
               type="number"
               min={MIN_VIDEO_DURATION_SECONDS}
@@ -253,7 +256,7 @@ export function ListingMediaManager({ listingId, media, onChange }: Props) {
         <div className="sm:col-span-3 space-y-2.5">
           <Button type="submit" disabled={uploading}>
             <UploadIcon className="h-4 w-4" />
-            {uploading ? 'Uploading...' : kind === 'PHOTO' ? 'Upload photos' : 'Upload video'}
+            {uploading ? t('components.listingMediaManager.uploading') : kind === 'PHOTO' ? t('components.listingMediaManager.uploadPhotos') : t('components.listingMediaManager.uploadVideo')}
           </Button>
           {uploadProgress && (
             <div>
@@ -264,7 +267,7 @@ export function ListingMediaManager({ listingId, media, onChange }: Props) {
                 />
               </div>
               <p className="mt-1 text-xs text-navy/45">
-                Uploading file {uploadProgress.fileIndex + 1} of {uploadProgress.fileCount} — {uploadProgress.pct}%
+                {t('components.listingMediaManager.uploadingFileProgress', { index: uploadProgress.fileIndex + 1, count: uploadProgress.fileCount, pct: uploadProgress.pct })}
               </p>
             </div>
           )}
@@ -286,7 +289,7 @@ export function ListingMediaManager({ listingId, media, onChange }: Props) {
               {item.type === 'PHOTO' && item.isPrimary && (
                 <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-md bg-forest px-2 py-1 text-[10.5px] font-bold text-white">
                   <StarIcon className="h-3 w-3 fill-white stroke-white" />
-                  Primary
+                  {t('components.listingMediaManager.primary')}
                 </span>
               )}
 
@@ -298,8 +301,8 @@ export function ListingMediaManager({ listingId, media, onChange }: Props) {
                       onClick={() => handleSetPrimary(item.id)}
                       disabled={primaryPending === item.id}
                       className="rounded-md bg-white/85 p-1.5 text-navy transition hover:bg-white"
-                      aria-label="Set as primary photo"
-                      title="Set as primary photo"
+                      aria-label={t('components.listingMediaManager.setAsPrimary')}
+                      title={t('components.listingMediaManager.setAsPrimary')}
                     >
                       <StarIcon className="h-3.5 w-3.5" />
                     </button>
@@ -309,8 +312,8 @@ export function ListingMediaManager({ listingId, media, onChange }: Props) {
                     onClick={() => handleMove(item.id, -1)}
                     disabled={reorderingId === item.id || idx === 0}
                     className="rounded-md bg-white/85 p-1.5 text-navy transition hover:bg-white disabled:opacity-40"
-                    aria-label="Move photo earlier"
-                    title="Move earlier"
+                    aria-label={t('components.listingMediaManager.moveEarlierAria')}
+                    title={t('components.listingMediaManager.moveEarlier')}
                   >
                     <ArrowUpIcon className="h-3.5 w-3.5" />
                   </button>
@@ -319,8 +322,8 @@ export function ListingMediaManager({ listingId, media, onChange }: Props) {
                     onClick={() => handleMove(item.id, 1)}
                     disabled={reorderingId === item.id || idx === photos.length - 1}
                     className="rounded-md bg-white/85 p-1.5 text-navy transition hover:bg-white disabled:opacity-40"
-                    aria-label="Move photo later"
-                    title="Move later"
+                    aria-label={t('components.listingMediaManager.moveLaterAria')}
+                    title={t('components.listingMediaManager.moveLater')}
                   >
                     <ArrowDownIcon className="h-3.5 w-3.5" />
                   </button>
@@ -332,15 +335,15 @@ export function ListingMediaManager({ listingId, media, onChange }: Props) {
                   {item.type === 'PHOTO'
                     ? item.capturedAt
                       ? new Date(item.capturedAt).toLocaleDateString('en-IN')
-                      : 'Photo'
-                    : `Video · ${item.durationSeconds ?? '?'}s`}
+                      : t('components.listingMediaManager.photo')
+                    : t('components.listingMediaManager.videoDuration', { seconds: item.durationSeconds ?? '?' })}
                 </span>
                 <button
                   type="button"
                   onClick={() => handleRemove(item.id)}
                   disabled={removingId === item.id}
                   className="rounded-md bg-white/15 p-1.5 transition hover:bg-rose-500"
-                  aria-label="Remove media"
+                  aria-label={t('components.listingMediaManager.removeMediaAria')}
                 >
                   <TrashIcon className="h-3.5 w-3.5" />
                 </button>

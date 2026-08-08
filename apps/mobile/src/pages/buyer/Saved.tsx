@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { ListingDto } from '@machinebazaar/shared';
 import { api } from '../../lib/api';
 import { useAuth } from '../../lib/auth-context';
@@ -9,6 +10,7 @@ import { formatInrShort } from '../../lib/format';
 import { ChevronRightIcon, HeartIcon, MachineIcon, MapPinIcon } from '../../components/icons';
 
 export function BuyerSaved() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { toggle } = useWishlist();
   const navigate = useNavigate();
@@ -37,8 +39,8 @@ export function BuyerSaved() {
           <ChevronRightIcon className="w-4 h-4 text-gray-500 rotate-180" />
         </button>
         <div>
-          <h1 className="text-[17px] font-extrabold text-ink tracking-[-0.3px]">Saved Listings</h1>
-          <p className="text-[11px] text-gray-500">{listings.length} saved</p>
+          <h1 className="text-[17px] font-extrabold text-ink tracking-[-0.3px]">{t('buyer.saved.title')}</h1>
+          <p className="text-[11px] text-gray-500">{t('buyer.saved.savedCount', { count: listings.length })}</p>
         </div>
       </div>
 
@@ -52,13 +54,13 @@ export function BuyerSaved() {
             <div className="w-14 h-14 rounded-full bg-forest/10 flex items-center justify-center mx-auto mb-3">
               <HeartIcon className="w-7 h-7 text-forest" />
             </div>
-            <p className="text-[14px] font-semibold text-ink mb-1">No saved listings</p>
+            <p className="text-[14px] font-semibold text-ink mb-1">{t('buyer.saved.emptyTitle')}</p>
             <p className="text-[12px] text-gray-500 mb-4">
-              Bookmark listings you're interested in and find them here.
+              {t('buyer.saved.emptyDescription')}
             </p>
             <button onClick={() => navigate('/')}
               className="bg-forest text-white text-[13px] font-bold px-5 py-2.5 rounded-[11px]">
-              Browse machines
+              {t('buyer.saved.browseButton')}
             </button>
           </div>
         ) : (
@@ -93,13 +95,13 @@ export function BuyerSaved() {
                   onClick={() => navigate(`/listings/${l.id}`)}
                   className="text-[11px] font-semibold text-forest"
                 >
-                  View listing →
+                  {t('buyer.saved.viewListing')}
                 </button>
                 <button
                   onClick={() => handleUnsave(l.id)}
                   className="text-[11px] font-semibold text-red-500"
                 >
-                  Remove
+                  {t('common:common.button.remove')}
                 </button>
               </div>
             </div>

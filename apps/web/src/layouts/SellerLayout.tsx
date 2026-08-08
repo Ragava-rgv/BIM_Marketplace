@@ -1,16 +1,22 @@
+import { useTranslation } from 'react-i18next';
 import { DashboardShell } from './DashboardShell';
 import { ChatIcon, MachineIcon, PlusIcon, RupeeIcon, SearchIcon, ShieldCheckIcon } from '../components/icons';
 
-const ITEMS = [
-  { to: '/seller/dashboard', label: 'Dashboard', icon: MachineIcon, end: true },
-  { to: '/seller/listings', label: 'My listings', icon: MachineIcon },
-  { to: '/seller/listings/new', label: 'New listing', icon: PlusIcon },
-  { to: '/listings', label: 'Browse marketplace', icon: SearchIcon },
-  { to: '/seller/enquiries', label: 'Enquiries', icon: ChatIcon },
-  { to: '/seller/subscription', label: 'Subscription', icon: RupeeIcon },
-  { to: '/seller/gst-verification', label: 'GST verification', icon: ShieldCheckIcon },
-];
+function useSellerNavItems() {
+  const { t } = useTranslation();
+  return [
+    { to: '/seller/dashboard', label: t('layout.sellerLayout.nav.dashboard'), icon: MachineIcon, end: true },
+    { to: '/seller/listings', label: t('layout.sellerLayout.nav.myListings'), icon: MachineIcon },
+    { to: '/seller/listings/new', label: t('layout.sellerLayout.nav.newListing'), icon: PlusIcon },
+    { to: '/listings', label: t('layout.sellerLayout.nav.browseMarketplace'), icon: SearchIcon },
+    { to: '/seller/enquiries', label: t('layout.sellerLayout.nav.enquiries'), icon: ChatIcon },
+    { to: '/seller/subscription', label: t('layout.sellerLayout.nav.subscription'), icon: RupeeIcon },
+    { to: '/seller/gst-verification', label: t('layout.sellerLayout.nav.gstVerification'), icon: ShieldCheckIcon },
+  ];
+}
 
 export function SellerLayout() {
-  return <DashboardShell title="Seller workspace" items={ITEMS} />;
+  const { t } = useTranslation();
+  const items = useSellerNavItems();
+  return <DashboardShell title={t('layout.sellerLayout.title')} items={items} />;
 }

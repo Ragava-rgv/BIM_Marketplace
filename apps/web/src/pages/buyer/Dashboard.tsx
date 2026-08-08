@@ -1,5 +1,6 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { GstStatus } from '@machinebazaar/shared';
 import type { LoanApplicationDto, ReleasedContactSummaryDto } from '@machinebazaar/shared';
 import { api } from '../../lib/api';
@@ -10,6 +11,7 @@ import { Button, Card, EmptyState, LoadingBlock, PageHeading, StatusBadge } from
 import { CheckCircleIcon, ChevronRightIcon, MachineIcon, PlusIcon, RupeeIcon, ShieldCheckIcon } from '../../components/icons';
 
 export function BuyerDashboard() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { count: savedCount } = useWishlist();
   const [loans, setLoans] = useState<LoanApplicationDto[] | null>(null);
@@ -50,9 +52,9 @@ export function BuyerDashboard() {
   return (
     <div>
       <PageHeading
-        eyebrow="Buyer workspace"
-        title={`Welcome back, ${user?.fullName?.split(' ')[0] ?? ''}`}
-        description="Browse machines, message sellers, and track your finance applications from one place."
+        eyebrow={t('buyer.dashboard.eyebrow')}
+        title={t('buyer.dashboard.title', { name: user?.fullName?.split(' ')[0] ?? '' })}
+        description={t('buyer.dashboard.description')}
       />
 
       {!isGstActive && (
@@ -60,16 +62,15 @@ export function BuyerDashboard() {
           <div className="flex items-start gap-3">
             <ShieldCheckIcon className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
             <div>
-              <p className="font-semibold text-amber-800">GST verification needed for financing</p>
+              <p className="font-semibold text-amber-800">{t('buyer.dashboard.gstBanner.title')}</p>
               <p className="mt-1 text-sm text-amber-700">
-                Browsing and messaging sellers is open to everyone — verify your GST only when
-                you&apos;re ready to submit a loan application.
+                {t('buyer.dashboard.gstBanner.description')}
               </p>
             </div>
           </div>
           <Link to="/buyer/gst-verification">
             <Button variant="secondary" className="whitespace-nowrap">
-              Verify GST now
+              {t('buyer.dashboard.gstBanner.cta')}
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
           </Link>
@@ -78,15 +79,15 @@ export function BuyerDashboard() {
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
         <Card>
-          <p className="text-xs font-semibold uppercase tracking-wide text-navy/40">Saved listings</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-navy/40">{t('buyer.dashboard.stats.savedListings')}</p>
           <p className="mt-2 font-display text-3xl text-navy">{savedCount}</p>
         </Card>
         <Card>
-          <p className="text-xs font-semibold uppercase tracking-wide text-navy/40">Loan applications</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-navy/40">{t('buyer.dashboard.stats.loanApplications')}</p>
           <p className="mt-2 font-display text-3xl text-navy">{loans ? loans.length : '—'}</p>
         </Card>
         <Card>
-          <p className="text-xs font-semibold uppercase tracking-wide text-navy/40">GST status</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-navy/40">{t('buyer.dashboard.stats.gstStatus')}</p>
           <p className="mt-2 font-display text-3xl text-navy">{humanizeStatus(user?.gstStatus ?? GstStatus.UNVERIFIED)}</p>
         </Card>
       </div>
@@ -94,9 +95,9 @@ export function BuyerDashboard() {
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div>
           <div className="flex items-center justify-between">
-            <h2 className="font-display text-xl text-navy">Recent loan applications</h2>
+            <h2 className="font-display text-xl text-navy">{t('buyer.dashboard.recentLoans.heading')}</h2>
             <Link to="/buyer/loans">
-              <Button variant="ghost">View all</Button>
+              <Button variant="ghost">{t('common:common.button.viewAll')}</Button>
             </Link>
           </div>
 
@@ -107,13 +108,12 @@ export function BuyerDashboard() {
               <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-navy/[0.06] text-navy">
                 <RupeeIcon className="h-6 w-6" />
               </span>
-              <p className="font-display text-lg text-navy">No loan applications yet</p>
+              <p className="font-display text-lg text-navy">{t('buyer.dashboard.recentLoans.emptyTitle')}</p>
               <p className="max-w-sm text-sm text-navy/55">
-                Found a machine you like? Apply for financing through one of our partner banks
-                and NBFCs.
+                {t('buyer.dashboard.recentLoans.emptyDescription')}
               </p>
               <Link to="/buyer/loans/new">
-                <Button>Apply for a loan</Button>
+                <Button>{t('buyer.dashboard.recentLoans.applyButton')}</Button>
               </Link>
             </Card>
           ) : (
@@ -122,7 +122,9 @@ export function BuyerDashboard() {
                 <div key={loan.id} className="flex items-center justify-between gap-4 px-5 py-4">
                   <div>
                     <p className="font-semibold text-navy">{formatInr(loan.amountRequested)}</p>
-                    <p className="text-sm text-navy/45">Applied {new Date(loan.createdAt).toLocaleDateString('en-IN')}</p>
+                    <p className="text-sm text-navy/45">
+                      {t('buyer.dashboard.recentLoans.appliedOn', { date: new Date(loan.createdAt).toLocaleDateString('en-IN') })}
+                    </p>
                   </div>
                   <StatusBadge status={loan.status} />
                 </div>
@@ -133,22 +135,22 @@ export function BuyerDashboard() {
 
         <div>
           <div className="flex items-center justify-between">
-            <h2 className="font-display text-xl text-navy">Saved listings</h2>
+            <h2 className="font-display text-xl text-navy">{t('buyer.dashboard.savedListings.heading')}</h2>
             <Link to="/buyer/saved">
-              <Button variant="ghost">View all</Button>
+              <Button variant="ghost">{t('common:common.button.viewAll')}</Button>
             </Link>
           </div>
 
           {savedCount === 0 ? (
             <div className="mt-4">
               <EmptyState
-                title="Nothing saved yet"
-                description="Browse listings and bookmark machines you're interested in for quick access later."
+                title={t('buyer.dashboard.savedListings.emptyTitle')}
+                description={t('buyer.dashboard.savedListings.emptyDescription')}
                 action={
                   <Link to="/listings">
                     <Button variant="secondary">
                       <MachineIcon className="h-4 w-4" />
-                      Browse listings
+                      {t('buyer.dashboard.savedListings.browseButton')}
                     </Button>
                   </Link>
                 }
@@ -161,12 +163,14 @@ export function BuyerDashboard() {
                   <CheckCircleIcon className="h-6 w-6" />
                 </span>
                 <div>
-                  <p className="font-display text-lg text-navy">{savedCount} listing{savedCount === 1 ? '' : 's'} saved</p>
-                  <p className="text-sm text-navy/55">Pick up where you left off.</p>
+                  <p className="font-display text-lg text-navy">
+                    {t('buyer.dashboard.savedListings.countSaved', { count: savedCount })}
+                  </p>
+                  <p className="text-sm text-navy/55">{t('buyer.dashboard.savedListings.pickUp')}</p>
                 </div>
               </div>
               <Link to="/buyer/saved" className="mt-4 inline-block">
-                <Button variant="secondary">View saved listings</Button>
+                <Button variant="secondary">{t('buyer.dashboard.savedListings.viewButton')}</Button>
               </Link>
             </Card>
           )}
@@ -186,18 +190,18 @@ export function BuyerDashboard() {
             </span>
             <div>
               <p className={`font-semibold ${isGstActive ? 'text-forest' : 'text-navy'}`}>
-                {isGstActive ? 'Ready to sell? Switch your account' : 'Want to sell machinery?'}
+                {isGstActive ? t('buyer.dashboard.sellCta.readyTitle') : t('buyer.dashboard.sellCta.wantTitle')}
               </p>
               <p className="mt-0.5 text-sm text-muted">
                 {isGstActive
-                  ? 'Your GST is verified. You can switch to a seller account and start listing machines immediately.'
-                  : 'Verify your GST first — once active, you can switch your account to a seller in one click.'}
+                  ? t('buyer.dashboard.sellCta.readyDescription')
+                  : t('buyer.dashboard.sellCta.wantDescription')}
               </p>
             </div>
           </div>
           <Link to="/buyer/switch-to-seller" className="shrink-0">
             <Button variant={isGstActive ? 'primary' : 'secondary'} className="whitespace-nowrap">
-              {isGstActive ? 'Switch to seller' : 'Learn more'}
+              {isGstActive ? t('buyer.dashboard.sellCta.switchButton') : t('buyer.dashboard.sellCta.learnMoreButton')}
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
           </Link>
@@ -206,9 +210,9 @@ export function BuyerDashboard() {
 
       {contacts.length > 0 && (
         <div className="mt-8">
-          <h2 className="font-display text-xl text-navy">Deal contacts</h2>
+          <h2 className="font-display text-xl text-navy">{t('buyer.dashboard.dealContacts.heading')}</h2>
           <p className="mt-1 text-sm text-navy/55">
-            The commission has been settled on these deals, so the seller&apos;s contact details have been released.
+            {t('buyer.dashboard.dealContacts.description')}
           </p>
           <div className="mt-4 divide-y divide-navy/10 overflow-hidden rounded-2xl border border-navy/10 bg-white">
             {contacts.map((c) => (

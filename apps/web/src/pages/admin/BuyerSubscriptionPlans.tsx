@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { BuyerSubscriptionPlanDto } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import { formatInr } from '../../lib/format';
@@ -72,6 +73,7 @@ function PlanForm({
   onCancel?: () => void;
   submitLabel: string;
 }) {
+  const { t } = useTranslation();
   const [form, setForm] = useState<PlanFormValues>(initial);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -94,7 +96,7 @@ function PlanForm({
     try {
       await onSave(form);
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not save plan.'));
+      setError(apiErrorMessage(err, t('admin.buyerSubscriptionPlans.saveError')));
     } finally {
       setSubmitting(false);
     }
@@ -104,23 +106,23 @@ function PlanForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && <ErrorBanner message={error} />}
       <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-4">
-        <Field label="Internal name" hint="Unique identifier e.g. STANDARD">
+        <Field label={t('admin.buyerSubscriptionPlans.fields.internalName')} hint={t('admin.buyerSubscriptionPlans.fields.internalNameHint')}>
           <Input
             value={form.name}
             onChange={(e) => set('name', e.target.value.toUpperCase().replace(/\s+/g, '_'))}
-            placeholder="STANDARD"
+            placeholder={t('admin.buyerSubscriptionPlans.fields.internalNamePlaceholder')}
             required
           />
         </Field>
-        <Field label="Display name" hint="Shown to buyers">
+        <Field label={t('admin.buyerSubscriptionPlans.fields.displayName')} hint={t('admin.buyerSubscriptionPlans.fields.displayNameHint')}>
           <Input
             value={form.displayName}
             onChange={(e) => set('displayName', e.target.value)}
-            placeholder="Standard"
+            placeholder={t('admin.buyerSubscriptionPlans.fields.displayNamePlaceholder')}
             required
           />
         </Field>
-        <Field label="Contact view quota" hint="Max contact reveals">
+        <Field label={t('admin.buyerSubscriptionPlans.fields.contactViewQuota')} hint={t('admin.buyerSubscriptionPlans.fields.contactViewQuotaHint')}>
           <Input
             type="number"
             min={1}
@@ -130,7 +132,7 @@ function PlanForm({
             required
           />
         </Field>
-        <Field label="Price (₹)" hint="0 for free plans">
+        <Field label={t('admin.buyerSubscriptionPlans.fields.price')} hint={t('admin.buyerSubscriptionPlans.fields.priceHint')}>
           <Input
             type="number"
             min={0}
@@ -140,7 +142,7 @@ function PlanForm({
             required
           />
         </Field>
-        <Field label="Duration (days)" hint="Ignored if indefinite">
+        <Field label={t('admin.buyerSubscriptionPlans.fields.duration')} hint={t('admin.buyerSubscriptionPlans.fields.durationHint')}>
           <Input
             type="number"
             min={1}
@@ -150,7 +152,7 @@ function PlanForm({
             disabled={form.indefinite}
           />
         </Field>
-        <Field label="Sort order" hint="Lower = shown first">
+        <Field label={t('admin.buyerSubscriptionPlans.fields.sortOrder')} hint={t('admin.buyerSubscriptionPlans.fields.sortOrderHint')}>
           <Input
             type="number"
             min={0}
@@ -166,7 +168,7 @@ function PlanForm({
               onChange={(e) => set('indefinite', e.target.checked)}
               className="h-4 w-4 rounded border-navy/20 accent-accent"
             />
-            Indefinite (no expiry)
+            {t('admin.buyerSubscriptionPlans.fields.indefinite')}
           </label>
           <label className="flex cursor-pointer items-center gap-2.5 text-sm text-navy">
             <input
@@ -175,7 +177,7 @@ function PlanForm({
               onChange={(e) => set('isActive', e.target.checked)}
               className="h-4 w-4 rounded border-navy/20 accent-accent"
             />
-            Active (visible to buyers)
+            {t('admin.buyerSubscriptionPlans.fields.activeCheckbox')}
           </label>
         </div>
         <div className="flex flex-col gap-3 pt-5">
@@ -186,7 +188,7 @@ function PlanForm({
               onChange={(e) => set('isFree', e.target.checked)}
               className="h-4 w-4 rounded border-navy/20 accent-accent"
             />
-            Free plan (no payment required)
+            {t('admin.buyerSubscriptionPlans.fields.freePlan')}
           </label>
           <label className="flex cursor-pointer items-center gap-2.5 text-sm text-navy">
             <input
@@ -195,25 +197,25 @@ function PlanForm({
               onChange={(e) => set('isDefault', e.target.checked)}
               className="h-4 w-4 rounded border-navy/20 accent-accent"
             />
-            Default plan (auto-assigned to new buyers)
+            {t('admin.buyerSubscriptionPlans.fields.defaultPlan')}
           </label>
         </div>
       </div>
-      <Field label="Description (optional)">
+      <Field label={t('admin.buyerSubscriptionPlans.fields.descriptionOptional')}>
         <Textarea
           rows={2}
           value={form.description}
           onChange={(e) => set('description', e.target.value)}
-          placeholder="Short description shown to buyers"
+          placeholder={t('admin.buyerSubscriptionPlans.fields.descriptionPlaceholder')}
         />
       </Field>
       <div className="flex gap-3">
         <Button type="submit" disabled={!valid || submitting}>
-          {submitting ? 'Saving...' : submitLabel}
+          {submitting ? t('admin.buyerSubscriptionPlans.saving') : submitLabel}
         </Button>
         {onCancel && (
           <Button type="button" variant="ghost" onClick={onCancel}>
-            Cancel
+            {t('common:common.button.cancel')}
           </Button>
         )}
       </div>
@@ -243,6 +245,7 @@ function PlanRow({
   plan: BuyerSubscriptionPlanDto;
   onChanged: () => void;
 }) {
+  const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -254,14 +257,14 @@ function PlanRow({
   };
 
   const remove = async () => {
-    if (!confirm(`Delete "${plan.displayName}" plan? This cannot be undone.`)) return;
+    if (!confirm(t('admin.buyerSubscriptionPlans.deleteConfirm', { name: plan.displayName }))) return;
     setDeleting(true);
     setError(null);
     try {
       await api.delete(`/buyer-subscription-plans/${plan.id}`);
       onChanged();
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not delete this plan.'));
+      setError(apiErrorMessage(err, t('admin.buyerSubscriptionPlans.deleteError')));
       setDeleting(false);
     }
   };
@@ -269,13 +272,13 @@ function PlanRow({
   if (editing) {
     return (
       <div className="border-t border-navy/10 p-5">
-        <p className="mb-4 font-semibold text-navy">Editing: {plan.displayName}</p>
+        <p className="mb-4 font-semibold text-navy">{t('admin.buyerSubscriptionPlans.editing', { name: plan.displayName })}</p>
         {error && <div className="mb-3"><ErrorBanner message={error} /></div>}
         <PlanForm
           initial={planToForm(plan)}
           onSave={save}
           onCancel={() => setEditing(false)}
-          submitLabel="Save changes"
+          submitLabel={t('admin.buyerSubscriptionPlans.saveChanges')}
         />
       </div>
     );
@@ -288,18 +291,18 @@ function PlanRow({
           <p className="font-semibold text-navy">{plan.displayName}</p>
           {plan.isDefault && (
             <span className="rounded-full bg-forest-bg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-forest">
-              Default
+              {t('admin.buyerSubscriptionPlans.default')}
             </span>
           )}
         </div>
         <p className="mt-0.5 font-mono text-[10.5px] text-navy/40">{plan.name}</p>
         {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
       </td>
-      <td className="px-5 py-4 text-navy/65">{plan.contactViewQuota} views</td>
+      <td className="px-5 py-4 text-navy/65">{t('admin.buyerSubscriptionPlans.viewsCount', { count: plan.contactViewQuota })}</td>
       <td className="px-5 py-4 text-navy/65">
-        {plan.isFree ? 'Free' : formatInr(plan.priceInr)}
+        {plan.isFree ? t('admin.buyerSubscriptionPlans.free') : formatInr(plan.priceInr)}
       </td>
-      <td className="px-5 py-4 text-navy/65">{plan.durationDays ? `${plan.durationDays} days` : 'Indefinite'}</td>
+      <td className="px-5 py-4 text-navy/65">{plan.durationDays ? t('admin.buyerSubscriptionPlans.daysCount', { count: plan.durationDays }) : t('admin.buyerSubscriptionPlans.indefinite')}</td>
       <td className="px-5 py-4">
         <span
           className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${
@@ -308,13 +311,13 @@ function PlanRow({
               : 'bg-slate-100 text-slate-600 ring-slate-500/20'
           }`}
         >
-          {plan.isActive ? 'Active' : 'Inactive'}
+          {plan.isActive ? t('admin.buyerSubscriptionPlans.active') : t('admin.buyerSubscriptionPlans.inactive')}
         </span>
       </td>
       <td className="px-5 py-4">
         <div className="flex items-center justify-end gap-2">
           <Button variant="ghost" onClick={() => setEditing(true)}>
-            Edit
+            {t('common:common.button.edit')}
           </Button>
           <Button variant="ghost" disabled={deleting} onClick={remove}>
             <TrashIcon className="h-4 w-4 text-red-500" />
@@ -326,6 +329,7 @@ function PlanRow({
 }
 
 export function AdminBuyerSubscriptionPlans() {
+  const { t } = useTranslation();
   const [plans, setPlans] = useState<BuyerSubscriptionPlanDto[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [reload, setReload] = useState(0);
@@ -342,11 +346,11 @@ export function AdminBuyerSubscriptionPlans() {
       .catch((err) => {
         if (!cancelled) {
           setPlans([]);
-          setError(apiErrorMessage(err, 'Could not load buyer subscription plans.'));
+          setError(apiErrorMessage(err, t('admin.buyerSubscriptionPlans.loadError')));
         }
       });
     return () => { cancelled = true; };
-  }, [reload]);
+  }, [reload, t]);
 
   const createPlan = async (values: PlanFormValues) => {
     await api.post('/buyer-subscription-plans', planPayload(values));
@@ -359,15 +363,15 @@ export function AdminBuyerSubscriptionPlans() {
   return (
     <div>
       <PageHeading
-        eyebrow="Admin console"
-        title="Buyer subscription plans"
-        description="Create, edit and delete the contact-view quota tiers available to buyers. Exactly one plan must be marked default — it's auto-assigned to every new buyer."
+        eyebrow={t('admin.buyerSubscriptionPlans.eyebrow')}
+        title={t('admin.buyerSubscriptionPlans.title')}
+        description={t('admin.buyerSubscriptionPlans.description')}
       />
 
       {error && <div className="mb-5"><ErrorBanner message={error} /></div>}
       {createSuccess && (
         <div className="mb-5">
-          <SuccessBanner message="Buyer subscription plan created successfully." />
+          <SuccessBanner message={t('admin.buyerSubscriptionPlans.createSuccess')} />
         </div>
       )}
 
@@ -376,19 +380,19 @@ export function AdminBuyerSubscriptionPlans() {
         {showCreate ? (
           <Card>
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-display text-lg text-navy">New buyer plan</h2>
+              <h2 className="font-display text-lg text-navy">{t('admin.buyerSubscriptionPlans.newPlanTitle')}</h2>
             </div>
             <PlanForm
               initial={EMPTY_FORM}
               onSave={createPlan}
               onCancel={() => setShowCreate(false)}
-              submitLabel="Create plan"
+              submitLabel={t('admin.buyerSubscriptionPlans.createPlan')}
             />
           </Card>
         ) : (
           <Button onClick={() => setShowCreate(true)}>
             <PlusIcon className="h-4 w-4" />
-            New plan
+            {t('admin.buyerSubscriptionPlans.newPlan')}
           </Button>
         )}
       </div>
@@ -398,8 +402,8 @@ export function AdminBuyerSubscriptionPlans() {
         <LoadingBlock />
       ) : plans.length === 0 ? (
         <EmptyState
-          title="No buyer subscription plans yet"
-          description="Add your first plan using the button above."
+          title={t('admin.buyerSubscriptionPlans.emptyTitle')}
+          description={t('admin.buyerSubscriptionPlans.emptyDescription')}
         />
       ) : (
         <div className="overflow-hidden rounded-2xl border border-navy/10 bg-white">
@@ -407,11 +411,11 @@ export function AdminBuyerSubscriptionPlans() {
           <table className="w-full text-sm">
             <thead className="border-b border-navy/10 bg-navy/[0.02] text-left text-xs font-semibold uppercase tracking-wide text-navy/40">
               <tr>
-                <th className="px-5 py-3">Plan</th>
-                <th className="px-5 py-3">Quota</th>
-                <th className="px-5 py-3">Price</th>
-                <th className="px-5 py-3">Duration</th>
-                <th className="px-5 py-3">Status</th>
+                <th className="px-5 py-3">{t('admin.buyerSubscriptionPlans.columns.plan')}</th>
+                <th className="px-5 py-3">{t('admin.buyerSubscriptionPlans.columns.quota')}</th>
+                <th className="px-5 py-3">{t('admin.buyerSubscriptionPlans.columns.price')}</th>
+                <th className="px-5 py-3">{t('admin.buyerSubscriptionPlans.columns.duration')}</th>
+                <th className="px-5 py-3">{t('admin.buyerSubscriptionPlans.columns.status')}</th>
                 <th className="px-5 py-3" />
               </tr>
             </thead>
@@ -428,13 +432,9 @@ export function AdminBuyerSubscriptionPlans() {
       <div className="mt-8 flex items-start gap-2.5 rounded-xl border border-forest-bdr bg-forest-bg p-4 text-[13px] leading-[1.6] text-slate">
         <CheckCircleIcon className="mt-0.5 h-4 w-4 shrink-0 text-forest" />
         <div>
-          <MonoLabel>How quota enforcement works</MonoLabel>
+          <MonoLabel>{t('admin.buyerSubscriptionPlans.quotaExplainerTitle')}</MonoLabel>
           <p className="mt-1">
-            Every reveal consumes one contact view from the buyer&apos;s active subscription. The
-            quota value is <strong>snapshot at purchase time</strong> from the plan config — changing
-            a plan&apos;s quota here does not retroactively alter existing subscriptions. Deleting a
-            plan is blocked while any active subscription still references it, and the default plan
-            cannot be removed until another plan is promoted to default.
+            {t('admin.buyerSubscriptionPlans.quotaExplainerBody')}
           </p>
         </div>
       </div>

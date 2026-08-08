@@ -43,6 +43,14 @@
     overscroll-behavior: none;
   }
 
+  /* Indic script fonts, loaded on demand by lib/fonts.ts only when that locale is active */
+  :root[lang="ta"] body {
+    font-family: "Noto Sans Tamil", "Inter", ui-sans-serif, system-ui, sans-serif;
+  }
+  :root[lang="hi"] body {
+    font-family: "Noto Sans Devanagari", "Inter", ui-sans-serif, system-ui, sans-serif;
+  }
+
   /* Hide scrollbars on mobile */
   ::-webkit-scrollbar { display: none; }
   * { scrollbar-width: none; }

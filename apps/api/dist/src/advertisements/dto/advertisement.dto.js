@@ -13,6 +13,7 @@ exports.UpdateAdvertisementDto = exports.CreateAdvertisementDto = void 0;
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 const mapped_types_1 = require("@nestjs/mapped-types");
+const client_1 = require("@prisma/client");
 function toBoolean({ value }) {
     if (typeof value === 'boolean')
         return value;
@@ -28,6 +29,9 @@ class CreateAdvertisementDto {
     position;
     sortOrder;
     isActive;
+    placement;
+    startsAt;
+    endsAt;
 }
 exports.CreateAdvertisementDto = CreateAdvertisementDto;
 __decorate([
@@ -60,6 +64,21 @@ __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], CreateAdvertisementDto.prototype, "isActive", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsEnum)(client_1.AdPlacement),
+    __metadata("design:type", String)
+], CreateAdvertisementDto.prototype, "placement", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsDateString)(),
+    __metadata("design:type", String)
+], CreateAdvertisementDto.prototype, "startsAt", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsDateString)(),
+    __metadata("design:type", String)
+], CreateAdvertisementDto.prototype, "endsAt", void 0);
 class UpdateAdvertisementDto extends (0, mapped_types_1.PartialType)(CreateAdvertisementDto) {
 }
 exports.UpdateAdvertisementDto = UpdateAdvertisementDto;

@@ -1,10 +1,11 @@
 ﻿import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { ContactViewStatusDto, ListingDto, PaginatedResult } from '@machinebazaar/shared';
 import { ListingStatus, UserRole } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth-context';
-import { formatInr, formatSpecField } from '../../lib/format';
+import { formatDate, formatInr, formatSpecField } from '../../lib/format';
 import { useWishlist } from '../../lib/wishlist-context';
 import { Button, ErrorBanner, MonoLabel, Tag } from '../../components/ui';
 import { ListingCard } from '../../components/ListingCard';
@@ -24,6 +25,7 @@ import {
 } from '../../components/icons';
 
 export function ListingDetail() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, switchMode } = useAuth();
@@ -69,7 +71,7 @@ export function ListingDetail() {
         setActiveMediaId((primaryPhoto ?? data.media?.[0])?.id ?? null);
       })
       .catch((err) => {
-        if (!cancelled) setError(apiErrorMessage(err, 'This listing could not be found.'));
+        if (!cancelled) setError(apiErrorMessage(err, t('public.listingDetail.notFoundError')));
       });
     return () => {
       cancelled = true;
@@ -111,7 +113,7 @@ export function ListingDetail() {
     }
     const inBuyerMode = user.activeMode === 'BUYER' || user.role === UserRole.BUYER;
     if (!inBuyerMode) {
-      setEnquiryNotice('Only buyer accounts can enquire about a listing.');
+      setEnquiryNotice(t('public.listingDetail.onlyBuyerCanEnquire'));
       return;
     }
     setEnquiring(true);
@@ -120,7 +122,7 @@ export function ListingDetail() {
       await api.post('/enquiries', { listingId: listing.id });
       setEnquirySent(true);
     } catch (err) {
-      setEnquiryNotice(apiErrorMessage(err, 'Could not send your enquiry. Please try again.'));
+      setEnquiryNotice(apiErrorMessage(err, t('public.listingDetail.enquiryError')));
     } finally {
       setEnquiring(false);
     }
@@ -144,9 +146,9 @@ export function ListingDetail() {
     } catch (err) {
       const code = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
       if (code === 'QUOTA_EXHAUSTED') {
-        setContactError('You have used all your contact views. Upgrade your plan to view more contacts.');
+        setContactError(t('public.listingDetail.quotaExhausted'));
       } else {
-        setContactError(apiErrorMessage(err, 'Could not reveal this contact. Please try again.'));
+        setContactError(apiErrorMessage(err, t('public.listingDetail.revealContactError')));
       }
     } finally {
       setContactLoading(false);
@@ -159,7 +161,7 @@ export function ListingDetail() {
         <ErrorBanner message={error} />
         <Link to="/listings" className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-forest">
           <ArrowLeftIcon className="h-4 w-4" />
-          Back to listings
+          {t('public.listingDetail.backToListings')}
         </Link>
       </div>
     );
@@ -201,7 +203,7 @@ export function ListingDetail() {
           className="mb-6 inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-muted transition hover:text-ink"
         >
           <ArrowLeftIcon className="h-4 w-4" />
-          Back to listings
+          {t('public.listingDetail.backToListings')}
         </Link>
 
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.4fr_1fr]">
@@ -224,11 +226,11 @@ export function ListingDetail() {
                 )}
               </div>
               <div className="absolute inset-x-3.5 top-3.5 z-[2] flex items-start justify-between">
-                <Tag tone={isCertified ? 'cert' : 'uncert'}>{isCertified ? 'Certified' : 'Unverified'}</Tag>
+                <Tag tone={isCertified ? 'cert' : 'uncert'}>{isCertified ? t('public.listingDetail.certified') : t('public.listingDetail.unverified')}</Tag>
                 {video && (
                   <Tag tone="dark">
                     <PlayIcon className="h-[9px] w-[9px] fill-current stroke-none" />
-                    Video
+                    {t('public.listingDetail.video')}
                   </Tag>
                 )}
               </div>
@@ -250,7 +252,7 @@ export function ListingDetail() {
                     }`}
                   >
                     <VideoIcon className="h-4 w-4" />
-                    Running video {video.durationSeconds ? `(${video.durationSeconds}s)` : ''}
+                    {t('public.listingDetail.runningVideo')} {video.durationSeconds ? `(${video.durationSeconds}s)` : ''}
                   </button>
                 )}
                 {photos.map((photo, idx) => (
@@ -274,33 +276,33 @@ export function ListingDetail() {
             )}
 
             <div className="mt-10">
-              <MonoLabel className="text-copper">— About this machine</MonoLabel>
+              <MonoLabel className="text-copper">— {t('public.listingDetail.aboutThisMachine')}</MonoLabel>
               <p className="mt-3 whitespace-pre-line text-[14.5px] leading-[1.75] text-slate">{listing.description}</p>
             </div>
 
             <div className="mt-10">
-              <MonoLabel className="text-copper">— Specifications</MonoLabel>
+              <MonoLabel className="text-copper">— {t('public.listingDetail.specifications')}</MonoLabel>
               <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {(
                   [
-                    ['Category', listing.machineCategory],
-                    ...(listing.machineSubcategory ? [['Subcategory', listing.machineSubcategory]] : []),
-                    ['Make', listing.machineMake],
-                    ['Model', listing.machineModel],
-                    ['Year', listing.manufactureYear != null ? String(listing.manufactureYear) : 'Not available'],
+                    [t('public.listingDetail.specs.category'), listing.machineCategory],
+                    ...(listing.machineSubcategory ? [[t('public.listingDetail.specs.subcategory'), listing.machineSubcategory]] : []),
+                    [t('public.listingDetail.specs.make'), listing.machineMake],
+                    [t('public.listingDetail.specs.model'), listing.machineModel],
+                    [t('public.listingDetail.specs.year'), listing.manufactureYear != null ? String(listing.manufactureYear) : t('public.listingDetail.specs.notAvailable')],
                     [
-                      'Origin',
+                      t('public.listingDetail.specs.origin'),
                       listing.origin === 'IMPORTED'
-                        ? `Imported${listing.importedCountry ? ` (${listing.importedCountry})` : ''}`
-                        : 'Indian',
+                        ? `${t('public.listingDetail.specs.imported')}${listing.importedCountry ? ` (${listing.importedCountry})` : ''}`
+                        : t('public.listingDetail.specs.indian'),
                     ],
                     [
-                      'Running hours',
-                      listing.runningHours != null ? listing.runningHours.toLocaleString('en-IN') : 'Not available',
+                      t('public.listingDetail.specs.runningHours'),
+                      listing.runningHours != null ? listing.runningHours.toLocaleString('en-IN') : t('public.listingDetail.specs.notAvailable'),
                     ],
-                    ...(listing.conditionGrade ? [['Condition', listing.conditionGrade]] : []),
-                    ['Location', `${listing.locationCity}, ${listing.locationState}`],
-                    ['Complexity tier', listing.complexityTier],
+                    ...(listing.conditionGrade ? [[t('public.listingDetail.specs.condition'), listing.conditionGrade]] : []),
+                    [t('public.listingDetail.specs.location'), `${listing.locationCity}, ${listing.locationState}`],
+                    [t('public.listingDetail.specs.complexityTier'), listing.complexityTier],
                   ] as [string, string][]
                 ).map(([label, value]) => (
                     <div key={label} className="rounded-xl border border-dashed border-line-2 bg-white p-4">
@@ -313,7 +315,7 @@ export function ListingDetail() {
 
             {listing.catalogCategory?.specFields && listing.catalogCategory.specFields.length > 0 && (
               <div className="mt-10">
-                <MonoLabel className="text-copper">— {listing.catalogCategory.name} specifications</MonoLabel>
+                <MonoLabel className="text-copper">— {t('public.listingDetail.categorySpecifications', { category: listing.catalogCategory.name })}</MonoLabel>
                 <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {listing.catalogCategory.specFields.map((field) => {
                     const { label, value } = formatSpecField(field, listing.specs?.[field.fieldKey]);
@@ -332,7 +334,12 @@ export function ListingDetail() {
           <aside className="space-y-5 lg:sticky lg:top-24 lg:self-start">
             <div className="rounded-[14px] border border-line bg-white p-6">
               <div className="flex items-center justify-between">
-                <Tag tone={isCertified ? 'cert' : 'uncert'}>{isCertified ? 'Certified' : 'Unverified'}</Tag>
+                <div className="flex items-center gap-1.5">
+                  <Tag tone={isCertified ? 'cert' : 'uncert'}>{isCertified ? t('public.listingDetail.certified') : t('public.listingDetail.unverified')}</Tag>
+                  <Tag tone={listing.condition === 'NEW' ? 'dark' : 'neutral'}>
+                    {listing.condition === 'NEW' ? t('common:listing.conditionNew') : t('common:listing.conditionOld')}
+                  </Tag>
+                </div>
                 <span className="font-mono text-[10.5px] font-semibold tracking-[0.04em] text-muted">{shortId}</span>
               </div>
               <h1 className="mt-3.5 font-display text-2xl font-medium leading-[1.2] tracking-[-0.4px] text-ink">
@@ -342,9 +349,14 @@ export function ListingDetail() {
                 <MapPinIcon className="h-3.5 w-3.5" />
                 {listing.locationCity}, {listing.locationState}
               </p>
+              <p className="mt-1 font-mono text-[11px] font-medium text-muted">
+                {t('common:listing.posted', { date: formatDate(listing.postedAt ?? listing.createdAt) })}
+                {' · '}
+                {t('common:listing.views', { count: listing.viewCount })}
+              </p>
 
               <div className="mt-5 border-t border-line pt-5">
-                <MonoLabel>Asking price</MonoLabel>
+                <MonoLabel>{t('public.listingDetail.askingPrice')}</MonoLabel>
                 <p className="mt-1 font-display text-[34px] font-medium leading-none tracking-[-0.5px] text-ink">
                   {formatInr(listing.askingPrice)}
                 </p>
@@ -354,13 +366,13 @@ export function ListingDetail() {
                 <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-forest-bdr bg-forest-bg p-4 text-[13px] leading-[1.6] text-slate">
                   <CheckCircleIcon className="mt-0.5 h-4 w-4 shrink-0 text-forest" />
                   <p>
-                    Your interest has been sent — our team will be in touch, and the seller has been notified.
+                    {t('public.listingDetail.enquirySentMessage')}
                   </p>
                 </div>
               ) : (
                 <Button onClick={sendEnquiry} disabled={enquiring} className="mt-6 w-full">
                   <ChatIcon className="h-4 w-4" />
-                  {enquiring ? 'Sending...' : 'Show interest'}
+                  {enquiring ? t('public.listingDetail.sending') : t('public.listingDetail.showInterest')}
                 </Button>
               )}
 
@@ -368,12 +380,12 @@ export function ListingDetail() {
                 <>
                   <Button onClick={toggleSave} variant="ghost" className="mt-3 w-full">
                     {saved ? <CheckCircleIcon className="h-4 w-4 text-forest" /> : <PlusIcon className="h-4 w-4" />}
-                    {saved ? 'Saved to your list' : 'Save this listing'}
+                    {saved ? t('public.listingDetail.savedToList') : t('public.listingDetail.saveThisListing')}
                   </Button>
                   <Link to={`/buyer/loans/new?listingId=${listing.id}`}>
                     <Button variant="ghost" className="mt-3 w-full">
                       <RupeeIcon className="h-4 w-4" />
-                      Apply for financing
+                      {t('public.listingDetail.applyForFinancing')}
                     </Button>
                   </Link>
                 </>
@@ -384,14 +396,14 @@ export function ListingDetail() {
               <div className="mt-5 flex items-start gap-2.5 rounded-xl border border-forest-bdr bg-forest-bg p-4 text-[13px] leading-[1.6] text-slate">
                 <ShieldCheckIcon className="mt-0.5 h-4 w-4 shrink-0 text-forest" />
                 <p>
-                  Clicking &quot;Show interest&quot; sends your details to our team and a brief notice to the seller.
+                  {t('public.listingDetail.showInterestNotice')}
                 </p>
               </div>
             </div>
 
             {/* Contact Reveal Panel */}
             <div className="rounded-[14px] border border-line bg-white p-6">
-              <MonoLabel className="text-copper">— Seller contact</MonoLabel>
+              <MonoLabel className="text-copper">— {t('public.listingDetail.sellerContact')}</MonoLabel>
 
               {contactStatus?.contact ? (
                 <div className="mt-4 space-y-2">
@@ -407,18 +419,16 @@ export function ListingDetail() {
                     </div>
                   </div>
                   <p className="text-[11.5px] text-muted">
-                    {contactStatus.quotaRemaining} of {contactStatus.quotaTotal} contact views remaining
+                    {t('public.listingDetail.quotaRemaining', { remaining: contactStatus.quotaRemaining, total: contactStatus.quotaTotal })}
                   </p>
                 </div>
               ) : isBuyerMode ? (
                 <div className="mt-4">
                   <p className="text-[13px] leading-[1.6] text-muted">
-                    Reveal this seller&apos;s phone number and address using one of your contact
-                    views.
+                    {t('public.listingDetail.revealBody')}
                     {contactStatus && (
                       <>
-                        {' '}You have <span className="font-semibold text-ink">{contactStatus.quotaRemaining}</span> of{' '}
-                        {contactStatus.quotaTotal} views remaining.
+                        {' '}{t('public.listingDetail.revealBodyQuota', { remaining: contactStatus.quotaRemaining, total: contactStatus.quotaTotal })}
                       </>
                     )}
                   </p>
@@ -433,7 +443,7 @@ export function ListingDetail() {
                     disabled={contactLoading}
                   >
                     <RupeeIcon className="h-4 w-4" />
-                    {contactLoading ? 'Revealing...' : 'View contact'}
+                    {contactLoading ? t('public.listingDetail.revealing') : t('public.listingDetail.viewContact')}
                   </Button>
                 </div>
               ) : !user ? (
@@ -445,9 +455,9 @@ export function ListingDetail() {
                         className="font-semibold text-forest hover:underline"
                         onClick={() => navigate('/login', { state: { from: { pathname: `/listings/${listing.id}` } } })}
                       >
-                        Sign in
+                        {t('public.listingDetail.signIn')}
                       </button>{' '}
-                      to view the seller&apos;s contact details using your contact-view quota.
+                      {t('public.listingDetail.toViewSellerContactQuota')}
                     </p>
                   </div>
                 </div>
@@ -455,7 +465,7 @@ export function ListingDetail() {
                 <div className="mt-4">
                   <div className="rounded-xl border border-dashed border-line-2 bg-paper p-4 text-center">
                     <p className="text-[13px] text-muted">
-                      You&apos;re currently in seller mode.{' '}
+                      {t('public.listingDetail.sellerModeNotice')}{' '}
                       <button
                         type="button"
                         className="font-semibold text-forest hover:underline disabled:opacity-60"
@@ -469,9 +479,9 @@ export function ListingDetail() {
                           }
                         }}
                       >
-                        {modeSwitching ? 'Switching...' : 'Switch to buyer mode'}
+                        {modeSwitching ? t('public.listingDetail.switching') : t('public.listingDetail.switchToBuyerMode')}
                       </button>{' '}
-                      to view the seller&apos;s contact details.
+                      {t('public.listingDetail.toViewSellerContact')}
                     </p>
                   </div>
                 </div>
@@ -482,14 +492,14 @@ export function ListingDetail() {
 
         {related === null ? (
           <div className="mt-14">
-            <MonoLabel className="text-copper">— Similar machines</MonoLabel>
+            <MonoLabel className="text-copper">— {t('public.listingDetail.similarMachines')}</MonoLabel>
             <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-2 sm:gap-5 xl:grid-cols-4">
               <ListingGridSkeleton count={4} />
             </div>
           </div>
         ) : related.length > 0 ? (
           <div className="mt-14">
-            <MonoLabel className="text-copper">— Similar machines</MonoLabel>
+            <MonoLabel className="text-copper">— {t('public.listingDetail.similarMachines')}</MonoLabel>
             <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-2 sm:gap-5 xl:grid-cols-4">
               {related.map((item) => (
                 <ListingCard key={item.id} listing={item} />

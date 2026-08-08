@@ -1,4 +1,5 @@
 import { Listing, ListingMedia, Prisma } from '@prisma/client';
+import type { AuthenticatedUser } from '../auth/types/jwt-payload.interface';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
@@ -68,6 +69,7 @@ export declare class ListingsService {
             importedCountry: string | null;
             askingPrice: Prisma.Decimal;
             complexityTier: import("@prisma/client").$Enums.ComplexityTier;
+            condition: import("@prisma/client").$Enums.ListingCondition;
             catalogCategoryId: string | null;
             specs: Prisma.JsonValue | null;
             conditionGrade: string | null;
@@ -77,14 +79,17 @@ export declare class ListingsService {
             subcategoryId: string | null;
             isBoosted: boolean;
             boostExpiresAt: Date | null;
+            postedAt: Date | null;
+            viewCount: number;
         })[];
         total: number;
         page: number;
         pageSize: number;
     }>;
-    findPublicById(listingId: string): Promise<Listing & {
+    findPublicById(listingId: string, viewer?: AuthenticatedUser, ip?: string): Promise<Listing & {
         media: ListingMedia[];
     }>;
+    private recordView;
     findAnyById(listingId: string): Promise<{
         media: {
             id: string;
@@ -157,6 +162,7 @@ export declare class ListingsService {
         importedCountry: string | null;
         askingPrice: Prisma.Decimal;
         complexityTier: import("@prisma/client").$Enums.ComplexityTier;
+        condition: import("@prisma/client").$Enums.ListingCondition;
         catalogCategoryId: string | null;
         specs: Prisma.JsonValue | null;
         conditionGrade: string | null;
@@ -166,6 +172,8 @@ export declare class ListingsService {
         subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
+        postedAt: Date | null;
+        viewCount: number;
     }>;
     adminList(query: AdminQueryListingsDto): Promise<{
         items: ({
@@ -205,6 +213,7 @@ export declare class ListingsService {
             importedCountry: string | null;
             askingPrice: Prisma.Decimal;
             complexityTier: import("@prisma/client").$Enums.ComplexityTier;
+            condition: import("@prisma/client").$Enums.ListingCondition;
             catalogCategoryId: string | null;
             specs: Prisma.JsonValue | null;
             conditionGrade: string | null;
@@ -214,6 +223,8 @@ export declare class ListingsService {
             subcategoryId: string | null;
             isBoosted: boolean;
             boostExpiresAt: Date | null;
+            postedAt: Date | null;
+            viewCount: number;
         })[];
         total: number;
         page: number;

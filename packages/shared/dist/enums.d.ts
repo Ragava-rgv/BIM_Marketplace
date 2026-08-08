@@ -26,6 +26,10 @@ export declare enum ListingOrigin {
     INDIAN = "INDIAN",
     IMPORTED = "IMPORTED"
 }
+export declare enum ListingCondition {
+    OLD = "OLD",
+    NEW = "NEW"
+}
 export declare enum MediaType {
     PHOTO = "PHOTO",
     VIDEO = "VIDEO"
@@ -87,6 +91,21 @@ export declare enum SpecFilterType {
     range = "range",
     exact = "exact",
     none = "none"
+}
+export declare enum SupportedLanguage {
+    EN = "EN",
+    TA = "TA",
+    HI = "HI"
+}
+/** Data-driven language switcher source of truth — add a new entry here (+ locale JSON pair) to support another language. */
+export declare const LANGUAGE_OPTIONS: {
+    code: SupportedLanguage;
+    glyph: string;
+    nativeLabel: string;
+}[];
+export declare enum AdPlacement {
+    IN_GRID = "IN_GRID",
+    HOME_BANNER = "HOME_BANNER"
 }
 /** Commission split: 2% total, 1% buyer + 1% seller (non-negotiable, see project_spec.md §8.6) */
 export declare const BUYER_COMMISSION_RATE = 0.01;

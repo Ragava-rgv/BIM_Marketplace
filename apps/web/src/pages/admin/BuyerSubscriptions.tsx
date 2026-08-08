@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { BuyerSubscriptionDto, PaginatedResult } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import {
@@ -24,6 +25,7 @@ function AdjustQuotaModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useTranslation();
   const [delta, setDelta] = useState('0');
   const [reason, setReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -44,20 +46,20 @@ function AdjustQuotaModal({
       });
       onSaved();
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not adjust quota.'));
+      setError(apiErrorMessage(err, t('admin.buyerSubscriptions.adjustError')));
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <Modal open onClose={onClose} title={`Adjust quota — ${subscription.buyer?.fullName ?? 'Buyer'}`}>
+    <Modal open onClose={onClose} title={t('admin.buyerSubscriptions.adjustQuotaTitle', { buyer: subscription.buyer?.fullName ?? t('admin.buyerSubscriptions.buyerFallback') })}>
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && <ErrorBanner message={error} />}
         <p className="text-sm text-navy/60">
-          Current quota: <strong>{subscription.quotaUsed} / {subscription.quotaTotal}</strong> used.
+          {t('admin.buyerSubscriptions.currentQuotaPrefix')} <strong>{t('admin.buyerSubscriptions.quotaUsedOf', { used: subscription.quotaUsed, total: subscription.quotaTotal })}</strong> {t('admin.buyerSubscriptions.used')}
         </p>
-        <Field label="Adjustment" hint="Positive to grant more views, negative to reduce (e.g. -5 or 10)">
+        <Field label={t('admin.buyerSubscriptions.fields.adjustment')} hint={t('admin.buyerSubscriptions.fields.adjustmentHint')}>
           <Input
             type="number"
             value={delta}
@@ -66,26 +68,26 @@ function AdjustQuotaModal({
           />
         </Field>
         <p className="text-[12.5px] text-navy/55">
-          New quota total will be <strong>{newTotal}</strong>
+          {t('admin.buyerSubscriptions.newQuotaTotalPrefix')} <strong>{newTotal}</strong>
           {newTotal < subscription.quotaUsed && (
-            <span className="text-red-600"> — cannot be less than views already used ({subscription.quotaUsed})</span>
+            <span className="text-red-600"> {t('admin.buyerSubscriptions.cannotBeLessThanUsed', { used: subscription.quotaUsed })}</span>
           )}
         </p>
-        <Field label="Reason" hint="Required — recorded in the audit trail">
+        <Field label={t('admin.buyerSubscriptions.fields.reason')} hint={t('admin.buyerSubscriptions.fields.reasonHint')}>
           <Textarea
             rows={2}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="e.g. Compensation for a support issue"
+            placeholder={t('admin.buyerSubscriptions.fields.reasonPlaceholder')}
             required
           />
         </Field>
         <div className="flex gap-3">
           <Button type="submit" disabled={!valid || submitting}>
-            {submitting ? 'Saving...' : 'Apply adjustment'}
+            {submitting ? t('admin.buyerSubscriptions.saving') : t('admin.buyerSubscriptions.applyAdjustment')}
           </Button>
           <Button type="button" variant="ghost" onClick={onClose}>
-            Cancel
+            {t('common:common.button.cancel')}
           </Button>
         </div>
       </form>
@@ -94,6 +96,7 @@ function AdjustQuotaModal({
 }
 
 export function AdminBuyerSubscriptions() {
+  const { t } = useTranslation();
   const [result, setResult] = useState<PaginatedResult<BuyerSubscriptionDto> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
@@ -110,25 +113,25 @@ export function AdminBuyerSubscriptions() {
       })
       .then(({ data }) => { if (!cancelled) setResult(data); })
       .catch((err) => {
-        if (!cancelled) setError(apiErrorMessage(err, 'Could not load buyer subscriptions.'));
+        if (!cancelled) setError(apiErrorMessage(err, t('admin.buyerSubscriptions.loadError')));
       });
     return () => { cancelled = true; };
-  }, [search, page, reload]);
+  }, [search, page, reload, t]);
 
   const totalPages = result ? Math.max(1, Math.ceil(result.total / result.pageSize)) : 1;
 
   return (
     <div>
       <PageHeading
-        eyebrow="Admin console"
-        title="Buyer subscriptions"
-        description="View every buyer's contact-view quota and usage. Manually adjust quota with a required reason for the audit trail."
+        eyebrow={t('admin.buyerSubscriptions.eyebrow')}
+        title={t('admin.buyerSubscriptions.title')}
+        description={t('admin.buyerSubscriptions.description')}
       />
 
       {error && <div className="mb-5"><ErrorBanner message={error} /></div>}
       {saveSuccess && (
         <div className="mb-5">
-          <SuccessBanner message="Quota adjusted successfully." />
+          <SuccessBanner message={t('admin.buyerSubscriptions.adjustSuccess')} />
         </div>
       )}
 
@@ -136,7 +139,7 @@ export function AdminBuyerSubscriptions() {
         <div className="relative">
           <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
           <Input
-            placeholder="Search by name, email, or phone"
+            placeholder={t('admin.buyerSubscriptions.searchPlaceholder')}
             className="pl-9"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
@@ -147,7 +150,7 @@ export function AdminBuyerSubscriptions() {
       {result === null ? (
         <LoadingBlock />
       ) : result.items.length === 0 ? (
-        <EmptyState title="No buyer subscriptions found" description="Try a different search." />
+        <EmptyState title={t('admin.buyerSubscriptions.emptyTitle')} description={t('admin.buyerSubscriptions.emptyDescription')} />
       ) : (
         <>
           <div className="overflow-hidden rounded-2xl border border-navy/10 bg-white">
@@ -155,11 +158,11 @@ export function AdminBuyerSubscriptions() {
             <table className="w-full text-sm">
               <thead className="border-b border-navy/10 bg-navy/[0.02] text-left text-xs font-semibold uppercase tracking-wide text-navy/40">
                 <tr>
-                  <th className="px-5 py-3">Buyer</th>
-                  <th className="px-5 py-3">Plan</th>
-                  <th className="px-5 py-3">Quota</th>
-                  <th className="px-5 py-3">Status</th>
-                  <th className="px-5 py-3">Expires</th>
+                  <th className="px-5 py-3">{t('admin.buyerSubscriptions.columns.buyer')}</th>
+                  <th className="px-5 py-3">{t('admin.buyerSubscriptions.columns.plan')}</th>
+                  <th className="px-5 py-3">{t('admin.buyerSubscriptions.columns.quota')}</th>
+                  <th className="px-5 py-3">{t('admin.buyerSubscriptions.columns.status')}</th>
+                  <th className="px-5 py-3">{t('admin.buyerSubscriptions.columns.expires')}</th>
                   <th className="px-5 py-3" />
                 </tr>
               </thead>
@@ -182,15 +185,15 @@ export function AdminBuyerSubscriptions() {
                             : 'bg-slate-100 text-slate-600 ring-slate-500/20'
                         }`}
                       >
-                        {sub.status}
+                        {t(`common:status.subscription.${sub.status}`)}
                       </span>
                     </td>
                     <td className="px-5 py-4 text-navy/65">
-                      {sub.expiresAt ? new Date(sub.expiresAt).toLocaleDateString('en-IN') : 'Indefinite'}
+                      {sub.expiresAt ? new Date(sub.expiresAt).toLocaleDateString('en-IN') : t('admin.buyerSubscriptions.indefinite')}
                     </td>
                     <td className="px-5 py-4 text-right">
                       <Button variant="ghost" onClick={() => setAdjusting(sub)}>
-                        Adjust quota
+                        {t('admin.buyerSubscriptions.adjustQuota')}
                       </Button>
                     </td>
                   </tr>
@@ -203,13 +206,13 @@ export function AdminBuyerSubscriptions() {
           {totalPages > 1 && (
             <div className="mt-6 flex items-center justify-center gap-2">
               <Button variant="ghost" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
-                Previous
+                {t('admin.buyerSubscriptions.previous')}
               </Button>
               <span className="px-3 font-mono text-[12.5px] font-medium text-muted">
-                Page {page} of {totalPages}
+                {t('admin.buyerSubscriptions.pageOf', { page, totalPages })}
               </span>
               <Button variant="ghost" disabled={page >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>
-                Next
+                {t('common:common.button.next')}
               </Button>
             </div>
           )}

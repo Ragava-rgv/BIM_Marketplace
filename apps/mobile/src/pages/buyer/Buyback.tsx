@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { BuybackOfferDto } from '@machinebazaar/shared';
 import { BuybackStatus } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
@@ -15,6 +16,7 @@ const STATUS_STYLE: Record<string, string> = {
 };
 
 export function BuyerBuyback() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [offers, setOffers] = useState<BuybackOfferDto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,7 +41,7 @@ export function BuyerBuyback() {
         prev.map((o) => (o.id === offerId ? { ...o, status: BuybackStatus.ACCEPTED } : o)),
       );
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not accept buyback offer. Please try again.'));
+      setError(apiErrorMessage(err, t('buyer.buyback.acceptError')));
     } finally {
       setAccepting(null);
     }
@@ -52,8 +54,8 @@ export function BuyerBuyback() {
           <ChevronRightIcon className="w-4 h-4 text-gray-500 rotate-180" />
         </button>
         <div>
-          <h1 className="text-[17px] font-extrabold text-ink tracking-[-0.3px]">Buyback Agreements</h1>
-          <p className="text-[11px] text-gray-500">{offers.length} offer{offers.length !== 1 ? 's' : ''}</p>
+          <h1 className="text-[17px] font-extrabold text-ink tracking-[-0.3px]">{t('buyer.buyback.title')}</h1>
+          <p className="text-[11px] text-gray-500">{t('buyer.buyback.offerCount', { count: offers.length })}</p>
         </div>
       </div>
 
@@ -76,10 +78,9 @@ export function BuyerBuyback() {
                 <path d="M7 8h8M7 12h5" />
               </svg>
             </div>
-            <p className="text-[14px] font-semibold text-ink mb-1">No buyback offers yet</p>
+            <p className="text-[14px] font-semibold text-ink mb-1">{t('buyer.buyback.emptyTitle')}</p>
             <p className="text-[12px] text-gray-500 max-w-xs mx-auto">
-              Buyback offers are generated after your loan is approved and machine certification
-              is completed.
+              {t('buyer.buyback.emptyDescription')}
             </p>
           </div>
         ) : (
@@ -89,7 +90,7 @@ export function BuyerBuyback() {
               <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
                 <div>
                   <p className="text-[13px] font-bold text-ink">
-                    {offer.listing?.title ?? offer.machineReference ?? 'Machine'}
+                    {offer.listing?.title ?? offer.machineReference ?? t('buyer.buyback.machineFallback')}
                   </p>
                   {offer.listing && (
                     <p className="text-[10.5px] text-gray-400 mt-0.5">
@@ -98,28 +99,28 @@ export function BuyerBuyback() {
                   )}
                 </div>
                 <span className={`text-[9.5px] font-bold px-2 py-0.5 rounded-[5px] ${STATUS_STYLE[offer.status] ?? 'bg-gray-100 text-gray-600'}`}>
-                  {offer.status}
+                  {t(`common:status.buyback.${offer.status}`)}
                 </span>
               </div>
 
               {/* Values */}
               <div className="px-4 py-3 grid grid-cols-2 gap-3 border-b border-gray-100">
                 <div>
-                  <p className="font-mono text-[9px] text-gray-400 font-semibold tracking-[0.06em] mb-0.5">OFFER AMOUNT</p>
+                  <p className="font-mono text-[9px] text-gray-400 font-semibold tracking-[0.06em] mb-0.5">{t('buyer.buyback.labels.offerAmount')}</p>
                   <p className="text-[14px] font-bold text-ink">{formatInr(offer.offerAmount)}</p>
                 </div>
                 {offer.certifiedValue && (
                   <div>
-                    <p className="font-mono text-[9px] text-gray-400 font-semibold tracking-[0.06em] mb-0.5">CERTIFIED VALUE</p>
+                    <p className="font-mono text-[9px] text-gray-400 font-semibold tracking-[0.06em] mb-0.5">{t('buyer.buyback.labels.certifiedValue')}</p>
                     <p className="text-[14px] font-bold text-ink">{formatInr(offer.certifiedValue)}</p>
                   </div>
                 )}
                 <div>
-                  <p className="font-mono text-[9px] text-gray-400 font-semibold tracking-[0.06em] mb-0.5">MACHINE AGE</p>
-                  <p className="text-[13px] font-semibold text-ink">{offer.machineAgeYears} year{offer.machineAgeYears !== 1 ? 's' : ''}</p>
+                  <p className="font-mono text-[9px] text-gray-400 font-semibold tracking-[0.06em] mb-0.5">{t('buyer.buyback.labels.machineAge')}</p>
+                  <p className="text-[13px] font-semibold text-ink">{t('buyer.buyback.years', { count: offer.machineAgeYears })}</p>
                 </div>
                 <div>
-                  <p className="font-mono text-[9px] text-gray-400 font-semibold tracking-[0.06em] mb-0.5">QUOTED ON</p>
+                  <p className="font-mono text-[9px] text-gray-400 font-semibold tracking-[0.06em] mb-0.5">{t('buyer.buyback.labels.quotedOn')}</p>
                   <p className="text-[13px] font-semibold text-ink">{formatDate(offer.createdAt)}</p>
                 </div>
               </div>
@@ -127,13 +128,13 @@ export function BuyerBuyback() {
               {/* Depreciation schedule */}
               {offer.depreciationSchedule && offer.depreciationSchedule.length > 0 && (
                 <div className="px-4 py-3 border-b border-gray-100">
-                  <p className="font-mono text-[9px] text-gray-500 font-semibold tracking-[0.06em] mb-2">DEPRECIATION SCHEDULE</p>
+                  <p className="font-mono text-[9px] text-gray-500 font-semibold tracking-[0.06em] mb-2">{t('buyer.buyback.labels.depreciationSchedule')}</p>
                   <div className="space-y-1">
                     {offer.depreciationSchedule.slice(0, 5).map((row) => (
                       <div key={row.yearOffset} className="flex items-center justify-between">
-                        <p className="text-[11px] text-gray-500">Year {row.yearOffset}</p>
+                        <p className="text-[11px] text-gray-500">{t('buyer.buyback.yearOffset', { year: row.yearOffset })}</p>
                         <div className="flex items-center gap-3">
-                          <p className="text-[11px] text-gray-500">{Number(row.retainedValuePct).toFixed(0)}% value</p>
+                          <p className="text-[11px] text-gray-500">{t('buyer.buyback.valuePercent', { pct: Number(row.retainedValuePct).toFixed(0) })}</p>
                           <p className="text-[11px] font-semibold text-ink">{formatInr(row.buybackValue)}</p>
                         </div>
                       </div>
@@ -145,15 +146,15 @@ export function BuyerBuyback() {
               {/* Agreement terms */}
               {offer.agreementTerms && (
                 <div className="px-4 py-3 border-b border-gray-100">
-                  <p className="font-mono text-[9px] text-gray-500 font-semibold tracking-[0.06em] mb-2">AGREEMENT TERMS</p>
+                  <p className="font-mono text-[9px] text-gray-500 font-semibold tracking-[0.06em] mb-2">{t('buyer.buyback.labels.agreementTerms')}</p>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-[10px] text-gray-400">Buyback window</p>
-                      <p className="text-[12px] font-semibold text-ink">{offer.agreementTerms.buybackWindowYears} year{offer.agreementTerms.buybackWindowYears !== 1 ? 's' : ''}</p>
+                      <p className="text-[10px] text-gray-400">{t('buyer.buyback.labels.buybackWindow')}</p>
+                      <p className="text-[12px] font-semibold text-ink">{t('buyer.buyback.years', { count: offer.agreementTerms.buybackWindowYears })}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] text-gray-400">Notice period</p>
-                      <p className="text-[12px] font-semibold text-ink">{offer.agreementTerms.noticePeriodDays} days</p>
+                      <p className="text-[10px] text-gray-400">{t('buyer.buyback.labels.noticePeriod')}</p>
+                      <p className="text-[12px] font-semibold text-ink">{t('buyer.buyback.days', { count: offer.agreementTerms.noticePeriodDays })}</p>
                     </div>
                   </div>
                   {offer.agreementTerms.conditions && (
@@ -172,7 +173,7 @@ export function BuyerBuyback() {
                     disabled={accepting === offer.id}
                     className="w-full h-[44px] bg-forest text-white rounded-[11px] text-[13.5px] font-bold disabled:opacity-50"
                   >
-                    {accepting === offer.id ? 'Accepting…' : 'Accept buyback agreement →'}
+                    {accepting === offer.id ? t('buyer.buyback.accepting') : t('buyer.buyback.acceptButton')}
                   </button>
                 </div>
               )}

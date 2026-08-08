@@ -1,9 +1,11 @@
 import { useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { api, apiErrorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth-context';
 
 export function Otp() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { state } = useLocation() as { state: { phone?: string } };
   const { authenticate } = useAuth();
@@ -35,7 +37,7 @@ export function Otp() {
       await authenticate(data);
       navigate('/', { replace: true });
     } catch (err) {
-      setError(apiErrorMessage(err, 'Invalid OTP. Please try again.'));
+      setError(apiErrorMessage(err, t('auth.otp.invalidOtp')));
       setDigits(['', '', '', '', '', '']);
       refs[0].current?.focus();
     } finally {
@@ -57,12 +59,12 @@ export function Otp() {
             <rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 3l-8 4 8 4" />
           </svg>
         </div>
-        <p className="text-[13px] text-white/65 text-center">OTP sent to {phone}</p>
+        <p className="text-[13px] text-white/65 text-center">{t('auth.otp.otpSentTo', { phone })}</p>
       </div>
 
       <div className="bg-white rounded-t-[24px] px-6 pt-6 pb-8" style={{ paddingBottom: `calc(env(safe-area-inset-bottom) + 24px)` }}>
-        <h2 className="text-[20px] font-extrabold text-ink tracking-[-0.4px] mb-1">Enter OTP</h2>
-        <p className="text-[13px] text-gray-500 mb-6">6-digit code sent to your number.</p>
+        <h2 className="text-[20px] font-extrabold text-ink tracking-[-0.4px] mb-1">{t('auth.otp.title')}</h2>
+        <p className="text-[13px] text-gray-500 mb-6">{t('auth.otp.subtitle')}</p>
 
         <form onSubmit={handleSubmit}>
           <div className="flex gap-2.5 justify-center mb-5">
@@ -81,13 +83,13 @@ export function Otp() {
 
           <button type="submit" disabled={loading || digits.join('').length < 6}
             className="w-full h-[52px] bg-forest text-white rounded-[13px] text-[15px] font-bold disabled:opacity-50">
-            {loading ? 'Verifying…' : 'Verify →'}
+            {loading ? t('auth.otp.verifying') : t('auth.otp.verify')}
           </button>
         </form>
 
         <button onClick={() => navigate('/login')}
           className="mt-4 w-full text-center text-[12px] text-gray-500 font-medium">
-          ← Back to phone number
+          {t('auth.otp.backToPhone')}
         </button>
       </div>
     </div>

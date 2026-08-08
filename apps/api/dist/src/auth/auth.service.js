@@ -237,6 +237,7 @@ let AuthService = class AuthService {
             locationState: user.locationState ?? null,
             activeMode: user.activeMode ?? 'BUYER',
             canSell: user.canSell ?? false,
+            preferredLanguage: user.preferredLanguage,
             createdAt: user.createdAt.toISOString(),
             updatedAt: user.updatedAt.toISOString(),
         };
@@ -264,6 +265,16 @@ let AuthService = class AuthService {
         const updated = await this.prisma.user.update({
             where: { id: userId },
             data: { activeMode: mode },
+        });
+        return this.toUserDto(updated);
+    }
+    async switchLanguage(userId, language) {
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user)
+            throw new common_1.UnauthorizedException('Account not found');
+        const updated = await this.prisma.user.update({
+            where: { id: userId },
+            data: { preferredLanguage: language },
         });
         return this.toUserDto(updated);
     }

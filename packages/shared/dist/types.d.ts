@@ -1,4 +1,4 @@
-import type { UserRole, GstStatus, ListingStatus, ComplexityTier, ListingOrigin, MediaType, EnquiryStatus, CommissionStatus, CertificationStatus, CertificationConditionGrade, LoanApplicationStatus, FinancePartnerType, BuybackStatus, SubscriptionPlan, SubscriptionStatus, SpecFieldType, SpecFilterType } from './enums';
+import type { UserRole, GstStatus, ListingStatus, ComplexityTier, ListingOrigin, MediaType, EnquiryStatus, CommissionStatus, CertificationStatus, CertificationConditionGrade, LoanApplicationStatus, FinancePartnerType, BuybackStatus, SubscriptionPlan, SubscriptionStatus, SpecFieldType, SpecFilterType, SupportedLanguage, AdPlacement, ListingCondition } from './enums';
 export interface UserDto {
     id: string;
     role: UserRole;
@@ -14,6 +14,7 @@ export interface UserDto {
     address: string | null;
     activeMode: string;
     canSell: boolean;
+    preferredLanguage: SupportedLanguage;
     createdAt: string;
     updatedAt: string;
 }
@@ -48,11 +49,14 @@ export interface ListingDto {
     catalogCategoryId: string | null;
     specs: Record<string, unknown> | null;
     conditionGrade: string | null;
+    condition: ListingCondition;
     runningHours: number | null;
     serialNumber: string | null;
     negotiable: boolean;
     isBoosted: boolean;
     boostExpiresAt: string | null;
+    postedAt: string | null;
+    viewCount: number;
     media?: ListingMediaDto[];
     seller?: {
         id: string;
@@ -115,6 +119,9 @@ export interface AdvertisementDto {
     imageUrl: string;
     linkUrl: string | null;
     position: number;
+    placement: AdPlacement;
+    startsAt: string | null;
+    endsAt: string | null;
     isActive: boolean;
     sortOrder: number;
     createdAt: string;

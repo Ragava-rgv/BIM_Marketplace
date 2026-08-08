@@ -1,0 +1,896 @@
+{
+  "onboarding": {
+    "chooseLanguage": "Choose your language"
+  },
+  "home": {
+    "indiaLabel": "INDIA",
+    "signIn": "Sign in",
+    "searchPrefix": "Search",
+    "searchPlaceholder": "machines, makes, models...",
+    "trust": {
+      "gstVerified": "840 GST verified",
+      "bankPartners": "12 bank partners",
+      "review": "24h review"
+    },
+    "filters": {
+      "all": "All",
+      "certified": "Certified",
+      "loanEligible": "Loan eligible",
+      "imported": "Imported"
+    },
+    "categoryShort": {
+      "metalworking": "Metal",
+      "sheet-metal": "Sheet Metal",
+      "plastic-rubber": "Plastic",
+      "textile": "Textile",
+      "printing": "Printing",
+      "packaging": "Packaging",
+      "pharma-chemical": "Pharma",
+      "food-processing": "Food",
+      "woodworking": "Wood",
+      "industrial-equipment": "Industrial"
+    },
+    "browseByIndustry": "Browse by industry",
+    "typesCount": "{{count}} types",
+    "recentListings": "Recent listings",
+    "moreTypes": "+ {{count}} more types",
+    "filteredLabel": "Filtered:",
+    "resultsCount": {
+      "machines": "MACHINES"
+    },
+    "sort": {
+      "latest": "Latest"
+    },
+    "empty": {
+      "title": "No machines found"
+    }
+  },
+  "listingDetail": {
+    "notFound": "Listing not found.",
+    "goBack": "Go back",
+    "removeFromWishlist": "Remove from wishlist",
+    "saveToWishlist": "Save to wishlist",
+    "previousMedia": "Previous media",
+    "nextMedia": "Next media",
+    "videoBadge": "VIDEO",
+    "badge": {
+      "certified": "CERTIFIED",
+      "unverified": "UNVERIFIED",
+      "sold": "SOLD",
+      "boosted": "BOOSTED"
+    },
+    "gstVerified": "GST verified",
+    "askingPrice": "ASKING PRICE",
+    "negotiable": "Negotiable",
+    "aboutHeading": "— ABOUT THIS MACHINE",
+    "specs": {
+      "grade": "GRADE",
+      "category": "CATEGORY",
+      "subcategory": "SUBCATEGORY",
+      "year": "YEAR",
+      "origin": "ORIGIN",
+      "runningHours": "RUNNING HOURS",
+      "location": "LOCATION"
+    },
+    "origin": {
+      "imported": "Imported",
+      "indian": "Indian"
+    },
+    "institutionalTrust": "INSTITUTIONAL TRUST",
+    "trustBody": "All deals go through admin review. Contacts released only after commission is confirmed.",
+    "sellerContactHeading": "— SELLER CONTACT",
+    "contact": {
+      "viewsRemaining": "{{quotaRemaining}} of {{quotaTotal}} contact views remaining",
+      "revealPrompt": "Reveal this seller's phone number and address using one of your contact views.",
+      "remainingPrefix": "You have",
+      "remainingSuffix": "of {{quotaTotal}} views remaining.",
+      "revealing": "Revealing...",
+      "viewContact": "View contact",
+      "signInSuffix": "to view seller contact using your contact-view quota.",
+      "sellerModeNotice": "You're currently in seller mode.",
+      "switching": "Switching...",
+      "switchToBuyer": "Switch to buyer mode",
+      "sellerModeSuffix": "to view the seller's contact details.",
+      "quotaExhausted": "You have used all your contact views. Upgrade your plan to view more contacts.",
+      "revealError": "Could not reveal this contact. Please try again."
+    },
+    "applyLoan": "Apply loan",
+    "machineSold": "This machine has been sold",
+    "interestSent": "Interest sent!",
+    "sending": "Sending...",
+    "enquire": "Enquire"
+  },
+  "components": {
+    "listingCard": {
+      "removeFromWishlist": "Remove from wishlist",
+      "saveToWishlist": "Save to wishlist",
+      "videoBadge": "VIDEO",
+      "soldBadge": "SOLD",
+      "certifiedBadge": "CERTIFIED",
+      "unverifiedBadge": "UNVERIFIED",
+      "boostedBadge": "BOOSTED",
+      "gstLabel": "GST",
+      "askingLabel": "ASKING",
+      "enquireButton": "Enquire"
+    },
+    "boostSheet": {
+      "loadError": "Could not load boost options.",
+      "paymentFailedError": "Payment failed. Please try again.",
+      "title": "Boost this listing",
+      "close": "Close",
+      "boostedNoticePrefix": "This listing is currently",
+      "boostedWord": "boosted",
+      "boostedNoticeMiddle": ", sorting above non-boosted listings until",
+      "boostedNoticeSuffix": ". Purchasing another tier below will extend it.",
+      "successMessage": "Boost activated — this listing now sorts above non-boosted listings.",
+      "days": "days",
+      "processing": "Processing...",
+      "noPlansAvailable": "No boost tiers are currently available.",
+      "razorpayDescription": "{{planName}} — boost this listing for {{days}} days"
+    },
+    "bottomNav": {
+      "home": "Home",
+      "search": "Search",
+      "enquiries": "Enquiries",
+      "switchAccountError": "Could not switch account. Please try again.",
+      "gstRequiredTitle": "GST verification required",
+      "gstRequiredBody": "To sell on BIM, your GST must be verified and active. Complete GST verification first — it only takes a few minutes.",
+      "currentStatus": "Current status:",
+      "verifyGstNow": "Verify GST now →",
+      "gstActiveBadge": "GST ACTIVE",
+      "switchTitle": "Switch to seller account?",
+      "switchBodyPrefix": "Your GST is verified. Switch your account to",
+      "switchBodySuffix": "to start listing machines. You'll be redirected to your seller dashboard.",
+      "switchBullets": {
+        "dataKept": "Your existing data, GST and profile are kept",
+        "listImmediately": "You can list machines immediately after switching",
+        "cannotReverse": "This action cannot be reversed from the app"
+      },
+      "switching": "Switching account…",
+      "switchConfirm": "Yes, switch to seller →"
+    },
+    "quotaAlertSheet": {
+      "title": "Your contact views remaining",
+      "viewedCount": "You have viewed {{used}} of {{total}} contacts",
+      "viewMoreContacts": "View more contacts"
+    }
+  },
+  "seller": {
+    "subscription": {
+      "header": {
+        "title": "Subscription",
+        "subtitle": "Manage your listing plan"
+      },
+      "error": {
+        "loadPaymentGateway": "Could not load payment gateway. Please check your connection and try again.",
+        "activationFailed": "Payment completed but activation failed. Contact support.",
+        "initiateFailed": "Could not initiate payment. Please try again."
+      },
+      "success": {
+        "planActivated": "{{planName}} plan activated successfully!"
+      },
+      "razorpayDescription": "{{planName}} subscription",
+      "currentPlan": {
+        "heading": "CURRENT PLAN",
+        "quota": "Quota",
+        "active": "Active",
+        "remaining": "Remaining",
+        "listingCount_one": "{{count}} listing",
+        "listingCount_other": "{{count}} listings",
+        "expires": "Expires {{date}}"
+      },
+      "plan": {
+        "current": "CURRENT",
+        "freeForever": "Free forever",
+        "priceDuration": "{{price}} / {{days}} days",
+        "upToListings_one": "Up to {{count}} active listing",
+        "upToListings_other": "Up to {{count}} active listings",
+        "priorityReview": "Priority admin review",
+        "featuredSearch": "Featured in search results",
+        "openingPayment": "Opening payment...",
+        "currentPlanButton": "Current plan",
+        "renewUpgrade": "Renew / Upgrade",
+        "upgradeTo": "Upgrade to {{planName}}"
+      },
+      "title": "Subscription",
+      "subtitle": "Manage your listing plan",
+      "errors": {
+        "gatewayLoadFailed": "Could not load payment gateway. Please check your connection and try again.",
+        "activationFailed": "Payment completed but activation failed. Contact support.",
+        "paymentInitFailed": "Could not initiate payment. Please try again."
+      },
+      "planActivated": "{{plan}} plan activated successfully!",
+      "currentPlanLabel": "CURRENT PLAN",
+      "stats": {
+        "quota": "Quota",
+        "active": "Active",
+        "remaining": "Remaining"
+      },
+      "quotaValue_one": "{{count}} listing",
+      "quotaValue_other": "{{count}} listings",
+      "expires": "Expires {{date}}",
+      "currentBadge": "CURRENT",
+      "freeForever": "Free forever",
+      "priceDuration": "{{price}} / {{days}} days",
+      "activeListingQuota_one": "Up to {{count}} active listing",
+      "activeListingQuota_other": "Up to {{count}} active listings",
+      "priorityReview": "Priority admin review",
+      "featuredSearch": "Featured in search results",
+      "openingPayment": "Opening payment...",
+      "currentPlanButton": "Current plan",
+      "renewOrUpgrade": "Renew / Upgrade",
+      "upgradeToPlan": "Upgrade to {{plan}}"
+    },
+    "editListing": {
+      "errors": {
+        "titleTooShort": "Title must be at least 5 characters.",
+        "categoryRequired": "Please select a machine category.",
+        "makeRequired": "Machine make is required.",
+        "modelRequired": "Machine model is required.",
+        "importedCountryRequired": "Please select the country of import.",
+        "invalidPrice": "Enter a valid asking price.",
+        "stateRequired": "Please select a state.",
+        "cityRequired": "Please select a city.",
+        "descriptionTooShort": "Description must be at least 20 characters.",
+        "fixHighlightedFields": "Please fix the highlighted fields below.",
+        "saveFailed": "Failed to save changes.",
+        "maxPhotosUploaded": "Maximum {{count}} photos already uploaded.",
+        "photoUploadFailed": "A photo failed to upload.",
+        "removePhotoFailed": "Could not remove photo.",
+        "reorderPhotosFailed": "Could not reorder photos.",
+        "setPrimaryFailed": "Could not set this photo as primary.",
+        "videoDurationReadFailed": "Could not read video duration. Please choose a different file.",
+        "videoTooShort": "Video must be at least {{min}}s long (yours is {{actual}}).",
+        "videoUploadFailed": "Video upload failed.",
+        "removeVideoFailed": "Could not remove video.",
+        "submitFailed": "Could not submit listing.",
+        "withdrawFailed": "Could not withdraw listing."
+      },
+      "notFoundTitle": "Listing not found",
+      "notFoundDescription": "This listing doesn't exist or you don't have access to it.",
+      "notFoundButton": "My Listings",
+      "tabs": {
+        "details": "Details",
+        "media": "Photos & Video"
+      },
+      "rejectedNotice": {
+        "title": "Listing was rejected",
+        "description": "Fix the issues noted by our team, update your media, then re-submit."
+      },
+      "fields": {
+        "title": "Listing title",
+        "category": "Machine category",
+        "categoryPlaceholder": "Select category…",
+        "subcategory": "Subcategory",
+        "subcategoryPlaceholder": "Select subcategory…",
+        "make": "Make",
+        "model": "Model",
+        "yearBought": "Year bought",
+        "yearBoughtHint": "Leave as Not available if unknown",
+        "origin": "Make origin",
+        "importedCountry": "Country of import",
+        "importedCountryPlaceholder": "Select country…",
+        "price": "Price (₹)",
+        "state": "State",
+        "statePlaceholder": "Select state…",
+        "city": "City",
+        "cityPlaceholder": "Select city…",
+        "description": "Description"
+      },
+      "origin": {
+        "indian": "Indian",
+        "imported": "Imported"
+      },
+      "saveSuccess": "Changes saved successfully.",
+      "saving": "Saving…",
+      "saveChanges": "Save changes",
+      "summary": {
+        "title": "Title",
+        "category": "Category",
+        "makeModel": "Make / Model",
+        "year": "Year",
+        "origin": "Origin",
+        "price": "Price",
+        "location": "Location",
+        "description": "Description"
+      },
+      "boost": {
+        "manageButton": "Manage boost",
+        "startButton": "Boost this listing"
+      },
+      "withdrawing": "Withdrawing…",
+      "withdrawListing": "Withdraw listing",
+      "withdrawConfirm": {
+        "title": "Withdraw this listing?",
+        "body": "This takes it off the marketplace immediately. Buyers won't be able to find or enquire about it until you resubmit it.",
+        "confirm": "Yes, withdraw it",
+        "cancel": "Cancel"
+      },
+      "media": {
+        "cannotChange": "Media cannot be changed while the listing is in {{status}} status.",
+        "requirementsMet": "Media requirements met",
+        "requirementsTitle": "Media requirements",
+        "photosLine": "Photos: {{count}} of {{min}}–{{max}} required",
+        "videoUploadedLine": "Video: Uploaded ({{duration}})",
+        "videoRequiredLine": "Video: 1 video ≥ {{min}}s required",
+        "machinePhotos": "Machine photos",
+        "photoAlt": "Photo {{index}}",
+        "primaryBadge": "Primary",
+        "setPrimaryAriaLabel": "Set as primary photo",
+        "moveEarlierAriaLabel": "Move photo earlier",
+        "moveLaterAriaLabel": "Move photo later",
+        "uploadingPhotos": "Uploading…",
+        "addPhotos": "Add photos",
+        "runningVideo": "Running video",
+        "videoUploaded": "Video uploaded",
+        "uploadingVideo": "Uploading video…",
+        "addVideo": "Add video (min {{min}}s)",
+        "noVideoUploaded": "No video uploaded",
+        "addMorePhotosAndVideo_one": "Add {{count}} more photo and a running video to enable submission.",
+        "addMorePhotosAndVideo_other": "Add {{count}} more photos and a running video to enable submission.",
+        "addMorePhotosOnly_one": "Add {{count}} more photo to enable submission.",
+        "addMorePhotosOnly_other": "Add {{count}} more photos to enable submission."
+      },
+      "submitting": "Submitting…",
+      "submitForReview": "Submit for Review →",
+      "viewPublicListing": "View public listing →"
+    },
+    "newListing": {
+      "stepLabels": [
+        "Details",
+        "Photos & Video",
+        "Review"
+      ],
+      "title": "New Listing",
+      "stepIndicator": "Step {{current}} of 3 — {{label}}",
+      "errors": {
+        "titleTooShort": "Title must be at least 5 characters.",
+        "categoryRequired": "Please select a machine category.",
+        "makeRequired": "Machine make is required.",
+        "modelRequired": "Machine model is required.",
+        "importedCountryRequired": "Please select the country of import.",
+        "invalidPrice": "Enter a valid asking price.",
+        "stateRequired": "Please select a state.",
+        "cityRequired": "Please select a city.",
+        "descriptionTooShort": "Description must be at least 20 characters.",
+        "specFieldRequired": "{{field}} is required.",
+        "fixHighlightedFields": "Please fix the highlighted fields below.",
+        "createFailed": "Failed to create listing. Please try again.",
+        "maxPhotosUploaded": "Maximum {{count}} photos already uploaded.",
+        "photoUploadFailed": "A photo failed to upload. Please try again.",
+        "removePhotoFailed": "Could not remove photo.",
+        "reorderPhotosFailed": "Could not reorder photos.",
+        "setPrimaryFailed": "Could not set this photo as primary.",
+        "videoDurationReadFailed": "Could not read video duration. Please choose a different file.",
+        "videoTooShort": "Video must be at least {{min}} seconds long (yours is {{actual}}).",
+        "videoUploadFailed": "Video upload failed. Please try again.",
+        "removeVideoFailed": "Could not remove video.",
+        "submitFailed": "Could not submit listing. Please try again."
+      },
+      "fields": {
+        "title": "Listing title",
+        "titleHint": "Minimum 5 characters (e.g. BFW CNC Turning Centre TC-20)",
+        "titlePlaceholder": "e.g. BFW CNC Turning Centre TC-20",
+        "category": "Machine category",
+        "categoryPlaceholder": "Select category...",
+        "subcategory": "Subcategory",
+        "subcategoryHint": "Optional — helps buyers filter",
+        "subcategoryPlaceholder": "Select subcategory...",
+        "make": "Make",
+        "makePlaceholder": "e.g. BFW",
+        "model": "Model",
+        "modelPlaceholder": "e.g. TC-20",
+        "yearBought": "Year bought",
+        "yearBoughtHint": "Leave as Not available if unknown",
+        "origin": "Make origin",
+        "importedCountry": "Country of import",
+        "importedCountryPlaceholder": "Select country…",
+        "price": "Asking price (₹)",
+        "pricePlaceholder": "18,50,000",
+        "state": "State",
+        "statePlaceholder": "Select state...",
+        "city": "City",
+        "cityHint": "Select a state first",
+        "cityPlaceholder": "Select city...",
+        "description": "Description",
+        "descriptionHint": "Minimum 20 characters — condition, accessories, reason for sale",
+        "descriptionPlaceholder": "e.g. Machine in excellent condition, all tooling included, selling due to plant upgrade. Runs smoothly with zero backlash.",
+        "descriptionCounter": "{{count}} / 20 min",
+        "runningHoursPlaceholder": "4200"
+      },
+      "origin": {
+        "indian": "Indian",
+        "imported": "Imported"
+      },
+      "specTemplate": {
+        "title": "Spec template (optional)",
+        "description": "Select to unlock spec fields specific to this machine type.",
+        "catalogCategoryLabel": "Catalog category",
+        "noneOption": "None",
+        "selectPlaceholder": "Select...",
+        "conditionGrade": "Condition grade",
+        "conditionGradeHint": "A=excellent B=good C=fair",
+        "runningHours": "Running hours",
+        "negotiable": "Negotiable"
+      },
+      "creatingDraft": "Creating draft...",
+      "nextAddMedia": "Next: Add Photos & Video →",
+      "media": {
+        "requirementsMet": "All media requirements met",
+        "requirementsTitle": "Media requirements",
+        "photosLine": "Photos: {{count}} of {{min}}–{{max}} required",
+        "videoUploadedLine": "Video: Uploaded ({{duration}})",
+        "videoRequiredLine": "Video: 1 video of at least {{min}}s required",
+        "machinePhotos": "Machine photos",
+        "photoAlt": "Photo {{index}}",
+        "primaryBadge": "Primary",
+        "setPrimaryAriaLabel": "Set as primary photo",
+        "moveEarlierAriaLabel": "Move photo earlier",
+        "moveLaterAriaLabel": "Move photo later",
+        "uploadingPhotos": "Uploading...",
+        "addPhotosNeeded": "Add photos (need {{min}}–{{max}})",
+        "addMorePhotos_one": "Add more ({{count}} remaining)",
+        "addMorePhotos_other": "Add more ({{count}} remaining)",
+        "photosHint": "All angles — front, back, sides, control panel, work area. Photos must be taken recently.",
+        "runningVideo": "Running video",
+        "videoUploaded": "Video uploaded",
+        "uploadingVideo": "Uploading video...",
+        "addVideo": "Add video (min {{min}}s)",
+        "videoHint": "Record a walkaround showing the machine actively running — at least 1 minute. Buyers use this to assess condition before enquiring."
+      },
+      "nextReview": "Next: Review & Submit →",
+      "review": {
+        "intro": "Check everything below, then submit for the BIM team to review.",
+        "labels": {
+          "title": "Title",
+          "category": "Category",
+          "makeModel": "Make / Model",
+          "year": "Year",
+          "origin": "Origin",
+          "askingPrice": "Asking price",
+          "location": "Location",
+          "media": "Media"
+        },
+        "descriptionLabel": "Description",
+        "photoCount_one": "{{count}} photo",
+        "photoCount_other": "{{count}} photos",
+        "videoWithDuration": "1 video ({{duration}})",
+        "videoNoDuration": "1 video",
+        "pendingReviewTitle": "Pending admin review",
+        "pendingReviewDescription": "Once submitted, our team will verify the listing details and photos, then approve it for buyers to browse. This usually takes 1–2 business days."
+      },
+      "submitting": "Submitting...",
+      "submitForReview": "Submit for Review →",
+      "backToMedia": "← Back to Media",
+      "success": {
+        "title": "Listing Submitted!",
+        "description": "Your listing is under review by our team. Once approved, it will be visible to buyers — usually within 1–2 business days.",
+        "viewListingsButton": "View My Listings"
+      }
+    },
+    "gstVerification": {
+      "badge": "SELLER REQUIREMENT",
+      "title": "GST Verification",
+      "statusLabel": "GST status",
+      "success": "GST verified — you can now publish listings.",
+      "error": "Could not verify that GSTIN. Please check the number and try again.",
+      "verified": {
+        "title": "GST verification complete",
+        "prefix": "Your GSTIN",
+        "suffix": "is verified and active. You can list machines and they'll be reviewed by our team before going live."
+      },
+      "createListingButton": "Create a listing →",
+      "whyTitle": "Why GST verification matters",
+      "whyItems": [
+        "Required to publish listings (sellers)",
+        "Required to apply for machine loans (buyers)",
+        "Builds trust with counterparties",
+        "Mandatory for commission-tracked transactions"
+      ],
+      "formTitle": "Enter your GSTIN",
+      "formDescription": "Sellers must have an ACTIVE GST registration to create and publish listings on BIM. Enter your GSTIN below — we'll validate it and auto-fill your business name.",
+      "gstinLabel": "GSTIN",
+      "gstinHint": "15-character GST identification number",
+      "addressLabel": "Business address",
+      "addressHint": "Shown to buyers after they view your contact details",
+      "verifying": "Verifying with Masters India...",
+      "verifyButton": "Verify GSTIN"
+    },
+    "dashboard": {
+      "greeting": "Good morning",
+      "stats": {
+        "listings": "LISTINGS",
+        "pending": "PENDING",
+        "drafts": "DRAFTS"
+      },
+      "needsAttention": "Needs your attention",
+      "listingInReview": "Listing in review",
+      "adminReviewInProgress": "Admin review in progress",
+      "listNewMachine": "List a new machine",
+      "listNewMachineHint": "5+ photos · running video required",
+      "buyerEnquiries": "Buyer enquiries",
+      "buyerEnquiriesHint": "Admin-vetted buyers waiting",
+      "yourListings": "Your listings",
+      "manageAll": "Manage all →",
+      "manage": "Manage",
+      "activePlan": "ACTIVE PLAN",
+      "expires": "Expires {{date}}"
+    },
+    "enquiries": {
+      "title": "Buyer Enquiries",
+      "subtitle": "Buyers interested in your machines",
+      "loadError": "Could not load enquiries",
+      "loadErrorHint": "Please try again later.",
+      "emptyTitle": "No enquiries yet",
+      "emptyDescription": "When buyers enquire on your listings, they'll appear here.",
+      "listMachine": "List a machine →",
+      "buyerInitialFallback": "B",
+      "buyerFallback": "Buyer",
+      "listingFallback": "Your listing",
+      "status": {
+        "NEW": "New",
+        "CLOSED": "Closed"
+      },
+      "viewListing": "View listing"
+    },
+    "listings": {
+      "title": "My Listings",
+      "totalCount": "{{count}} total",
+      "new": "New",
+      "emptyTitle": "No listings yet",
+      "emptyDescription": "List your first machine to start receiving buyer enquiries.",
+      "listMachine": "List a machine",
+      "manage": "Manage →"
+    }
+  },
+  "profile": {
+    "signInPrompt": "Sign in to your account",
+    "gstLabel": "GST {{status}}",
+    "groups": {
+      "preferences": "PREFERENCES",
+      "seller": "SELLER",
+      "buyer": "BUYER",
+      "account": "ACCOUNT"
+    },
+    "items": {
+      "language": "Language",
+      "sellerDashboard": "Seller dashboard",
+      "myListings": "My listings",
+      "enquiriesFromBuyers": "Enquiries from buyers",
+      "subscriptionPlan": "Subscription & plan",
+      "gstVerification": "GST verification",
+      "buyerDashboard": "Buyer dashboard",
+      "myEnquiries": "My enquiries",
+      "savedListings": "Saved listings",
+      "loanApplications": "Loan applications",
+      "buybackAgreements": "Buyback agreements",
+      "switchToSeller": "Switch to seller",
+      "browseAllListings": "Browse all listings"
+    }
+  },
+  "enquiries": {
+    "title": "My Enquiries",
+    "subtitle": "Machines you've shown interest in",
+    "empty": {
+      "title": "No enquiries yet",
+      "body": "Browse listings and tap \"Enquire\" to get started.",
+      "cta": "Browse machines →"
+    },
+    "fallbackTitle": "Listing",
+    "status": {
+      "NEW": "New",
+      "CLOSED": "Closed"
+    }
+  },
+  "gstVerification": {
+    "title": "GST Verification",
+    "statusLabel": "GST Status: {{status}}",
+    "notVerified": "NOT VERIFIED",
+    "why": {
+      "title": "Why GST verification matters",
+      "items": {
+        "publishListings": "Required to publish listings (sellers)",
+        "applyLoans": "Required to apply for machine loans (buyers)",
+        "buildsTrust": "Builds trust with counterparties",
+        "mandatoryCommission": "Mandatory for commission-tracked transactions"
+      }
+    },
+    "desktop": {
+      "title": "Complete verification on desktop",
+      "body": "GST verification involves a multi-step document upload process. Use the desktop site for the best experience."
+    },
+    "verified": "Your GST is verified. You're all set!"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "This page doesn't exist or has been moved.",
+    "cta": "Go to Home"
+  },
+  "search": {
+    "placeholder": "Search CNC, VMC, lathe...",
+    "prompt": "Start typing to search machines…",
+    "noResults": "No results for \"{{query}}\""
+  },
+  "auth": {
+    "login": {
+      "invalidCredentials": "Invalid mobile number or password.",
+      "tagline": "Big Industrial Machines · India's B2B marketplace",
+      "title": "Sign in",
+      "subtitle": "Enter your registered mobile number and password.",
+      "mobileNumberLabel": "Mobile number",
+      "phonePlaceholder": "98765 43210",
+      "passwordLabel": "Password",
+      "forgotPassword": "Forgot password?",
+      "signingIn": "Signing in…",
+      "signIn": "Sign in →",
+      "newToBim": "New to BIM?",
+      "createAccount": "Create account"
+    },
+    "forgotPassword": {
+      "accountNotFoundError": "Could not find an account with that mobile number.",
+      "resendError": "Could not resend the code. Please try again.",
+      "passwordMismatch": "Passwords do not match.",
+      "resetError": "That code didn't match or has expired. Please try again.",
+      "headerPrompt": "Reset your password",
+      "otpSentTo": "OTP sent to +91 {{phone}}",
+      "devHint": "Check the API console for the code.",
+      "title": "Forgot password",
+      "subtitle": "Enter your registered mobile number and we'll send a one-time code.",
+      "mobileNumberLabel": "Mobile number",
+      "phonePlaceholder": "98765 43210",
+      "sending": "Sending…",
+      "sendOtp": "Send OTP →",
+      "backToSignIn": "← Back to sign in",
+      "otpTitle": "Enter OTP & new password",
+      "otpSubtitle": "6-digit code sent to your mobile number.",
+      "oneTimeCodeLabel": "One-time code",
+      "newPasswordLabel": "New password",
+      "confirmPasswordLabel": "Confirm new password",
+      "resentNotice": "A new code has been sent.",
+      "resetting": "Resetting…",
+      "resetSubmit": "Reset password & sign in →",
+      "resendingLabel": "Resending…",
+      "resendLabel": "Didn't get a code? Resend",
+      "changeNumber": "← Change mobile number"
+    },
+    "otp": {
+      "invalidOtp": "Invalid OTP. Please try again.",
+      "otpSentTo": "OTP sent to {{phone}}",
+      "title": "Enter OTP",
+      "subtitle": "6-digit code sent to your number.",
+      "verifying": "Verifying…",
+      "verify": "Verify →",
+      "backToPhone": "← Back to phone number"
+    },
+    "signup": {
+      "createError": "Could not create account. Please check your details.",
+      "chooseRoleTitle": "Create account",
+      "chooseRoleSubtitle": "How will you use BIM?",
+      "roles": {
+        "SELLER": {
+          "title": "I want to sell machinery",
+          "body": "List your machines with verified media and admin review."
+        },
+        "BUYER": {
+          "title": "I want to buy machinery",
+          "body": "Browse listings, enquire safely, and apply for financing."
+        }
+      },
+      "alreadyHaveAccount": "Already have an account?",
+      "signInLink": "Sign in",
+      "changeAccountType": "← Change account type",
+      "accountTypeTitle": {
+        "seller": "Seller account",
+        "buyer": "Buyer account"
+      },
+      "fillDetails": "Fill in your details to get started.",
+      "fullNameLabel": "Full name",
+      "fullNamePlaceholder": "Your full name",
+      "mobileNumberLabel": "Mobile number",
+      "mobileNumberHint": "10-digit Indian mobile number",
+      "phonePlaceholder": "98765 43210",
+      "invalidPhone": "Enter a valid 10-digit number",
+      "passwordLabel": "Password",
+      "passwordHint": "At least 8 characters",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "you@business.com",
+      "stateLabel": "State",
+      "stateHint": "Select state first, then city",
+      "selectStatePlaceholder": "— Select state —",
+      "cityLabel": "City",
+      "selectCityPlaceholder": "— Select city —",
+      "creating": "Creating account...",
+      "submit": "Create account & verify →"
+    },
+    "verifyOtp": {
+      "sessionExpiredTitle": "Session expired",
+      "sessionExpiredBody": "Please start again from sign in or sign up.",
+      "backToSignIn": "Back to Sign in",
+      "invalidOtp": "Invalid OTP. Please try again.",
+      "resendError": "Could not resend OTP. Please try again.",
+      "otpSentTo": "OTP sent to +91 {{phone}}",
+      "devHint": "Check the API console for the code.",
+      "title": "Enter OTP",
+      "subtitle": "6-digit code sent to your mobile number.",
+      "resentNotice": "A new code has been sent.",
+      "verifying": "Verifying…",
+      "submit": "Verify & continue →",
+      "resendingLabel": "Resending…",
+      "resendLabel": "Didn't get a code? Resend",
+      "goBack": "← Go back"
+    }
+  },
+  "buyer": {
+    "buyback": {
+      "title": "Buyback Agreements",
+      "offerCount_one": "{{count}} offer",
+      "offerCount_other": "{{count}} offers",
+      "acceptError": "Could not accept buyback offer. Please try again.",
+      "emptyTitle": "No buyback offers yet",
+      "emptyDescription": "Buyback offers are generated after your loan is approved and machine certification is completed.",
+      "machineFallback": "Machine",
+      "labels": {
+        "offerAmount": "OFFER AMOUNT",
+        "certifiedValue": "CERTIFIED VALUE",
+        "machineAge": "MACHINE AGE",
+        "quotedOn": "QUOTED ON",
+        "depreciationSchedule": "DEPRECIATION SCHEDULE",
+        "agreementTerms": "AGREEMENT TERMS",
+        "buybackWindow": "Buyback window",
+        "noticePeriod": "Notice period"
+      },
+      "years_one": "{{count}} year",
+      "years_other": "{{count}} years",
+      "days_one": "{{count}} day",
+      "days_other": "{{count}} days",
+      "yearOffset": "Year {{year}}",
+      "valuePercent": "{{pct}}% value",
+      "accepting": "Accepting…",
+      "acceptButton": "Accept buyback agreement →"
+    },
+    "dashboard": {
+      "workspaceLabel": "Buyer workspace",
+      "gstLabel": "GST {{status}}",
+      "gstBanner": {
+        "title": "GST verification needed for financing",
+        "description": "Browsing and enquiring is open to everyone. Verify GST to apply for machine loans.",
+        "verifyButton": "Verify"
+      },
+      "stats": {
+        "saved": "Saved",
+        "enquiries": "Enquiries",
+        "loans": "Loans"
+      },
+      "actions": {
+        "browse": {
+          "title": "Browse machines",
+          "description": "Find industrial machinery across India"
+        },
+        "loan": {
+          "title": "Apply for loan",
+          "descriptionActive": "Finance a machine via our partner banks",
+          "descriptionInactive": "Requires GST verification first"
+        },
+        "saved": {
+          "title": "Saved listings",
+          "description_one": "{{count}} machine bookmarked",
+          "description_other": "{{count}} machines bookmarked"
+        }
+      },
+      "recentApplications": {
+        "title": "Recent applications",
+        "loanFallback": "Loan application"
+      },
+      "switchCta": {
+        "titleActive": "Ready to sell? Switch account",
+        "titleInactive": "Want to sell machinery?",
+        "descriptionActive": "Your GST is active. Switch to a seller account to start listing.",
+        "descriptionInactive": "Verify GST first, then switch your account to seller in one tap.",
+        "buttonActive": "Switch to seller →",
+        "buttonInactive": "Learn more →"
+      }
+    },
+    "gstVerification": {
+      "badge": "BUYER REQUIREMENT",
+      "title": "GST Verification",
+      "statusLabel": "GST status",
+      "success": "GST verified successfully — your account is now active.",
+      "error": "Could not verify that GSTIN. Please check the number and try again.",
+      "verified": {
+        "title": "GST verification complete",
+        "prefix": "Your GSTIN",
+        "suffix": "is verified and active. You can apply for machine financing through our lending partners."
+      },
+      "whyTitle": "Why GST verification matters",
+      "whyItems": [
+        "Required to apply for machine loans (buyers)",
+        "Builds trust with sellers and our team",
+        "Mandatory for commission-tracked transactions",
+        "Browsing listings does not require GST"
+      ],
+      "formTitle": "Enter your GSTIN",
+      "formDescription": "We validate your number through the Masters India API and auto-fill your business name. This only applies for loan applications — you can browse freely without GST.",
+      "gstinLabel": "GSTIN",
+      "gstinHint": "15-character GST identification number",
+      "verifying": "Verifying with Masters India…",
+      "verifyButton": "Verify GSTIN"
+    },
+    "loans": {
+      "title": "Loan Applications",
+      "applicationCount_one": "{{count}} application",
+      "applicationCount_other": "{{count}} applications",
+      "new": "New",
+      "emptyTitle": "No loan applications yet",
+      "emptyDescription": "Find a machine and apply for financing through our partner banks and NBFCs.",
+      "applyButton": "Apply for a loan",
+      "loanFallback": "Loan application",
+      "labels": {
+        "amount": "AMOUNT",
+        "routedTo": "ROUTED TO",
+        "commission": "COMMISSION"
+      },
+      "appliedOn": "Applied {{date}}"
+    },
+    "saved": {
+      "title": "Saved Listings",
+      "savedCount": "{{count}} saved",
+      "emptyTitle": "No saved listings",
+      "emptyDescription": "Bookmark listings you're interested in and find them here.",
+      "browseButton": "Browse machines",
+      "viewListing": "View listing →"
+    },
+    "newLoan": {
+      "title": "New Loan Application",
+      "subtitle": "Admin will route to the best bank/NBFC",
+      "errors": {
+        "noListing": "Please select a listing.",
+        "invalidAmount": "Enter a valid loan amount.",
+        "submitFailed": "Could not submit loan application. Please try again."
+      },
+      "gstGate": {
+        "title": "GST verification required",
+        "description": "An ACTIVE GST registration is required before submitting a loan application.",
+        "verifyButton": "Verify GST now →"
+      },
+      "fields": {
+        "listingLabel": "Machine listing",
+        "listingPlaceholder": "Select a listing…",
+        "listingIdPlaceholder": "Paste listing ID (from the listing page)",
+        "listingIdHint": "Save listings first to select from a dropdown. Or paste the listing ID here.",
+        "amountLabel": "Loan amount (₹)",
+        "amountPlaceholder": "e.g. 1500000",
+        "amountHint": "The amount you need to finance — can be up to the full asking price."
+      },
+      "info": {
+        "title": "What happens next",
+        "description": "Our admin team reviews your application, triggers a machine certification, and then routes the application to the most suitable bank or NBFC partner. You'll be notified at each step."
+      },
+      "submitting": "Submitting application…",
+      "submitButton": "Submit Application →"
+    },
+    "switchToSeller": {
+      "badge": "ACCOUNT",
+      "title": "Switch to Seller",
+      "switchError": "Could not switch account. Please try again.",
+      "gstGate": {
+        "title": "GST verification required",
+        "description": "Sellers on BIM must have an ACTIVE GST registration. Complete GST verification before switching your account."
+      },
+      "currentStatusTitle": "Current GST status",
+      "verifyHint": "Verify your GSTIN to unlock seller access. Once verified, you can switch your account and start listing machines immediately.",
+      "verifyNowButton": "Verify GST now →",
+      "backToDashboard": "Back to dashboard",
+      "gstActiveBadge": "GST ACTIVE",
+      "whatChangesTitle": "What happens when you switch",
+      "whatChangesItems": [
+        "Your account becomes a seller account",
+        "You can create listings immediately",
+        "Your GST, profile and history are kept",
+        "Buyers can enquire about your listings",
+        "This action cannot be reversed from the app"
+      ],
+      "switching": "Switching account...",
+      "confirmButton": "Yes, switch to seller →"
+    }
+  }
+}

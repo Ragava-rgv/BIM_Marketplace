@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
-import { ListingOrigin, ListingStatus } from '@prisma/client';
+import { ListingCondition, ListingOrigin, ListingStatus } from '@prisma/client';
 
 export class QueryListingsDto {
   @IsOptional()
@@ -62,6 +62,11 @@ export class QueryListingsDto {
   @IsOptional()
   @IsIn(['INDIAN', 'IMPORTED'])
   origin?: ListingOrigin;
+
+  /** Old/New filter — named distinctly from the pre-existing `condition` (A/B/C quality grade) filter above. */
+  @IsOptional()
+  @IsIn(['OLD', 'NEW'])
+  conditionType?: ListingCondition;
 
   @IsOptional()
   @IsIn(['newest', 'price_asc', 'price_desc', 'year_desc'])

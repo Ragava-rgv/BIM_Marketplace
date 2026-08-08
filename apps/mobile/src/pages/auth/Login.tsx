@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { UserRole } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth-context';
@@ -9,6 +10,7 @@ function dashboardPath(role: UserRole): string {
 }
 
 export function Login() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { authenticate } = useAuth();
 
@@ -33,7 +35,7 @@ export function Login() {
       const profile = await authenticate(data);
       navigate(dashboardPath(profile.role), { replace: true });
     } catch (err) {
-      setError(apiErrorMessage(err, 'Invalid mobile number or password.'));
+      setError(apiErrorMessage(err, t('auth.login.invalidCredentials')));
     } finally {
       setLoading(false);
     }
@@ -63,18 +65,18 @@ export function Login() {
           </svg>
         </div>
         <h1 className="text-[28px] font-extrabold text-white tracking-[-0.5px] mb-1">BIM</h1>
-        <p className="text-[13px] text-white/55 text-center">Big Industrial Machines · India's B2B marketplace</p>
+        <p className="text-[13px] text-white/55 text-center">{t('auth.login.tagline')}</p>
       </div>
 
       {/* Bottom sheet */}
       <div className="bg-white rounded-t-[24px] px-6 pt-6" style={{ paddingBottom: `calc(env(safe-area-inset-bottom) + 24px)` }}>
-        <h2 className="text-[20px] font-extrabold text-ink tracking-[-0.4px] mb-1">Sign in</h2>
-        <p className="text-[13px] text-gray-500 mb-5">Enter your registered mobile number and password.</p>
+        <h2 className="text-[20px] font-extrabold text-ink tracking-[-0.4px] mb-1">{t('auth.login.title')}</h2>
+        <p className="text-[13px] text-gray-500 mb-5">{t('auth.login.subtitle')}</p>
 
         <form onSubmit={handleSubmit} className="space-y-3">
           {/* Phone */}
           <div>
-            <label className="block text-[11.5px] font-semibold text-gray-600 mb-1">Mobile number</label>
+            <label className="block text-[11.5px] font-semibold text-gray-600 mb-1">{t('auth.login.mobileNumberLabel')}</label>
             <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-[12px] h-[52px] px-4 focus-within:border-forest focus-within:bg-white transition">
               <span className="text-[14px] font-bold text-ink flex-shrink-0">+91</span>
               <span className="w-px h-5 bg-gray-200 flex-shrink-0" />
@@ -82,7 +84,7 @@ export function Login() {
                 type="tel"
                 inputMode="numeric"
                 maxLength={10}
-                placeholder="98765 43210"
+                placeholder={t('auth.login.phonePlaceholder')}
                 value={phone}
                 onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                 className="flex-1 bg-transparent text-[15px] font-medium text-ink placeholder-gray-400 outline-none"
@@ -92,7 +94,7 @@ export function Login() {
 
           {/* Password */}
           <div>
-            <label className="block text-[11.5px] font-semibold text-gray-600 mb-1">Password</label>
+            <label className="block text-[11.5px] font-semibold text-gray-600 mb-1">{t('auth.login.passwordLabel')}</label>
             <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-[12px] h-[52px] px-4 focus-within:border-forest focus-within:bg-white transition">
               <input
                 type={showPassword ? 'text' : 'password'}
@@ -119,7 +121,7 @@ export function Login() {
             </div>
             <div className="text-right mt-1.5">
               <button type="button" onClick={() => navigate('/forgot-password')} className="text-[12.5px] font-bold text-forest">
-                Forgot password?
+                {t('auth.login.forgotPassword')}
               </button>
             </div>
           </div>
@@ -132,13 +134,13 @@ export function Login() {
 
           <button type="submit" disabled={loading || !isValid}
             className="w-full h-[52px] bg-forest text-white rounded-[13px] text-[15px] font-bold disabled:opacity-50 mt-1">
-            {loading ? 'Signing in…' : 'Sign in →'}
+            {loading ? t('auth.login.signingIn') : t('auth.login.signIn')}
           </button>
         </form>
 
         <p className="mt-4 text-center text-[12.5px] text-gray-500">
-          New to BIM?{' '}
-          <button onClick={() => navigate('/signup')} className="font-bold text-copper">Create account</button>
+          {t('auth.login.newToBim')}{' '}
+          <button onClick={() => navigate('/signup')} className="font-bold text-copper">{t('auth.login.createAccount')}</button>
         </p>
       </div>
     </div>

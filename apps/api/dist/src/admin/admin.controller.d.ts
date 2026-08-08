@@ -45,6 +45,7 @@ export declare class AdminController {
             importedCountry: string | null;
             askingPrice: import("@prisma/client/runtime/library").Decimal;
             complexityTier: import("@prisma/client").$Enums.ComplexityTier;
+            condition: import("@prisma/client").$Enums.ListingCondition;
             catalogCategoryId: string | null;
             specs: import("@prisma/client/runtime/library").JsonValue | null;
             conditionGrade: string | null;
@@ -54,6 +55,8 @@ export declare class AdminController {
             subcategoryId: string | null;
             isBoosted: boolean;
             boostExpiresAt: Date | null;
+            postedAt: Date | null;
+            viewCount: number;
         })[];
         total: number;
         page: number;
@@ -131,6 +134,7 @@ export declare class AdminController {
         importedCountry: string | null;
         askingPrice: import("@prisma/client/runtime/library").Decimal;
         complexityTier: import("@prisma/client").$Enums.ComplexityTier;
+        condition: import("@prisma/client").$Enums.ListingCondition;
         catalogCategoryId: string | null;
         specs: import("@prisma/client/runtime/library").JsonValue | null;
         conditionGrade: string | null;
@@ -140,6 +144,8 @@ export declare class AdminController {
         subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
+        postedAt: Date | null;
+        viewCount: number;
     }>;
     approveListing(id: string): Promise<{
         id: string;
@@ -160,6 +166,7 @@ export declare class AdminController {
         importedCountry: string | null;
         askingPrice: import("@prisma/client/runtime/library").Decimal;
         complexityTier: import("@prisma/client").$Enums.ComplexityTier;
+        condition: import("@prisma/client").$Enums.ListingCondition;
         catalogCategoryId: string | null;
         specs: import("@prisma/client/runtime/library").JsonValue | null;
         conditionGrade: string | null;
@@ -169,6 +176,8 @@ export declare class AdminController {
         subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
+        postedAt: Date | null;
+        viewCount: number;
     }>;
     rejectListing(id: string): Promise<{
         id: string;
@@ -189,6 +198,7 @@ export declare class AdminController {
         importedCountry: string | null;
         askingPrice: import("@prisma/client/runtime/library").Decimal;
         complexityTier: import("@prisma/client").$Enums.ComplexityTier;
+        condition: import("@prisma/client").$Enums.ListingCondition;
         catalogCategoryId: string | null;
         specs: import("@prisma/client/runtime/library").JsonValue | null;
         conditionGrade: string | null;
@@ -198,6 +208,8 @@ export declare class AdminController {
         subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
+        postedAt: Date | null;
+        viewCount: number;
     }>;
     markSoldListing(id: string): Promise<{
         id: string;
@@ -218,6 +230,7 @@ export declare class AdminController {
         importedCountry: string | null;
         askingPrice: import("@prisma/client/runtime/library").Decimal;
         complexityTier: import("@prisma/client").$Enums.ComplexityTier;
+        condition: import("@prisma/client").$Enums.ListingCondition;
         catalogCategoryId: string | null;
         specs: import("@prisma/client/runtime/library").JsonValue | null;
         conditionGrade: string | null;
@@ -227,6 +240,8 @@ export declare class AdminController {
         subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
+        postedAt: Date | null;
+        viewCount: number;
     }>;
     markInactiveListing(id: string): Promise<{
         id: string;
@@ -247,6 +262,7 @@ export declare class AdminController {
         importedCountry: string | null;
         askingPrice: import("@prisma/client/runtime/library").Decimal;
         complexityTier: import("@prisma/client").$Enums.ComplexityTier;
+        condition: import("@prisma/client").$Enums.ListingCondition;
         catalogCategoryId: string | null;
         specs: import("@prisma/client/runtime/library").JsonValue | null;
         conditionGrade: string | null;
@@ -256,6 +272,8 @@ export declare class AdminController {
         subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
+        postedAt: Date | null;
+        viewCount: number;
     }>;
     reactivateListing(id: string): Promise<{
         id: string;
@@ -276,6 +294,7 @@ export declare class AdminController {
         importedCountry: string | null;
         askingPrice: import("@prisma/client/runtime/library").Decimal;
         complexityTier: import("@prisma/client").$Enums.ComplexityTier;
+        condition: import("@prisma/client").$Enums.ListingCondition;
         catalogCategoryId: string | null;
         specs: import("@prisma/client/runtime/library").JsonValue | null;
         conditionGrade: string | null;
@@ -285,6 +304,8 @@ export declare class AdminController {
         subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
+        postedAt: Date | null;
+        viewCount: number;
     }>;
     bulkListingStatus(dto: BulkListingStatusDto): Promise<{
         succeeded: number;

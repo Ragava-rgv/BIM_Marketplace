@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { ListingDto, SellerSubscriptionDto } from '@machinebazaar/shared';
 import { api } from '../../lib/api';
 import { useAuth } from '../../lib/auth-context';
@@ -8,6 +9,7 @@ import { formatInrShort } from '../../lib/format';
 import { BellIcon, ChevronRightIcon, PlusIcon, MachineIcon } from '../../components/icons';
 
 export function SellerDashboard() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -49,15 +51,15 @@ export function SellerDashboard() {
             )}
           </button>
         </div>
-        <p className="text-[12px] text-white/65 mb-0.5">Good morning</p>
+        <p className="text-[12px] text-white/65 mb-0.5">{t('seller.dashboard.greeting')}</p>
         <p className="text-[21px] font-extrabold text-white tracking-[-0.5px] mb-3">{user?.fullName}</p>
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-[7px]">
           {[
-            ['LISTINGS', String(activeListings.length)],
-            ['PENDING', String(pendingListings.length), pendingListings.length > 0 ? '#F5A623' : undefined],
-            ['DRAFTS', String(draftListings.length)],
+            [t('seller.dashboard.stats.listings'), String(activeListings.length)],
+            [t('seller.dashboard.stats.pending'), String(pendingListings.length), pendingListings.length > 0 ? '#F5A623' : undefined],
+            [t('seller.dashboard.stats.drafts'), String(draftListings.length)],
           ].map(([k, v, accent]) => (
             <div key={k} className="bg-white/10 border border-white/15 rounded-[10px] px-[11px] py-[9px]">
               <p className="font-mono text-[8px] text-white/55 font-semibold tracking-[0.08em] mb-0.5">{k}</p>
@@ -73,7 +75,7 @@ export function SellerDashboard() {
       {/* Quick actions */}
       <div className="px-4 pt-4">
         <div className="flex items-baseline justify-between mb-[10px]">
-          <h2 className="text-[15px] font-bold text-ink tracking-[-0.2px]">Needs your attention</h2>
+          <h2 className="text-[15px] font-bold text-ink tracking-[-0.2px]">{t('seller.dashboard.needsAttention')}</h2>
         </div>
 
         <div className="space-y-2 mb-5">
@@ -87,12 +89,12 @@ export function SellerDashboard() {
               </div>
               <div className="flex-1 text-left">
                 <p className="text-[12.5px] font-bold text-ink">
-                  Listing in review
+                  {t('seller.dashboard.listingInReview')}
                   <span className="ml-1.5 font-mono text-[8.5px] font-bold text-white bg-copper px-1.5 py-0.5 rounded">
                     {pendingListings.length}
                   </span>
                 </p>
-                <p className="text-[10.5px] text-gray-500">Admin review in progress</p>
+                <p className="text-[10.5px] text-gray-500">{t('seller.dashboard.adminReviewInProgress')}</p>
               </div>
               <ChevronRightIcon className="w-[11px] h-[11px] text-gray-400" />
             </button>
@@ -104,8 +106,8 @@ export function SellerDashboard() {
               <PlusIcon className="w-4 h-4 stroke-forest stroke-[1.8px]" />
             </div>
             <div className="flex-1 text-left">
-              <p className="text-[12.5px] font-bold text-ink">List a new machine</p>
-              <p className="text-[10.5px] text-gray-500">5+ photos · running video required</p>
+              <p className="text-[12.5px] font-bold text-ink">{t('seller.dashboard.listNewMachine')}</p>
+              <p className="text-[10.5px] text-gray-500">{t('seller.dashboard.listNewMachineHint')}</p>
             </div>
             <ChevronRightIcon className="w-[11px] h-[11px] text-gray-400" />
           </button>
@@ -118,8 +120,8 @@ export function SellerDashboard() {
               </svg>
             </div>
             <div className="flex-1 text-left">
-              <p className="text-[12.5px] font-bold text-ink">Buyer enquiries</p>
-              <p className="text-[10.5px] text-gray-500">Admin-vetted buyers waiting</p>
+              <p className="text-[12.5px] font-bold text-ink">{t('seller.dashboard.buyerEnquiries')}</p>
+              <p className="text-[10.5px] text-gray-500">{t('seller.dashboard.buyerEnquiriesHint')}</p>
             </div>
             <ChevronRightIcon className="w-[11px] h-[11px] text-gray-400" />
           </button>
@@ -127,9 +129,9 @@ export function SellerDashboard() {
 
         {/* Your listings */}
         <div className="flex items-baseline justify-between mb-[10px]">
-          <h2 className="text-[15px] font-bold text-ink tracking-[-0.2px]">Your listings</h2>
+          <h2 className="text-[15px] font-bold text-ink tracking-[-0.2px]">{t('seller.dashboard.yourListings')}</h2>
           <button onClick={() => navigate('/seller/listings')}
-            className="text-[11px] font-bold text-forest-2">Manage all →</button>
+            className="text-[11px] font-bold text-forest-2">{t('seller.dashboard.manageAll')}</button>
         </div>
 
         <div className="flex flex-col gap-[10px]">
@@ -150,7 +152,7 @@ export function SellerDashboard() {
                     l.status === 'PENDING_REVIEW' ? 'bg-copper-bg text-copper' :
                     'bg-gray-100 text-gray-600'
                   }`}>
-                    {l.status.replace('_', ' ')}
+                    {t(`common:status.listing.${l.status}`)}
                   </span>
                   <p className="text-[13px] font-bold text-ink truncate">{l.title}</p>
                   <p className="font-mono text-[8.5px] text-gray-500 font-semibold mt-0.5">
@@ -161,7 +163,7 @@ export function SellerDashboard() {
               <div className="flex items-center justify-between border-t border-gray-200 bg-gray-25 px-3 py-2">
                 <p className="text-[10.5px] text-gray-500">{l.locationCity}, {l.locationState}</p>
                 <span className="text-[11px] font-semibold text-ink border border-gray-200 bg-white rounded-[7px] px-2 py-0.5">
-                  Manage
+                  {t('seller.dashboard.manage')}
                 </span>
               </div>
             </button>
@@ -171,12 +173,12 @@ export function SellerDashboard() {
         {/* Subscription status */}
         {subscription && (
           <div className="mt-5 bg-forest rounded-[13px] px-[15px] py-[13px]">
-            <p className="font-mono text-[9px] text-[#9BD8B8] font-semibold tracking-[0.1em] mb-1">ACTIVE PLAN</p>
+            <p className="font-mono text-[9px] text-[#9BD8B8] font-semibold tracking-[0.1em] mb-1">{t('seller.dashboard.activePlan')}</p>
             <p className="text-[15px] font-bold text-white mb-0.5">
-              {subscription.planConfig?.displayName ?? subscription.plan}
+              {subscription.planConfig?.displayName ?? t(`common:plan.${subscription.plan}`)}
             </p>
             <p className="text-[11px] text-white/60">
-              Expires {new Date(subscription.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+              {t('seller.dashboard.expires', { date: new Date(subscription.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) })}
             </p>
           </div>
         )}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { ListingBoostStatusDto, PromotionPlanDto, RazorpayOrderDto } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../lib/api';
 import { formatInr } from '../lib/format';
@@ -15,6 +16,7 @@ export function BoostListingModal({
   open: boolean;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const [status, setStatus] = useState<ListingBoostStatusDto | null>(null);
   const [plans, setPlans] = useState<PromotionPlanDto[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +35,7 @@ export function BoostListingModal({
         setStatus(statusRes.data);
         setPlans(plansRes.data);
       })
-      .catch((err) => setError(apiErrorMessage(err, 'Could not load boost options.')));
+      .catch((err) => setError(apiErrorMessage(err, t('components.boostListingModal.loadError'))));
   }, [open, listingId]);
 
   const purchase = async (plan: PromotionPlanDto) => {
@@ -80,7 +82,7 @@ export function BoostListingModal({
       });
     } catch (err) {
       if ((err as Error).message !== 'Payment cancelled') {
-        setError(apiErrorMessage(err, 'Payment failed. Please try again.'));
+        setError(apiErrorMessage(err, t('components.boostListingModal.paymentFailed')));
       }
     } finally {
       setPaying(null);
@@ -88,24 +90,25 @@ export function BoostListingModal({
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="Boost this listing">
+    <Modal open={open} onClose={onClose} title={t('components.boostListingModal.title')}>
       <div className="space-y-4">
         {status?.isBoosted && status.boostExpiresAt && (
           <div className="flex items-start gap-2.5 rounded-xl border border-forest-bdr bg-forest-bg p-4 text-[13px] text-slate">
             <StarIcon className="mt-0.5 h-4 w-4 shrink-0 text-forest" />
             <p>
-              This listing is currently <span className="font-semibold text-forest">boosted</span>, sorting above
-              non-boosted listings until{' '}
+              {t('components.boostListingModal.boostedNotice.prefix')}{' '}
+              <span className="font-semibold text-forest">{t('components.boostListingModal.boostedNotice.boostedWord')}</span>
+              {t('components.boostListingModal.boostedNotice.middle')}{' '}
               <span className="font-semibold text-ink">
                 {new Date(status.boostExpiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
               </span>
-              . Purchasing another tier below will extend it.
+              {t('components.boostListingModal.boostedNotice.suffix')}
             </p>
           </div>
         )}
 
         {error && <ErrorBanner message={error} />}
-        {success && <SuccessBanner message="Boost activated — this listing now sorts above non-boosted listings." />}
+        {success && <SuccessBanner message={t('components.boostListingModal.activatedSuccess')} />}
 
         <div className="space-y-2.5">
           {plans.map((plan) => (
@@ -113,16 +116,16 @@ export function BoostListingModal({
               <div>
                 <p className="font-semibold text-ink">{plan.displayName}</p>
                 <p className="mt-0.5 text-[12.5px] text-muted">
-                  {plan.durationDays} days{plan.description ? ` · ${plan.description}` : ''}
+                  {t('components.boostListingModal.durationDays', { count: plan.durationDays })}{plan.description ? ` · ${plan.description}` : ''}
                 </p>
               </div>
               <Button onClick={() => purchase(plan)} disabled={paying !== null}>
-                {paying === plan.id ? 'Processing...' : formatInr(String(plan.priceInr))}
+                {paying === plan.id ? t('components.boostListingModal.processing') : formatInr(String(plan.priceInr))}
               </Button>
             </div>
           ))}
           {plans.length === 0 && !error && (
-            <p className="text-[13px] text-muted">No boost tiers are currently available.</p>
+            <p className="text-[13px] text-muted">{t('components.boostListingModal.noTiersAvailable')}</p>
           )}
         </div>
       </div>

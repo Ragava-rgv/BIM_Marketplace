@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { CloseIcon } from './icons';
 
 export interface ActiveFilterValues {
@@ -9,6 +10,7 @@ export interface ActiveFilterValues {
   priceMax: string;
   condition: string;
   origin: string;
+  conditionType: string;
   sort: string;
 }
 
@@ -26,11 +28,6 @@ function formatLakh(value: string): string {
   return `₹${n.toLocaleString('en-IN')}`;
 }
 
-const SORT_LABELS: Record<string, string> = {
-  price_asc: 'Price: Low to High',
-  price_desc: 'Price: High to Low',
-};
-
 /** Removable pill row for all currently-active filters, plus a single "Clear all" action. */
 export function ActiveFilters({
   filters,
@@ -41,6 +38,12 @@ export function ActiveFilters({
   onClear: (keys: (keyof ActiveFilterValues)[]) => void;
   onClearAll: () => void;
 }) {
+  const { t } = useTranslation();
+  const SORT_LABELS: Record<string, string> = {
+    price_asc: t('components.filterChips.sortPriceAsc'),
+    price_desc: t('components.filterChips.sortPriceDesc'),
+  };
+
   const chips: Chip[] = [];
 
   if (filters.category) {
@@ -51,7 +54,7 @@ export function ActiveFilters({
     });
   }
   if (filters.make) {
-    chips.push({ key: 'make', label: `Make: ${filters.make}`, onRemove: () => onClear(['make']) });
+    chips.push({ key: 'make', label: t('components.filterChips.makeLabel', { make: filters.make }), onRemove: () => onClear(['make']) });
   }
   if (filters.state) {
     chips.push({ key: 'state', label: filters.state, onRemove: () => onClear(['state']) });
@@ -59,17 +62,28 @@ export function ActiveFilters({
   if (filters.priceMin || filters.priceMax) {
     const min = filters.priceMin ? formatLakh(filters.priceMin) : '';
     const max = filters.priceMax ? formatLakh(filters.priceMax) : '';
-    const label = min && max ? `${min} – ${max}` : min ? `Above ${min}` : `Under ${max}`;
+    const label = min && max
+      ? `${min} – ${max}`
+      : min
+        ? t('components.filterChips.aboveLabel', { value: min })
+        : t('components.filterChips.underLabel', { value: max });
     chips.push({ key: 'budget', label, onRemove: () => onClear(['priceMin', 'priceMax']) });
   }
   if (filters.condition) {
-    chips.push({ key: 'condition', label: `Condition: ${filters.condition}`, onRemove: () => onClear(['condition']) });
+    chips.push({ key: 'condition', label: t('components.filterChips.conditionLabel', { condition: filters.condition }), onRemove: () => onClear(['condition']) });
   }
   if (filters.origin) {
     chips.push({
       key: 'origin',
-      label: filters.origin === 'IMPORTED' ? 'Imported' : 'Indian',
+      label: filters.origin === 'IMPORTED' ? t('components.filterChips.imported') : t('components.filterChips.indian'),
       onRemove: () => onClear(['origin']),
+    });
+  }
+  if (filters.conditionType) {
+    chips.push({
+      key: 'conditionType',
+      label: filters.conditionType === 'NEW' ? t('common:listing.conditionNew') : t('common:listing.conditionOld'),
+      onRemove: () => onClear(['conditionType']),
     });
   }
   if (filters.sort && filters.sort !== 'newest') {
@@ -100,7 +114,7 @@ export function ActiveFilters({
         onClick={onClearAll}
         className="text-[12px] font-semibold text-muted hover:text-rose-600"
       >
-        Clear all
+        {t('components.filterChips.clearAll')}
       </button>
     </div>
   );

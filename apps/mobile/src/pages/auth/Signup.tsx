@@ -1,5 +1,6 @@
 ﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { UserRole } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import { INDIA_STATES, INDIA_STATES_AND_CITIES } from '../../lib/india-locations';
@@ -20,12 +21,13 @@ function Field({ label, children, hint }: { label: string; children: React.React
 
 type Role = 'BUYER' | 'SELLER';
 
-const ROLES: { role: Role; title: string; body: string; emoji: string }[] = [
-  { role: 'SELLER', title: 'I want to sell machinery', body: 'List your machines with verified media and admin review.', emoji: '🏭' },
-  { role: 'BUYER', title: 'I want to buy machinery', body: 'Browse listings, enquire safely, and apply for financing.', emoji: '🚛' },
+const ROLES: { role: Role; emoji: string }[] = [
+  { role: 'SELLER', emoji: '🏭' },
+  { role: 'BUYER', emoji: '🚛' },
 ];
 
 export function Signup() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [role, setRole] = useState<Role | null>(null);
   const [fullName, setFullName] = useState('');
@@ -66,7 +68,7 @@ export function Signup() {
       });
       navigate('/verify-otp', { state: { phone, purpose: 'SIGNUP' } });
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not create account. Please check your details.'));
+      setError(apiErrorMessage(err, t('auth.signup.createError')));
     } finally {
       setLoading(false);
     }
@@ -77,9 +79,9 @@ export function Signup() {
       <div className="min-h-screen bg-forest flex flex-col">
         <div className="flex-1 flex flex-col items-center justify-center px-6 pb-6">
           <h1 className="text-[26px] font-extrabold text-white tracking-[-0.5px] text-center mb-1">
-            Create account
+            {t('auth.signup.chooseRoleTitle')}
           </h1>
-          <p className="text-[13px] text-white/65 text-center">How will you use BIM?</p>
+          <p className="text-[13px] text-white/65 text-center">{t('auth.signup.chooseRoleSubtitle')}</p>
         </div>
 
         <div className="bg-white rounded-t-[24px] px-6 pt-6" style={{ paddingBottom: `calc(env(safe-area-inset-bottom) + 24px)` }}>
@@ -91,8 +93,8 @@ export function Signup() {
                   {opt.emoji}
                 </span>
                 <span>
-                  <span className="block text-[14.5px] font-bold text-ink tracking-[-0.2px]">{opt.title}</span>
-                  <span className="mt-0.5 block text-[12px] text-gray-500 leading-relaxed">{opt.body}</span>
+                  <span className="block text-[14.5px] font-bold text-ink tracking-[-0.2px]">{t(`auth.signup.roles.${opt.role}.title`)}</span>
+                  <span className="mt-0.5 block text-[12px] text-gray-500 leading-relaxed">{t(`auth.signup.roles.${opt.role}.body`)}</span>
                 </span>
                 <ChevronRightIcon className="w-4 h-4 text-gray-400 flex-shrink-0 mt-1.5" />
               </button>
@@ -100,8 +102,8 @@ export function Signup() {
           </div>
 
           <p className="text-center text-[12.5px] text-gray-500">
-            Already have an account?{' '}
-            <button onClick={() => navigate('/login')} className="font-bold text-forest">Sign in</button>
+            {t('auth.signup.alreadyHaveAccount')}{' '}
+            <button onClick={() => navigate('/login')} className="font-bold text-forest">{t('auth.signup.signInLink')}</button>
           </p>
         </div>
       </div>
@@ -112,35 +114,35 @@ export function Signup() {
     <div className="min-h-screen bg-forest flex flex-col">
       <div className="flex-1 flex flex-col justify-center px-6 pb-6 pt-8">
         <button onClick={() => setRole(null)} className="text-[13px] text-white/65 font-semibold mb-4 text-left">
-          ← Change account type
+          {t('auth.signup.changeAccountType')}
         </button>
         <h1 className="text-[24px] font-extrabold text-white tracking-[-0.5px]">
-          {role === UserRole.SELLER ? 'Seller account' : 'Buyer account'}
+          {role === UserRole.SELLER ? t('auth.signup.accountTypeTitle.seller') : t('auth.signup.accountTypeTitle.buyer')}
         </h1>
-        <p className="text-[13px] text-white/65 mt-1">Fill in your details to get started.</p>
+        <p className="text-[13px] text-white/65 mt-1">{t('auth.signup.fillDetails')}</p>
       </div>
 
       <div className="bg-white rounded-t-[24px] px-6 pt-6" style={{ paddingBottom: `calc(env(safe-area-inset-bottom) + 24px)` }}>
         <form onSubmit={handleSubmit} className="space-y-3">
-          <Field label="Full name">
+          <Field label={t('auth.signup.fullNameLabel')}>
             <input value={fullName} onChange={(e) => setFullName(e.target.value)}
-              placeholder="Your full name" className={inputCls} minLength={2} required />
+              placeholder={t('auth.signup.fullNamePlaceholder')} className={inputCls} minLength={2} required />
           </Field>
 
-          <Field label="Mobile number" hint="10-digit Indian mobile number">
+          <Field label={t('auth.signup.mobileNumberLabel')} hint={t('auth.signup.mobileNumberHint')}>
             <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-[12px] h-[50px] px-4 focus-within:border-forest focus-within:bg-white transition">
               <span className="text-[14px] font-bold text-ink flex-shrink-0">+91</span>
               <span className="w-px h-5 bg-gray-200 flex-shrink-0" />
-              <input type="tel" inputMode="numeric" maxLength={10} placeholder="98765 43210"
+              <input type="tel" inputMode="numeric" maxLength={10} placeholder={t('auth.signup.phonePlaceholder')}
                 value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                 className="flex-1 bg-transparent text-[14px] font-medium text-ink placeholder-gray-400 outline-none" />
             </div>
             {phone.length > 0 && phone.length < 10 && (
-              <p className="mt-1 text-[11px] text-red-500">Enter a valid 10-digit number</p>
+              <p className="mt-1 text-[11px] text-red-500">{t('auth.signup.invalidPhone')}</p>
             )}
           </Field>
 
-          <Field label="Password" hint="At least 8 characters">
+          <Field label={t('auth.signup.passwordLabel')} hint={t('auth.signup.passwordHint')}>
             <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-[12px] h-[50px] px-4 focus-within:border-forest focus-within:bg-white transition">
               <input type={showPassword ? 'text' : 'password'} placeholder="••••••••"
                 value={password} onChange={(e) => setPassword(e.target.value)}
@@ -157,28 +159,28 @@ export function Signup() {
             </div>
           </Field>
 
-          <Field label="Email address">
+          <Field label={t('auth.signup.emailLabel')}>
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@business.com" className={inputCls} required />
+              placeholder={t('auth.signup.emailPlaceholder')} className={inputCls} required />
           </Field>
 
-          <Field label="State" hint="Select state first, then city">
+          <Field label={t('auth.signup.stateLabel')} hint={t('auth.signup.stateHint')}>
             <div className="relative">
               <select value={locationState}
                 onChange={(e) => { setLocationState(e.target.value); setLocationCity(''); }}
                 className={selectCls} required>
-                <option value="">— Select state —</option>
+                <option value="">{t('auth.signup.selectStatePlaceholder')}</option>
                 {INDIA_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
               <ChevronRightIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 rotate-90 pointer-events-none" />
             </div>
           </Field>
 
-          <Field label="City">
+          <Field label={t('auth.signup.cityLabel')}>
             <div className="relative">
               <select value={locationCity} onChange={(e) => setLocationCity(e.target.value)}
                 className={selectCls} required disabled={!locationState}>
-                <option value="">— Select city —</option>
+                <option value="">{t('auth.signup.selectCityPlaceholder')}</option>
                 {cities.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
               <ChevronRightIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 rotate-90 pointer-events-none" />
@@ -193,13 +195,13 @@ export function Signup() {
 
           <button type="submit" disabled={!isValid}
             className="w-full h-[52px] bg-forest text-white rounded-[13px] text-[15px] font-bold disabled:opacity-50 !mt-4">
-            {loading ? 'Creating account...' : 'Create account & verify →'}
+            {loading ? t('auth.signup.creating') : t('auth.signup.submit')}
           </button>
         </form>
 
         <p className="mt-4 text-center text-[12.5px] text-gray-500">
-          Already have an account?{' '}
-          <button onClick={() => navigate('/login')} className="font-bold text-forest">Sign in</button>
+          {t('auth.signup.alreadyHaveAccount')}{' '}
+          <button onClick={() => navigate('/login')} className="font-bold text-forest">{t('auth.signup.signInLink')}</button>
         </p>
       </div>
     </div>

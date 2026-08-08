@@ -1,0 +1,259 @@
+{
+  "listing": {
+    "posted": "Posted {{date}}",
+    "views_one": "{{count}} view",
+    "views_other": "{{count}} views",
+    "condition": "Condition",
+    "conditionOld": "Old",
+    "conditionNew": "New",
+    "conditionRequired": "Please select the machine's condition."
+  },
+  "nav": {
+    "marketplace": "Marketplace",
+    "howItWorks": "How it works",
+    "sell": "Sell",
+    "login": "Sign in",
+    "signup": "Sign up",
+    "signOut": "Sign out",
+    "dashboard": "Dashboard",
+    "wishlist": "Wishlist",
+    "profile": "Profile",
+    "goToDashboard": "Go to dashboard"
+  },
+  "common": {
+    "button": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "submit": "Submit",
+      "search": "Search",
+      "filter": "Filter",
+      "clearFilters": "Clear filters",
+      "close": "Close",
+      "back": "Back",
+      "next": "Next",
+      "continue": "Continue",
+      "edit": "Edit",
+      "delete": "Delete",
+      "remove": "Remove",
+      "upload": "Upload",
+      "download": "Download",
+      "viewAll": "View all",
+      "loadMore": "Load more",
+      "retry": "Try again",
+      "confirm": "Confirm",
+      "apply": "Apply",
+      "reset": "Reset"
+    },
+    "label": {
+      "yes": "Yes",
+      "no": "No",
+      "optional": "Optional",
+      "required": "Required",
+      "loading": "Loading...",
+      "none": "None",
+      "notAvailable": "Not available"
+    }
+  },
+  "status": {
+    "listing": {
+      "DRAFT": "Draft",
+      "PENDING_REVIEW": "Pending review",
+      "ACTIVE": "Active",
+      "UNDER_OFFER": "Under offer",
+      "SOLD": "Sold",
+      "REJECTED": "Rejected",
+      "WITHDRAWN": "Withdrawn"
+    },
+    "gst": {
+      "UNVERIFIED": "Unverified",
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive"
+    },
+    "commission": {
+      "PENDING": "Pending",
+      "PAID": "Paid"
+    },
+    "certification": {
+      "REQUESTED": "Requested",
+      "IN_PROGRESS": "In progress",
+      "COMPLETED": "Completed",
+      "REJECTED": "Rejected"
+    },
+    "loan": {
+      "DRAFT": "Draft",
+      "SUBMITTED": "Submitted",
+      "CERT_PENDING": "Certification pending",
+      "WITH_PARTNER": "With finance partner",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected"
+    },
+    "subscription": {
+      "ACTIVE": "Active",
+      "EXPIRED": "Expired",
+      "CANCELLED": "Cancelled"
+    },
+    "buyback": {
+      "QUOTED": "Quoted",
+      "ACCEPTED": "Accepted",
+      "EXPIRED": "Expired",
+      "COMPLETED": "Completed"
+    }
+  },
+  "role": {
+    "buyer": "Buyer",
+    "seller": "Seller",
+    "admin": "Admin"
+  },
+  "plan": {
+    "FREE": "Free",
+    "STANDARD": "Standard"
+  },
+  "languageSwitcher": {
+    "title": "Language",
+    "en": { "nativeLabel": "English" },
+    "ta": { "nativeLabel": "தமிழ்" },
+    "hi": { "nativeLabel": "हिन्दी" }
+  },
+  "admin": {
+    "approval": {
+      "pendingReview": "Pending review",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "approve": "Approve",
+      "reject": "Reject"
+    }
+  },
+  "taxonomy": {
+    "category": {
+      "metalworking": {
+        "label": "Metal Working Machines",
+        "description": "CNC lathes, milling centres, grinding, EDM and more",
+        "subcategory": {
+          "cncTurningCentres": "CNC Turning Centres",
+          "cncMillingMachines": "CNC Milling Machines",
+          "vmcVerticalMachiningCentres": "VMC – Vertical Machining Centres",
+          "hmcHorizontalMachiningCentres": "HMC – Horizontal Machining Centres",
+          "conventionalLathes": "Conventional Lathes",
+          "surfaceGrindingMachines": "Surface Grinding Machines",
+          "cylindricalGrindingMachines": "Cylindrical Grinding Machines",
+          "edmWireCutMachines": "EDM / Wire Cut Machines",
+          "drillingMachines": "Drilling Machines",
+          "boringMachines": "Boring Machines",
+          "hydraulicPowerPresses": "Hydraulic Power Presses",
+          "mechanicalPowerPresses": "Mechanical Power Presses",
+          "miscellaneous": "Miscellaneous Metal Working"
+        }
+      },
+      "sheet-metal": {
+        "label": "Sheet Metal Machines",
+        "description": "Laser cutting, press brakes, shearing and punching",
+        "subcategory": {
+          "laserCuttingMachines": "Laser Cutting Machines",
+          "pressBrakesBendingMachines": "Press Brakes / Bending Machines",
+          "shearingMachines": "Shearing Machines",
+          "punchingMachines": "Punching Machines",
+          "rollFormingMachines": "Roll Forming Machines",
+          "miscellaneous": "Miscellaneous Sheet Metal"
+        }
+      },
+      "plastic-rubber": {
+        "label": "Plastic & Rubber",
+        "description": "Injection moulding, blow moulding, extrusion",
+        "subcategory": {
+          "injectionMouldingMachines": "Injection Moulding Machines",
+          "blowMouldingMachines": "Blow Moulding Machines",
+          "extrusionLines": "Extrusion Lines",
+          "thermoformingMachines": "Thermoforming Machines",
+          "rubberMouldingMachines": "Rubber Moulding Machines",
+          "miscellaneous": "Miscellaneous Plastic & Rubber"
+        }
+      },
+      "textile": {
+        "label": "Textile Machines",
+        "description": "Knitting, weaving, spinning and dyeing equipment",
+        "subcategory": {
+          "knittingMachines": "Knitting Machines",
+          "weavingMachines": "Weaving Machines",
+          "spinningMachines": "Spinning Machines",
+          "dyeingFinishingMachines": "Dyeing & Finishing Machines",
+          "embroideryMachines": "Embroidery Machines",
+          "miscellaneous": "Miscellaneous Textile"
+        }
+      },
+      "printing": {
+        "label": "Printing Machines",
+        "description": "Offset, digital, screen and flexographic printing",
+        "subcategory": {
+          "offsetPrintingMachines": "Offset Printing Machines",
+          "digitalPrintingMachines": "Digital Printing Machines",
+          "screenPrintingMachines": "Screen Printing Machines",
+          "flexographicPrinting": "Flexographic Printing",
+          "dieCuttingMachines": "Die Cutting Machines",
+          "miscellaneous": "Miscellaneous Printing"
+        }
+      },
+      "packaging": {
+        "label": "Packaging & Conditioning",
+        "description": "Filling, sealing, labelling and wrapping machines",
+        "subcategory": {
+          "fillingMachines": "Filling Machines",
+          "sealingMachines": "Sealing Machines",
+          "labellingMachines": "Labelling Machines",
+          "shrinkWrappingMachines": "Shrink Wrapping Machines",
+          "cartoningMachines": "Cartoning Machines",
+          "miscellaneous": "Miscellaneous Packaging"
+        }
+      },
+      "pharma-chemical": {
+        "label": "Pharmaceutical & Chemical",
+        "description": "Tablet press, capsule filling, reactors and mixers",
+        "subcategory": {
+          "tabletPressMachines": "Tablet Press Machines",
+          "capsuleFillingMachines": "Capsule Filling Machines",
+          "blendersMixers": "Blenders / Mixers",
+          "reactorsVessels": "Reactors & Vessels",
+          "coatingMachines": "Coating Machines",
+          "miscellaneous": "Miscellaneous Pharma & Chemical"
+        }
+      },
+      "food-processing": {
+        "label": "Food Processing",
+        "description": "Industrial ovens, fryers, mixers and packaging",
+        "subcategory": {
+          "industrialOvens": "Industrial Ovens",
+          "fryers": "Fryers",
+          "foodMixersBlenders": "Food Mixers / Blenders",
+          "foodFillingPackaging": "Food Filling & Packaging",
+          "bakeryMachines": "Bakery Machines",
+          "miscellaneous": "Miscellaneous Food Processing"
+        }
+      },
+      "woodworking": {
+        "label": "Woodworking Machines",
+        "description": "Saws, planers, CNC routers and edge banders",
+        "subcategory": {
+          "bandSaws": "Band Saws",
+          "circularSaws": "Circular Saws",
+          "planersThicknessPlaners": "Planers / Thickness Planers",
+          "cncRouters": "CNC Routers",
+          "edgeBanders": "Edge Banders",
+          "mortisingMachines": "Mortising Machines",
+          "miscellaneous": "Miscellaneous Woodworking"
+        }
+      },
+      "industrial-equipment": {
+        "label": "Miscellaneous Industrial Equipment",
+        "description": "Compressors, generators, forklifts, cranes and more",
+        "subcategory": {
+          "airCompressors": "Air Compressors",
+          "dieselGenerators": "Diesel Generators",
+          "forklifts": "Forklifts",
+          "cranesHoists": "Cranes & Hoists",
+          "industrialPumps": "Industrial Pumps",
+          "hydraulicSystems": "Hydraulic Systems",
+          "miscellaneous": "Miscellaneous Industrial Equipment"
+        }
+      }
+    }
+  }
+}

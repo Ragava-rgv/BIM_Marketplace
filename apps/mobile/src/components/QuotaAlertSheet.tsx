@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   open: boolean;
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export function QuotaAlertSheet({ open, quotaUsed, quotaTotal, onClose }: Props) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   if (!open) return null;
 
@@ -23,9 +25,9 @@ export function QuotaAlertSheet({ open, quotaUsed, quotaTotal, onClose }: Props)
         <div className="w-10 h-1 rounded-full bg-gray-200 mx-auto mb-5" />
         <div className="flex items-start justify-between mb-4">
           <h2 className="text-[18px] font-extrabold text-ink tracking-[-0.3px]">
-            Your contact views remaining
+            {t('components.quotaAlertSheet.title')}
           </h2>
-          <button onClick={onClose} aria-label="Close" className="text-gray-400 text-[20px] leading-none px-1">
+          <button onClick={onClose} aria-label={t('common:common.button.close')} className="text-gray-400 text-[20px] leading-none px-1">
             ×
           </button>
         </div>
@@ -35,7 +37,7 @@ export function QuotaAlertSheet({ open, quotaUsed, quotaTotal, onClose }: Props)
             {quotaUsed}/{quotaTotal}
           </p>
           <p className="text-[12.5px] text-forest/80 mt-1">
-            You have viewed {quotaUsed} of {quotaTotal} contacts
+            {t('components.quotaAlertSheet.viewedCount', { used: quotaUsed, total: quotaTotal })}
           </p>
           <div className="mt-3 h-2 rounded-full bg-white overflow-hidden">
             <div
@@ -52,13 +54,13 @@ export function QuotaAlertSheet({ open, quotaUsed, quotaTotal, onClose }: Props)
               quotaRemaining === 0 ? 'bg-copper text-white' : 'bg-forest text-white'
             }`}
           >
-            View more contacts
+            {t('components.quotaAlertSheet.viewMoreContacts')}
           </button>
           <button
             onClick={onClose}
             className="w-full h-[46px] bg-gray-100 text-gray-700 rounded-[13px] text-[14px] font-semibold"
           >
-            Continue
+            {t('common:common.button.continue')}
           </button>
         </div>
       </div>

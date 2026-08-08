@@ -1,5 +1,6 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { GstStatus } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth-context';
@@ -7,6 +8,7 @@ import { AppLayout } from '../../components/AppLayout';
 import { CheckIcon, ChevronRightIcon, ShieldIcon } from '../../components/icons';
 
 export function BuyerSwitchToSeller() {
+  const { t } = useTranslation();
   const { user, authenticate } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -15,6 +17,7 @@ export function BuyerSwitchToSeller() {
   if (!user) return null;
 
   const isGstActive = user.gstStatus === GstStatus.ACTIVE;
+  const whatChangesItems = t('buyer.switchToSeller.whatChangesItems', { returnObjects: true }) as string[];
 
   const handleSwitch = async () => {
     setLoading(true);
@@ -26,7 +29,7 @@ export function BuyerSwitchToSeller() {
       await authenticate(data);
       navigate('/seller/dashboard', { replace: true });
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not switch account. Please try again.'));
+      setError(apiErrorMessage(err, t('buyer.switchToSeller.switchError')));
       setLoading(false);
     }
   };
@@ -38,8 +41,8 @@ export function BuyerSwitchToSeller() {
           <ChevronRightIcon className="w-4 h-4 text-gray-500 rotate-180" />
         </button>
         <div>
-          <p className="font-mono text-[9.5px] font-semibold text-gray-500 tracking-[0.08em]">ACCOUNT</p>
-          <h1 className="text-[17px] font-extrabold text-ink tracking-[-0.3px]">Switch to Seller</h1>
+          <p className="font-mono text-[9.5px] font-semibold text-gray-500 tracking-[0.08em]">{t('buyer.switchToSeller.badge')}</p>
+          <h1 className="text-[17px] font-extrabold text-ink tracking-[-0.3px]">{t('buyer.switchToSeller.title')}</h1>
         </div>
       </div>
 
@@ -51,17 +54,16 @@ export function BuyerSwitchToSeller() {
               <div className="flex items-start gap-3">
                 <ShieldIcon className="w-5 h-5 text-copper mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="text-[13px] font-bold text-copper mb-1">GST verification required</p>
+                  <p className="text-[13px] font-bold text-copper mb-1">{t('buyer.switchToSeller.gstGate.title')}</p>
                   <p className="text-[11.5px] text-copper/80 leading-relaxed">
-                    Sellers on BIM must have an ACTIVE GST registration. Complete GST
-                    verification before switching your account.
+                    {t('buyer.switchToSeller.gstGate.description')}
                   </p>
                 </div>
               </div>
             </div>
 
             <div className="bg-white border border-gray-200 rounded-[13px] px-4 py-4">
-              <p className="text-[13px] font-bold text-ink mb-3">Current GST status</p>
+              <p className="text-[13px] font-bold text-ink mb-3">{t('buyer.switchToSeller.currentStatusTitle')}</p>
               <div className="flex items-center gap-2">
                 <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2 py-0.5 rounded-full ${
                   user.gstStatus === GstStatus.INACTIVE ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-600'
@@ -69,12 +71,11 @@ export function BuyerSwitchToSeller() {
                   <span className={`w-1.5 h-1.5 rounded-full ${
                     user.gstStatus === GstStatus.INACTIVE ? 'bg-red-500' : 'bg-gray-400'
                   }`} />
-                  {user.gstStatus}
+                  {t(`common:status.gst.${user.gstStatus}`)}
                 </span>
               </div>
               <p className="text-[11.5px] text-gray-500 mt-2">
-                Verify your GSTIN to unlock seller access. Once verified, you can switch
-                your account and start listing machines immediately.
+                {t('buyer.switchToSeller.verifyHint')}
               </p>
             </div>
 
@@ -82,13 +83,13 @@ export function BuyerSwitchToSeller() {
               onClick={() => navigate('/buyer/gst-verification')}
               className="w-full h-[50px] bg-copper text-white rounded-[13px] text-[14.5px] font-bold"
             >
-              Verify GST now →
+              {t('buyer.switchToSeller.verifyNowButton')}
             </button>
             <button
               onClick={() => navigate(-1)}
               className="w-full h-[44px] bg-gray-100 text-gray-700 rounded-[13px] text-[13.5px] font-semibold"
             >
-              Back to dashboard
+              {t('buyer.switchToSeller.backToDashboard')}
             </button>
           </>
         ) : (
@@ -103,7 +104,7 @@ export function BuyerSwitchToSeller() {
                 <div className="flex items-center gap-2 mb-0.5">
                   <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-green-txt">
                     <span className="w-1.5 h-1.5 rounded-full bg-green-txt" />
-                    GST ACTIVE
+                    {t('buyer.switchToSeller.gstActiveBadge')}
                   </span>
                 </div>
                 <p className="font-mono text-[10.5px] text-gray-500 tracking-widest">{user.gstNumber}</p>
@@ -115,15 +116,9 @@ export function BuyerSwitchToSeller() {
 
             {/* What changes checklist */}
             <div className="bg-white border border-gray-200 rounded-[13px] px-4 py-4">
-              <p className="text-[13px] font-bold text-ink mb-3">What happens when you switch</p>
-              {[
-                'Your account becomes a seller account',
-                'You can create listings immediately',
-                'Your GST, profile and history are kept',
-                'Buyers can enquire about your listings',
-                'This action cannot be reversed from the app',
-              ].map((item) => (
-                <div key={item} className="flex items-start gap-2.5 mb-2.5 last:mb-0">
+              <p className="text-[13px] font-bold text-ink mb-3">{t('buyer.switchToSeller.whatChangesTitle')}</p>
+              {whatChangesItems.map((item, i) => (
+                <div key={i} className="flex items-start gap-2.5 mb-2.5 last:mb-0">
                   <CheckIcon className="w-3.5 h-3.5 text-forest mt-0.5 flex-shrink-0" />
                   <p className="text-[12px] text-gray-600">{item}</p>
                 </div>
@@ -141,14 +136,14 @@ export function BuyerSwitchToSeller() {
               disabled={loading}
               className="w-full h-[52px] bg-forest text-white rounded-[13px] text-[15px] font-bold disabled:opacity-50"
             >
-              {loading ? 'Switching account...' : 'Yes, switch to seller →'}
+              {loading ? t('buyer.switchToSeller.switching') : t('buyer.switchToSeller.confirmButton')}
             </button>
             <button
               onClick={() => navigate(-1)}
               disabled={loading}
               className="w-full h-[44px] bg-gray-100 text-gray-700 rounded-[13px] text-[13.5px] font-semibold disabled:opacity-50"
             >
-              Cancel
+              {t('common:common.button.cancel')}
             </button>
           </>
         )}
@@ -156,5 +151,3 @@ export function BuyerSwitchToSeller() {
     </AppLayout>
   );
 }
-
-

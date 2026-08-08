@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { ListingDto } from '@machinebazaar/shared';
 import { api } from '../lib/api';
 import { AppLayout } from '../components/AppLayout';
@@ -7,6 +8,7 @@ import { ListingCard } from '../components/ListingCard';
 import { ArrowLeftIcon, SearchIcon } from '../components/icons';
 
 export function Search() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
@@ -40,7 +42,7 @@ export function Search() {
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search CNC, VMC, lathe..."
+            placeholder={t('search.placeholder')}
             className="flex-1 bg-transparent text-[13px] text-ink placeholder-gray-500 font-medium outline-none"
           />
           {query && (
@@ -51,13 +53,13 @@ export function Search() {
 
       <div className="px-[14px] pt-4 flex flex-col gap-[10px]">
         {!query.trim() ? (
-          <p className="text-center text-[13px] text-gray-500 py-12">Start typing to search machines…</p>
+          <p className="text-center text-[13px] text-gray-500 py-12">{t('search.prompt')}</p>
         ) : loading ? (
           Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="bg-white border border-gray-200 rounded-[13px] h-[124px] animate-pulse" />
           ))
         ) : results.length === 0 ? (
-          <p className="text-center text-[13px] text-gray-500 py-12">No results for "{query}"</p>
+          <p className="text-center text-[13px] text-gray-500 py-12">{t('search.noResults', { query })}</p>
         ) : (
           results.map((l) => <ListingCard key={l.id} listing={l} />)
         )}

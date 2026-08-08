@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { PromotionPlanDto } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import { formatInr } from '../../lib/format';
@@ -76,6 +77,7 @@ function PlanForm({
   onCancel?: () => void;
   submitLabel: string;
 }) {
+  const { t } = useTranslation();
   const [form, setForm] = useState<PlanFormValues>(initial);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -86,10 +88,10 @@ function PlanForm({
 
   const fieldOrder = ['name', 'displayName', 'priceInr', 'durationDays'];
   const fieldErrors: Record<string, string | false> = {
-    name: form.name.trim().length < 1 && 'Internal name is required',
-    displayName: form.displayName.trim().length < 1 && 'Display name is required',
-    priceInr: !(Number(form.priceInr) >= 0) && 'Price must be 0 or greater',
-    durationDays: !(Number(form.durationDays) >= 1) && 'Duration must be at least 1 day',
+    name: form.name.trim().length < 1 && t('admin.boostPlans.validation.nameRequired'),
+    displayName: form.displayName.trim().length < 1 && t('admin.boostPlans.validation.displayNameRequired'),
+    priceInr: !(Number(form.priceInr) >= 0) && t('admin.boostPlans.validation.priceInvalid'),
+    durationDays: !(Number(form.durationDays) >= 1) && t('admin.boostPlans.validation.durationInvalid'),
   };
   const valid = Object.values(fieldErrors).every((v) => !v);
 
@@ -104,7 +106,7 @@ function PlanForm({
     try {
       await onSave(form);
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not save boost plan.'));
+      setError(apiErrorMessage(err, t('admin.boostPlans.saveError')));
     } finally {
       setSubmitting(false);
     }
@@ -114,25 +116,25 @@ function PlanForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && <ErrorBanner message={error} />}
       <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-4">
-        <Field label="Internal name" hint="Unique identifier e.g. WEEKLY_BOOST">
+        <Field label={t('admin.boostPlans.fields.internalName')} hint={t('admin.boostPlans.fields.internalNameHint')}>
           <Input
             ref={setFieldRef('name')}
             value={form.name}
             onChange={(e) => set('name', e.target.value.toUpperCase().replace(/\s+/g, '_'))}
-            placeholder="WEEKLY_BOOST"
+            placeholder={t('admin.boostPlans.fields.internalNamePlaceholder')}
             required
           />
         </Field>
-        <Field label="Display name" hint="Shown to sellers">
+        <Field label={t('admin.boostPlans.fields.displayName')} hint={t('admin.boostPlans.fields.displayNameHint')}>
           <Input
             ref={setFieldRef('displayName')}
             value={form.displayName}
             onChange={(e) => set('displayName', e.target.value)}
-            placeholder="7-Day Boost"
+            placeholder={t('admin.boostPlans.fields.displayNamePlaceholder')}
             required
           />
         </Field>
-        <Field label="Price (₹)">
+        <Field label={t('admin.boostPlans.fields.price')}>
           <Input
             ref={setFieldRef('priceInr')}
             type="number"
@@ -143,7 +145,7 @@ function PlanForm({
             required
           />
         </Field>
-        <Field label="Duration (days)">
+        <Field label={t('admin.boostPlans.fields.duration')}>
           <Input
             ref={setFieldRef('durationDays')}
             type="number"
@@ -154,14 +156,14 @@ function PlanForm({
             required
           />
         </Field>
-        <Field label="Sort weight" hint="Higher = ranked above other boosted listings">
+        <Field label={t('admin.boostPlans.fields.sortWeight')} hint={t('admin.boostPlans.fields.sortWeightHint')}>
           <Input
             type="number"
             value={form.sortWeight}
             onChange={(e) => set('sortWeight', e.target.value)}
           />
         </Field>
-        <Field label="Sort order" hint="Lower = shown first in this list">
+        <Field label={t('admin.boostPlans.fields.sortOrder')} hint={t('admin.boostPlans.fields.sortOrderHint')}>
           <Input
             type="number"
             min={0}
@@ -177,25 +179,25 @@ function PlanForm({
               onChange={(e) => set('isActive', e.target.checked)}
               className="h-4 w-4 rounded border-navy/20 accent-accent"
             />
-            Active (purchasable by sellers)
+            {t('admin.boostPlans.fields.activeCheckbox')}
           </label>
         </div>
       </div>
-      <Field label="Description (optional)">
+      <Field label={t('admin.boostPlans.fields.descriptionOptional')}>
         <Textarea
           rows={2}
           value={form.description}
           onChange={(e) => set('description', e.target.value)}
-          placeholder="Short description shown to sellers"
+          placeholder={t('admin.boostPlans.fields.descriptionPlaceholder')}
         />
       </Field>
       <div className="flex gap-3">
         <Button type="submit" disabled={!valid || submitting}>
-          {submitting ? 'Saving...' : submitLabel}
+          {submitting ? t('admin.boostPlans.saving') : submitLabel}
         </Button>
         {onCancel && (
           <Button type="button" variant="ghost" onClick={onCancel}>
-            Cancel
+            {t('common:common.button.cancel')}
           </Button>
         )}
       </div>
@@ -204,6 +206,7 @@ function PlanForm({
 }
 
 function PlanRow({ plan, onChanged }: { plan: PromotionPlanDto; onChanged: () => void }) {
+  const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -215,14 +218,14 @@ function PlanRow({ plan, onChanged }: { plan: PromotionPlanDto; onChanged: () =>
   };
 
   const remove = async () => {
-    if (!confirm(`Delete "${plan.displayName}" boost tier? This cannot be undone.`)) return;
+    if (!confirm(t('admin.boostPlans.deleteConfirm', { name: plan.displayName }))) return;
     setDeleting(true);
     setError(null);
     try {
       await api.delete(`/boost-plans/${plan.id}`);
       onChanged();
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not delete this boost tier.'));
+      setError(apiErrorMessage(err, t('admin.boostPlans.deleteError')));
       setDeleting(false);
     }
   };
@@ -230,9 +233,9 @@ function PlanRow({ plan, onChanged }: { plan: PromotionPlanDto; onChanged: () =>
   if (editing) {
     return (
       <div className="border-t border-navy/10 p-5">
-        <p className="mb-4 font-semibold text-navy">Editing: {plan.displayName}</p>
+        <p className="mb-4 font-semibold text-navy">{t('admin.boostPlans.editing', { name: plan.displayName })}</p>
         {error && <div className="mb-3"><ErrorBanner message={error} /></div>}
-        <PlanForm initial={planToForm(plan)} onSave={save} onCancel={() => setEditing(false)} submitLabel="Save changes" />
+        <PlanForm initial={planToForm(plan)} onSave={save} onCancel={() => setEditing(false)} submitLabel={t('admin.boostPlans.saveChanges')} />
       </div>
     );
   }
@@ -245,7 +248,7 @@ function PlanRow({ plan, onChanged }: { plan: PromotionPlanDto; onChanged: () =>
         {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
       </td>
       <td className="px-5 py-4 text-navy/65">{formatInr(plan.priceInr)}</td>
-      <td className="px-5 py-4 text-navy/65">{plan.durationDays} days</td>
+      <td className="px-5 py-4 text-navy/65">{t('admin.boostPlans.daysCount', { count: plan.durationDays })}</td>
       <td className="px-5 py-4 text-navy/65">{plan.sortWeight}</td>
       <td className="px-5 py-4">
         <span
@@ -255,13 +258,13 @@ function PlanRow({ plan, onChanged }: { plan: PromotionPlanDto; onChanged: () =>
               : 'bg-slate-100 text-slate-600 ring-slate-500/20'
           }`}
         >
-          {plan.isActive ? 'Active' : 'Inactive'}
+          {plan.isActive ? t('admin.boostPlans.active') : t('admin.boostPlans.inactive')}
         </span>
       </td>
       <td className="px-5 py-4">
         <div className="flex items-center justify-end gap-2">
           <Button variant="ghost" onClick={() => setEditing(true)}>
-            Edit
+            {t('common:common.button.edit')}
           </Button>
           <Button variant="ghost" disabled={deleting} onClick={remove}>
             <TrashIcon className="h-4 w-4 text-red-500" />
@@ -273,6 +276,7 @@ function PlanRow({ plan, onChanged }: { plan: PromotionPlanDto; onChanged: () =>
 }
 
 export function AdminBoostPlans() {
+  const { t } = useTranslation();
   const [plans, setPlans] = useState<PromotionPlanDto[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [reload, setReload] = useState(0);
@@ -289,11 +293,11 @@ export function AdminBoostPlans() {
       .catch((err) => {
         if (!cancelled) {
           setPlans([]);
-          setError(apiErrorMessage(err, 'Could not load boost plans.'));
+          setError(apiErrorMessage(err, t('admin.boostPlans.loadError')));
         }
       });
     return () => { cancelled = true; };
-  }, [reload]);
+  }, [reload, t]);
 
   const createPlan = async (values: PlanFormValues) => {
     await api.post('/boost-plans', planPayload(values));
@@ -306,15 +310,15 @@ export function AdminBoostPlans() {
   return (
     <div>
       <PageHeading
-        eyebrow="Admin console"
-        title="Boost tiers"
-        description="Create, edit and delete the paid promotion tiers sellers can buy to push a listing to the top of search results."
+        eyebrow={t('admin.boostPlans.eyebrow')}
+        title={t('admin.boostPlans.title')}
+        description={t('admin.boostPlans.description')}
       />
 
       {error && <div className="mb-5"><ErrorBanner message={error} /></div>}
       {createSuccess && (
         <div className="mb-5">
-          <SuccessBanner message="Boost tier created successfully." />
+          <SuccessBanner message={t('admin.boostPlans.createSuccess')} />
         </div>
       )}
 
@@ -322,14 +326,14 @@ export function AdminBoostPlans() {
         {showCreate ? (
           <Card>
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-display text-lg text-navy">New boost tier</h2>
+              <h2 className="font-display text-lg text-navy">{t('admin.boostPlans.newTierTitle')}</h2>
             </div>
-            <PlanForm initial={EMPTY_FORM} onSave={createPlan} onCancel={() => setShowCreate(false)} submitLabel="Create tier" />
+            <PlanForm initial={EMPTY_FORM} onSave={createPlan} onCancel={() => setShowCreate(false)} submitLabel={t('admin.boostPlans.createTier')} />
           </Card>
         ) : (
           <Button onClick={() => setShowCreate(true)}>
             <PlusIcon className="h-4 w-4" />
-            New boost tier
+            {t('admin.boostPlans.newTier')}
           </Button>
         )}
       </div>
@@ -337,18 +341,18 @@ export function AdminBoostPlans() {
       {plans === null ? (
         <LoadingBlock />
       ) : plans.length === 0 ? (
-        <EmptyState title="No boost tiers yet" description="Add your first tier using the button above." />
+        <EmptyState title={t('admin.boostPlans.emptyTitle')} description={t('admin.boostPlans.emptyDescription')} />
       ) : (
         <div className="overflow-hidden rounded-2xl border border-navy/10 bg-white">
           <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="border-b border-navy/10 bg-navy/[0.02] text-left text-xs font-semibold uppercase tracking-wide text-navy/40">
               <tr>
-                <th className="px-5 py-3">Tier</th>
-                <th className="px-5 py-3">Price</th>
-                <th className="px-5 py-3">Duration</th>
-                <th className="px-5 py-3">Sort weight</th>
-                <th className="px-5 py-3">Status</th>
+                <th className="px-5 py-3">{t('admin.boostPlans.columns.tier')}</th>
+                <th className="px-5 py-3">{t('admin.boostPlans.columns.price')}</th>
+                <th className="px-5 py-3">{t('admin.boostPlans.columns.duration')}</th>
+                <th className="px-5 py-3">{t('admin.boostPlans.columns.sortWeight')}</th>
+                <th className="px-5 py-3">{t('admin.boostPlans.columns.status')}</th>
                 <th className="px-5 py-3" />
               </tr>
             </thead>

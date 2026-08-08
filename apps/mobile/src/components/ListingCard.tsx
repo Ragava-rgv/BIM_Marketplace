@@ -1,22 +1,26 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { ListingDto } from '@machinebazaar/shared';
-import { formatInrShort } from '../lib/format';
+import { formatInrShort, formatRelativeDate } from '../lib/format';
 import { useAuth } from '../lib/auth-context';
 import { useWishlist } from '../lib/wishlist-context';
-import { EyeIcon, HeartIcon, MachineIcon, PlayIcon } from './icons';
+import { EyeIcon, HeartIcon, MachineIcon, PlayIcon, StarIcon } from './icons';
 
 export function ListingCard({ listing }: { listing: ListingDto }) {
+  const { t, i18n } = useTranslation();
+  const locale = `${i18n.resolvedLanguage ?? 'en'}-IN`;
   const { user } = useAuth();
   const { isWishlisted, toggle } = useWishlist();
   const photos = listing.media?.filter((m) => m.type === 'PHOTO') ?? [];
   const cover = photos.find((m) => m.isPrimary) ?? photos[0];
   const video = listing.media?.find((m) => m.type === 'VIDEO');
   const isCertified = listing.status === 'ACTIVE';
+  const isSold = listing.status === 'SOLD';
   const wishlisted = isWishlisted(listing.id);
 
   return (
     <Link to={`/listings/${listing.id}`}
-      className="block bg-white border border-gray-200 rounded-[13px] overflow-hidden">
+      className={`block bg-white border border-gray-200 rounded-[13px] overflow-hidden ${isSold ? 'opacity-60' : ''}`}>
       <div className="flex">
         {/* Image — 104px wide */}
         <div className="w-[104px] flex-shrink-0 border-r border-gray-200 bg-gray-50 relative flex items-center justify-center min-h-[108px] grid-backdrop">
@@ -28,13 +32,13 @@ export function ListingCard({ listing }: { listing: ListingDto }) {
           {video && (
             <span className="absolute bottom-1.5 left-1.5 z-[2] bg-[rgba(16,24,40,.85)] text-white font-mono text-[7.5px] font-semibold px-1.5 py-0.5 rounded-[4px] flex items-center gap-1">
               <PlayIcon className="w-1.5 h-1.5 fill-[#6CE9A6]" />
-              {video.durationSeconds ? `${video.durationSeconds}s` : 'VIDEO'}
+              {video.durationSeconds ? `${video.durationSeconds}s` : t('components.listingCard.videoBadge')}
             </span>
           )}
           {user && (
             <button
               type="button"
-              aria-label={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
+              aria-label={wishlisted ? t('components.listingCard.removeFromWishlist') : t('components.listingCard.saveToWishlist')}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -50,16 +54,37 @@ export function ListingCard({ listing }: { listing: ListingDto }) {
         {/* Info */}
         <div className="flex-1 p-[10px_12px] min-w-0">
           {/* Badge */}
-          {isCertified ? (
-            <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-[5px] mb-1.5 bg-green-bg text-green-txt border border-green-bdr">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-txt" />
-              CERTIFIED
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-[5px] mb-1.5 bg-copper-bg text-copper border border-copper-bdr">
-              UNVERIFIED
-            </span>
-          )}
+          <div className="flex flex-wrap items-center gap-1 mb-1.5">
+            {isSold ? (
+              <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-[5px] bg-gray-200 text-gray-600">
+                {t('components.listingCard.soldBadge')}
+              </span>
+            ) : isCertified ? (
+              <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-[5px] bg-green-bg text-green-txt border border-green-bdr">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-txt" />
+                {t('components.listingCard.certifiedBadge')}
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-[5px] bg-copper-bg text-copper border border-copper-bdr">
+                {t('components.listingCard.unverifiedBadge')}
+              </span>
+            )}
+            {listing.isBoosted && (
+              <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-[5px] bg-forest text-white">
+                <StarIcon className="w-2 h-2 fill-white stroke-white" />
+                {t('components.listingCard.boostedBadge')}
+              </span>
+            )}
+            {listing.condition === 'NEW' ? (
+              <span className="inline-flex items-center text-[9px] font-bold px-1.5 py-0.5 rounded-[5px] bg-ink text-white">
+                {t('common:listing.conditionNew')}
+              </span>
+            ) : (
+              <span className="inline-flex items-center text-[9px] font-bold px-1.5 py-0.5 rounded-[5px] bg-gray-100 text-gray-600 border border-gray-200">
+                {t('common:listing.conditionOld')}
+              </span>
+            )}
+          </div>
 
           {/* Title */}
           <p className="text-[13.5px] font-bold text-ink tracking-[-0.2px] leading-[1.3] mb-[3px] truncate">
@@ -73,7 +98,7 @@ export function ListingCard({ listing }: { listing: ListingDto }) {
                 <polyline points="1.5 4 3.5 6 6.5 2" stroke="#101828" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>
-            <span className="truncate">{listing.machineMake} · GST</span>
+            <span className="truncate">{listing.machineMake} · {t('components.listingCard.gstLabel')}</span>
           </div>
 
           {/* Category */}
@@ -87,25 +112,32 @@ export function ListingCard({ listing }: { listing: ListingDto }) {
             <span className="text-ink font-bold">{listing.complexityTier}</span>
             {' · '}{listing.locationCity}
           </p>
+
+          {/* Posted date + view count — secondary metadata */}
+          <p className="mt-1 font-mono text-[8.5px] font-medium text-gray-400 truncate">
+            {t('common:listing.posted', { date: formatRelativeDate(listing.postedAt ?? listing.createdAt, locale) })}
+            {' · '}
+            {t('common:listing.views', { count: listing.viewCount })}
+          </p>
         </div>
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between border-t border-gray-200 bg-gray-25 px-3 py-[9px]">
-        <div>
-          <p className="font-mono text-[8px] font-semibold text-gray-500 tracking-[0.06em] mb-0.5">
-            ASKING · {listing.locationCity.toUpperCase()}
+      <div className="flex items-center justify-between gap-2 border-t border-gray-200 bg-gray-25 px-3 py-[9px]">
+        <div className="min-w-0 flex-1">
+          <p className="font-mono text-[8px] font-semibold text-gray-500 tracking-[0.06em] mb-0.5 truncate">
+            {t('components.listingCard.askingLabel')} · {listing.locationCity.toUpperCase()}
           </p>
-          <p className="text-[17px] font-extrabold text-ink tracking-[-0.4px] leading-none">
+          <p className="text-[17px] font-extrabold text-ink tracking-[-0.4px] leading-none truncate">
             {formatInrShort(listing.askingPrice)}
           </p>
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="w-8 h-8 border border-gray-300 rounded-[8px] bg-white flex items-center justify-center">
+        <div className="flex shrink-0 items-center gap-1.5">
+          <span className="h-8 w-8 border border-gray-300 rounded-[8px] bg-white flex items-center justify-center" title={t('common:listing.views', { count: listing.viewCount }) as string}>
             <EyeIcon className="w-[13px] h-[13px] text-gray-700" />
           </span>
           <span className="h-8 px-3 bg-copper rounded-[8px] flex items-center text-[11.5px] font-semibold text-white">
-            Enquire
+            {t('components.listingCard.enquireButton')}
           </span>
         </div>
       </div>

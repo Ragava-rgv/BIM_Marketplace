@@ -1,5 +1,6 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { FinancePartnerDto, LoanApplicationDto } from '@machinebazaar/shared';
 import { CertificationStatus, LoanApplicationStatus } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
@@ -18,6 +19,7 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 }
 
 function EligibilityActions({ loan, onChanged }: { loan: LoanApplicationDto; onChanged: () => void }) {
+  const { t } = useTranslation();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,7 +30,7 @@ function EligibilityActions({ loan, onChanged }: { loan: LoanApplicationDto; onC
       await api.patch(`/loans/${loan.id}/status`, { status });
       onChanged();
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not update this application.'));
+      setError(apiErrorMessage(err, t('admin.loanApplications.updateError')));
     } finally {
       setSubmitting(false);
     }
@@ -37,10 +39,10 @@ function EligibilityActions({ loan, onChanged }: { loan: LoanApplicationDto; onC
   return (
     <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-navy/10 pt-3">
       <Button disabled={submitting} onClick={() => act('CERT_PENDING')}>
-        Mark eligible & start certification
+        {t('admin.loanApplications.markEligible')}
       </Button>
       <Button variant="secondary" disabled={submitting} onClick={() => act('REJECTED')}>
-        Reject
+        {t('common:admin.approval.reject')}
       </Button>
       {error && <p className="w-full text-sm text-rose-600">{error}</p>}
     </div>
@@ -48,6 +50,7 @@ function EligibilityActions({ loan, onChanged }: { loan: LoanApplicationDto; onC
 }
 
 function RouteToPartner({ loan, partners, onRouted }: { loan: LoanApplicationDto; partners: FinancePartnerDto[]; onRouted: () => void }) {
+  const { t } = useTranslation();
   const [partnerId, setPartnerId] = useState(loan.partnerId ?? '');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -60,7 +63,7 @@ function RouteToPartner({ loan, partners, onRouted }: { loan: LoanApplicationDto
       await api.patch(`/loans/${loan.id}/status`, { status: 'WITH_PARTNER', partnerId });
       onRouted();
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not route this application.'));
+      setError(apiErrorMessage(err, t('admin.loanApplications.routeError')));
     } finally {
       setSubmitting(false);
     }
@@ -70,16 +73,20 @@ function RouteToPartner({ loan, partners, onRouted }: { loan: LoanApplicationDto
     <div className="mt-3 flex flex-wrap items-end gap-3 border-t border-navy/10 pt-3">
       <div className="min-w-[220px] flex-1">
         <Select value={partnerId} onChange={(e) => setPartnerId(e.target.value)}>
-          <option value="">Select a finance partner...</option>
+          <option value="">{t('admin.loanApplications.selectPartner')}</option>
           {partners.map((partner) => (
             <option key={partner.id} value={partner.id}>
-              {partner.name} ({partner.type === 'BANK' ? 'Bank' : 'NBFC'}) · {partner.referralRate}% rate
+              {t('admin.loanApplications.partnerOption', {
+                name: partner.name,
+                type: partner.type === 'BANK' ? t('admin.financePartners.type.BANK') : t('admin.financePartners.type.NBFC'),
+                rate: partner.referralRate,
+              })}
             </option>
           ))}
         </Select>
       </div>
       <Button disabled={!partnerId || submitting} onClick={route}>
-        {submitting ? 'Routing...' : 'Route to partner'}
+        {submitting ? t('admin.loanApplications.routing') : t('admin.loanApplications.routeToPartner')}
       </Button>
       {error && <p className="w-full text-sm text-rose-600">{error}</p>}
     </div>
@@ -87,6 +94,7 @@ function RouteToPartner({ loan, partners, onRouted }: { loan: LoanApplicationDto
 }
 
 function ApproveReject({ loan, onChanged }: { loan: LoanApplicationDto; onChanged: () => void }) {
+  const { t } = useTranslation();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -97,7 +105,7 @@ function ApproveReject({ loan, onChanged }: { loan: LoanApplicationDto; onChange
       await api.patch(`/loans/${loan.id}/status`, { status });
       onChanged();
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not update this application.'));
+      setError(apiErrorMessage(err, t('admin.loanApplications.updateError')));
     } finally {
       setSubmitting(false);
     }
@@ -106,10 +114,10 @@ function ApproveReject({ loan, onChanged }: { loan: LoanApplicationDto; onChange
   return (
     <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-navy/10 pt-3">
       <Button disabled={submitting} onClick={() => act('APPROVED')}>
-        Approve
+        {t('common:admin.approval.approve')}
       </Button>
       <Button variant="secondary" disabled={submitting} onClick={() => act('REJECTED')}>
-        Reject
+        {t('common:admin.approval.reject')}
       </Button>
       {error && <p className="w-full text-sm text-rose-600">{error}</p>}
     </div>
@@ -117,56 +125,59 @@ function ApproveReject({ loan, onChanged }: { loan: LoanApplicationDto; onChange
 }
 
 function MachineDetails({ loan }: { loan: LoanApplicationDto }) {
+  const { t } = useTranslation();
   if (!loan.listing) return null;
   const { listing } = loan;
   return (
     <div className="mt-4 border-t border-navy/10 pt-4">
-      <MonoLabel>Machine</MonoLabel>
+      <MonoLabel>{t('admin.loanApplications.machine')}</MonoLabel>
       <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <DetailRow label="Category" value={listing.machineCategory} />
-        <DetailRow label="Make / model" value={`${listing.machineMake} ${listing.machineModel}`} />
-        <DetailRow label="Manufacture year" value={String(listing.manufactureYear)} />
-        <DetailRow label="Asking price" value={formatInr(listing.askingPrice)} />
-        <DetailRow label="Location" value={`${listing.locationCity}, ${listing.locationState}`} />
-        <DetailRow label="Complexity tier" value={humanizeStatus(listing.complexityTier)} />
-        <DetailRow label="Listing status" value={humanizeStatus(listing.status)} />
+        <DetailRow label={t('admin.loanApplications.fields.category')} value={listing.machineCategory} />
+        <DetailRow label={t('admin.loanApplications.fields.makeModel')} value={`${listing.machineMake} ${listing.machineModel}`} />
+        <DetailRow label={t('admin.loanApplications.fields.manufactureYear')} value={String(listing.manufactureYear)} />
+        <DetailRow label={t('admin.loanApplications.fields.askingPrice')} value={formatInr(listing.askingPrice)} />
+        <DetailRow label={t('admin.loanApplications.fields.location')} value={`${listing.locationCity}, ${listing.locationState}`} />
+        <DetailRow label={t('admin.loanApplications.fields.complexityTier')} value={humanizeStatus(listing.complexityTier)} />
+        <DetailRow label={t('admin.loanApplications.fields.listingStatus')} value={humanizeStatus(listing.status)} />
       </div>
     </div>
   );
 }
 
 function BuyerDetails({ loan }: { loan: LoanApplicationDto }) {
+  const { t } = useTranslation();
   if (!loan.buyer) return null;
   const { buyer } = loan;
   return (
     <div className="mt-4 border-t border-navy/10 pt-4">
-      <MonoLabel>Buyer</MonoLabel>
+      <MonoLabel>{t('admin.loanApplications.buyer')}</MonoLabel>
       <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <DetailRow label="Name" value={buyer.fullName} />
-        <DetailRow label="Phone" value={buyer.phone} />
-        <DetailRow label="Email" value={buyer.email ?? '—'} />
-        <DetailRow label="GST status" value={humanizeStatus(buyer.gstStatus)} />
+        <DetailRow label={t('admin.loanApplications.fields.name')} value={buyer.fullName} />
+        <DetailRow label={t('admin.loanApplications.fields.phone')} value={buyer.phone} />
+        <DetailRow label={t('admin.loanApplications.fields.email')} value={buyer.email ?? '—'} />
+        <DetailRow label={t('admin.loanApplications.fields.gstStatus')} value={humanizeStatus(buyer.gstStatus)} />
       </div>
     </div>
   );
 }
 
 function CertificationDetails({ loan }: { loan: LoanApplicationDto }) {
+  const { t } = useTranslation();
   const cert = loan.certification;
   if (!cert) return null;
   const report = cert.inspectionReport;
   return (
     <div className="mt-4 border-t border-navy/10 pt-4">
-      <MonoLabel>Certification</MonoLabel>
+      <MonoLabel>{t('admin.loanApplications.certification')}</MonoLabel>
       <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <DetailRow label="Status" value={humanizeStatus(cert.status)} />
-        <DetailRow label="Fee" value={formatInr(cert.fee)} />
-        <DetailRow label="Completed" value={cert.completedAt ? formatDateTime(cert.completedAt) : '—'} />
+        <DetailRow label={t('admin.loanApplications.fields.status')} value={humanizeStatus(cert.status)} />
+        <DetailRow label={t('admin.loanApplications.fields.fee')} value={formatInr(cert.fee)} />
+        <DetailRow label={t('admin.loanApplications.fields.completed')} value={cert.completedAt ? formatDateTime(cert.completedAt) : '—'} />
         {cert.reportStorageKey && (
           <div>
-            <p className="text-xs text-navy/50">Report</p>
+            <p className="text-xs text-navy/50">{t('admin.loanApplications.fields.report')}</p>
             <a href={`/media/${cert.reportStorageKey}`} target="_blank" rel="noreferrer" className="text-sm text-accent hover:underline">
-              Download report
+              {t('admin.loanApplications.downloadReport')}
             </a>
           </div>
         )}
@@ -174,15 +185,15 @@ function CertificationDetails({ loan }: { loan: LoanApplicationDto }) {
 
       {report && (
         <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <DetailRow label="Certificate issued by" value={report.inspectorName} />
-          <DetailRow label="Inspection date" value={formatDate(report.inspectionDate)} />
-          <DetailRow label="Condition grade" value={`Grade ${report.conditionGrade}`} />
-          <DetailRow label="Verified run hours" value={String(report.verifiedRunHours)} />
-          <DetailRow label="Verified manufacture year" value={String(report.verifiedManufactureYear)} />
-          <DetailRow label="Functional test" value={report.functionalTestPassed ? 'Passed' : 'Failed'} />
-          <DetailRow label="Recommended market value" value={formatInr(report.recommendedMarketValue)} />
+          <DetailRow label={t('admin.loanApplications.fields.certificateIssuedBy')} value={report.inspectorName} />
+          <DetailRow label={t('admin.loanApplications.fields.inspectionDate')} value={formatDate(report.inspectionDate)} />
+          <DetailRow label={t('admin.loanApplications.fields.conditionGrade')} value={t('admin.loanApplications.gradeValue', { grade: report.conditionGrade })} />
+          <DetailRow label={t('admin.loanApplications.fields.verifiedRunHours')} value={String(report.verifiedRunHours)} />
+          <DetailRow label={t('admin.loanApplications.fields.verifiedManufactureYear')} value={String(report.verifiedManufactureYear)} />
+          <DetailRow label={t('admin.loanApplications.fields.functionalTest')} value={report.functionalTestPassed ? t('admin.loanApplications.passed') : t('admin.loanApplications.failed')} />
+          <DetailRow label={t('admin.loanApplications.fields.recommendedMarketValue')} value={formatInr(report.recommendedMarketValue)} />
           <div className="col-span-2 sm:col-span-4">
-            <p className="text-xs text-navy/50">Defects / observations</p>
+            <p className="text-xs text-navy/50">{t('admin.loanApplications.fields.defectsObserved')}</p>
             <p className="text-sm text-navy">{report.defectsObserved || '—'}</p>
           </div>
         </div>
@@ -190,7 +201,7 @@ function CertificationDetails({ loan }: { loan: LoanApplicationDto }) {
 
       {cert.inspectorNotes && (
         <div className="mt-3">
-          <p className="text-xs text-navy/50">Inspector notes</p>
+          <p className="text-xs text-navy/50">{t('admin.loanApplications.fields.inspectorNotes')}</p>
           <p className="text-sm text-navy">{cert.inspectorNotes}</p>
         </div>
       )}
@@ -199,6 +210,7 @@ function CertificationDetails({ loan }: { loan: LoanApplicationDto }) {
 }
 
 export function AdminLoanApplications() {
+  const { t } = useTranslation();
   const [loans, setLoans] = useState<LoanApplicationDto[] | null>(null);
   const [partners, setPartners] = useState<FinancePartnerDto[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -234,7 +246,7 @@ export function AdminLoanApplications() {
       .catch((err) => {
         if (!cancelled) {
           setLoans([]);
-          setError(apiErrorMessage(err, 'Could not load loan applications.'));
+          setError(apiErrorMessage(err, t('admin.loanApplications.loadError')));
         }
       });
     api
@@ -248,19 +260,19 @@ export function AdminLoanApplications() {
     return () => {
       cancelled = true;
     };
-  }, [reload]);
+  }, [reload, t]);
 
   return (
     <div>
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <PageHeading
-          eyebrow="Admin console"
-          title="Loan applications"
-          description="Review each application's machine, buyer and certification details. Confirm eligibility to kick off certification, then route to a finance partner once certification is complete, and finally approve or reject."
+          eyebrow={t('admin.loanApplications.eyebrow')}
+          title={t('admin.loanApplications.title')}
+          description={t('admin.loanApplications.description')}
         />
         <Button variant="ghost" disabled={!loans?.length} onClick={downloadExcel}>
           <DownloadIcon className="h-4 w-4" />
-          Export Excel
+          {t('admin.loanApplications.exportExcel')}
         </Button>
       </div>
 
@@ -273,7 +285,7 @@ export function AdminLoanApplications() {
       {loans === null ? (
         <LoadingBlock />
       ) : loans.length === 0 ? (
-        <EmptyState title="No loan applications yet" description="Buyer-submitted loan applications will appear here once submitted for review." />
+        <EmptyState title={t('admin.loanApplications.emptyTitle')} description={t('admin.loanApplications.emptyDescription')} />
       ) : (
         <div className="space-y-4">
           {loans.map((loan) => (
@@ -282,19 +294,19 @@ export function AdminLoanApplications() {
                 <div>
                   <p className="font-display text-lg text-navy">
                     <Link to={`/listings/${loan.listingId}`} className="hover:text-accent">
-                      {loan.listing?.title ?? `Listing ${loan.listingId.slice(0, 8)}...`}
+                      {loan.listing?.title ?? t('admin.loanApplications.listingFallback', { id: loan.listingId.slice(0, 8) })}
                     </Link>
                   </p>
                   <p className="mt-1 text-sm text-navy/55">
-                    Requested {formatInr(loan.amountRequested)} · Applied {formatDateTime(loan.createdAt)}
+                    {t('admin.loanApplications.requestedApplied', { amount: formatInr(loan.amountRequested), time: formatDateTime(loan.createdAt) })}
                   </p>
                   <p className="mt-1 text-sm text-navy/55">
                     {loan.partner
                       ? [LoanApplicationStatus.WITH_PARTNER, LoanApplicationStatus.APPROVED, LoanApplicationStatus.REJECTED].includes(loan.status)
-                        ? `Routed to ${loan.partner.name} (${loan.partner.referralRate}% rate)`
-                        : `Buyer's preferred bank: ${loan.partner.name} (${loan.partner.referralRate}% rate)`
-                      : 'No finance partner preference'}
-                    {loan.referralCommission ? ` · Referral commission ${formatInr(loan.referralCommission)}` : ''}
+                        ? t('admin.loanApplications.routedTo', { name: loan.partner.name, rate: loan.partner.referralRate })
+                        : t('admin.loanApplications.preferredBank', { name: loan.partner.name, rate: loan.partner.referralRate })
+                      : t('admin.loanApplications.noPartnerPreference')}
+                    {loan.referralCommission ? t('admin.loanApplications.referralCommissionSuffix', { amount: formatInr(loan.referralCommission) }) : ''}
                   </p>
                 </div>
                 <StatusBadge status={loan.status} />

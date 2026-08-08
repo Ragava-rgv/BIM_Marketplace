@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
-import { GstStatus, User, UserRole } from '@prisma/client';
+import { GstStatus, SupportedLanguage, User, UserRole } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -260,6 +260,7 @@ export class AuthService {
       locationState: (user as any).locationState ?? null,
       activeMode: (user as any).activeMode ?? 'BUYER',
       canSell: (user as any).canSell ?? false,
+      preferredLanguage: user.preferredLanguage,
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),
     };
@@ -296,6 +297,21 @@ export class AuthService {
     const updated = await (this.prisma.user.update as any)({
       where: { id: userId },
       data: { activeMode: mode },
+    });
+
+    return this.toUserDto(updated);
+  }
+
+  async switchLanguage(
+    userId: string,
+    language: SupportedLanguage,
+  ): Promise<ReturnType<typeof this.toUserDto>> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new UnauthorizedException('Account not found');
+
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: { preferredLanguage: language },
     });
 
     return this.toUserDto(updated);

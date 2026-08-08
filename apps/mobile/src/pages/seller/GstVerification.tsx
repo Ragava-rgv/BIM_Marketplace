@@ -1,5 +1,6 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { GstStatus } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth-context';
@@ -12,6 +13,7 @@ const inputCls =
   'w-full h-[50px] bg-gray-50 border border-gray-200 rounded-[12px] px-4 text-[14px] text-ink font-mono font-medium placeholder-gray-400 outline-none focus:border-forest focus:bg-white transition uppercase tracking-widest';
 
 export function SellerGstVerification() {
+  const { t } = useTranslation();
   const { user, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [gstNumber, setGstNumber] = useState(user?.gstNumber ?? '');
@@ -25,6 +27,8 @@ export function SellerGstVerification() {
   const isActive = user.gstStatus === GstStatus.ACTIVE;
   const valid = GSTIN_RE.test(gstNumber.toUpperCase()) && address.trim().length >= 10;
 
+  const whyItems = t('seller.gstVerification.whyItems', { returnObjects: true }) as string[];
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -33,9 +37,9 @@ export function SellerGstVerification() {
     try {
       await api.post('/gst/verify', { gstNumber: gstNumber.toUpperCase(), address: address.trim() });
       await refreshProfile();
-      setSuccess('GST verified — you can now publish listings.');
+      setSuccess(t('seller.gstVerification.success'));
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not verify that GSTIN. Please check the number and try again.'));
+      setError(apiErrorMessage(err, t('seller.gstVerification.error')));
     } finally {
       setLoading(false);
     }
@@ -49,8 +53,8 @@ export function SellerGstVerification() {
           <ChevronRightIcon className="w-4 h-4 text-gray-500 rotate-180" />
         </button>
         <div>
-          <p className="font-mono text-[9.5px] font-semibold text-copper tracking-[0.08em]">SELLER REQUIREMENT</p>
-          <h1 className="text-[17px] font-extrabold text-ink tracking-[-0.3px]">GST Verification</h1>
+          <p className="font-mono text-[9.5px] font-semibold text-copper tracking-[0.08em]">{t('seller.gstVerification.badge')}</p>
+          <h1 className="text-[17px] font-extrabold text-ink tracking-[-0.3px]">{t('seller.gstVerification.title')}</h1>
         </div>
       </div>
 
@@ -65,7 +69,7 @@ export function SellerGstVerification() {
             <ShieldIcon className={`w-5 h-5 ${isActive ? 'text-green-txt' : 'text-gray-500'}`} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-semibold text-gray-500 mb-0.5">GST status</p>
+            <p className="text-[11px] font-semibold text-gray-500 mb-0.5">{t('seller.gstVerification.statusLabel')}</p>
             <div className="flex items-center gap-2">
               <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2 py-0.5 rounded-full ${
                 isActive ? 'bg-green-txt/10 text-green-txt' :
@@ -76,7 +80,7 @@ export function SellerGstVerification() {
                   isActive ? 'bg-green-txt' :
                   user.gstStatus === GstStatus.INACTIVE ? 'bg-red-500' : 'bg-gray-400'
                 }`} />
-                {user.gstStatus}
+                {t(`common:status.gst.${user.gstStatus}`)}
               </span>
               {user.businessName && (
                 <span className="text-[12px] font-semibold text-ink truncate">{user.businessName}</span>
@@ -92,16 +96,15 @@ export function SellerGstVerification() {
           <div className="bg-green-bg border border-green-bdr rounded-[13px] px-4 py-4 flex items-start gap-3">
             <CheckIcon className="w-5 h-5 text-green-txt mt-0.5 flex-shrink-0" />
             <div>
-              <p className="text-[13px] font-bold text-green-txt mb-1">GST verification complete</p>
+              <p className="text-[13px] font-bold text-green-txt mb-1">{t('seller.gstVerification.verified.title')}</p>
               <p className="text-[12px] text-green-txt/80 leading-relaxed">
-                Your GSTIN <span className="font-mono font-semibold">{user.gstNumber}</span> is verified and active.
-                You can list machines and they'll be reviewed by our team before going live.
+                {t('seller.gstVerification.verified.prefix')} <span className="font-mono font-semibold">{user.gstNumber}</span> {t('seller.gstVerification.verified.suffix')}
               </p>
               <button
                 onClick={() => navigate('/seller/listings/new')}
                 className="mt-3 h-[40px] px-4 bg-forest text-white rounded-[10px] text-[13px] font-bold"
               >
-                Create a listing →
+                {t('seller.gstVerification.createListingButton')}
               </button>
             </div>
           </div>
@@ -109,14 +112,9 @@ export function SellerGstVerification() {
           <>
             {/* Why it matters */}
             <div className="bg-white border border-gray-200 rounded-[13px] px-4 py-4">
-              <p className="text-[13px] font-bold text-ink mb-3">Why GST verification matters</p>
-              {[
-                'Required to publish listings (sellers)',
-                'Required to apply for machine loans (buyers)',
-                'Builds trust with counterparties',
-                'Mandatory for commission-tracked transactions',
-              ].map((item) => (
-                <div key={item} className="flex items-start gap-2.5 mb-2 last:mb-0">
+              <p className="text-[13px] font-bold text-ink mb-3">{t('seller.gstVerification.whyTitle')}</p>
+              {whyItems.map((item, i) => (
+                <div key={i} className="flex items-start gap-2.5 mb-2 last:mb-0">
                   <CheckIcon className="w-3.5 h-3.5 text-forest mt-0.5 flex-shrink-0" />
                   <p className="text-[12px] text-gray-600">{item}</p>
                 </div>
@@ -125,16 +123,15 @@ export function SellerGstVerification() {
 
             {/* Verification form */}
             <div className="bg-white border border-gray-200 rounded-[13px] px-4 py-4">
-              <p className="text-[13px] font-bold text-ink mb-1">Enter your GSTIN</p>
+              <p className="text-[13px] font-bold text-ink mb-1">{t('seller.gstVerification.formTitle')}</p>
               <p className="text-[11.5px] text-gray-500 mb-4 leading-relaxed">
-                Sellers must have an ACTIVE GST registration to create and publish listings on BIM.
-                Enter your GSTIN below — we'll validate it and auto-fill your business name.
+                {t('seller.gstVerification.formDescription')}
               </p>
 
               <form onSubmit={handleSubmit} className="space-y-3">
                 <div>
                   <label className="block text-[11px] font-semibold text-gray-600 mb-1">
-                    GSTIN <span className="text-red-500">*</span>
+                    {t('seller.gstVerification.gstinLabel')} <span className="text-red-500">*</span>
                   </label>
                   <input
                     value={gstNumber}
@@ -144,13 +141,13 @@ export function SellerGstVerification() {
                     maxLength={15}
                   />
                   <p className="mt-1 text-[10.5px] text-gray-400">
-                    15-character GST identification number
+                    {t('seller.gstVerification.gstinHint')}
                   </p>
                 </div>
 
                 <div>
                   <label className="block text-[11px] font-semibold text-gray-600 mb-1">
-                    Business address <span className="text-red-500">*</span>
+                    {t('seller.gstVerification.addressLabel')} <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     value={address}
@@ -160,7 +157,7 @@ export function SellerGstVerification() {
                     className="w-full bg-gray-50 border border-gray-200 rounded-[12px] px-4 py-3 text-[14px] text-ink font-medium placeholder-gray-400 outline-none focus:border-forest focus:bg-white transition resize-none"
                   />
                   <p className="mt-1 text-[10.5px] text-gray-400">
-                    Shown to buyers after they view your contact details
+                    {t('seller.gstVerification.addressHint')}
                   </p>
                 </div>
 
@@ -180,7 +177,7 @@ export function SellerGstVerification() {
                   disabled={!valid || loading}
                   className="w-full h-[50px] bg-forest text-white rounded-[13px] text-[14.5px] font-bold disabled:opacity-50"
                 >
-                  {loading ? 'Verifying with Masters India...' : 'Verify GSTIN'}
+                  {loading ? t('seller.gstVerification.verifying') : t('seller.gstVerification.verifyButton')}
                 </button>
               </form>
             </div>
@@ -190,5 +187,3 @@ export function SellerGstVerification() {
     </AppLayout>
   );
 }
-
-

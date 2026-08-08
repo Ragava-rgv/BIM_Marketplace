@@ -18,6 +18,7 @@ const storage_service_1 = require("../storage/storage.service");
 const subscriptions_service_1 = require("../subscriptions/subscriptions.service");
 const spec_validation_service_1 = require("../spec-validation/spec-validation.service");
 const EDITABLE_STATUSES = [client_1.ListingStatus.DRAFT, client_1.ListingStatus.REJECTED];
+const DETAILS_EDITABLE_STATUSES = [client_1.ListingStatus.DRAFT, client_1.ListingStatus.REJECTED, client_1.ListingStatus.ACTIVE];
 const MEDIA_UPDATABLE_STATUSES = [
     client_1.ListingStatus.DRAFT,
     client_1.ListingStatus.REJECTED,
@@ -71,6 +72,7 @@ let ListingsService = class ListingsService {
                 locationCity: dto.locationCity,
                 locationState: dto.locationState,
                 complexityTier: dto.complexityTier ?? client_1.ComplexityTier.STANDARD,
+                condition: dto.condition,
                 catalogCategoryId: dto.catalogCategoryId ?? null,
                 specs: validatedSpecs ? validatedSpecs : client_1.Prisma.JsonNull,
                 conditionGrade: dto.conditionGrade ?? null,
@@ -100,7 +102,7 @@ let ListingsService = class ListingsService {
     }
     async update(sellerId, listingId, dto) {
         const listing = await this.findOwned(sellerId, listingId);
-        if (!EDITABLE_STATUSES.includes(listing.status)) {
+        if (!DETAILS_EDITABLE_STATUSES.includes(listing.status)) {
             throw new common_1.ForbiddenException(`Listing cannot be edited while in ${listing.status} status`);
         }
         const { askingPrice, complexityTier, catalogCategoryId, specs, origin, importedCountry, ...rest } = dto;
@@ -285,7 +287,10 @@ let ListingsService = class ListingsService {
     }
     async approve(listingId) {
         const listing = await this.requirePendingReview(listingId);
-        return this.prisma.listing.update({ where: { id: listing.id }, data: { status: client_1.ListingStatus.ACTIVE } });
+        return this.prisma.listing.update({
+            where: { id: listing.id },
+            data: { status: client_1.ListingStatus.ACTIVE, postedAt: listing.postedAt ?? new Date() },
+        });
     }
     async reject(listingId) {
         const listing = await this.requirePendingReview(listingId);
@@ -301,7 +306,10 @@ let ListingsService = class ListingsService {
     }
     async reactivate(listingId) {
         const listing = await this.requireStatus(listingId, [client_1.ListingStatus.SOLD, client_1.ListingStatus.WITHDRAWN]);
-        return this.prisma.listing.update({ where: { id: listing.id }, data: { status: client_1.ListingStatus.ACTIVE } });
+        return this.prisma.listing.update({
+            where: { id: listing.id },
+            data: { status: client_1.ListingStatus.ACTIVE, postedAt: listing.postedAt ?? new Date() },
+        });
     }
     async requireStatus(listingId, allowed) {
         const listing = await this.prisma.listing.findUnique({ where: { id: listingId } });
@@ -327,7 +335,7 @@ let ListingsService = class ListingsService {
         const where = await this.buildPublicWhere(query);
         return this.paginate({ ...where, status: client_1.ListingStatus.ACTIVE }, query);
     }
-    async findPublicById(listingId) {
+    async findPublicById(listingId, viewer, ip) {
         const listing = await this.prisma.listing.findFirst({
             where: { id: listingId, status: { in: [client_1.ListingStatus.ACTIVE, client_1.ListingStatus.UNDER_OFFER, client_1.ListingStatus.SOLD] } },
             include: {
@@ -338,7 +346,36 @@ let ListingsService = class ListingsService {
         if (!listing) {
             throw new common_1.NotFoundException('Listing not found');
         }
+        const isOwnListing = viewer?.id === listing.sellerId;
+        const isAdmin = viewer?.role === client_1.UserRole.ADMIN;
+        if (!isOwnListing && !isAdmin) {
+            const viewerKey = viewer ? `user:${viewer.id}` : `ip:${ip ?? 'unknown'}`;
+            try {
+                const counted = await this.recordView(listing.id, viewerKey);
+                if (counted)
+                    listing.viewCount += 1;
+            }
+            catch {
+            }
+        }
         return listing;
+    }
+    async recordView(listingId, viewerKey) {
+        const existing = await this.prisma.listingView.findUnique({
+            where: { listingId_viewerKey: { listingId, viewerKey } },
+        });
+        if (existing && Date.now() - existing.viewedAt.getTime() < 24 * 60 * 60 * 1000) {
+            return false;
+        }
+        await this.prisma.$transaction([
+            this.prisma.listingView.upsert({
+                where: { listingId_viewerKey: { listingId, viewerKey } },
+                create: { listingId, viewerKey },
+                update: { viewedAt: new Date() },
+            }),
+            this.prisma.listing.update({ where: { id: listingId }, data: { viewCount: { increment: 1 } } }),
+        ]);
+        return true;
     }
     async findAnyById(listingId) {
         const listing = await this.prisma.listing.findUnique({
@@ -428,6 +465,8 @@ let ListingsService = class ListingsService {
             where.conditionGrade = { equals: query.condition, mode: 'insensitive' };
         if (query.origin)
             where.origin = query.origin;
+        if (query.conditionType)
+            where.condition = query.conditionType;
         if (query.city)
             where.locationCity = { equals: query.city, mode: 'insensitive' };
         if (query.state)

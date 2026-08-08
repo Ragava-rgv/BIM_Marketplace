@@ -1,6 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '@prisma/client';
+import { SupportedLanguage, User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { OtpService } from './otp.service';
 import type { SignupDto } from './dto/signup.dto';
@@ -40,6 +40,7 @@ export declare class AuthService {
         locationState: any;
         activeMode: any;
         canSell: any;
+        preferredLanguage: import("@prisma/client").$Enums.SupportedLanguage;
         createdAt: string;
         updatedAt: string;
     }>;
@@ -57,11 +58,13 @@ export declare class AuthService {
         locationState: any;
         activeMode: any;
         canSell: any;
+        preferredLanguage: import("@prisma/client").$Enums.SupportedLanguage;
         createdAt: string;
         updatedAt: string;
     };
     switchToSeller(userId: string): Promise<AuthTokens>;
     switchMode(userId: string, mode: 'BUYER' | 'SELLER'): Promise<ReturnType<typeof this.toUserDto>>;
+    switchLanguage(userId: string, language: SupportedLanguage): Promise<ReturnType<typeof this.toUserDto>>;
     logout(refreshToken: string): Promise<void>;
     private addDuration;
 }

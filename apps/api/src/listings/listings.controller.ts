@@ -9,13 +9,16 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import type { Request } from 'express';
 import { UserRole } from '@prisma/client';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../common/guards/optional-jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -41,8 +44,9 @@ export class ListingsController {
   }
 
   @Get(':id')
-  async getOne(@Param('id') id: string) {
-    return this.listings.findPublicById(id);
+  @UseGuards(OptionalJwtAuthGuard)
+  async getOne(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser | undefined, @Req() req: Request) {
+    return this.listings.findPublicById(id, user, req.ip);
   }
 
   // -- Seller -----------------------------------------------------------------

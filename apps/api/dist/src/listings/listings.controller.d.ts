@@ -1,3 +1,4 @@
+import type { Request } from 'express';
 import type { AuthenticatedUser } from '../auth/types/jwt-payload.interface';
 import { ListingsService } from './listings.service';
 import { CreateListingDto } from './dto/create-listing.dto';
@@ -40,6 +41,7 @@ export declare class ListingsController {
             importedCountry: string | null;
             askingPrice: import("@prisma/client/runtime/library").Decimal;
             complexityTier: import("@prisma/client").$Enums.ComplexityTier;
+            condition: import("@prisma/client").$Enums.ListingCondition;
             catalogCategoryId: string | null;
             specs: import("@prisma/client/runtime/library").JsonValue | null;
             conditionGrade: string | null;
@@ -49,12 +51,14 @@ export declare class ListingsController {
             subcategoryId: string | null;
             isBoosted: boolean;
             boostExpiresAt: Date | null;
+            postedAt: Date | null;
+            viewCount: number;
         })[];
         total: number;
         page: number;
         pageSize: number;
     }>;
-    getOne(id: string): Promise<{
+    getOne(id: string, user: AuthenticatedUser | undefined, req: Request): Promise<{
         id: string;
         machineCategory: string;
         locationCity: string;
@@ -73,6 +77,7 @@ export declare class ListingsController {
         importedCountry: string | null;
         askingPrice: import("@prisma/client/runtime/library").Decimal;
         complexityTier: import("@prisma/client").$Enums.ComplexityTier;
+        condition: import("@prisma/client").$Enums.ListingCondition;
         catalogCategoryId: string | null;
         specs: import("@prisma/client/runtime/library").JsonValue | null;
         conditionGrade: string | null;
@@ -82,6 +87,8 @@ export declare class ListingsController {
         subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
+        postedAt: Date | null;
+        viewCount: number;
     } & {
         media: import("@prisma/client").ListingMedia[];
     }>;
@@ -104,6 +111,7 @@ export declare class ListingsController {
         importedCountry: string | null;
         askingPrice: import("@prisma/client/runtime/library").Decimal;
         complexityTier: import("@prisma/client").$Enums.ComplexityTier;
+        condition: import("@prisma/client").$Enums.ListingCondition;
         catalogCategoryId: string | null;
         specs: import("@prisma/client/runtime/library").JsonValue | null;
         conditionGrade: string | null;
@@ -113,6 +121,8 @@ export declare class ListingsController {
         subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
+        postedAt: Date | null;
+        viewCount: number;
     }>;
     findMine(user: AuthenticatedUser): Promise<{
         id: string;
@@ -133,6 +143,7 @@ export declare class ListingsController {
         importedCountry: string | null;
         askingPrice: import("@prisma/client/runtime/library").Decimal;
         complexityTier: import("@prisma/client").$Enums.ComplexityTier;
+        condition: import("@prisma/client").$Enums.ListingCondition;
         catalogCategoryId: string | null;
         specs: import("@prisma/client/runtime/library").JsonValue | null;
         conditionGrade: string | null;
@@ -142,6 +153,8 @@ export declare class ListingsController {
         subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
+        postedAt: Date | null;
+        viewCount: number;
     }[]>;
     findOwned(user: AuthenticatedUser, id: string): Promise<{
         id: string;
@@ -162,6 +175,7 @@ export declare class ListingsController {
         importedCountry: string | null;
         askingPrice: import("@prisma/client/runtime/library").Decimal;
         complexityTier: import("@prisma/client").$Enums.ComplexityTier;
+        condition: import("@prisma/client").$Enums.ListingCondition;
         catalogCategoryId: string | null;
         specs: import("@prisma/client/runtime/library").JsonValue | null;
         conditionGrade: string | null;
@@ -171,6 +185,8 @@ export declare class ListingsController {
         subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
+        postedAt: Date | null;
+        viewCount: number;
     } & {
         media: import("@prisma/client").ListingMedia[];
     }>;
@@ -193,6 +209,7 @@ export declare class ListingsController {
         importedCountry: string | null;
         askingPrice: import("@prisma/client/runtime/library").Decimal;
         complexityTier: import("@prisma/client").$Enums.ComplexityTier;
+        condition: import("@prisma/client").$Enums.ListingCondition;
         catalogCategoryId: string | null;
         specs: import("@prisma/client/runtime/library").JsonValue | null;
         conditionGrade: string | null;
@@ -202,6 +219,8 @@ export declare class ListingsController {
         subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
+        postedAt: Date | null;
+        viewCount: number;
     }>;
     withdraw(user: AuthenticatedUser, id: string): Promise<{
         id: string;
@@ -222,6 +241,7 @@ export declare class ListingsController {
         importedCountry: string | null;
         askingPrice: import("@prisma/client/runtime/library").Decimal;
         complexityTier: import("@prisma/client").$Enums.ComplexityTier;
+        condition: import("@prisma/client").$Enums.ListingCondition;
         catalogCategoryId: string | null;
         specs: import("@prisma/client/runtime/library").JsonValue | null;
         conditionGrade: string | null;
@@ -231,6 +251,8 @@ export declare class ListingsController {
         subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
+        postedAt: Date | null;
+        viewCount: number;
     }>;
     addMedia(user: AuthenticatedUser, id: string, dto: UploadMediaDto, file: Express.Multer.File): Promise<{
         id: string;
@@ -287,6 +309,7 @@ export declare class ListingsController {
         importedCountry: string | null;
         askingPrice: import("@prisma/client/runtime/library").Decimal;
         complexityTier: import("@prisma/client").$Enums.ComplexityTier;
+        condition: import("@prisma/client").$Enums.ListingCondition;
         catalogCategoryId: string | null;
         specs: import("@prisma/client/runtime/library").JsonValue | null;
         conditionGrade: string | null;
@@ -296,5 +319,7 @@ export declare class ListingsController {
         subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
+        postedAt: Date | null;
+        viewCount: number;
     }>;
 }

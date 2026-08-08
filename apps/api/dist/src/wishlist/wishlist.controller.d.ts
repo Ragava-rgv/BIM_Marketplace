@@ -34,6 +34,7 @@ export declare class WishlistController {
         importedCountry: string | null;
         askingPrice: import("@prisma/client/runtime/library").Decimal;
         complexityTier: import("@prisma/client").$Enums.ComplexityTier;
+        condition: import("@prisma/client").$Enums.ListingCondition;
         catalogCategoryId: string | null;
         specs: import("@prisma/client/runtime/library").JsonValue | null;
         conditionGrade: string | null;
@@ -43,6 +44,8 @@ export declare class WishlistController {
         subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
+        postedAt: Date | null;
+        viewCount: number;
     })[]>;
     listIds(user: AuthenticatedUser): Promise<string[]>;
     add(user: AuthenticatedUser, listingId: string): Promise<{

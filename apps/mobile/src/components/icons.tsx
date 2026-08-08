@@ -25,6 +25,9 @@ export const ChevronRightIcon = (p: SVGProps<SVGSVGElement>) => <Icon {...p}><po
 export const RupeeIcon = (p: SVGProps<SVGSVGElement>) => <Icon {...p}><path d="M5 4h12M5 8h12M5 4c3.5 0 5.5 1.3 5.5 3.5S8.5 11 5 11h-1l7 7" /></Icon>;
 export const ShieldIcon = (p: SVGProps<SVGSVGElement>) => <Icon {...p}><path d="M11 2.5L4 5.5v4c0 4 2.9 7.6 7 8.8 4.1-1.2 7-4.8 7-8.8v-4L11 2.5z" /></Icon>;
 export const MachineIcon = (p: SVGProps<SVGSVGElement>) => <Icon {...p}><rect x="3" y="9" width="13" height="9" rx="1.5" /><path d="M7 9V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3" /><circle cx="7.5" cy="13.5" r="1.4" /><circle cx="12.5" cy="13.5" r="1.4" /></Icon>;
+export const ArrowUpIcon = (p: SVGProps<SVGSVGElement>) => <Icon {...p}><line x1="11" y1="17" x2="11" y2="5" /><polyline points="5 11 11 5 17 11" /></Icon>;
+export const ArrowDownIcon = (p: SVGProps<SVGSVGElement>) => <Icon {...p}><line x1="11" y1="5" x2="11" y2="17" /><polyline points="5 11 11 17 17 11" /></Icon>;
+export const StarIcon = (p: SVGProps<SVGSVGElement>) => <Icon {...p}><polygon points="11 2 13.7 8 20 9 15.3 13.3 16.5 20 11 16.7 5.5 20 6.7 13.3 2 9 8.3 8" /></Icon>;
 
 export const PlayIcon = (p: SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 9 9" {...p}><polygon points="2,1 7.5,4.5 2,8" /></svg>

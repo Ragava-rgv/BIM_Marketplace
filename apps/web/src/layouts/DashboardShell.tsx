@@ -1,5 +1,6 @@
-﻿import { useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { UserRole } from '@machinebazaar/shared';
 import { useAuth } from '../lib/auth-context';
 import { BimIcon, BimLogoLight } from '../components/BimLogo';
@@ -18,6 +19,7 @@ export interface ShellNavItem {
  * bottom nav (Blinkit-style) for the first few items, and an outlet.
  */
 export function DashboardShell({ title, items }: { title: string; items: ShellNavItem[] }) {
+  const { t } = useTranslation();
   const { user, logout, switchMode } = useAuth();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -26,6 +28,10 @@ export function DashboardShell({ title, items }: { title: string; items: ShellNa
     await logout();
     navigate('/');
   };
+
+  const switchModeLabel = user?.activeMode === 'SELLER'
+    ? t('layout.dashboardShell.switchToBuyerMode')
+    : t('layout.dashboardShell.switchToSellerMode');
 
   const navContent = (
     <nav className="flex flex-1 flex-col gap-1 px-3">
@@ -53,7 +59,7 @@ export function DashboardShell({ title, items }: { title: string; items: ShellNa
   return (
     <div className="flex min-h-screen bg-paper">
       <aside className="hidden w-64 shrink-0 flex-col bg-ink lg:flex">
-        <Link to="/" className="px-6 py-6" aria-label="BIM home">
+        <Link to="/" className="px-6 py-6" aria-label={t('layout.dashboardShell.bimHomeAria')}>
           <BimLogoLight />
         </Link>
         <p className="px-6 pb-4 font-mono text-[10.5px] font-semibold uppercase tracking-[0.14em] text-copper">{title}</p>
@@ -71,7 +77,7 @@ export function DashboardShell({ title, items }: { title: string; items: ShellNa
               }}
               className="mt-2.5 inline-flex w-full items-center justify-center gap-2 rounded-[7px] border border-white/15 bg-white/8 px-3 py-1.5 text-[12px] font-semibold text-white/75 transition hover:bg-white/15 hover:text-white"
             >
-              {user.activeMode === 'SELLER' ? 'Switch to Buyer mode' : 'Switch to Seller mode'}
+              {switchModeLabel}
             </button>
           )}
           <button
@@ -80,7 +86,7 @@ export function DashboardShell({ title, items }: { title: string; items: ShellNa
             className="mt-3 inline-flex items-center gap-2 text-[13px] font-semibold text-white/55 transition hover:text-white"
           >
             <LogoutIcon className="h-4 w-4" />
-            Log out
+            {t('layout.dashboardShell.logOut')}
           </button>
         </div>
       </aside>
@@ -90,7 +96,7 @@ export function DashboardShell({ title, items }: { title: string; items: ShellNa
           <div className="absolute inset-0 bg-ink/40" onClick={() => setMobileOpen(false)} />
           <aside className="relative flex w-72 flex-col bg-ink">
             <div className="flex items-center justify-between px-6 py-6">
-              <Link to="/" onClick={() => setMobileOpen(false)} aria-label="BIM home">
+              <Link to="/" onClick={() => setMobileOpen(false)} aria-label={t('layout.dashboardShell.bimHomeAria')}>
                 <BimLogoLight />
               </Link>
               <button type="button" onClick={() => setMobileOpen(false)} className="text-white/70">
@@ -112,7 +118,7 @@ export function DashboardShell({ title, items }: { title: string; items: ShellNa
                   }}
                   className="mt-2.5 inline-flex w-full items-center justify-center gap-2 rounded-[7px] border border-white/15 bg-white/8 px-3 py-1.5 text-[12px] font-semibold text-white/75 transition hover:bg-white/15 hover:text-white"
                 >
-                  {user.activeMode === 'SELLER' ? 'Switch to Buyer mode' : 'Switch to Seller mode'}
+                  {switchModeLabel}
                 </button>
               )}
               <button
@@ -121,7 +127,7 @@ export function DashboardShell({ title, items }: { title: string; items: ShellNa
                 className="mt-3 inline-flex items-center gap-2 text-[13px] font-semibold text-white/55"
               >
                 <LogoutIcon className="h-4 w-4" />
-                Log out
+                {t('layout.dashboardShell.logOut')}
               </button>
             </div>
           </aside>
@@ -130,10 +136,10 @@ export function DashboardShell({ title, items }: { title: string; items: ShellNa
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-line bg-white px-6 py-4 lg:hidden">
-          <Link to="/" aria-label="BIM home">
+          <Link to="/" aria-label={t('layout.dashboardShell.bimHomeAria')}>
             <BimIcon size={32} />
           </Link>
-          <button type="button" onClick={() => setMobileOpen(true)} className="text-ink" aria-label="Open menu">
+          <button type="button" onClick={() => setMobileOpen(true)} className="text-ink" aria-label={t('layout.dashboardShell.openMenuAria')}>
             <MenuIcon className="h-6 w-6" />
           </button>
         </header>

@@ -1,16 +1,18 @@
 ﻿import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   MACHINE_CATEGORIES,
   MIN_LISTING_PHOTOS,
   MAX_LISTING_PHOTOS,
   MIN_VIDEO_DURATION_SECONDS,
 } from '@machinebazaar/shared';
-import type { CategoryGroupDto, CategorySpecTemplateDto, ListingDto } from '@machinebazaar/shared';
+import type { CategoryGroupDto, CategorySpecTemplateDto, ListingDto, ListingMediaDto } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
 import { AppLayout } from '../../components/AppLayout';
-import { CheckIcon, ChevronRightIcon, PlusIcon } from '../../components/icons';
+import { ArrowDownIcon, ArrowUpIcon, CheckIcon, ChevronRightIcon, PlusIcon, StarIcon } from '../../components/icons';
 import { INDIA_STATES, INDIA_STATES_AND_CITIES } from '../../lib/india-locations';
+import { scrollToFirstError, useFieldRefs } from '../../lib/form-errors';
 
 const inputCls =
   'w-full h-[50px] bg-gray-50 border border-gray-200 rounded-[12px] px-4 text-[14px] text-ink font-medium placeholder-gray-400 outline-none focus:border-forest focus:bg-white transition';
@@ -64,6 +66,7 @@ interface FormData {
   catalogCategoryId: string;
   specs: Record<string, string>;
   conditionGrade: string;
+  condition: 'OLD' | 'NEW';
   runningHours: string;
   negotiable: boolean;
 }
@@ -84,6 +87,7 @@ const EMPTY_FORM: FormData = {
   catalogCategoryId: '',
   specs: {},
   conditionGrade: '',
+  condition: 'OLD',
   runningHours: '',
   negotiable: false,
 };
@@ -98,6 +102,7 @@ const IMPORT_COUNTRIES = [
 interface UploadedPhoto {
   id: string;
   localUrl: string;
+  isPrimary: boolean;
 }
 
 interface UploadedVideo {
@@ -131,9 +136,11 @@ function fmtDuration(secs: number) {
 const STEPS = ['Details', 'Photos & Video', 'Review'] as const;
 
 function StepBar({ current }: { current: 0 | 1 | 2 }) {
+  const { t } = useTranslation();
+  const stepLabels = t('seller.newListing.stepLabels', { returnObjects: true }) as unknown as string[];
   return (
     <div className="flex items-center px-4 py-3 gap-1 bg-white border-b border-gray-100">
-      {STEPS.map((label, i) => (
+      {STEPS.map((_, i) => (
         <div
           key={i}
           className={`flex items-center gap-1.5 ${i < STEPS.length - 1 ? 'flex-1' : ''}`}
@@ -154,7 +161,7 @@ function StepBar({ current }: { current: 0 | 1 | 2 }) {
               i === current ? 'text-forest' : i < current ? 'text-forest/60' : 'text-gray-400'
             }`}
           >
-            {label}
+            {stepLabels[i] ?? STEPS[i]}
           </span>
           {i < STEPS.length - 1 && (
             <div
@@ -168,6 +175,7 @@ function StepBar({ current }: { current: 0 | 1 | 2 }) {
 }
 
 export function NewListing() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [step, setStep] = useState<0 | 1 | 2 | 3>(0);
@@ -181,6 +189,7 @@ export function NewListing() {
   const [runningHoursNA, setRunningHoursNA] = useState(false);
   const [step1Loading, setStep1Loading] = useState(false);
   const [step1Error, setStep1Error] = useState<string | null>(null);
+  const { refs: fieldRefs, setFieldRef } = useFieldRefs<HTMLElement>();
 
   useEffect(() => {
     api.get<CategoryGroupDto[]>('/category-groups').then(({ data }) => setCatGroups(data)).catch(() => {});
@@ -203,6 +212,8 @@ export function NewListing() {
   const [video, setVideo] = useState<UploadedVideo | null>(null);
   const [videoUploading, setVideoUploading] = useState(false);
   const [mediaError, setMediaError] = useState<string | null>(null);
+  const [reorderingId, setReorderingId] = useState<string | null>(null);
+  const [primaryPending, setPrimaryPending] = useState<string | null>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
 
@@ -220,29 +231,36 @@ export function NewListing() {
 
   // â”€â”€ Step 0 submit â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-  const validateDetails = (): string | null => {
-    if (form.title.trim().length < 5) return 'Title must be at least 5 characters.';
-    if (!form.machineCategory) return 'Please select a machine category.';
-    if (!form.machineMake.trim()) return 'Machine make is required.';
-    if (!form.machineModel.trim()) return 'Machine model is required.';
-    if (form.origin === 'IMPORTED' && !form.importedCountry) return 'Please select the country of import.';
-    if (!form.askingPrice || parseFloat(form.askingPrice) <= 0)
-      return 'Enter a valid asking price.';
-    if (!form.locationState) return 'Please select a state.';
-    if (!form.locationCity) return 'Please select a city.';
-    if (form.description.trim().length < 20) return 'Description must be at least 20 characters.';
-    // Required spec fields
+  const detailsFieldOrder = [
+    'title', 'machineCategory', 'machineMake', 'machineModel', 'importedCountry',
+    'askingPrice', 'locationState', 'locationCity', 'description',
+    ...specFields.filter((f) => f.isRequired).map((f) => f.fieldKey),
+  ];
+
+  const detailsFieldErrors = (): Record<string, string | false> => {
+    const errors: Record<string, string | false> = {
+      title: form.title.trim().length < 5 && t('seller.newListing.errors.titleTooShort'),
+      machineCategory: !form.machineCategory && t('seller.newListing.errors.categoryRequired'),
+      machineMake: !form.machineMake.trim() && t('seller.newListing.errors.makeRequired'),
+      machineModel: !form.machineModel.trim() && t('seller.newListing.errors.modelRequired'),
+      importedCountry: form.origin === 'IMPORTED' && !form.importedCountry && t('seller.newListing.errors.importedCountryRequired'),
+      askingPrice: (!form.askingPrice || parseFloat(form.askingPrice) <= 0) && t('seller.newListing.errors.invalidPrice'),
+      locationState: !form.locationState && t('seller.newListing.errors.stateRequired'),
+      locationCity: !form.locationCity && t('seller.newListing.errors.cityRequired'),
+      description: form.description.trim().length < 20 && t('seller.newListing.errors.descriptionTooShort'),
+    };
     for (const f of specFields.filter((sf) => sf.isRequired)) {
-      if (!(form.specs[f.fieldKey] ?? '').trim()) return `${f.fieldLabel} is required.`;
+      errors[f.fieldKey] = !(form.specs[f.fieldKey] ?? '').trim() && t('seller.newListing.errors.specFieldRequired', { field: f.fieldLabel });
     }
-    return null;
+    return errors;
   };
 
   const handleDetailsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const err = validateDetails();
-    if (err) {
-      setStep1Error(err);
+    const fieldErrors = detailsFieldErrors();
+    if (Object.values(fieldErrors).some(Boolean)) {
+      setStep1Error(t('seller.newListing.errors.fixHighlightedFields'));
+      scrollToFirstError(detailsFieldOrder, fieldErrors, fieldRefs);
       return;
     }
     setStep1Loading(true);
@@ -258,6 +276,7 @@ export function NewListing() {
         manufactureYear: form.manufactureYear ? parseInt(form.manufactureYear, 10) : null,
         origin: form.origin,
         ...(form.origin === 'IMPORTED' ? { importedCountry: form.importedCountry } : {}),
+        condition: form.condition,
         askingPrice: parseFloat(form.askingPrice),
         locationCity: form.locationCity,
         locationState: form.locationState,
@@ -270,7 +289,7 @@ export function NewListing() {
       setListing(data);
       setStep(1);
     } catch (err) {
-      setStep1Error(apiErrorMessage(err, 'Failed to create listing. Please try again.'));
+      setStep1Error(apiErrorMessage(err, t('seller.newListing.errors.createFailed')));
     } finally {
       setStep1Loading(false);
     }
@@ -282,7 +301,7 @@ export function NewListing() {
     if (!listing) return;
     const remaining = MAX_LISTING_PHOTOS - photos.length;
     if (remaining <= 0) {
-      setMediaError(`Maximum ${MAX_LISTING_PHOTOS} photos already uploaded.`);
+      setMediaError(t('seller.newListing.errors.maxPhotosUploaded', { count: MAX_LISTING_PHOTOS }));
       return;
     }
     const toUpload = Array.from(files).slice(0, remaining);
@@ -296,14 +315,14 @@ export function NewListing() {
         fd.append('file', file);
         fd.append('type', 'PHOTO');
         fd.append('capturedAt', new Date().toISOString());
-        const { data } = await api.post<{ id: string }>(
+        const { data } = await api.post<ListingMediaDto>(
           `/listings/${listing.id}/media`,
           fd,
           { headers: { 'Content-Type': 'multipart/form-data' } },
         );
-        added.push({ id: data.id, localUrl });
+        added.push({ id: data.id, localUrl, isPrimary: data.isPrimary });
       } catch (err) {
-        setMediaError(apiErrorMessage(err, 'A photo failed to upload. Please try again.'));
+        setMediaError(apiErrorMessage(err, t('seller.newListing.errors.photoUploadFailed')));
         break;
       }
     }
@@ -319,7 +338,52 @@ export function NewListing() {
       URL.revokeObjectURL(photo.localUrl);
       setPhotos((p) => p.filter((ph) => ph.id !== photo.id));
     } catch (err) {
-      setMediaError(apiErrorMessage(err, 'Could not remove photo.'));
+      setMediaError(apiErrorMessage(err, t('seller.newListing.errors.removePhotoFailed')));
+    }
+  };
+
+  const handleMovePhoto = async (photoId: string, direction: -1 | 1) => {
+    if (!listing) return;
+    const index = photos.findIndex((p) => p.id === photoId);
+    const swapIndex = index + direction;
+    if (index === -1 || swapIndex < 0 || swapIndex >= photos.length) return;
+
+    const reordered = [...photos];
+    [reordered[index], reordered[swapIndex]] = [reordered[swapIndex], reordered[index]];
+
+    setMediaError(null);
+    setReorderingId(photoId);
+    try {
+      const { data } = await api.patch<ListingMediaDto[]>(`/listings/${listing.id}/media/reorder`, {
+        mediaIds: reordered.map((p) => p.id),
+      });
+      setPhotos((prev) =>
+        data
+          .filter((m) => m.type === 'PHOTO')
+          .map((m) => ({ id: m.id, isPrimary: m.isPrimary, localUrl: prev.find((p) => p.id === m.id)?.localUrl ?? m.url })),
+      );
+    } catch (err) {
+      setMediaError(apiErrorMessage(err, t('seller.newListing.errors.reorderPhotosFailed')));
+    } finally {
+      setReorderingId(null);
+    }
+  };
+
+  const handleSetPrimary = async (photoId: string) => {
+    if (!listing) return;
+    setMediaError(null);
+    setPrimaryPending(photoId);
+    try {
+      const { data } = await api.patch<ListingMediaDto[]>(`/listings/${listing.id}/media/${photoId}/primary`);
+      setPhotos((prev) =>
+        data
+          .filter((m) => m.type === 'PHOTO')
+          .map((m) => ({ id: m.id, isPrimary: m.isPrimary, localUrl: prev.find((p) => p.id === m.id)?.localUrl ?? m.url })),
+      );
+    } catch (err) {
+      setMediaError(apiErrorMessage(err, t('seller.newListing.errors.setPrimaryFailed')));
+    } finally {
+      setPrimaryPending(null);
     }
   };
 
@@ -334,14 +398,14 @@ export function NewListing() {
       try {
         durationSeconds = await getVideoDuration(file);
       } catch {
-        setMediaError('Could not read video duration. Please choose a different file.');
+        setMediaError(t('seller.newListing.errors.videoDurationReadFailed'));
         setVideoUploading(false);
         if (videoInputRef.current) videoInputRef.current.value = '';
         return;
       }
       if (durationSeconds < MIN_VIDEO_DURATION_SECONDS) {
         setMediaError(
-          `Video must be at least ${MIN_VIDEO_DURATION_SECONDS} seconds long (yours is ${fmtDuration(durationSeconds)}).`,
+          t('seller.newListing.errors.videoTooShort', { min: MIN_VIDEO_DURATION_SECONDS, actual: fmtDuration(durationSeconds) }),
         );
         setVideoUploading(false);
         if (videoInputRef.current) videoInputRef.current.value = '';
@@ -358,7 +422,7 @@ export function NewListing() {
       );
       setVideo({ id: data.id, durationSeconds });
     } catch (err) {
-      setMediaError(apiErrorMessage(err, 'Video upload failed. Please try again.'));
+      setMediaError(apiErrorMessage(err, t('seller.newListing.errors.videoUploadFailed')));
     } finally {
       setVideoUploading(false);
       if (videoInputRef.current) videoInputRef.current.value = '';
@@ -371,7 +435,7 @@ export function NewListing() {
       await api.delete(`/listings/${listing.id}/media/${video.id}`);
       setVideo(null);
     } catch (err) {
-      setMediaError(apiErrorMessage(err, 'Could not remove video.'));
+      setMediaError(apiErrorMessage(err, t('seller.newListing.errors.removeVideoFailed')));
     }
   };
 
@@ -390,7 +454,7 @@ export function NewListing() {
       await api.post(`/listings/${listing.id}/submit`);
       setStep(3);
     } catch (err) {
-      setSubmitError(apiErrorMessage(err, 'Could not submit listing. Please try again.'));
+      setSubmitError(apiErrorMessage(err, t('seller.newListing.errors.submitFailed')));
       setSubmitLoading(false);
     }
   };
@@ -405,17 +469,16 @@ export function NewListing() {
             <CheckIcon className="w-8 h-8 text-forest" />
           </div>
           <h2 className="text-[22px] font-extrabold text-ink tracking-[-0.5px]">
-            Listing Submitted!
+            {t('seller.newListing.success.title')}
           </h2>
           <p className="mt-2.5 text-[13px] text-gray-500 leading-relaxed max-w-xs">
-            Your listing is under review by our team. Once approved, it will be visible to buyers
-            — usually within 1–2 business days.
+            {t('seller.newListing.success.description')}
           </p>
           <button
             onClick={() => navigate('/seller/listings', { replace: true })}
             className="mt-8 w-full max-w-xs h-[52px] bg-forest text-white rounded-[13px] text-[15px] font-bold"
           >
-            View My Listings
+            {t('seller.newListing.success.viewListingsButton')}
           </button>
         </div>
       </AppLayout>
@@ -437,9 +500,12 @@ export function NewListing() {
           <ChevronRightIcon className="w-4 h-4 text-gray-500 rotate-180" />
         </button>
         <div>
-          <h1 className="text-[17px] font-extrabold text-ink tracking-[-0.3px]">New Listing</h1>
+          <h1 className="text-[17px] font-extrabold text-ink tracking-[-0.3px]">{t('seller.newListing.title')}</h1>
           <p className="text-[11px] text-gray-500">
-            Step {(step as number) + 1} of 3 — {STEPS[step as number]}
+            {t('seller.newListing.stepIndicator', {
+              current: (step as number) + 1,
+              label: (t('seller.newListing.stepLabels', { returnObjects: true }) as unknown as string[])[step as number] ?? STEPS[step as number],
+            })}
           </p>
         </div>
       </div>
@@ -450,23 +516,25 @@ export function NewListing() {
       {step === 0 && (
         <form onSubmit={handleDetailsSubmit} className="px-4 pt-4 pb-6 space-y-4">
           <Field
-            label="Listing title"
+            label={t('seller.newListing.fields.title')}
             required
-            hint="Minimum 5 characters (e.g. BFW CNC Turning Centre TC-20)"
+            hint={t('seller.newListing.fields.titleHint')}
           >
             <input
+              ref={setFieldRef('title')}
               value={form.title}
               onChange={(e) => setField('title', e.target.value)}
-              placeholder="e.g. BFW CNC Turning Centre TC-20"
+              placeholder={t('seller.newListing.fields.titlePlaceholder')}
               className={inputCls}
               minLength={5}
               maxLength={160}
             />
           </Field>
 
-          <Field label="Machine category" required>
+          <Field label={t('seller.newListing.fields.category')} required>
             <SelectWrapper>
               <select
+                ref={setFieldRef('machineCategory')}
                 value={form.machineCategory}
                 onChange={(e) => {
                   setField('machineCategory', e.target.value);
@@ -474,10 +542,10 @@ export function NewListing() {
                 }}
                 className={selectCls}
               >
-                <option value="">Select category...</option>
+                <option value="">{t('seller.newListing.fields.categoryPlaceholder')}</option>
                 {MACHINE_CATEGORIES.map((c) => (
                   <option key={c.id} value={c.label}>
-                    {c.label}
+                    {t(`common:taxonomy.category.${c.id}.label`, c.label)}
                   </option>
                 ))}
               </select>
@@ -485,14 +553,14 @@ export function NewListing() {
           </Field>
 
           {subcategories.length > 0 && (
-            <Field label="Subcategory" hint="Optional — helps buyers filter">
+            <Field label={t('seller.newListing.fields.subcategory')} hint={t('seller.newListing.fields.subcategoryHint')}>
               <SelectWrapper>
                 <select
                   value={form.machineSubcategory}
                   onChange={(e) => setField('machineSubcategory', e.target.value)}
                   className={selectCls}
                 >
-                  <option value="">Select subcategory...</option>
+                  <option value="">{t('seller.newListing.fields.subcategoryPlaceholder')}</option>
                   {subcategories.map((s) => (
                     <option key={s} value={s}>
                       {s}
@@ -507,12 +575,12 @@ export function NewListing() {
           {catGroups.length > 0 && (
             <div className="bg-gray-50 rounded-[14px] border border-gray-200 p-4 space-y-3">
               <div>
-                <p className="text-[12.5px] font-bold text-ink mb-0.5">Spec template (optional)</p>
+                <p className="text-[12.5px] font-bold text-ink mb-0.5">{t('seller.newListing.specTemplate.title')}</p>
                 <p className="text-[11px] text-gray-500">
-                  Select to unlock spec fields specific to this machine type.
+                  {t('seller.newListing.specTemplate.description')}
                 </p>
               </div>
-              <Field label="Catalog category">
+              <Field label={t('seller.newListing.specTemplate.catalogCategoryLabel')}>
                 <SelectWrapper>
                   <select
                     value={form.catalogCategoryId}
@@ -522,7 +590,7 @@ export function NewListing() {
                     }}
                     className={selectCls}
                   >
-                    <option value="">None</option>
+                    <option value="">{t('seller.newListing.specTemplate.noneOption')}</option>
                     {catGroups.map((group) => (
                       <optgroup key={group.id} label={group.name}>
                         {group.categories.map((cat) => (
@@ -539,20 +607,22 @@ export function NewListing() {
                   {f.fieldType === 'select' || f.fieldType === 'boolean' ? (
                     <SelectWrapper>
                       <select
+                        ref={setFieldRef(f.fieldKey)}
                         value={form.specs[f.fieldKey] ?? ''}
                         onChange={(e) => setSpec(f.fieldKey, e.target.value)}
                         className={selectCls}
                         required={f.isRequired}
                       >
-                        <option value="">Select...</option>
+                        <option value="">{t('seller.newListing.specTemplate.selectPlaceholder')}</option>
                         {f.fieldType === 'boolean'
-                          ? ['true', 'false'].map((v) => <option key={v} value={v}>{v === 'true' ? 'Yes' : 'No'}</option>)
+                          ? ['true', 'false'].map((v) => <option key={v} value={v}>{v === 'true' ? t('common:common.label.yes') : t('common:common.label.no')}</option>)
                           : f.options.map((o) => <option key={o} value={o}>{o}</option>)
                         }
                       </select>
                     </SelectWrapper>
                   ) : (
                     <input
+                      ref={setFieldRef(f.fieldKey)}
                       type={f.fieldType === 'number' ? 'number' : 'text'}
                       value={form.specs[f.fieldKey] ?? ''}
                       onChange={(e) => setSpec(f.fieldKey, e.target.value)}
@@ -566,21 +636,21 @@ export function NewListing() {
 
               {form.catalogCategoryId && (
                 <div className="grid grid-cols-2 gap-3">
-                  <Field label="Condition grade" hint="A=excellent B=good C=fair">
+                  <Field label={t('seller.newListing.specTemplate.conditionGrade')} hint={t('seller.newListing.specTemplate.conditionGradeHint')}>
                     <SelectWrapper>
                       <select value={form.conditionGrade} onChange={(e) => setField('conditionGrade', e.target.value)} className={selectCls}>
-                        <option value="">Select...</option>
+                        <option value="">{t('seller.newListing.specTemplate.selectPlaceholder')}</option>
                         {['A', 'B', 'C'].map((g) => <option key={g} value={g}>{g}</option>)}
                       </select>
                     </SelectWrapper>
                   </Field>
-                  <Field label="Running hours">
+                  <Field label={t('seller.newListing.specTemplate.runningHours')}>
                     <input
                       type="number"
                       min={0}
                       value={form.runningHours}
                       onChange={(e) => setField('runningHours', e.target.value)}
-                      placeholder="4200"
+                      placeholder={t('seller.newListing.fields.runningHoursPlaceholder')}
                       disabled={runningHoursNA}
                       className={inputCls}
                     />
@@ -594,7 +664,7 @@ export function NewListing() {
                         }}
                         className="h-3.5 w-3.5 rounded"
                       />
-                      Not available
+                      {t('common:common.label.notAvailable')}
                     </label>
                   </Field>
                   <div className="flex items-end pb-1">
@@ -605,7 +675,7 @@ export function NewListing() {
                         onChange={(e) => setForm((prev) => ({ ...prev, negotiable: e.target.checked }))}
                         className="h-4 w-4 rounded"
                       />
-                      Negotiable
+                      {t('seller.newListing.specTemplate.negotiable')}
                     </label>
                   </div>
                 </div>
@@ -614,62 +684,77 @@ export function NewListing() {
           )}
 
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Make" required>
+            <Field label={t('seller.newListing.fields.make')} required>
               <input
+                ref={setFieldRef('machineMake')}
                 value={form.machineMake}
                 onChange={(e) => setField('machineMake', e.target.value)}
-                placeholder="e.g. BFW"
+                placeholder={t('seller.newListing.fields.makePlaceholder')}
                 className={inputCls}
               />
             </Field>
-            <Field label="Model" required>
+            <Field label={t('seller.newListing.fields.model')} required>
               <input
+                ref={setFieldRef('machineModel')}
                 value={form.machineModel}
                 onChange={(e) => setField('machineModel', e.target.value)}
-                placeholder="e.g. TC-20"
+                placeholder={t('seller.newListing.fields.modelPlaceholder')}
                 className={inputCls}
               />
             </Field>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Year bought" hint="Leave as Not available if unknown">
+            <Field label={t('seller.newListing.fields.yearBought')} hint={t('seller.newListing.fields.yearBoughtHint')}>
               <SelectWrapper>
                 <select
                   value={form.manufactureYear}
                   onChange={(e) => setField('manufactureYear', e.target.value)}
                   className={selectCls}
                 >
-                  <option value="">Not available</option>
+                  <option value="">{t('common:common.label.notAvailable')}</option>
                   {YEAR_OPTIONS.map((year) => (
                     <option key={year} value={year}>{year}</option>
                   ))}
                 </select>
               </SelectWrapper>
             </Field>
-            <Field label="Make origin" required>
+            <Field label={t('seller.newListing.fields.origin')} required>
               <SelectWrapper>
                 <select
                   value={form.origin}
                   onChange={(e) => setField('origin', e.target.value as FormData['origin'])}
                   className={selectCls}
                 >
-                  <option value="INDIAN">Indian</option>
-                  <option value="IMPORTED">Imported</option>
+                  <option value="INDIAN">{t('seller.newListing.origin.indian')}</option>
+                  <option value="IMPORTED">{t('seller.newListing.origin.imported')}</option>
+                </select>
+              </SelectWrapper>
+            </Field>
+            <Field label={t('common:listing.condition')} required>
+              <SelectWrapper>
+                <select
+                  value={form.condition}
+                  onChange={(e) => setField('condition', e.target.value as FormData['condition'])}
+                  className={selectCls}
+                >
+                  <option value="OLD">{t('common:listing.conditionOld')}</option>
+                  <option value="NEW">{t('common:listing.conditionNew')}</option>
                 </select>
               </SelectWrapper>
             </Field>
           </div>
 
           {form.origin === 'IMPORTED' && (
-            <Field label="Country of import" required>
+            <Field label={t('seller.newListing.fields.importedCountry')} required>
               <SelectWrapper>
                 <select
+                  ref={setFieldRef('importedCountry')}
                   value={form.importedCountry}
                   onChange={(e) => setField('importedCountry', e.target.value)}
                   className={selectCls}
                 >
-                  <option value="">Select country…</option>
+                  <option value="">{t('seller.newListing.fields.importedCountryPlaceholder')}</option>
                   {IMPORT_COUNTRIES.map((country) => (
                     <option key={country} value={country}>{country}</option>
                   ))}
@@ -678,20 +763,22 @@ export function NewListing() {
             </Field>
           )}
 
-          <Field label="Asking price (₹)" required>
+          <Field label={t('seller.newListing.fields.price')} required>
             <input
+              ref={setFieldRef('askingPrice')}
               type="text"
               inputMode="numeric"
               value={form.askingPrice ? Number(form.askingPrice).toLocaleString('en-IN') : ''}
               onChange={(e) => setField('askingPrice', e.target.value.replace(/[^0-9]/g, ''))}
-              placeholder="18,50,000"
+              placeholder={t('seller.newListing.fields.pricePlaceholder')}
               className={inputCls}
             />
           </Field>
 
-          <Field label="State" required>
+          <Field label={t('seller.newListing.fields.state')} required>
             <SelectWrapper>
               <select
+                ref={setFieldRef('locationState')}
                 value={form.locationState}
                 onChange={(e) => {
                   setField('locationState', e.target.value);
@@ -699,7 +786,7 @@ export function NewListing() {
                 }}
                 className={selectCls}
               >
-                <option value="">Select state...</option>
+                <option value="">{t('seller.newListing.fields.statePlaceholder')}</option>
                 {INDIA_STATES.map((s) => (
                   <option key={s} value={s}>
                     {s}
@@ -710,18 +797,19 @@ export function NewListing() {
           </Field>
 
           <Field
-            label="City"
+            label={t('seller.newListing.fields.city')}
             required
-            hint={!form.locationState ? 'Select a state first' : undefined}
+            hint={!form.locationState ? t('seller.newListing.fields.cityHint') : undefined}
           >
             <SelectWrapper>
               <select
+                ref={setFieldRef('locationCity')}
                 value={form.locationCity}
                 onChange={(e) => setField('locationCity', e.target.value)}
                 className={selectCls}
                 disabled={!form.locationState}
               >
-                <option value="">Select city...</option>
+                <option value="">{t('seller.newListing.fields.cityPlaceholder')}</option>
                 {cities.map((c) => (
                   <option key={c} value={c}>
                     {c}
@@ -732,21 +820,22 @@ export function NewListing() {
           </Field>
 
           <Field
-            label="Description"
+            label={t('seller.newListing.fields.description')}
             required
-            hint="Minimum 20 characters — condition, accessories, reason for sale"
+            hint={t('seller.newListing.fields.descriptionHint')}
           >
             <textarea
+              ref={setFieldRef('description')}
               value={form.description}
               onChange={(e) => setField('description', e.target.value)}
-              placeholder="e.g. Machine in excellent condition, all tooling included, selling due to plant upgrade. Runs smoothly with zero backlash."
+              placeholder={t('seller.newListing.fields.descriptionPlaceholder')}
               rows={5}
               className="w-full bg-gray-50 border border-gray-200 rounded-[12px] px-4 py-3 text-[14px] text-ink font-medium placeholder-gray-400 outline-none focus:border-forest focus:bg-white transition resize-none"
             />
             <p
               className={`mt-1 text-[11px] text-right ${form.description.length < 20 ? 'text-gray-400' : 'text-green-txt'}`}
             >
-              {form.description.length} / 20 min
+              {t('seller.newListing.fields.descriptionCounter', { count: form.description.length })}
             </p>
           </Field>
 
@@ -761,7 +850,7 @@ export function NewListing() {
             disabled={step1Loading}
             className="w-full h-[52px] bg-forest text-white rounded-[13px] text-[15px] font-bold disabled:opacity-50"
           >
-            {step1Loading ? 'Creating draft...' : 'Next: Add Photos & Video →'}
+            {step1Loading ? t('seller.newListing.creatingDraft') : t('seller.newListing.nextAddMedia')}
           </button>
         </form>
       )}
@@ -780,22 +869,22 @@ export function NewListing() {
             <p
               className={`text-[12px] font-bold mb-1.5 ${mediaGatePassed ? 'text-green-txt' : 'text-copper'}`}
             >
-              {mediaGatePassed ? 'All media requirements met' : 'Media requirements'}
+              {mediaGatePassed ? t('seller.newListing.media.requirementsMet') : t('seller.newListing.media.requirementsTitle')}
             </p>
             <div className="space-y-1">
               <p
                 className={`text-[11px] font-medium ${photos.length >= MIN_LISTING_PHOTOS ? 'text-green-txt' : 'text-copper'}`}
               >
-                {photos.length >= MIN_LISTING_PHOTOS ? '✓' : '○'} Photos:{' '}
-                {photos.length} of {MIN_LISTING_PHOTOS}–{MAX_LISTING_PHOTOS} required
+                {photos.length >= MIN_LISTING_PHOTOS ? '✓' : '○'}{' '}
+                {t('seller.newListing.media.photosLine', { count: photos.length, min: MIN_LISTING_PHOTOS, max: MAX_LISTING_PHOTOS })}
               </p>
               <p
                 className={`text-[11px] font-medium ${video ? 'text-green-txt' : 'text-copper'}`}
               >
-                {video ? '✓' : '○'} Video:{' '}
+                {video ? '✓' : '○'}{' '}
                 {video
-                  ? `Uploaded (${fmtDuration(video.durationSeconds)})`
-                  : `1 video of at least ${MIN_VIDEO_DURATION_SECONDS}s required`}
+                  ? t('seller.newListing.media.videoUploadedLine', { duration: fmtDuration(video.durationSeconds) })
+                  : t('seller.newListing.media.videoRequiredLine', { min: MIN_VIDEO_DURATION_SECONDS })}
               </p>
             </div>
           </div>
@@ -803,7 +892,7 @@ export function NewListing() {
           {/* Photos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           <div>
             <div className="flex items-center justify-between mb-2.5">
-              <p className="text-[13.5px] font-bold text-ink">Machine photos</p>
+              <p className="text-[13.5px] font-bold text-ink">{t('seller.newListing.media.machinePhotos')}</p>
               <span
                 className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
                   photos.length >= MIN_LISTING_PHOTOS
@@ -824,9 +913,17 @@ export function NewListing() {
                   >
                     <img
                       src={photo.localUrl}
-                      alt={`Photo ${i + 1}`}
+                      alt={t('seller.newListing.media.photoAlt', { index: i + 1 })}
                       className="w-full h-full object-cover"
                     />
+
+                    {photo.isPrimary && (
+                      <span className="absolute left-1 top-1 flex items-center gap-0.5 rounded-[6px] bg-forest px-1.5 py-0.5 text-[8.5px] font-bold text-white">
+                        <StarIcon className="w-2 h-2 fill-white stroke-white" />
+                        {t('seller.newListing.media.primaryBadge')}
+                      </span>
+                    )}
+
                     <button
                       type="button"
                       onClick={() => removePhoto(photo)}
@@ -834,6 +931,40 @@ export function NewListing() {
                     >
                       ×
                     </button>
+
+                    <div className="absolute bottom-1 left-1 right-1 flex items-center justify-between gap-1">
+                      {!photo.isPrimary ? (
+                        <button
+                          type="button"
+                          onClick={() => handleSetPrimary(photo.id)}
+                          disabled={primaryPending === photo.id}
+                          className="flex h-6 w-6 items-center justify-center rounded-[6px] bg-white/85 text-ink disabled:opacity-50"
+                          aria-label={t('seller.newListing.media.setPrimaryAriaLabel')}
+                        >
+                          <StarIcon className="w-3 h-3" />
+                        </button>
+                      ) : <span />}
+                      <div className="flex gap-1">
+                        <button
+                          type="button"
+                          onClick={() => handleMovePhoto(photo.id, -1)}
+                          disabled={reorderingId === photo.id || i === 0}
+                          className="flex h-6 w-6 items-center justify-center rounded-[6px] bg-white/85 text-ink disabled:opacity-40"
+                          aria-label={t('seller.newListing.media.moveEarlierAriaLabel')}
+                        >
+                          <ArrowUpIcon className="w-3 h-3" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleMovePhoto(photo.id, 1)}
+                          disabled={reorderingId === photo.id || i === photos.length - 1}
+                          className="flex h-6 w-6 items-center justify-center rounded-[6px] bg-white/85 text-ink disabled:opacity-40"
+                          aria-label={t('seller.newListing.media.moveLaterAriaLabel')}
+                        >
+                          <ArrowDownIcon className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -858,28 +989,27 @@ export function NewListing() {
                   className="w-full h-[50px] border-2 border-dashed border-gray-300 rounded-[12px] flex items-center justify-center gap-2 text-[13px] font-semibold text-gray-500 disabled:opacity-50 bg-gray-50"
                 >
                   {photoUploading ? (
-                    <span className="animate-pulse text-forest">Uploading...</span>
+                    <span className="animate-pulse text-forest">{t('seller.newListing.media.uploadingPhotos')}</span>
                   ) : (
                     <>
                       <PlusIcon className="w-4 h-4" />
                       {photos.length === 0
-                        ? `Add photos (need ${MIN_LISTING_PHOTOS}–${MAX_LISTING_PHOTOS})`
-                        : `Add more (${MAX_LISTING_PHOTOS - photos.length} remaining)`}
+                        ? t('seller.newListing.media.addPhotosNeeded', { min: MIN_LISTING_PHOTOS, max: MAX_LISTING_PHOTOS })
+                        : t('seller.newListing.media.addMorePhotos', { count: MAX_LISTING_PHOTOS - photos.length })}
                     </>
                   )}
                 </button>
               </>
             )}
             <p className="mt-1.5 text-[11px] text-gray-400">
-              All angles — front, back, sides, control panel, work area. Photos must be taken
-              recently.
+              {t('seller.newListing.media.photosHint')}
             </p>
           </div>
 
           {/* Video â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           <div>
             <div className="flex items-center justify-between mb-2.5">
-              <p className="text-[13.5px] font-bold text-ink">Running video</p>
+              <p className="text-[13.5px] font-bold text-ink">{t('seller.newListing.media.runningVideo')}</p>
               <span
                 className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
                   video ? 'bg-green-bg text-green-txt' : 'bg-gray-100 text-gray-500'
@@ -892,7 +1022,7 @@ export function NewListing() {
             {video ? (
               <div className="bg-white border border-gray-200 rounded-[12px] px-4 py-3 flex items-center justify-between">
                 <div>
-                  <p className="text-[13px] font-semibold text-ink">Video uploaded</p>
+                  <p className="text-[13px] font-semibold text-ink">{t('seller.newListing.media.videoUploaded')}</p>
                   <p className="text-[11px] text-gray-500 mt-0.5">{fmtDuration(video.durationSeconds)}</p>
                 </div>
                 <button
@@ -900,7 +1030,7 @@ export function NewListing() {
                   onClick={removeVideo}
                   className="text-[11px] font-semibold text-red-600 border border-red-200 rounded-[8px] px-2.5 py-1"
                 >
-                  Remove
+                  {t('common:common.button.remove')}
                 </button>
               </div>
             ) : (
@@ -921,19 +1051,18 @@ export function NewListing() {
                   className="w-full h-[50px] border-2 border-dashed border-gray-300 rounded-[12px] flex items-center justify-center gap-2 text-[13px] font-semibold text-gray-500 disabled:opacity-50 bg-gray-50"
                 >
                   {videoUploading ? (
-                    <span className="animate-pulse text-forest">Uploading video...</span>
+                    <span className="animate-pulse text-forest">{t('seller.newListing.media.uploadingVideo')}</span>
                   ) : (
                     <>
                       <PlusIcon className="w-4 h-4" />
-                      Add video (min {MIN_VIDEO_DURATION_SECONDS}s)
+                      {t('seller.newListing.media.addVideo', { min: MIN_VIDEO_DURATION_SECONDS })}
                     </>
                   )}
                 </button>
               </>
             )}
             <p className="mt-1.5 text-[11px] text-gray-400">
-              Record a walkaround showing the machine actively running — at least 1 minute.
-              Buyers use this to assess condition before enquiring.
+              {t('seller.newListing.media.videoHint')}
             </p>
           </div>
 
@@ -952,7 +1081,7 @@ export function NewListing() {
             disabled={!mediaGatePassed || photoUploading || videoUploading}
             className="w-full h-[52px] bg-forest text-white rounded-[13px] text-[15px] font-bold disabled:opacity-50"
           >
-            Next: Review & Submit →
+            {t('seller.newListing.nextReview')}
           </button>
         </div>
       )}
@@ -961,33 +1090,33 @@ export function NewListing() {
       {step === 2 && listing && (
         <div className="px-4 pt-4 pb-6 space-y-4">
           <p className="text-[12.5px] text-gray-500">
-            Check everything below, then submit for the BIM team to review.
+            {t('seller.newListing.review.intro')}
           </p>
 
           {/* Details summary */}
           <div className="bg-white border border-gray-200 rounded-[14px] overflow-hidden divide-y divide-gray-100">
             {(
               [
-                ['Title', listing.title],
+                [t('seller.newListing.review.labels.title'), listing.title],
                 [
-                  'Category',
+                  t('seller.newListing.review.labels.category'),
                   [listing.machineCategory, listing.machineSubcategory]
                     .filter(Boolean)
                     .join(' › '),
                 ],
-                ['Make / Model', `${listing.machineMake} ${listing.machineModel}`],
-                ['Year', listing.manufactureYear != null ? String(listing.manufactureYear) : 'Not available'],
+                [t('seller.newListing.review.labels.makeModel'), `${listing.machineMake} ${listing.machineModel}`],
+                [t('seller.newListing.review.labels.year'), listing.manufactureYear != null ? String(listing.manufactureYear) : t('common:common.label.notAvailable')],
                 [
-                  'Origin',
+                  t('seller.newListing.review.labels.origin'),
                   listing.origin === 'IMPORTED'
-                    ? `Imported${listing.importedCountry ? ` (${listing.importedCountry})` : ''}`
-                    : 'Indian',
+                    ? `${t('seller.newListing.origin.imported')}${listing.importedCountry ? ` (${listing.importedCountry})` : ''}`
+                    : t('seller.newListing.origin.indian'),
                 ],
                 [
-                  'Asking price',
+                  t('seller.newListing.review.labels.askingPrice'),
                   `₹ ${Number(listing.askingPrice).toLocaleString('en-IN')}`,
                 ],
-                ['Location', `${listing.locationCity}, ${listing.locationState}`],
+                [t('seller.newListing.review.labels.location'), `${listing.locationCity}, ${listing.locationState}`],
               ] as [string, string][]
             ).map(([label, value]) => (
               <div key={label} className="flex items-start gap-3 px-4 py-3">
@@ -999,18 +1128,18 @@ export function NewListing() {
             ))}
             <div className="flex items-start gap-3 px-4 py-3">
               <p className="text-[11px] font-semibold text-gray-500 w-24 shrink-0 pt-0.5">
-                Media
+                {t('seller.newListing.review.labels.media')}
               </p>
               <p className="text-[13px] text-ink font-medium flex-1">
-                {photos.length} photo{photos.length !== 1 ? 's' : ''} ·{' '}
-                {video ? `1 video (${fmtDuration(video.durationSeconds)})` : '1 video'}
+                {t('seller.newListing.review.photoCount', { count: photos.length })} ·{' '}
+                {video ? t('seller.newListing.review.videoWithDuration', { duration: fmtDuration(video.durationSeconds) }) : t('seller.newListing.review.videoNoDuration')}
               </p>
             </div>
           </div>
 
           {/* Description */}
           <div className="bg-white border border-gray-200 rounded-[14px] px-4 py-3">
-            <p className="text-[11px] font-semibold text-gray-500 mb-1.5">Description</p>
+            <p className="text-[11px] font-semibold text-gray-500 mb-1.5">{t('seller.newListing.review.descriptionLabel')}</p>
             <p className="text-[13px] text-ink font-medium leading-relaxed">
               {listing.description}
             </p>
@@ -1018,10 +1147,9 @@ export function NewListing() {
 
           {/* Notice */}
           <div className="bg-forest-bg border border-forest-bdr rounded-[12px] px-3.5 py-3">
-            <p className="text-[12px] font-bold text-forest mb-0.5">Pending admin review</p>
+            <p className="text-[12px] font-bold text-forest mb-0.5">{t('seller.newListing.review.pendingReviewTitle')}</p>
             <p className="text-[11px] text-forest/75">
-              Once submitted, our team will verify the listing details and photos, then approve it
-              for buyers to browse. This usually takes 1–2 business days.
+              {t('seller.newListing.review.pendingReviewDescription')}
             </p>
           </div>
 
@@ -1037,7 +1165,7 @@ export function NewListing() {
             disabled={submitLoading}
             className="w-full h-[52px] bg-forest text-white rounded-[13px] text-[15px] font-bold disabled:opacity-50"
           >
-            {submitLoading ? 'Submitting...' : 'Submit for Review →'}
+            {submitLoading ? t('seller.newListing.submitting') : t('seller.newListing.submitForReview')}
           </button>
 
           <button
@@ -1045,7 +1173,7 @@ export function NewListing() {
             onClick={() => setStep(1)}
             className="w-full h-[44px] border border-gray-200 rounded-[13px] text-[13px] font-semibold text-gray-600 bg-white"
           >
-            ← Back to Media
+            {t('seller.newListing.backToMedia')}
           </button>
         </div>
       )}

@@ -1,4 +1,5 @@
 ﻿import { useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { GstStatus } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../lib/api';
 import { useAuth } from '../lib/auth-context';
@@ -13,6 +14,7 @@ const GSTIN_PATTERN = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$
  * submits the GSTIN and reflects the resulting gst_status / business_name.
  */
 export function GstVerificationPanel({ intro, requireAddress = false }: { intro: ReactNode; requireAddress?: boolean }) {
+  const { t } = useTranslation();
   const { user, refreshProfile } = useAuth();
   const [gstNumber, setGstNumber] = useState(user?.gstNumber ?? '');
   const [address, setAddress] = useState(user?.address ?? '');
@@ -36,9 +38,9 @@ export function GstVerificationPanel({ intro, requireAddress = false }: { intro:
         ...(requireAddress ? { address: address.trim() } : {}),
       });
       await refreshProfile();
-      setSuccess('Your GST registration is verified and active.');
+      setSuccess(t('components.gstVerificationPanel.verifySuccess'));
     } catch (err) {
-      setError(apiErrorMessage(err, 'We could not verify that GSTIN. Please double-check the number and try again.'));
+      setError(apiErrorMessage(err, t('components.gstVerificationPanel.verifyError')));
     } finally {
       setSubmitting(false);
     }
@@ -52,7 +54,7 @@ export function GstVerificationPanel({ intro, requireAddress = false }: { intro:
             <ShieldCheckIcon className="h-6 w-6" />
           </span>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-navy/40">Current GST status</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-navy/40">{t('components.gstVerificationPanel.currentStatus')}</p>
             <div className="mt-1 flex items-center gap-2">
               <StatusBadge status={user.gstStatus} />
               {user.businessName && <span className="text-sm font-medium text-navy">{user.businessName}</span>}
@@ -69,20 +71,20 @@ export function GstVerificationPanel({ intro, requireAddress = false }: { intro:
           <div className="flex items-start gap-3 rounded-xl bg-emerald-50 p-4 text-sm text-emerald-700">
             <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0" />
             <p>
-              Your GSTIN <span className="font-semibold">{user.gstNumber}</span> is verified and active
+              {t('components.gstVerificationPanel.verifiedPrefix')} <span className="font-semibold">{user.gstNumber}</span> {t('components.gstVerificationPanel.verifiedMiddle')}
               {user.businessName && (
                 <>
-                  {' '}for <span className="font-semibold">{user.businessName}</span>
+                  {' '}{t('components.gstVerificationPanel.verifiedFor')} <span className="font-semibold">{user.businessName}</span>
                 </>
               )}
-              . No further action is needed.
+              . {t('components.gstVerificationPanel.verifiedSuffix')}
             </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && <ErrorBanner message={error} />}
             {success && <SuccessBanner message={success} />}
-            <Field label="GSTIN" hint="15-character GST identification number, e.g. 27AAACU9603R1ZM">
+            <Field label={t('components.gstVerificationPanel.gstinLabel')} hint={t('components.gstVerificationPanel.gstinHint')}>
               <Input
                 value={gstNumber}
                 onChange={(e) => setGstNumber(e.target.value.toUpperCase().slice(0, 15))}
@@ -92,18 +94,18 @@ export function GstVerificationPanel({ intro, requireAddress = false }: { intro:
               />
             </Field>
             {requireAddress && (
-              <Field label="Business address" hint="Shown to buyers after they view your contact details">
+              <Field label={t('components.gstVerificationPanel.businessAddressLabel')} hint={t('components.gstVerificationPanel.businessAddressHint')}>
                 <Input
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  placeholder="Plot 12, Industrial Estate, Chennai, Tamil Nadu 600001"
+                  placeholder={t('components.gstVerificationPanel.businessAddressPlaceholder')}
                   required
                   minLength={10}
                 />
               </Field>
             )}
             <Button type="submit" disabled={!valid || submitting}>
-              {submitting ? 'Verifying with Masters India...' : 'Verify GSTIN'}
+              {submitting ? t('components.gstVerificationPanel.verifying') : t('components.gstVerificationPanel.verifyButton')}
             </Button>
           </form>
         )}

@@ -1,5 +1,6 @@
 ﻿import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { AdvertisementDto, CategoryDto, ListingDto, PaginatedResult } from '@machinebazaar/shared';
 import { api } from '../../lib/api';
 import { ListingCard } from '../../components/ListingCard';
@@ -25,13 +26,14 @@ function interleaveAds(items: ListingDto[], ads: AdvertisementDto[]): GridEntry[
 }
 
 function AdTile({ ad }: { ad: AdvertisementDto }) {
+  const { t } = useTranslation();
   const content = (
     <img src={ad.imageUrl} alt={ad.title} className="h-full w-full rounded-xl object-cover" />
   );
   return (
     <div className="relative overflow-hidden rounded-xl border border-dashed border-line-2 bg-paper">
       <span className="absolute left-2 top-2 z-[1] rounded bg-ink/70 px-1.5 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-wide text-white">
-        Ad
+        {t('public.listings.adBadge')}
       </span>
       {ad.linkUrl ? (
         <a href={ad.linkUrl} target="_blank" rel="noopener noreferrer sponsored" className="block h-full">
@@ -54,6 +56,7 @@ interface Filters {
   priceMax: string;
   condition: string;
   origin: string;
+  conditionType: string;
   sort: string;
 }
 
@@ -67,18 +70,26 @@ const EMPTY_FILTERS: Filters = {
   priceMax: '',
   condition: '',
   origin: '',
+  conditionType: '',
   sort: '',
 };
 
 const ORIGIN_OPTIONS = [
-  { value: 'INDIAN', label: 'Indian' },
-  { value: 'IMPORTED', label: 'Imported' },
+  { value: 'INDIAN', key: 'indian' },
+  { value: 'IMPORTED', key: 'imported' },
 ];
 
 const CONDITION_OPTIONS = [
-  { value: 'A', label: 'A — Excellent' },
-  { value: 'B', label: 'B — Good' },
-  { value: 'C', label: 'C — Fair' },
+  { value: 'A', key: 'excellent' },
+  { value: 'B', key: 'good' },
+  { value: 'C', key: 'fair' },
+];
+
+/** Old/New — named "conditionType" to avoid colliding with the pre-existing A/B/C quality
+    grade filter above (that one is unfortunately just called "condition"). */
+const OLD_NEW_OPTIONS = [
+  { value: 'OLD', key: 'conditionOld' },
+  { value: 'NEW', key: 'conditionNew' },
 ];
 
 const SELECT_ARROW =
@@ -88,12 +99,12 @@ const selectCls =
   'appearance-none rounded-lg border border-line bg-white bg-[length:12px] bg-[right_10px_center] bg-no-repeat pl-3 pr-8 py-2 text-sm text-ink outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/10';
 
 const BUDGET_RANGES = [
-  { label: 'Any price', min: '', max: '' },
-  { label: 'Under ₹5L', min: '', max: '500000' },
-  { label: '₹5L — ₹20L', min: '500000', max: '2000000' },
-  { label: '₹20L — ₹50L', min: '2000000', max: '5000000' },
-  { label: '₹50L — ₹1Cr', min: '5000000', max: '10000000' },
-  { label: 'Above ₹1Cr', min: '10000000', max: '' },
+  { key: 'anyPrice', min: '', max: '' },
+  { key: 'under5L', min: '', max: '500000' },
+  { key: '5Lto20L', min: '500000', max: '2000000' },
+  { key: '20Lto50L', min: '2000000', max: '5000000' },
+  { key: '50LtoCr', min: '5000000', max: '10000000' },
+  { key: 'above1Cr', min: '10000000', max: '' },
 ];
 
 /**
@@ -118,15 +129,16 @@ function FilterFields({
   update: <K extends keyof Filters>(key: K, value: Filters[K]) => void;
   applyFilters: (f: Filters) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-5">
       {/* Search */}
       <div>
-        <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">Search</p>
+        <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">{t('public.listings.filters.searchLabel')}</p>
         <div className="relative">
           <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
           <Input
-            placeholder="Title, make, model..."
+            placeholder={t('public.listings.filters.searchPlaceholder')}
             className="pl-9"
             value={inputSearch}
             onChange={(e) => handleSearchInput(e.target.value)}
@@ -136,7 +148,7 @@ function FilterFields({
 
       {/* Category — expandable tree */}
       <div>
-        <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">Category</p>
+        <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">{t('public.listings.filters.categoryLabel')}</p>
         <div className="space-y-0.5">
           <button
             type="button"
@@ -145,7 +157,7 @@ function FilterFields({
               !filters.category ? 'bg-[#101828] text-white' : 'text-slate hover:bg-paper'
             }`}
           >
-            All categories
+            {t('public.listings.filters.allCategories')}
           </button>
           {categories.map((cat) => {
             const isActive = filters.category === cat.name;
@@ -173,7 +185,7 @@ function FilterFields({
                         !filters.subcategory ? 'text-copper' : 'text-muted hover:text-ink'
                       }`}
                     >
-                      All {cat.name}
+                      {t('public.listings.filters.allOfCategory', { category: cat.name })}
                     </button>
                     {(cat.subcategories ?? []).map((sub) => (
                       <button
@@ -204,9 +216,9 @@ function FilterFields({
 
       {/* Make */}
       <div>
-        <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">Make</p>
+        <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">{t('public.listings.filters.makeLabel')}</p>
         <Input
-          placeholder="e.g. HMT, BFW, Mazak"
+          placeholder={t('public.listings.filters.makePlaceholder')}
           value={filters.make}
           onChange={(e) => update('make', e.target.value)}
         />
@@ -214,14 +226,14 @@ function FilterFields({
 
       {/* State */}
       <div>
-        <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">State</p>
+        <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">{t('public.listings.filters.stateLabel')}</p>
         <select
           value={filters.state}
           onChange={(e) => update('state', e.target.value)}
           className={`${selectCls} w-full`}
           style={{ backgroundImage: SELECT_ARROW }}
         >
-          <option value="">All India</option>
+          <option value="">{t('public.listings.filters.allIndia')}</option>
           {INDIA_STATES.map((s) => (
             <option key={s} value={s}>{s}</option>
           ))}
@@ -230,13 +242,13 @@ function FilterFields({
 
       {/* Budget */}
       <div>
-        <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">Budget (INR)</p>
+        <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">{t('public.listings.filters.budgetLabel')}</p>
         <div className="space-y-1.5">
           {BUDGET_RANGES.map((range) => {
             const active = filters.priceMin === range.min && filters.priceMax === range.max;
             return (
               <button
-                key={range.label}
+                key={range.key}
                 type="button"
                 onClick={() => {
                   const next = { ...filters, priceMin: range.min, priceMax: range.max };
@@ -248,7 +260,7 @@ function FilterFields({
                     : 'border-line bg-white text-muted hover:border-line-2 hover:text-ink'
                 }`}
               >
-                {range.label}
+                {t(`public.listings.budgetRanges.${range.key}`)}
               </button>
             );
           })}
@@ -257,32 +269,48 @@ function FilterFields({
 
       {/* Condition */}
       <div>
-        <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">Condition</p>
+        <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">{t('public.listings.filters.conditionLabel')}</p>
         <select
           value={filters.condition}
           onChange={(e) => update('condition', e.target.value)}
           className={`${selectCls} w-full`}
           style={{ backgroundImage: SELECT_ARROW }}
         >
-          <option value="">Any</option>
+          <option value="">{t('public.listings.filters.any')}</option>
           {CONDITION_OPTIONS.map((c) => (
-            <option key={c.value} value={c.value}>{c.label}</option>
+            <option key={c.value} value={c.value}>{t(`public.listings.conditionOptions.${c.key}`)}</option>
           ))}
         </select>
       </div>
 
       {/* Origin */}
       <div>
-        <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">Origin</p>
+        <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">{t('public.listings.filters.originLabel')}</p>
         <select
           value={filters.origin}
           onChange={(e) => update('origin', e.target.value)}
           className={`${selectCls} w-full`}
           style={{ backgroundImage: SELECT_ARROW }}
         >
-          <option value="">Any</option>
+          <option value="">{t('public.listings.filters.any')}</option>
           {ORIGIN_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>{o.label}</option>
+            <option key={o.value} value={o.value}>{t(`public.listings.originOptions.${o.key}`)}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Old / New */}
+      <div>
+        <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-ink">{t('common:listing.condition')}</p>
+        <select
+          value={filters.conditionType}
+          onChange={(e) => update('conditionType', e.target.value)}
+          className={`${selectCls} w-full`}
+          style={{ backgroundImage: SELECT_ARROW }}
+        >
+          <option value="">{t('public.listings.filters.any')}</option>
+          {OLD_NEW_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>{t(`common:listing.${o.key}`)}</option>
           ))}
         </select>
       </div>
@@ -291,6 +319,7 @@ function FilterFields({
 }
 
 export function Listings() {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = useState<Filters>({
     ...EMPTY_FILTERS,
@@ -302,6 +331,7 @@ export function Listings() {
     priceMax: searchParams.get('priceMax') ?? '',
     condition: searchParams.get('condition') ?? '',
     origin: searchParams.get('origin') ?? '',
+    conditionType: searchParams.get('conditionType') ?? '',
     sort: searchParams.get('sort') ?? '',
   });
   // Separate input value so the field is live while the API call is debounced
@@ -322,14 +352,30 @@ export function Listings() {
     api.get<AdvertisementDto[]>('/advertisements').then(({ data }) => setAds(data)).catch(() => {});
   }, []);
 
-  // `filters.search` is only seeded from the URL once at mount — re-sync whenever the URL's
-  // `search` param changes from outside this page (e.g. the header search bar navigating here
-  // while this component is already mounted, which React Router does not remount for).
+  // `filters` is only seeded from the URL once at mount — re-sync whenever the URL's params
+  // change from outside this page (e.g. the header's search bar or location selector
+  // navigating here with new query params while this component is already mounted on
+  // /listings, which React Router does not remount for since it's the same route element).
+  // Previously this only re-synced `search`, so e.g. picking a state from the header while
+  // already on /listings updated the URL but silently left the results unfiltered.
   useEffect(() => {
-    const urlSearch = searchParams.get('search') ?? '';
-    if (urlSearch !== filters.search) {
-      setFilters((prev) => ({ ...prev, search: urlSearch }));
-      setInputSearch(urlSearch);
+    const fromUrl: Filters = {
+      search: searchParams.get('search') ?? '',
+      category: searchParams.get('category') ?? '',
+      subcategory: searchParams.get('subcategory') ?? '',
+      make: searchParams.get('make') ?? '',
+      state: searchParams.get('state') ?? '',
+      priceMin: searchParams.get('priceMin') ?? '',
+      priceMax: searchParams.get('priceMax') ?? '',
+      condition: searchParams.get('condition') ?? '',
+      origin: searchParams.get('origin') ?? '',
+      conditionType: searchParams.get('conditionType') ?? '',
+      sort: searchParams.get('sort') ?? '',
+    };
+    const changed = (Object.keys(fromUrl) as (keyof Filters)[]).some((k) => fromUrl[k] !== filters[k]);
+    if (changed) {
+      setFilters(fromUrl);
+      setInputSearch(fromUrl.search);
       setPage(1);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -349,6 +395,7 @@ export function Listings() {
     if (filters.priceMax) params.priceMax = filters.priceMax;
     if (filters.condition) params.condition = filters.condition;
     if (filters.origin) params.origin = filters.origin;
+    if (filters.conditionType) params.conditionType = filters.conditionType;
     if (filters.sort) params.sort = filters.sort;
 
     api
@@ -371,6 +418,7 @@ export function Listings() {
     if (f.priceMax) next.priceMax = f.priceMax;
     if (f.condition) next.condition = f.condition;
     if (f.origin) next.origin = f.origin;
+    if (f.conditionType) next.conditionType = f.conditionType;
     if (f.sort) next.sort = f.sort;
     setSearchParams(next);
     setFilters(f);
@@ -424,7 +472,7 @@ export function Listings() {
   // Counts filters other than search/sort, since those already have their own visible affordances.
   const activeFilterCount = [
     filters.category, filters.subcategory, filters.make, filters.state,
-    filters.priceMin, filters.priceMax, filters.condition, filters.origin,
+    filters.priceMin, filters.priceMax, filters.condition, filters.origin, filters.conditionType,
   ].filter(Boolean).length;
 
   // â"€â"€â"€ SEARCH MODE â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
@@ -442,7 +490,7 @@ export function Listings() {
                   autoFocus
                   value={inputSearch}
                   onChange={(e) => handleSearchInput(e.target.value)}
-                  placeholder="Search machines, makes, models..."
+                  placeholder={t('public.listings.searchModePlaceholder')}
                   className="w-full rounded-xl border border-line bg-paper py-2.5 pl-10 pr-4 text-[15px] text-ink outline-none transition placeholder:text-muted focus:border-forest focus:bg-white focus:ring-2 focus:ring-forest/10"
                 />
               </div>
@@ -452,7 +500,7 @@ export function Listings() {
                 className="flex items-center gap-1.5 rounded-lg border border-line bg-white px-3.5 py-2.5 text-[13px] font-semibold text-muted transition hover:border-rose-300 hover:text-rose-600"
               >
                 <CloseIcon className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Clear</span>
+                <span className="hidden sm:inline">{t('public.listings.clear')}</span>
               </button>
             </div>
 
@@ -460,7 +508,9 @@ export function Listings() {
             <div className="mt-2.5 flex items-center gap-3">
               {/* Count */}
               <span className="shrink-0 font-mono text-[11.5px] font-semibold uppercase tracking-[0.07em] text-muted">
-                {loading ? 'Searching...' : `${result?.total ?? 0} result${result?.total === 1 ? '' : 's'} for "${filters.search}"`}
+                {loading
+                  ? t('public.listings.searching')
+                  : t('public.listings.resultCount', { count: result?.total ?? 0, query: filters.search })}
               </span>
               {/* Separator */}
               <span className="hidden h-3.5 w-px bg-line sm:block" />
@@ -475,7 +525,7 @@ export function Listings() {
                       : 'border-line bg-white text-muted hover:border-forest hover:text-forest'
                   }`}
                 >
-                  All
+                  {t('public.listings.all')}
                 </button>
                 {categories.map((cat) => (
                   <button
@@ -500,7 +550,7 @@ export function Listings() {
                   filtersOpen ? 'border-forest bg-forest-bg text-forest' : 'border-line bg-white text-muted hover:border-forest hover:text-forest'
                 }`}
               >
-                {filtersOpen ? 'Hide filters' : 'More filters'}
+                {filtersOpen ? t('public.listings.hideFilters') : t('public.listings.moreFilters')}
               </button>
             </div>
 
@@ -509,14 +559,14 @@ export function Listings() {
               <div className="mt-3 flex flex-wrap items-end gap-3 border-t border-line pt-3">
                 {/* State */}
                 <div>
-                  <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.07em] text-muted">State</p>
+                  <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.07em] text-muted">{t('public.listings.filters.stateLabel')}</p>
                   <select
                     value={filters.state}
                     onChange={(e) => update('state', e.target.value)}
                     className={selectCls}
                     style={{ backgroundImage: SELECT_ARROW }}
                   >
-                    <option value="">All India</option>
+                    <option value="">{t('public.listings.filters.allIndia')}</option>
                     {INDIA_STATES.map((s) => (
                       <option key={s} value={s}>{s}</option>
                     ))}
@@ -524,7 +574,7 @@ export function Listings() {
                 </div>
                 {/* Budget */}
                 <div>
-                  <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.07em] text-muted">Budget</p>
+                  <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.07em] text-muted">{t('public.listings.filters.budgetLabel')}</p>
                   <select
                     value={`${filters.priceMin}|${filters.priceMax}`}
                     onChange={(e) => {
@@ -536,15 +586,15 @@ export function Listings() {
                     style={{ backgroundImage: SELECT_ARROW }}
                   >
                     {BUDGET_RANGES.map((r) => (
-                      <option key={r.label} value={`${r.min}|${r.max}`}>{r.label}</option>
+                      <option key={r.key} value={`${r.min}|${r.max}`}>{t(`public.listings.budgetRanges.${r.key}`)}</option>
                     ))}
                   </select>
                 </div>
                 {/* Make */}
                 <div>
-                  <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.07em] text-muted">Make</p>
+                  <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.07em] text-muted">{t('public.listings.filters.makeLabel')}</p>
                   <Input
-                    placeholder="e.g. HMT, BFW, Mazak"
+                    placeholder={t('public.listings.filters.makePlaceholder')}
                     value={filters.make}
                     onChange={(e) => update('make', e.target.value)}
                     className="w-44"
@@ -553,14 +603,14 @@ export function Listings() {
                 {/* Subcategory */}
                 {subcategories.length > 0 && (
                   <div>
-                    <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.07em] text-muted">Subcategory</p>
+                    <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.07em] text-muted">{t('public.listings.filters.subcategoryLabel')}</p>
                     <select
                       value={filters.subcategory}
                       onChange={(e) => update('subcategory', e.target.value)}
                       className={selectCls}
                       style={{ backgroundImage: SELECT_ARROW }}
                     >
-                      <option value="">All</option>
+                      <option value="">{t('public.listings.all')}</option>
                       {subcategories.map((sub) => (
                         <option key={sub} value={sub}>{sub}</option>
                       ))}
@@ -569,31 +619,46 @@ export function Listings() {
                 )}
                 {/* Condition */}
                 <div>
-                  <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.07em] text-muted">Condition</p>
+                  <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.07em] text-muted">{t('public.listings.filters.conditionLabel')}</p>
                   <select
                     value={filters.condition}
                     onChange={(e) => update('condition', e.target.value)}
                     className={selectCls}
                     style={{ backgroundImage: SELECT_ARROW }}
                   >
-                    <option value="">Any</option>
+                    <option value="">{t('public.listings.filters.any')}</option>
                     {CONDITION_OPTIONS.map((c) => (
-                      <option key={c.value} value={c.value}>{c.label}</option>
+                      <option key={c.value} value={c.value}>{t(`public.listings.conditionOptions.${c.key}`)}</option>
                     ))}
                   </select>
                 </div>
                 {/* Origin */}
                 <div>
-                  <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.07em] text-muted">Origin</p>
+                  <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.07em] text-muted">{t('public.listings.filters.originLabel')}</p>
                   <select
                     value={filters.origin}
                     onChange={(e) => update('origin', e.target.value)}
                     className={selectCls}
                     style={{ backgroundImage: SELECT_ARROW }}
                   >
-                    <option value="">Any</option>
+                    <option value="">{t('public.listings.filters.any')}</option>
                     {ORIGIN_OPTIONS.map((o) => (
-                      <option key={o.value} value={o.value}>{o.label}</option>
+                      <option key={o.value} value={o.value}>{t(`public.listings.originOptions.${o.key}`)}</option>
+                    ))}
+                  </select>
+                </div>
+                {/* Old / New */}
+                <div>
+                  <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.07em] text-muted">{t('common:listing.condition')}</p>
+                  <select
+                    value={filters.conditionType}
+                    onChange={(e) => update('conditionType', e.target.value)}
+                    className={selectCls}
+                    style={{ backgroundImage: SELECT_ARROW }}
+                  >
+                    <option value="">{t('public.listings.filters.any')}</option>
+                    {OLD_NEW_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>{t(`common:listing.${o.key}`)}</option>
                     ))}
                   </select>
                 </div>
@@ -602,7 +667,7 @@ export function Listings() {
                   onClick={clearAll}
                   className="text-[12.5px] font-semibold text-muted hover:text-rose-600"
                 >
-                  Reset all
+                  {t('public.listings.resetAll')}
                 </button>
               </div>
             )}
@@ -621,8 +686,8 @@ export function Listings() {
             </div>
           ) : !result || result.items.length === 0 ? (
             <EmptyState
-              title={`No machines found for "${filters.search}"`}
-              description="Try a different keyword, or clear the search to browse all listings."
+              title={t('public.listings.searchModeEmpty.title', { query: filters.search })}
+              description={t('public.listings.searchModeEmpty.description')}
             />
           ) : (
             <>
@@ -638,13 +703,13 @@ export function Listings() {
               {totalPages > 1 && (
                 <div className="mt-10 flex items-center justify-center gap-2">
                   <Button variant="ghost" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
-                    Previous
+                    {t('common:common.button.back')}
                   </Button>
                   <span className="px-3 font-mono text-[12.5px] font-medium text-muted">
-                    Page {page} of {totalPages}
+                    {t('public.listings.pageOf', { page, totalPages })}
                   </span>
                   <Button variant="ghost" disabled={page >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>
-                    Next
+                    {t('common:common.button.next')}
                   </Button>
                 </div>
               )}
@@ -674,11 +739,11 @@ export function Listings() {
               />
               <div className="flex flex-col gap-2 pt-2">
                 <Button type="submit">
-                  Apply filters
+                  {t('public.listings.applyFilters')}
                   <ChevronRightIcon className="h-4 w-4" />
                 </Button>
                 <Button type="button" variant="ghost" onClick={clearAll}>
-                  Clear all
+                  {t('public.listings.clearAll')}
                 </Button>
               </div>
             </form>
@@ -691,10 +756,10 @@ export function Listings() {
             footer={
               <div className="flex gap-2">
                 <Button type="button" onClick={() => setFiltersOpen(false)} className="flex-1 justify-center">
-                  Apply
+                  {t('common:common.button.apply')}
                 </Button>
                 <Button type="button" variant="ghost" onClick={() => { clearAll(); setFiltersOpen(false); }}>
-                  Clear all
+                  {t('public.listings.clearAll')}
                 </Button>
               </div>
             }
@@ -717,7 +782,7 @@ export function Listings() {
               <div className="relative flex-1">
                 <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
                 <Input
-                  placeholder="Search..."
+                  placeholder={t('public.listings.mobileSearchPlaceholder')}
                   className="pl-9"
                   value={inputSearch}
                   onChange={(e) => handleSearchInput(e.target.value)}
@@ -729,7 +794,7 @@ export function Listings() {
                 className="relative flex shrink-0 items-center gap-1.5 rounded-lg border border-line bg-white px-3.5 py-2 text-[13px] font-semibold text-ink transition hover:border-ink"
               >
                 <SlidersIcon className="h-4 w-4" />
-                Filters
+                {t('common:common.button.filter')}
                 {activeFilterCount > 0 && (
                   <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-copper px-1 font-mono text-[9.5px] font-bold text-white">
                     {activeFilterCount}
@@ -759,7 +824,7 @@ export function Listings() {
                   onClick={clearAll}
                   className="text-[12.5px] font-semibold text-muted hover:text-forest"
                 >
-                  All
+                  {t('public.listings.all')}
                 </button>
                 <span className="text-muted/40">/</span>
                 <span className="rounded-full bg-forest-bg px-3 py-1 text-[12.5px] font-semibold text-forest">
@@ -784,14 +849,14 @@ export function Listings() {
               </div>
             ) : !result || result.items.length === 0 ? (
               <EmptyState
-                title="No listings match your filters"
-                description="Try widening your search — new verified listings are added regularly."
+                title={t('public.listings.browseModeEmpty.title')}
+                description={t('public.listings.browseModeEmpty.description')}
               />
             ) : (
               <>
                 <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
                   <p className="font-mono text-[11.5px] font-semibold uppercase tracking-[0.08em] text-muted">
-                    {result.total} listing{result.total === 1 ? '' : 's'} found
+                    {t('public.listings.listingsFound', { count: result.total })}
                   </p>
                   <SortSelect value={filters.sort} onChange={(v) => update('sort', v)} />
                 </div>
@@ -808,13 +873,13 @@ export function Listings() {
                 {totalPages > 1 && (
                   <div className="mt-10 flex items-center justify-center gap-2">
                     <Button variant="ghost" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
-                      Previous
+                      {t('common:common.button.back')}
                     </Button>
                     <span className="px-3 font-mono text-[12.5px] font-medium text-muted">
-                      Page {page} of {totalPages}
+                      {t('public.listings.pageOf', { page, totalPages })}
                     </span>
                     <Button variant="ghost" disabled={page >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>
-                      Next
+                      {t('common:common.button.next')}
                     </Button>
                   </div>
                 )}

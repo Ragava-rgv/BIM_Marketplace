@@ -1,5 +1,6 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { ListingDto } from '@machinebazaar/shared';
 import { api } from '../../lib/api';
 import { useAuth } from '../../lib/auth-context';
@@ -7,6 +8,7 @@ import { ListingCard } from '../../components/ListingCard';
 import { Button, EmptyState, LoadingBlock, PageHeading } from '../../components/ui';
 
 export function BuyerSaved() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [listings, setListings] = useState<ListingDto[] | null>(null);
 
@@ -25,20 +27,20 @@ export function BuyerSaved() {
   return (
     <div>
       <PageHeading
-        eyebrow="Buyer workspace"
-        title="Saved listings"
-        description="Listings you've bookmarked while browsing — synced to your account, so they follow you across devices."
+        eyebrow={t('buyer.saved.eyebrow')}
+        title={t('buyer.saved.title')}
+        description={t('buyer.saved.description')}
       />
 
       {listings === null ? (
         <LoadingBlock />
       ) : listings.length === 0 ? (
         <EmptyState
-          title="Nothing saved yet"
-          description={`Open a listing and choose "Save this listing" to keep track of machines you're interested in.`}
+          title={t('buyer.saved.emptyTitle')}
+          description={t('buyer.saved.emptyDescription')}
           action={
             <Link to="/listings">
-              <Button>Browse listings</Button>
+              <Button>{t('buyer.saved.browseButton')}</Button>
             </Link>
           }
         />

@@ -1,5 +1,6 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { TransactionDto } from '@machinebazaar/shared';
 import { CommissionStatus } from '@machinebazaar/shared';
 import { api, apiErrorMessage } from '../../lib/api';
@@ -9,6 +10,7 @@ import { CheckCircleIcon, DownloadIcon, RupeeIcon, ShieldCheckIcon } from '../..
 import { exportToExcel } from '../../lib/export';
 
 export function AdminTransactions() {
+  const { t } = useTranslation();
   const [transactions, setTransactions] = useState<TransactionDto[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [actingId, setActingId] = useState<string | null>(null);
@@ -25,7 +27,7 @@ export function AdminTransactions() {
       .catch((err) => {
         if (!cancelled) {
           setTransactions([]);
-          setError(apiErrorMessage(err, 'Could not load transactions.'));
+          setError(apiErrorMessage(err, t('admin.transactions.loadError')));
         }
       });
     return () => {
@@ -40,7 +42,7 @@ export function AdminTransactions() {
       await api.post(`/transactions/${id}/mark-paid`);
       setReload((n) => n + 1);
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not mark this commission as paid.'));
+      setError(apiErrorMessage(err, t('admin.transactions.markPaidError')));
     } finally {
       setActingId(null);
     }
@@ -65,13 +67,13 @@ export function AdminTransactions() {
     <div>
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <PageHeading
-          eyebrow="Admin console"
-          title="Transactions & commissions"
-          description="BIM earns a fixed 1% buyer-side and 1% seller-side commission on every sale. Marking a commission as PAID is the only action that releases buyer—seller contact details."
+          eyebrow={t('admin.transactions.eyebrow')}
+          title={t('admin.transactions.title')}
+          description={t('admin.transactions.description')}
         />
         <Button variant="ghost" disabled={!transactions?.length} onClick={downloadExcel}>
           <DownloadIcon className="h-4 w-4" />
-          Export Excel
+          {t('admin.transactions.exportExcel')}
         </Button>
       </div>
 
@@ -84,19 +86,19 @@ export function AdminTransactions() {
       {transactions === null ? (
         <LoadingBlock />
       ) : transactions.length === 0 ? (
-        <EmptyState title="No transactions yet" description="Transactions appear here once a seller records an agreed sale with a buyer." />
+        <EmptyState title={t('admin.transactions.emptyTitle')} description={t('admin.transactions.emptyDescription')} />
       ) : (
         <div className="overflow-hidden rounded-2xl border border-navy/10 bg-white">
           <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="border-b border-navy/10 bg-navy/[0.02] text-left text-xs font-semibold uppercase tracking-wide text-navy/40">
               <tr>
-                <th className="px-5 py-3">Sale price</th>
-                <th className="px-5 py-3">Buyer commission (1%)</th>
-                <th className="px-5 py-3">Seller commission (1%)</th>
-                <th className="px-5 py-3">Status</th>
-                <th className="px-5 py-3">Contact released</th>
-                <th className="px-5 py-3">Created</th>
+                <th className="px-5 py-3">{t('admin.transactions.columns.salePrice')}</th>
+                <th className="px-5 py-3">{t('admin.transactions.columns.buyerCommission')}</th>
+                <th className="px-5 py-3">{t('admin.transactions.columns.sellerCommission')}</th>
+                <th className="px-5 py-3">{t('admin.transactions.columns.status')}</th>
+                <th className="px-5 py-3">{t('admin.transactions.columns.contactReleased')}</th>
+                <th className="px-5 py-3">{t('admin.transactions.columns.created')}</th>
                 <th className="px-5 py-3" />
               </tr>
             </thead>
@@ -116,7 +118,7 @@ export function AdminTransactions() {
                         {formatDateTime(txn.contactReleasedAt)}
                       </span>
                     ) : (
-                      <span className="text-xs text-navy/35">Not released</span>
+                      <span className="text-xs text-navy/35">{t('admin.transactions.notReleased')}</span>
                     )}
                   </td>
                   <td className="px-5 py-4 text-navy/45">{formatDateTime(txn.createdAt)}</td>
@@ -124,11 +126,11 @@ export function AdminTransactions() {
                     {txn.commissionStatus === CommissionStatus.PENDING ? (
                       <Button disabled={actingId === txn.id} onClick={() => markPaid(txn.id)}>
                         <CheckCircleIcon className="h-4 w-4" />
-                        Mark commission paid
+                        {t('admin.transactions.markCommissionPaid')}
                       </Button>
                     ) : (
                       <Link to={`/listings/${txn.listingId}`} className="text-sm font-semibold text-accent hover:underline">
-                        View listing
+                        {t('admin.transactions.viewListing')}
                       </Link>
                     )}
                   </td>
@@ -143,8 +145,7 @@ export function AdminTransactions() {
       <div className="mt-6 flex items-start gap-3 rounded-xl bg-navy/[0.03] p-4 text-sm text-navy/55">
         <RupeeIcon className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
         <p>
-          Commission is split 1% buyer-side + 1% seller-side (2% total) on every completed sale —
-          this rate is fixed platform-wide and is not configurable per listing.
+          {t('admin.transactions.commissionNote')}
         </p>
       </div>
     </div>
