@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { UserRole } from '@machinebazaar/shared';
 import { useAuth } from '../lib/auth-context';
 import { useWishlist } from '../lib/wishlist-context';
+import { useSellNavigate } from '../lib/use-sell-navigate';
 import { TickerBar } from '../components/TickerBar';
 import { BimIcon, BimLogoDark } from '../components/BimLogo';
 import { ChevronRightIcon, CloseIcon, HeartIcon, MenuIcon, PlusIcon } from '../components/icons';
@@ -14,6 +15,7 @@ function useNavLinks() {
   const { t } = useTranslation();
   return [
     { to: '/listings', label: t('common:nav.marketplace') },
+    { to: '/wanted', label: t('common:nav.wanted') },
     { to: '/how-it-works', label: t('common:nav.howItWorks') },
     { to: '/about', label: t('layout.nav.about') },
   ];
@@ -23,19 +25,6 @@ function dashboardPath(user: { role: UserRole; activeMode: string; canSell: bool
   if (user.role === UserRole.ADMIN) return '/admin/dashboard';
   if (user.canSell && user.activeMode === 'SELLER') return '/seller/dashboard';
   return '/buyer/dashboard';
-}
-
-/** Routes to the right place for the viewer's current capability — shared by the header Sell
-    button, the drawer's Sell button, and the mobile floating Sell button, so the routing rule
-    only lives in one place. */
-function useSellNavigate() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  return () => {
-    if (!user) return navigate('/signup');
-    if (!user.canSell) return navigate('/buyer/switch-to-seller');
-    navigate('/seller/listings/new');
-  };
 }
 
 /** Always-visible "Sell" CTA — the primary header action, routed by the viewer's current capability. */

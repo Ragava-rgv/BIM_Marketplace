@@ -22,12 +22,16 @@ const admin_service_1 = require("./admin.service");
 const listings_service_1 = require("../listings/listings.service");
 const query_listings_dto_1 = require("../listings/dto/query-listings.dto");
 const bulk_listing_status_dto_1 = require("./dto/bulk-listing-status.dto");
+const requirements_service_1 = require("../requirements/requirements.service");
+const query_requirements_dto_1 = require("../requirements/dto/query-requirements.dto");
 let AdminController = class AdminController {
     admin;
     listings;
-    constructor(admin, listings) {
+    requirements;
+    constructor(admin, listings, requirements) {
         this.admin = admin;
         this.listings = listings;
+        this.requirements = requirements;
     }
     async dashboard() {
         return this.admin.dashboardSummary();
@@ -76,6 +80,27 @@ let AdminController = class AdminController {
             case 'reactivate':
                 return (id) => this.listings.reactivate(id);
         }
+    }
+    async requirementQueue(query) {
+        return this.requirements.adminList(query);
+    }
+    async requirementDetail(id) {
+        return this.requirements.findAnyById(id);
+    }
+    async approveRequirement(id) {
+        return this.requirements.approve(id);
+    }
+    async rejectRequirement(id) {
+        return this.requirements.reject(id);
+    }
+    async quoteQueue(status) {
+        return this.requirements.adminListQuotes(status);
+    }
+    async approveQuote(id) {
+        return this.requirements.approveQuote(id);
+    }
+    async rejectQuote(id) {
+        return this.requirements.rejectQuote(id);
     }
 };
 exports.AdminController = AdminController;
@@ -147,11 +172,65 @@ __decorate([
     __metadata("design:paramtypes", [bulk_listing_status_dto_1.BulkListingStatusDto]),
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "bulkListingStatus", null);
+__decorate([
+    (0, common_1.Get)('requirements'),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [query_requirements_dto_1.AdminQueryRequirementsDto]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "requirementQueue", null);
+__decorate([
+    (0, common_1.Get)('requirements/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "requirementDetail", null);
+__decorate([
+    (0, common_1.Post)('requirements/:id/approve'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "approveRequirement", null);
+__decorate([
+    (0, common_1.Post)('requirements/:id/reject'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "rejectRequirement", null);
+__decorate([
+    (0, common_1.Get)('quotes'),
+    __param(0, (0, common_1.Query)('status')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "quoteQueue", null);
+__decorate([
+    (0, common_1.Post)('quotes/:id/approve'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "approveQuote", null);
+__decorate([
+    (0, common_1.Post)('quotes/:id/reject'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "rejectQuote", null);
 exports.AdminController = AdminController = __decorate([
     (0, common_1.Controller)('admin'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.UserRole.ADMIN),
     __metadata("design:paramtypes", [admin_service_1.AdminService,
-        listings_service_1.ListingsService])
+        listings_service_1.ListingsService,
+        requirements_service_1.RequirementsService])
 ], AdminController);
 //# sourceMappingURL=admin.controller.js.map

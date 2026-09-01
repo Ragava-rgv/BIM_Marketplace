@@ -18,6 +18,8 @@ function useAdminNavItems() {
   return [
     { to: '/admin/dashboard', label: t('layout.adminLayout.nav.dashboard'), icon: MachineIcon, end: true },
     { to: '/admin/listings', label: t('layout.adminLayout.nav.listingReview'), icon: DocumentIcon },
+    { to: '/admin/requirements', label: t('layout.adminLayout.nav.requirementReview'), icon: DocumentIcon },
+    { to: '/admin/quotes', label: t('layout.adminLayout.nav.quoteReview'), icon: DocumentIcon },
     { to: '/admin/enquiries', label: t('layout.adminLayout.nav.enquiries'), icon: ChatIcon },
     { to: '/admin/transactions', label: t('layout.adminLayout.nav.transactions'), icon: RupeeIcon },
     { to: '/admin/certifications', label: t('layout.adminLayout.nav.certifications'), icon: ShieldCheckIcon },

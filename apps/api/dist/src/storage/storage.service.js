@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.StorageService = exports.ADVERTISEMENT_IMAGES_DIR = exports.CATEGORY_IMAGES_DIR = exports.CERTIFICATION_REPORTS_DIR = exports.LISTING_VIDEOS_DIR = exports.LISTING_PHOTOS_DIR = void 0;
+exports.StorageService = exports.ADVERTISEMENT_IMAGES_DIR = exports.CATEGORY_IMAGES_DIR = exports.CERTIFICATION_REPORTS_DIR = exports.QUOTE_PHOTOS_DIR = exports.REQUIREMENT_VIDEOS_DIR = exports.REQUIREMENT_PHOTOS_DIR = exports.LISTING_VIDEOS_DIR = exports.LISTING_PHOTOS_DIR = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const crypto_1 = require("crypto");
@@ -17,6 +17,9 @@ const fs_1 = require("fs");
 const path_1 = require("path");
 exports.LISTING_PHOTOS_DIR = 'listing-photos';
 exports.LISTING_VIDEOS_DIR = 'listing-videos';
+exports.REQUIREMENT_PHOTOS_DIR = 'requirement-photos';
+exports.REQUIREMENT_VIDEOS_DIR = 'requirement-videos';
+exports.QUOTE_PHOTOS_DIR = 'quote-photos';
 exports.CERTIFICATION_REPORTS_DIR = 'certification-reports';
 exports.CATEGORY_IMAGES_DIR = 'category-images';
 exports.ADVERTISEMENT_IMAGES_DIR = 'advertisement-images';

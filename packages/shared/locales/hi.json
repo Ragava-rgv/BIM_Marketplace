@@ -7,10 +7,15 @@
     "condition": "स्थिति",
     "conditionOld": "पुराना",
     "conditionNew": "नया",
-    "conditionRequired": "कृपया मशीन की स्थिति चुनें।"
+    "conditionRequired": "कृपया मशीन की स्थिति चुनें।",
+    "origin": "मूल",
+    "originIndian": "भारतीय",
+    "originImported": "आयातित",
+    "importedFrom": "आयातित · {{country}}"
   },
   "nav": {
     "marketplace": "मार्केटप्लेस",
+    "wanted": "आवश्यकता",
     "howItWorks": "यह कैसे काम करता है",
     "sell": "बेचें",
     "login": "साइन इन करें",
@@ -98,6 +103,19 @@
       "ACCEPTED": "स्वीकृत",
       "EXPIRED": "समाप्त",
       "COMPLETED": "पूर्ण"
+    },
+    "requirement": {
+      "DRAFT": "ड्राफ्ट",
+      "PENDING_REVIEW": "समीक्षा लंबित",
+      "ACTIVE": "सक्रिय",
+      "FULFILLED": "पूर्ण हुआ",
+      "CLOSED": "बंद",
+      "REJECTED": "अस्वीकृत"
+    },
+    "quote": {
+      "PENDING_ADMIN": "समीक्षा लंबित",
+      "APPROVED": "स्वीकृत",
+      "REJECTED": "अस्वीकृत"
     }
   },
   "role": {

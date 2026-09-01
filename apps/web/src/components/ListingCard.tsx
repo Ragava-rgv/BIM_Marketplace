@@ -117,15 +117,23 @@ export function ListingCard({ listing }: { listing: ListingDto }) {
           <span className="truncate">{listing.machineMake} · {listing.machineModel} · {t('components.listingCard.gstVerified')}</span>
         </div>
 
-        {/* Spec strip — 2 cells */}
-        <div className="mb-1.5 grid grid-cols-2 overflow-hidden rounded-[9px] border border-[#E4E7EC] sm:mb-3">
+        {/* Spec strip — 3 cells */}
+        <div className="mb-1.5 grid grid-cols-3 overflow-hidden rounded-[9px] border border-[#E4E7EC] sm:mb-3">
           <div className="border-r border-[#E4E7EC] bg-[#FCFCFD] px-1.5 py-1 sm:px-2.5 sm:py-2">
             <p className="mb-[2px] hidden font-mono text-[8.5px] font-semibold uppercase tracking-[0.08em] text-[#667085] sm:block">{t('components.listingCard.specTier')}</p>
             <p className="truncate font-mono text-[10px] font-semibold text-[#101828] sm:text-[12px]">{listing.complexityTier}</p>
           </div>
-          <div className="bg-[#FCFCFD] px-1.5 py-1 sm:px-2.5 sm:py-2">
+          <div className="border-r border-[#E4E7EC] bg-[#FCFCFD] px-1.5 py-1 sm:px-2.5 sm:py-2">
             <p className="mb-[2px] hidden font-mono text-[8.5px] font-semibold uppercase tracking-[0.08em] text-[#667085] sm:block">{t('components.listingCard.specType')}</p>
             <p className="truncate font-mono text-[10px] font-semibold text-[#101828] sm:text-[12px]">{listing.machineCategory}</p>
+          </div>
+          <div className="bg-[#FCFCFD] px-1.5 py-1 sm:px-2.5 sm:py-2">
+            <p className="mb-[2px] hidden font-mono text-[8.5px] font-semibold uppercase tracking-[0.08em] text-[#667085] sm:block">{t('common:listing.origin')}</p>
+            <p className="truncate font-mono text-[10px] font-semibold text-[#101828] sm:text-[12px]">
+              {listing.origin === 'IMPORTED'
+                ? (listing.importedCountry ? t('common:listing.importedFrom', { country: listing.importedCountry }) : t('common:listing.originImported'))
+                : t('common:listing.originIndian')}
+            </p>
           </div>
         </div>
 

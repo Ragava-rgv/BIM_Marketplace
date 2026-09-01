@@ -98,6 +98,7 @@ export function Profile() {
           <NavGroup title={t('profile.groups.seller')} items={[
             { label: t('profile.items.sellerDashboard'), path: '/seller/dashboard' },
             { label: t('profile.items.myListings'), path: '/seller/listings' },
+            { label: t('profile.items.myQuotes'), path: '/seller/quotes' },
             { label: t('profile.items.enquiriesFromBuyers'), path: '/seller/enquiries' },
             { label: t('profile.items.subscriptionPlan'), path: '/seller/subscription' },
             { label: t('profile.items.gstVerification'), path: '/seller/gst-verification' },
@@ -108,6 +109,7 @@ export function Profile() {
         {isBuyer && (
           <NavGroup title={t('profile.groups.buyer')} items={[
             { label: t('profile.items.buyerDashboard'), path: '/buyer/dashboard' },
+            { label: t('profile.items.myRequirements'), path: '/buyer/requirements' },
             { label: t('profile.items.myEnquiries'), path: '/enquiries' },
             { label: t('profile.items.savedListings'), path: '/buyer/saved' },
             { label: t('profile.items.loanApplications'), path: '/buyer/loans' },
@@ -120,6 +122,7 @@ export function Profile() {
         {/* Account */}
         <NavGroup title={t('profile.groups.account')} items={[
           { label: t('profile.items.browseAllListings'), path: '/search' },
+          { label: t('profile.items.browseWanted'), path: '/wanted' },
         ]} />
 
         <button onClick={handleLogout}

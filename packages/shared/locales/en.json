@@ -6,10 +6,15 @@
     "condition": "Condition",
     "conditionOld": "Old",
     "conditionNew": "New",
-    "conditionRequired": "Please select the machine's condition."
+    "conditionRequired": "Please select the machine's condition.",
+    "origin": "Origin",
+    "originIndian": "Indian",
+    "originImported": "Imported",
+    "importedFrom": "Imported · {{country}}"
   },
   "nav": {
     "marketplace": "Marketplace",
+    "wanted": "Wanted",
     "howItWorks": "How it works",
     "sell": "Sell",
     "login": "Sign in",
@@ -97,6 +102,19 @@
       "ACCEPTED": "Accepted",
       "EXPIRED": "Expired",
       "COMPLETED": "Completed"
+    },
+    "requirement": {
+      "DRAFT": "Draft",
+      "PENDING_REVIEW": "Pending review",
+      "ACTIVE": "Active",
+      "FULFILLED": "Fulfilled",
+      "CLOSED": "Closed",
+      "REJECTED": "Rejected"
+    },
+    "quote": {
+      "PENDING_ADMIN": "Pending review",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected"
     }
   },
   "role": {

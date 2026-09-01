@@ -29,6 +29,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
 import { BoostPlansModule } from './boost-plans/boost-plans.module';
 import { ListingBoostsModule } from './listing-boosts/listing-boosts.module';
 import { AdvertisementsModule } from './advertisements/advertisements.module';
+import { RequirementsModule } from './requirements/requirements.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { AdvertisementsModule } from './advertisements/advertisements.module';
     BoostPlansModule,
     ListingBoostsModule,
     AdvertisementsModule,
+    RequirementsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

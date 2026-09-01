@@ -2,6 +2,26 @@
   "_meta": {
     "status": "machine-translated-needs-review"
   },
+  "wanted": {
+    "title": "आवश्यकता — खरीदार आवश्यकताएं",
+    "intro": "सत्यापित खरीदारों की सक्रिय मशीन आवश्यकताएं। यदि आपके पास मिलान करने वाली मशीन है, तो ऐप के माध्यम से विवरण भेजें।",
+    "badge": "आवश्यकता",
+    "emptyState": { "title": "अभी कोई खुली आवश्यकता नहीं", "description": "जल्द ही जांचें, या अपनी आवश्यकता पोस्ट करें।" }
+  },
+  "requirementDetail": {
+    "notFoundError": "यह आवश्यकता नहीं मिली।",
+    "backToWanted": "आवश्यकता सूची पर वापस जाएं",
+    "quoteHeading": "मिलान करने वाली मशीन है?",
+    "quoteSubheading": "कोटेशन भेजें — यह पहले हमारी टीम के पास जाता है, स्वीकृत होने पर खरीदार तक पहुंचता है।",
+    "needsSellerPrompt": "केवल GST-सत्यापित विक्रेता ही कोटेशन भेज सकते हैं। अपना GST सत्यापित करें।",
+    "quoteSentNotice": "कोटेशन प्रशासनिक समीक्षा हेतु भेजा गया — स्वीकृत होते ही हम सूचित करेंगे।",
+    "selectListing": "एक लिस्टिंग चुनें",
+    "priceLabel": "मूल्य (₹)",
+    "messageLabel": "संदेश",
+    "sending": "भेजा जा रहा है…",
+    "sendQuote": "कोटेशन भेजें",
+    "errors": { "quoteFailed": "यह कोटेशन नहीं भेजा जा सका।" }
+  },
   "onboarding": {
     "chooseLanguage": "अपनी भाषा चुनें"
   },
@@ -14,6 +34,12 @@
       "gstVerified": "840 GST सत्यापित",
       "bankPartners": "12 बैंक भागीदार",
       "review": "24 घंटे समीक्षा"
+    },
+    "wantedCta": {
+      "title": "मशीन ढूंढ रहे हैं?",
+      "subtitle": "आपको जो चाहिए उसे पोस्ट करें — विक्रेता आपको कोटेशन भेजेंगे",
+      "myRequirements": "मेरी आवश्यकताएं",
+      "browse": "आवश्यकता सूची देखें"
     },
     "filters": {
       "all": "सभी",
@@ -159,6 +185,15 @@
     }
   },
   "seller": {
+    "myQuotes": {
+      "title": "मेरे कोटेशन",
+      "description": "आपके द्वारा खरीदार आवश्यकताओं पर भेजे गए कोटेशन",
+      "browseWanted": "आवश्यकता सूची देखें",
+      "emptyState": {
+        "title": "अभी तक कोई कोटेशन नहीं भेजा गया",
+        "description": "खरीदार आवश्यकताएं देखें और मिलान करने वाली मशीन होने पर कोटेशन भेजें।"
+      }
+    },
     "subscription": {
       "header": {
         "title": "सदस्यता",
@@ -559,16 +594,19 @@
       "language": "भाषा",
       "sellerDashboard": "विक्रेता डैशबोर्ड",
       "myListings": "मेरी लिस्टिंग",
+      "myQuotes": "मेरे कोटेशन",
       "enquiriesFromBuyers": "खरीदारों से पूछताछ",
       "subscriptionPlan": "सदस्यता और योजना",
       "gstVerification": "जीएसटी सत्यापन",
       "buyerDashboard": "खरीदार डैशबोर्ड",
+      "myRequirements": "मेरी आवश्यकताएं",
       "myEnquiries": "मेरी पूछताछ",
       "savedListings": "सहेजी गई लिस्टिंग",
       "loanApplications": "ऋण आवेदन",
       "buybackAgreements": "बायबैक समझौते",
       "switchToSeller": "विक्रेता में बदलें",
-      "browseAllListings": "सभी लिस्टिंग ब्राउज़ करें"
+      "browseAllListings": "सभी लिस्टिंग ब्राउज़ करें",
+      "browseWanted": "आवश्यकता सूची देखें"
     }
   },
   "enquiries": {
@@ -724,6 +762,68 @@
     }
   },
   "buyer": {
+    "newRequirement": {
+      "title": "एक आवश्यकता पोस्ट करें",
+      "submit": "आवश्यकता पोस्ट करें",
+      "posting": "पोस्ट किया जा रहा है…",
+      "errors": {
+        "createFailed": "यह आवश्यकता पोस्ट नहीं की जा सकी।",
+        "titleTooShort": "शीर्षक कम से कम 5 अक्षर का होना चाहिए।",
+        "descriptionTooShort": "विवरण कम से कम 20 अक्षर का होना चाहिए।",
+        "categoryRequired": "कृपया मशीन श्रेणी चुनें।"
+      },
+      "fields": {
+        "title": "आवश्यकता शीर्षक",
+        "titlePlaceholder": "जैसे CNC टर्निंग सेंटर चाहिए",
+        "description": "विवरण",
+        "descriptionPlaceholder": "आपको क्या चाहिए, अपेक्षित विवरण बताएं",
+        "category": "मशीन श्रेणी",
+        "selectCategory": "श्रेणी चुनें…",
+        "subcategory": "उप-श्रेणी",
+        "selectSubcategory": "उप-श्रेणी चुनें…",
+        "origin": "मूल",
+        "anyOrigin": "कोई भी — भारतीय या आयातित",
+        "anyCondition": "कोई भी — पुराना या नया",
+        "budgetMin": "बजट — से (₹)",
+        "budgetMax": "बजट — तक (₹)",
+        "budgetPlaceholder": "वैकल्पिक",
+        "state": "राज्य",
+        "anyState": "कोई भी राज्य",
+        "city": "शहर",
+        "selectCity": "शहर चुनें…",
+        "selectStateFirst": "पहले राज्य चुनें"
+      },
+      "submitted": {
+        "title": "आवश्यकता समीक्षा हेतु सबमिट की गई",
+        "description": "स्वीकृत होते ही, मिलान करने वाले विक्रेता कोटेशन भेजना शुरू करेंगे।",
+        "goToRequirements": "मेरी आवश्यकताओं पर जाएं"
+      }
+    },
+    "requirements": {
+      "title": "मेरी आवश्यकताएं",
+      "description": "वे मशीनें जिन्हें आप खरीदना चाहते हैं",
+      "postRequirement": "एक आवश्यकता पोस्ट करें",
+      "table": { "quotes": "कोटेशन" },
+      "emptyState": {
+        "title": "अभी तक कोई आवश्यकता पोस्ट नहीं की गई",
+        "description": "आपको जो मशीन चाहिए उसे पोस्ट करें, मिलान करने वाले विक्रेता कोटेशन भेज सकते हैं।"
+      }
+    },
+    "editRequirement": {
+      "backToRequirements": "मेरी आवश्यकताओं पर वापस जाएं",
+      "errors": {
+        "notFound": "यह आवश्यकता नहीं मिली।",
+        "submitFailed": "इस आवश्यकता को समीक्षा हेतु सबमिट नहीं किया जा सका।",
+        "closeFailed": "इस आवश्यकता को बंद नहीं किया जा सका।"
+      },
+      "sections": { "quotesHeading": "प्राप्त कोटेशन" },
+      "noQuotes": "अभी तक कोई स्वीकृत कोटेशन नहीं।",
+      "quoteFrom": "{{name}} की ओर से",
+      "submitting": "सबमिट किया जा रहा है…",
+      "submitForReview": "समीक्षा हेतु सबमिट करें",
+      "closing": "बंद किया जा रहा है…",
+      "closeRequirement": "आवश्यकता बंद करें"
+    },
     "buyback": {
       "title": "बायबैक समझौते",
       "offerCount_one": "{{count}} ऑफ़र",

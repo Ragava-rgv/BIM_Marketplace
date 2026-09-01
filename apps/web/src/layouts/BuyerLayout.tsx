@@ -1,12 +1,13 @@
 import { useTranslation } from 'react-i18next';
 import { DashboardShell } from './DashboardShell';
-import { BankIcon, ChatIcon, MachineIcon, PlusIcon, RupeeIcon, SearchIcon, ShieldCheckIcon, TrendDownIcon, TruckIcon } from '../components/icons';
+import { BankIcon, ChatIcon, DocumentIcon, MachineIcon, PlusIcon, RupeeIcon, SearchIcon, ShieldCheckIcon, TrendDownIcon, TruckIcon } from '../components/icons';
 
 function useBuyerNavItems() {
   const { t } = useTranslation();
   return [
     { to: '/buyer/dashboard', label: t('layout.buyerLayout.nav.dashboard'), icon: MachineIcon, end: true },
     { to: '/listings', label: t('layout.buyerLayout.nav.browseListings'), icon: SearchIcon },
+    { to: '/buyer/requirements', label: t('layout.buyerLayout.nav.myRequirements'), icon: DocumentIcon },
     { to: '/buyer/enquiries', label: t('layout.buyerLayout.nav.enquiries'), icon: ChatIcon },
     { to: '/buyer/saved', label: t('layout.buyerLayout.nav.savedListings'), icon: TruckIcon },
     { to: '/buyer/subscription', label: t('layout.buyerLayout.nav.contactViews'), icon: RupeeIcon },

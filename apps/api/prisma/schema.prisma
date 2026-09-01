@@ -67,6 +67,21 @@ enum MediaType {
   VIDEO
 }
 
+enum RequirementStatus {
+  DRAFT
+  PENDING_REVIEW
+  ACTIVE
+  FULFILLED
+  CLOSED
+  REJECTED
+}
+
+enum QuoteStatus {
+  PENDING_ADMIN
+  APPROVED
+  REJECTED
+}
+
 enum EnquiryStatus {
   NEW
   CLOSED
@@ -127,24 +142,24 @@ enum SupportedLanguage {
 // ---------------------------------------------------------------------------
 
 model User {
-  id            String    @id @default(uuid())
-  role          UserRole
-  email         String?   @unique
-  phone         String    @unique
-  passwordHash  String?   @map("password_hash")
-  fullName      String    @map("full_name")
-  phoneVerified Boolean   @default(false) @map("phone_verified")
-  gstNumber     String?   @map("gst_number")
-  businessName  String?   @map("business_name")
-  gstStatus     GstStatus @default(UNVERIFIED) @map("gst_status")
-  locationCity  String?   @map("location_city")
-  locationState String?   @map("location_state")
-  address       String?
-  activeMode    String    @default("BUYER") @map("active_mode")
-  canSell       Boolean   @default(false) @map("can_sell")
+  id                String            @id @default(uuid())
+  role              UserRole
+  email             String?           @unique
+  phone             String            @unique
+  passwordHash      String?           @map("password_hash")
+  fullName          String            @map("full_name")
+  phoneVerified     Boolean           @default(false) @map("phone_verified")
+  gstNumber         String?           @map("gst_number")
+  businessName      String?           @map("business_name")
+  gstStatus         GstStatus         @default(UNVERIFIED) @map("gst_status")
+  locationCity      String?           @map("location_city")
+  locationState     String?           @map("location_state")
+  address           String?
+  activeMode        String            @default("BUYER") @map("active_mode")
+  canSell           Boolean           @default(false) @map("can_sell")
   preferredLanguage SupportedLanguage @default(EN) @map("preferred_language")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
 
   listings              Listing[]
   enquiriesAsBuyer      Enquiry[]            @relation("EnquiryBuyer")
@@ -162,6 +177,8 @@ model User {
   contactViewsAsSeller  ContactView[]        @relation("ContactViewSeller")
   wishlist              Wishlist[]
   listingBoosts         ListingBoost[]
+  requirements          Requirement[]
+  quotesGiven           Quote[]              @relation("QuoteResponder")
 
   @@map("users")
 }
@@ -195,36 +212,36 @@ model RefreshToken {
 }
 
 model Listing {
-  id                 String         @id @default(uuid())
-  sellerId           String         @map("seller_id")
+  id                 String           @id @default(uuid())
+  sellerId           String           @map("seller_id")
   title              String
   description        String
-  machineCategory    String         @map("machine_category")
-  machineSubcategory String?        @map("machine_subcategory")
-  machineMake        String         @map("machine_make")
-  machineModel       String         @map("machine_model")
-  manufactureYear    Int?           @map("manufacture_year")
-  origin             ListingOrigin  @default(INDIAN)
-  importedCountry    String?        @map("imported_country")
-  askingPrice        Decimal        @map("asking_price") @db.Decimal(14, 2)
-  locationCity       String         @map("location_city")
-  locationState      String         @map("location_state")
-  status             ListingStatus  @default(DRAFT)
-  complexityTier     ComplexityTier @default(STANDARD) @map("complexity_tier")
-  catalogCategoryId  String?        @map("catalog_category_id")
-  subcategoryId      String?        @map("subcategory_id")
+  machineCategory    String           @map("machine_category")
+  machineSubcategory String?          @map("machine_subcategory")
+  machineMake        String           @map("machine_make")
+  machineModel       String           @map("machine_model")
+  manufactureYear    Int?             @map("manufacture_year")
+  origin             ListingOrigin    @default(INDIAN)
+  importedCountry    String?          @map("imported_country")
+  askingPrice        Decimal          @map("asking_price") @db.Decimal(14, 2)
+  locationCity       String           @map("location_city")
+  locationState      String           @map("location_state")
+  status             ListingStatus    @default(DRAFT)
+  complexityTier     ComplexityTier   @default(STANDARD) @map("complexity_tier")
+  catalogCategoryId  String?          @map("catalog_category_id")
+  subcategoryId      String?          @map("subcategory_id")
   specs              Json?
-  conditionGrade     String?        @map("condition_grade")
+  conditionGrade     String?          @map("condition_grade")
   condition          ListingCondition @default(OLD)
-  runningHours       Int?           @map("running_hours")
-  serialNumber       String?        @map("serial_number")
-  negotiable         Boolean        @default(false)
-  isBoosted          Boolean        @default(false) @map("is_boosted")
-  boostExpiresAt     DateTime?      @map("boost_expires_at")
-  postedAt           DateTime?      @map("posted_at")
-  viewCount          Int            @default(0) @map("view_count")
-  createdAt          DateTime       @default(now()) @map("created_at")
-  updatedAt          DateTime       @updatedAt @map("updated_at")
+  runningHours       Int?             @map("running_hours")
+  serialNumber       String?          @map("serial_number")
+  negotiable         Boolean          @default(false)
+  isBoosted          Boolean          @default(false) @map("is_boosted")
+  boostExpiresAt     DateTime?        @map("boost_expires_at")
+  postedAt           DateTime?        @map("posted_at")
+  viewCount          Int              @default(0) @map("view_count")
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
 
   subcategory      Subcategory?      @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
   catalogCategory  Category?         @relation("ListingCatalogCategory", fields: [catalogCategoryId], references: [id], onDelete: SetNull)
@@ -240,14 +257,17 @@ model Listing {
   wishlistedBy     Wishlist[]
   boosts           ListingBoost[]
   views            ListingView[]
+  quotes           Quote[]           @relation("QuoteListing")
 
   @@index([status])
   @@index([machineCategory])
   @@map("listings")
 }
 
-/** Rolling-24h dedupe record for listing detail-page views — viewerKey is "user:<userId>" for
-    logged-in viewers or "ip:<address>" for guests (no anonymous device-id infra exists yet). */
+/**
+ * Rolling-24h dedupe record for listing detail-page views — viewerKey is "user:<userId>" for
+ * logged-in viewers or "ip:<address>" for guests (no anonymous device-id infra exists yet).
+ */
 model ListingView {
   id        String   @id @default(uuid())
   listingId String   @map("listing_id")
@@ -289,6 +309,113 @@ model ListingMedia {
   listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
 
   @@map("listing_media")
+}
+
+/// Mirror of Listing — a verified buyer's posted requirement ("Wanted"). Reuses the same
+/// spec-template / catalog-taxonomy / origin / condition shape as Listing so the posting
+/// form can reuse the Sell flow's components.
+model Requirement {
+  id                 String            @id @default(uuid())
+  buyerId            String            @map("buyer_id")
+  title              String
+  description        String
+  machineCategory    String            @map("machine_category")
+  machineSubcategory String?           @map("machine_subcategory")
+  origin             ListingOrigin?
+  importedCountry    String?           @map("imported_country")
+  manufactureYear    Int?              @map("manufacture_year")
+  runningHours       Int?              @map("running_hours")
+  condition          ListingCondition?
+  complexityTier     ComplexityTier    @default(STANDARD) @map("complexity_tier")
+  catalogCategoryId  String?           @map("catalog_category_id")
+  subcategoryId      String?           @map("subcategory_id")
+  specs              Json?
+  budgetMin          Decimal?          @map("budget_min") @db.Decimal(14, 2)
+  budgetMax          Decimal?          @map("budget_max") @db.Decimal(14, 2)
+  quantity           Int?              @default(1)
+  locationCity       String?           @map("location_city")
+  locationState      String?           @map("location_state")
+  status             RequirementStatus @default(DRAFT)
+  postedAt           DateTime?         @map("posted_at")
+  createdAt          DateTime          @default(now()) @map("created_at")
+  updatedAt          DateTime          @updatedAt @map("updated_at")
+
+  buyer           User               @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  catalogCategory Category?          @relation("RequirementCatalogCategory", fields: [catalogCategoryId], references: [id], onDelete: SetNull)
+  subcategory     Subcategory?       @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
+  media           RequirementMedia[]
+  quotes          Quote[]
+
+  @@index([status])
+  @@index([machineCategory])
+  @@map("requirements")
+}
+
+model RequirementMedia {
+  id              String    @id @default(uuid())
+  requirementId   String    @map("requirement_id")
+  type            MediaType
+  storageKey      String    @map("storage_key")
+  url             String
+  capturedAt      DateTime? @map("captured_at")
+  durationSeconds Int?      @map("duration_seconds")
+  orderIndex      Int       @default(0) @map("order_index")
+  isPrimary       Boolean   @default(false) @map("is_primary")
+
+  requirement Requirement @relation(fields: [requirementId], references: [id], onDelete: Cascade)
+
+  @@map("requirement_media")
+}
+
+/// A responder's offer against a Requirement — gated by admin review before the buyer sees it.
+model Quote {
+  id                String            @id @default(uuid())
+  requirementId     String            @map("requirement_id")
+  responderId       String            @map("responder_id")
+  listingId         String?           @map("listing_id")
+  contactName       String?           @map("contact_name")
+  contactPhone      String?           @map("contact_phone")
+  contactEmail      String?           @map("contact_email")
+  contactCompany    String?           @map("contact_company")
+  catalogCategoryId String?           @map("catalog_category_id")
+  machineCategory   String?           @map("machine_category")
+  machineMake       String?           @map("machine_make")
+  machineModel      String?           @map("machine_model")
+  manufactureYear   Int?              @map("manufacture_year")
+  origin            ListingOrigin?
+  importedCountry   String?           @map("imported_country")
+  condition         ListingCondition?
+  machineLocation   String?           @map("machine_location")
+  price             Decimal?          @db.Decimal(14, 2)
+  description       String?
+  specs             Json?
+  message           String?
+  status            QuoteStatus       @default(PENDING_ADMIN)
+  adminReviewedAt   DateTime?         @map("admin_reviewed_at")
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+
+  requirement Requirement  @relation(fields: [requirementId], references: [id], onDelete: Cascade)
+  responder   User         @relation("QuoteResponder", fields: [responderId], references: [id], onDelete: Cascade)
+  listing     Listing?     @relation("QuoteListing", fields: [listingId], references: [id], onDelete: SetNull)
+  media       QuoteMedia[]
+
+  @@index([status])
+  @@map("quotes")
+}
+
+model QuoteMedia {
+  id         String    @id @default(uuid())
+  quoteId    String    @map("quote_id")
+  type       MediaType
+  storageKey String    @map("storage_key")
+  url        String
+  orderIndex Int       @default(0) @map("order_index")
+  isPrimary  Boolean   @default(false) @map("is_primary")
+
+  quote Quote @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@map("quote_media")
 }
 
 model Enquiry {
@@ -441,6 +568,7 @@ model Category {
   specFields    CategorySpecTemplate[]
   subcategories Subcategory[]
   listings      Listing[]              @relation("ListingCatalogCategory")
+  requirements  Requirement[]          @relation("RequirementCatalogCategory")
 
   @@map("categories")
 }
@@ -459,8 +587,9 @@ model Subcategory {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  category Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  listings Listing[]
+  category     Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  listings     Listing[]
+  requirements Requirement[]
 
   @@unique([categoryId, slug])
   @@map("subcategories")

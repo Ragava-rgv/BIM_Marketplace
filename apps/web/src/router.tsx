@@ -15,6 +15,8 @@ import { ListingDetail } from './pages/public/ListingDetail';
 import { HowItWorks } from './pages/public/HowItWorks';
 import { About } from './pages/public/About';
 import { NotFound } from './pages/public/NotFound';
+import { Wanted } from './pages/public/Wanted';
+import { RequirementDetail } from './pages/public/RequirementDetail';
 
 import { Login } from './pages/auth/Login';
 import { Signup } from './pages/auth/Signup';
@@ -29,6 +31,7 @@ import { EditListing } from './pages/seller/EditListing';
 import { SellerEnquiries } from './pages/seller/Enquiries';
 import { SellerGstVerification } from './pages/seller/GstVerification';
 import { SellerSubscription } from './pages/seller/Subscription';
+import { MyQuotes } from './pages/seller/MyQuotes';
 
 import { BuyerDashboard } from './pages/buyer/Dashboard';
 import { BuyerEnquiries } from './pages/buyer/Enquiries';
@@ -39,6 +42,9 @@ import { BuyerGstVerification } from './pages/buyer/GstVerification';
 import { BuyerBuyback } from './pages/buyer/Buyback';
 import { BuyerSwitchToSeller } from './pages/buyer/SwitchToSeller';
 import { BuyerSubscription } from './pages/buyer/Subscription';
+import { BuyerRequirements } from './pages/buyer/Requirements';
+import { NewRequirement } from './pages/buyer/NewRequirement';
+import { EditRequirement } from './pages/buyer/EditRequirement';
 
 import { AdminDashboard } from './pages/admin/Dashboard';
 import { AdminListings } from './pages/admin/Listings';
@@ -57,6 +63,9 @@ import { AdminBoostPlans } from './pages/admin/BoostPlans';
 import { AdminAdvertisements } from './pages/admin/Advertisements';
 import { AdminCatalogManager } from './pages/admin/CatalogManager';
 import { AdminSettings } from './pages/admin/Settings';
+import { AdminRequirements } from './pages/admin/Requirements';
+import { AdminRequirementReview } from './pages/admin/RequirementReview';
+import { AdminQuotes } from './pages/admin/Quotes';
 
 function RootLayout() {
   return (
@@ -77,6 +86,8 @@ export const router = createBrowserRouter([
           { path: '/', element: <Home /> },
           { path: '/listings', element: <Listings /> },
           { path: '/listings/:id', element: <ListingDetail /> },
+          { path: '/wanted', element: <Wanted /> },
+          { path: '/wanted/:id', element: <RequirementDetail /> },
           { path: '/how-it-works', element: <HowItWorks /> },
           { path: '/about', element: <About /> },
           { path: '*', element: <NotFound /> },
@@ -105,6 +116,7 @@ export const router = createBrowserRouter([
               { path: '/seller/enquiries', element: <SellerEnquiries /> },
               { path: '/seller/gst-verification', element: <SellerGstVerification /> },
               { path: '/seller/subscription', element: <SellerSubscription /> },
+              { path: '/seller/quotes', element: <MyQuotes /> },
             ],
           },
         ],
@@ -124,6 +136,9 @@ export const router = createBrowserRouter([
               { path: '/buyer/buyback', element: <BuyerBuyback /> },
               { path: '/buyer/switch-to-seller', element: <BuyerSwitchToSeller /> },
               { path: '/buyer/subscription', element: <BuyerSubscription /> },
+              { path: '/buyer/requirements', element: <BuyerRequirements /> },
+              { path: '/buyer/requirements/new', element: <NewRequirement /> },
+              { path: '/buyer/requirements/:id/edit', element: <EditRequirement /> },
             ],
           },
         ],
@@ -151,6 +166,9 @@ export const router = createBrowserRouter([
               { path: '/admin/advertisements', element: <AdminAdvertisements /> },
               { path: '/admin/catalog', element: <AdminCatalogManager /> },
               { path: '/admin/settings', element: <AdminSettings /> },
+              { path: '/admin/requirements', element: <AdminRequirements /> },
+              { path: '/admin/requirements/:id', element: <AdminRequirementReview /> },
+              { path: '/admin/quotes', element: <AdminQuotes /> },
             ],
           },
         ],

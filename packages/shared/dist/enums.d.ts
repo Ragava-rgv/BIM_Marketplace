@@ -107,6 +107,19 @@ export declare enum AdPlacement {
     IN_GRID = "IN_GRID",
     HOME_BANNER = "HOME_BANNER"
 }
+export declare enum RequirementStatus {
+    DRAFT = "DRAFT",
+    PENDING_REVIEW = "PENDING_REVIEW",
+    ACTIVE = "ACTIVE",
+    FULFILLED = "FULFILLED",
+    CLOSED = "CLOSED",
+    REJECTED = "REJECTED"
+}
+export declare enum QuoteStatus {
+    PENDING_ADMIN = "PENDING_ADMIN",
+    APPROVED = "APPROVED",
+    REJECTED = "REJECTED"
+}
 /** Commission split: 2% total, 1% buyer + 1% seller (non-negotiable, see project_spec.md §8.6) */
 export declare const BUYER_COMMISSION_RATE = 0.01;
 export declare const SELLER_COMMISSION_RATE = 0.01;

@@ -38,6 +38,7 @@ const wishlist_module_1 = require("./wishlist/wishlist.module");
 const boost_plans_module_1 = require("./boost-plans/boost-plans.module");
 const listing_boosts_module_1 = require("./listing-boosts/listing-boosts.module");
 const advertisements_module_1 = require("./advertisements/advertisements.module");
+const requirements_module_1 = require("./requirements/requirements.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -74,6 +75,7 @@ exports.AppModule = AppModule = __decorate([
             boost_plans_module_1.BoostPlansModule,
             listing_boosts_module_1.ListingBoostsModule,
             advertisements_module_1.AdvertisementsModule,
+            requirements_module_1.RequirementsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

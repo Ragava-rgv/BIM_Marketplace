@@ -189,6 +189,8 @@
       "nav": {
         "dashboard": "डैशबोर्ड",
         "listingReview": "लिस्टिंग समीक्षा",
+        "requirementReview": "आवश्यकता समीक्षा",
+        "quoteReview": "कोटेशन समीक्षा",
         "enquiries": "पूछताछ",
         "transactions": "लेनदेन",
         "certifications": "प्रमाणन",
@@ -210,6 +212,7 @@
       "nav": {
         "dashboard": "डैशबोर्ड",
         "browseListings": "लिस्टिंग ब्राउज़ करें",
+        "myRequirements": "मेरी आवश्यकताएं",
         "enquiries": "पूछताछ",
         "savedListings": "सहेजी गई लिस्टिंग",
         "contactViews": "संपर्क दृश्य",
@@ -226,6 +229,8 @@
         "myListings": "मेरी लिस्टिंग",
         "newListing": "नई लिस्टिंग",
         "browseMarketplace": "मार्केटप्लेस ब्राउज़ करें",
+        "browseWanted": "आवश्यकता सूची देखें",
+        "myQuotes": "मेरे कोटेशन",
         "enquiries": "पूछताछ",
         "subscription": "सदस्यता",
         "gstVerification": "जीएसटी सत्यापन"
@@ -253,6 +258,48 @@
     }
   },
   "public": {
+    "wanted": {
+      "eyebrow": "आवश्यकता",
+      "title": "आवश्यकता — खरीदार आवश्यकताएं",
+      "intro": "ये सत्यापित खरीदारों की सक्रिय मशीन आवश्यकताएं हैं। यदि आपके पास मिलान करने वाली मशीन है, तो एप्लिकेशन के माध्यम से विवरण भेजें।",
+      "allCategories": "सभी श्रेणियां",
+      "badge": "आवश्यकता",
+      "upTo": "तक",
+      "activeCount_one": "{{count}} सक्रिय आवश्यकता",
+      "activeCount_other": "{{count}} सक्रिय आवश्यकताएं",
+      "searchPlaceholder": "मशीन, ब्रांड, श्रेणी से खोजें…",
+      "sort": {
+        "newest": "पहले नई",
+        "oldest": "पहले पुरानी"
+      },
+      "resultsCount": "{{total}} में से {{shown}} आवश्यकताएं दिखाई जा रही हैं",
+      "postRequirement": "आवश्यकता पोस्ट करें",
+      "giveQuote": "कोटेशन दें",
+      "pageOf": "पृष्ठ {{page}} / {{totalPages}}",
+      "emptyState": { "title": "अभी कोई खुली आवश्यकता नहीं", "description": "जल्द ही जांचें, या यदि आप खरीदार हैं तो अपनी आवश्यकता पोस्ट करें।" }
+    },
+    "requirementDetail": {
+      "notFoundError": "यह आवश्यकता नहीं मिली।",
+      "backToWanted": "← आवश्यकता सूची पर वापस जाएं",
+      "any": "कोई भी",
+      "specs": { "origin": "मूल", "year": "निर्माण वर्ष", "quantity": "मात्रा" },
+      "quoteHeading": "मिलान करने वाली मशीन है?",
+      "quoteSubheading": "कोटेशन भेजें — यह पहले हमारी टीम के पास जाता है, स्वीकृत होने पर खरीदार तक पहुंचता है।",
+      "signInPrompt": "कोटेशन भेजने के लिए GST-सत्यापित विक्रेता के रूप में साइन इन करें।",
+      "needsSellerPrompt": "केवल GST-सत्यापित विक्रेता ही कोटेशन भेज सकते हैं। खरीदार आवश्यकताओं का जवाब देने के लिए अपना GST सत्यापित करें।",
+      "verifyToQuote": "कोटेशन देने के लिए सत्यापित विक्रेता बनें",
+      "quoteSentNotice": "कोटेशन प्रशासनिक समीक्षा हेतु भेजा गया — स्वीकृत होते ही हम आपको सूचित करेंगे।",
+      "useExistingListing": "मौजूदा लिस्टिंग का उपयोग करें",
+      "enterFreshDetails": "नया विवरण दर्ज करें",
+      "yourListingLabel": "आपकी लिस्टिंग",
+      "selectListing": "एक लिस्टिंग चुनें",
+      "priceLabel": "मूल्य (₹)",
+      "messageLabel": "संदेश",
+      "sending": "भेजा जा रहा है…",
+      "sendQuote": "कोटेशन भेजें",
+      "haveAMachine": "बेचने के लिए मशीन है?",
+      "errors": { "quoteFailed": "यह कोटेशन नहीं भेजा जा सका।" }
+    },
     "about": {
       "eyebrow": "BIM के बारे में",
       "title": "भारत के पुराने औद्योगिक मशीनरी व्यापार के लिए बनाया गया",
@@ -286,12 +333,25 @@
     },
     "home": {
       "searchPlaceholder": "मशीनें, ब्रांड, मॉडल खोजें…",
+      "quickNav": {
+        "buy": "मशीन खरीदें",
+        "sell": "मशीन बेचें",
+        "required": "मशीन चाहिए",
+        "spareParts": "स्पेयर पार्ट्स",
+        "comingSoon": "जल्द आ रहा है"
+      },
       "trustChips": {
         "gstVerified": "100% GST सत्यापित विक्रेता",
         "bankPartners": "12 बैंक और NBFC पार्टनर",
         "listingReview": "24 घंटे में लिस्टिंग समीक्षा"
       },
       "activeListings": "सक्रिय लिस्टिंग",
+      "wantedCta": {
+        "title": "मशीन ढूंढ रहे हैं?",
+        "subtitle": "आपको जो चाहिए उसे पोस्ट करें — सत्यापित विक्रेता आपको कोटेशन भेजेंगे",
+        "myRequirements": "मेरी आवश्यकताएं",
+        "browse": "आवश्यकता सूची देखें"
+      },
       "browseByIndustry": "उद्योग के अनुसार ब्राउज़ करें",
       "industryHeading": "उद्योग के अनुसार मशीनें देखें",
       "browseAll": "सभी देखें",
@@ -518,6 +578,54 @@
     }
   },
   "buyer": {
+    "newRequirement": {
+      "eyebrow": "आवश्यकता",
+      "title": "एक आवश्यकता पोस्ट करें",
+      "description": "सत्यापित विक्रेताओं को बताएं कि आपको कौन सी मशीन चाहिए — मिलान करने वाले विक्रेता आपको कोटेशन भेज सकते हैं।",
+      "submit": "आवश्यकता पोस्ट करें",
+      "errors": { "createFailed": "यह आवश्यकता पोस्ट नहीं की जा सकी।" },
+      "submitted": {
+        "title": "आवश्यकता समीक्षा हेतु सबमिट की गई",
+        "description": "हमारी टीम द्वारा स्वीकृत होते ही लाइव हो जाएगी, और आपको मिलान करने वाले विक्रेताओं से कोटेशन मिलना शुरू हो जाएगा।",
+        "goToRequirements": "मेरी आवश्यकताओं पर जाएं",
+        "viewWanted": "आवश्यकता सूची देखें"
+      }
+    },
+    "requirements": {
+      "eyebrow": "आवश्यकता",
+      "title": "मेरी आवश्यकताएं",
+      "description": "वे मशीनें जिन्हें आप खरीदना चाहते हैं, और विक्रेताओं द्वारा भेजे गए कोटेशन।",
+      "postRequirement": "एक आवश्यकता पोस्ट करें",
+      "manage": "प्रबंधित करें",
+      "table": { "requirement": "आवश्यकता", "status": "स्थिति", "quotes": "कोटेशन", "updated": "अपडेट किया गया" },
+      "emptyState": {
+        "title": "अभी तक कोई आवश्यकता पोस्ट नहीं की गई",
+        "description": "आपको जो मशीन चाहिए उसे पोस्ट करें, मिलान करने वाले विक्रेता आपको कोटेशन भेज सकते हैं।"
+      }
+    },
+    "editRequirement": {
+      "description": "इस आवश्यकता को प्रबंधित करें और विक्रेताओं के कोटेशन की समीक्षा करें।",
+      "backToRequirements": "मेरी आवश्यकताओं पर वापस जाएं",
+      "errors": {
+        "notFound": "यह आवश्यकता नहीं मिली।",
+        "updateFailed": "इस आवश्यकता को अपडेट नहीं किया जा सका।",
+        "submitFailed": "इस आवश्यकता को समीक्षा हेतु सबमिट नहीं किया जा सका।",
+        "closeFailed": "इस आवश्यकता को बंद नहीं किया जा सका।"
+      },
+      "notices": {
+        "updated": "आवश्यकता अपडेट की गई।",
+        "submitted": "आवश्यकता प्रशासनिक समीक्षा हेतु सबमिट की गई।",
+        "closed": "आवश्यकता बंद कर दी गई।"
+      },
+      "sections": { "detailsHeading": "आवश्यकता विवरण", "quotesHeading": "प्राप्त कोटेशन" },
+      "noQuotes": "अभी तक कोई स्वीकृत कोटेशन नहीं — विक्रेताओं के जवाब देने पर दोबारा जांचें।",
+      "quoteFrom": "{{name}} की ओर से",
+      "saveChanges": "परिवर्तन सहेजें",
+      "submitting": "सबमिट किया जा रहा है…",
+      "submitForReview": "समीक्षा हेतु सबमिट करें",
+      "closing": "बंद किया जा रहा है…",
+      "closeRequirement": "आवश्यकता बंद करें"
+    },
     "buyback": {
       "errorAccept": "इस समझौते को स्वीकार नहीं किया जा सका।",
       "machineFallback": "मशीन",
@@ -749,6 +857,17 @@
     }
   },
   "seller": {
+    "myQuotes": {
+      "eyebrow": "आवश्यकता",
+      "title": "मेरे कोटेशन",
+      "description": "आपके द्वारा खरीदार आवश्यकताओं पर भेजे गए कोटेशन, और उनकी समीक्षा स्थिति।",
+      "browseWanted": "आवश्यकता सूची देखें",
+      "table": { "requirement": "आवश्यकता", "yourQuote": "आपका कोटेशन", "status": "स्थिति", "sent": "भेजा गया" },
+      "emptyState": {
+        "title": "अभी तक कोई कोटेशन नहीं भेजा गया",
+        "description": "खरीदार आवश्यकताएं देखें और मिलान करने वाली मशीन होने पर कोटेशन भेजें।"
+      }
+    },
     "dashboard": {
       "eyebrow": "विक्रेता कार्यक्षेत्र",
       "welcomeTitle": "वापसी पर स्वागत है, {{name}}",
@@ -959,6 +1078,43 @@
     }
   },
   "admin": {
+    "requirements": {
+      "eyebrow": "आवश्यकता समीक्षा",
+      "title": "आवश्यकता समीक्षा",
+      "description": "आवश्यकता सूची में लाइव होने से पहले खरीदार आवश्यकताओं को स्वीकृत करें।",
+      "review": "समीक्षा करें",
+      "table": { "requirement": "आवश्यकता", "buyer": "खरीदार", "status": "स्थिति" },
+      "emptyState": { "title": "इस स्थिति में कोई आवश्यकता नहीं", "description": "बाद में जांचें या स्थिति फ़िल्टर बदलें।" }
+    },
+    "requirementReview": {
+      "notFound": "यह आवश्यकता नहीं मिली।",
+      "backToQueue": "कतार पर वापस जाएं",
+      "actionError": "इस आवश्यकता को अपडेट नहीं किया जा सका।",
+      "quoteActionError": "इस कोटेशन को अपडेट नहीं किया जा सका।",
+      "category": "श्रेणी",
+      "origin": "मूल",
+      "location": "स्थान",
+      "budget": "बजट (अधिकतम)",
+      "quotesHeading": "इस आवश्यकता पर कोटेशन",
+      "noQuotes": "अभी तक कोई कोटेशन नहीं।",
+      "responder": "की ओर से",
+      "approveQuote": "कोटेशन स्वीकृत करें",
+      "rejectQuote": "कोटेशन अस्वीकार करें",
+      "decisionHeading": "निर्णय",
+      "approve": "स्वीकृत करें",
+      "reject": "अस्वीकार करें"
+    },
+    "quotes": {
+      "eyebrow": "आवश्यकता समीक्षा",
+      "title": "कोटेशन समीक्षा",
+      "description": "विक्रेता द्वारा किसी आवश्यकता पर भेजा गया हर कोटेशन आपके स्वीकृत करने तक यहां रखा जाता है — खरीदार उसे इससे पहले नहीं देखता।",
+      "actionError": "इस कोटेशन को अपडेट नहीं किया जा सका।",
+      "from": "की ओर से",
+      "for": "के लिए",
+      "approve": "स्वीकृत करें",
+      "reject": "अस्वीकार करें",
+      "emptyState": { "title": "इस स्थिति में कोई कोटेशन नहीं", "description": "बाद में जांचें या स्थिति फ़िल्टर बदलें।" }
+    },
     "dashboard": {
       "eyebrow": "एडमिन कंसोल",
       "title": "स्वागत है, {{name}}",
@@ -1638,6 +1794,25 @@
     }
   },
   "components": {
+    "requirementDetailsForm": {
+      "titleLabel": "आवश्यकता शीर्षक",
+      "titleHint": "स्पष्ट रहें — इससे विक्रेता जल्दी मेल पहचान पाएंगे",
+      "titlePlaceholder": "जैसे 2015 या उसके बाद की CNC टर्निंग सेंटर चाहिए",
+      "descriptionLabel": "विवरण",
+      "descriptionPlaceholder": "आपको क्या चाहिए, अपेक्षित विवरण और कोई भी अनिवार्य बातें बताएं",
+      "yearHint": "यदि कोई भी वर्ष चलेगा तो खाली छोड़ें",
+      "anyYear": "कोई भी वर्ष",
+      "anyOrigin": "कोई भी — भारतीय या आयातित",
+      "anyCondition": "कोई भी — पुराना या नया",
+      "quantityLabel": "आवश्यक मात्रा",
+      "budgetMinLabel": "बजट — से (₹)",
+      "budgetMaxLabel": "बजट — तक (₹)",
+      "budgetPlaceholder": "वैकल्पिक",
+      "locationHint": "यदि स्थान मायने नहीं रखता तो खाली छोड़ें",
+      "anyState": "कोई भी राज्य",
+      "runningHoursHint": "यदि मायने रखता है, तो अधिकतम स्वीकार्य चालू घंटे",
+      "errors": { "budgetRangeInvalid": "बजट \"से\" बजट \"तक\" से अधिक नहीं होना चाहिए।" }
+    },
     "boostListingModal": {
       "loadError": "बूस्ट विकल्प लोड नहीं हो सके।",
       "paymentFailed": "भुगतान विफल हो गया। कृपया पुनः प्रयास करें।",
@@ -1779,6 +1954,33 @@
       "priceNegotiable": "कीमत पर बातचीत हो सकती है",
       "beforeYouContinue": "जारी रखने से पहले:",
       "saving": "सहेजा जा रहा है…"
+    },
+    "quoteForm": {
+      "yourDetailsHeading": "— आपका विवरण",
+      "nameLabel": "नाम",
+      "namePlaceholder": "आपका पूरा नाम",
+      "phoneLabel": "फ़ोन",
+      "emailLabel": "ईमेल",
+      "companyLabel": "कंपनी",
+      "companyPlaceholder": "कंपनी का नाम (वैकल्पिक)",
+      "notProvided": "उपलब्ध नहीं",
+      "theMachineHeading": "— मशीन",
+      "askingPriceLabel": "मांग मूल्य (INR)",
+      "askingPriceHint": "आपकी मांग कीमत रुपयों में",
+      "machineLocationLabel": "मशीन का स्थान",
+      "machineLocationHint": "मशीन वर्तमान में कहाँ है?",
+      "machineLocationPlaceholder": "जैसे पुणे, महाराष्ट्र",
+      "categoryLabel": "श्रेणी",
+      "subcategoryLabel": "प्रकार / उप-श्रेणी",
+      "prefilled": "आवश्यकता से पहले से भरा हुआ",
+      "descriptionLabel": "विवरण",
+      "descriptionHint": "मशीन के बारे में अतिरिक्त जानकारी",
+      "descriptionPlaceholder": "मशीन की स्थिति, हाल की मरम्मत, शामिल सामान आदि का वर्णन करें।",
+      "photosLabel": "फ़ोटो",
+      "photosHint": "कम से कम 1 फ़ोटो अपलोड करें। नेमप्लेट और पूरी मशीन की फ़ोटो शामिल करें। प्रति फ़ोटो अधिकतम 10 MB।",
+      "addPhotos": "फ़ोटो जोड़ने के लिए क्लिक करें",
+      "photosCount": "{{max}} में से {{count}} फ़ोटो जोड़ी गईं",
+      "photosMoreRequired": "{{count}} और आवश्यक"
     },
     "listingMediaManager": {
       "errors": {

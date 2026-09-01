@@ -108,8 +108,12 @@ export function ListingCard({ listing }: { listing: ListingDto }) {
           </p>
 
           {/* Spec strip */}
-          <p className="font-mono text-[8.5px] text-gray-500 font-semibold tracking-[0.05em]">
+          <p className="font-mono text-[8.5px] text-gray-500 font-semibold tracking-[0.05em] truncate">
             <span className="text-ink font-bold">{listing.complexityTier}</span>
+            {' · '}
+            {listing.origin === 'IMPORTED'
+              ? (listing.importedCountry ? t('common:listing.importedFrom', { country: listing.importedCountry }) : t('common:listing.originImported'))
+              : t('common:listing.originIndian')}
             {' · '}{listing.locationCity}
           </p>
 

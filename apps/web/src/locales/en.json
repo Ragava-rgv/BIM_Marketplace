@@ -186,6 +186,8 @@
       "nav": {
         "dashboard": "Dashboard",
         "listingReview": "Listing review",
+        "requirementReview": "Requirement review",
+        "quoteReview": "Quote review",
         "enquiries": "Enquiries",
         "transactions": "Transactions",
         "certifications": "Certifications",
@@ -207,6 +209,7 @@
       "nav": {
         "dashboard": "Dashboard",
         "browseListings": "Browse listings",
+        "myRequirements": "My requirements",
         "enquiries": "Enquiries",
         "savedListings": "Saved listings",
         "contactViews": "Contact views",
@@ -223,6 +226,8 @@
         "myListings": "My listings",
         "newListing": "New listing",
         "browseMarketplace": "Browse marketplace",
+        "browseWanted": "Browse Wanted",
+        "myQuotes": "My quotes",
         "enquiries": "Enquiries",
         "subscription": "Subscription",
         "gstVerification": "GST verification"
@@ -250,6 +255,48 @@
     }
   },
   "public": {
+    "wanted": {
+      "eyebrow": "Wanted",
+      "title": "Wanted — Buyer Requirements",
+      "intro": "These are active machine requirements from verified buyers. If you have a machine that matches, send details via the application.",
+      "allCategories": "All categories",
+      "badge": "Wanted",
+      "upTo": "Up to",
+      "activeCount_one": "{{count}} active requirement",
+      "activeCount_other": "{{count}} active requirements",
+      "searchPlaceholder": "Search by machine, brand, category…",
+      "sort": {
+        "newest": "Newest first",
+        "oldest": "Oldest first"
+      },
+      "resultsCount": "Showing {{shown}} of {{total}} requirements",
+      "postRequirement": "Post requirement",
+      "giveQuote": "Give quote",
+      "pageOf": "Page {{page}} of {{totalPages}}",
+      "emptyState": { "title": "No open requirements right now", "description": "Check back soon, or post your own requirement if you're a buyer." }
+    },
+    "requirementDetail": {
+      "notFoundError": "This requirement could not be found.",
+      "backToWanted": "← Back to Wanted",
+      "any": "Any",
+      "specs": { "origin": "Origin", "year": "Manufacture year", "quantity": "Quantity" },
+      "quoteHeading": "Have a matching machine?",
+      "quoteSubheading": "Send a quote — it goes to our team first, and reaches the buyer once approved.",
+      "signInPrompt": "Sign in as a GST-verified seller to send a quote.",
+      "needsSellerPrompt": "Only GST-verified sellers can send a quote. Verify your GST to respond to buyer requirements.",
+      "verifyToQuote": "Become a verified seller to quote",
+      "quoteSentNotice": "Quote sent for admin review — we'll notify you once it's approved.",
+      "useExistingListing": "Use an existing listing",
+      "enterFreshDetails": "Enter fresh details",
+      "yourListingLabel": "Your listing",
+      "selectListing": "Select a listing",
+      "priceLabel": "Price (₹)",
+      "messageLabel": "Message",
+      "sending": "Sending…",
+      "sendQuote": "Send quote",
+      "haveAMachine": "Have a machine to sell?",
+      "errors": { "quoteFailed": "Could not send this quote." }
+    },
     "about": {
       "eyebrow": "About BIM",
       "title": "Built for India's used industrial machinery trade",
@@ -283,12 +330,25 @@
     },
     "home": {
       "searchPlaceholder": "Search machines, makes, models…",
+      "quickNav": {
+        "buy": "Buy Machine",
+        "sell": "Sell Machine",
+        "required": "Machine Required",
+        "spareParts": "Spare Parts",
+        "comingSoon": "Coming soon"
+      },
       "trustChips": {
         "gstVerified": "100% GST verified sellers",
         "bankPartners": "12 bank & NBFC partners",
         "listingReview": "24h listing review"
       },
       "activeListings": "active listings",
+      "wantedCta": {
+        "title": "Looking for a machine?",
+        "subtitle": "Post what you need — verified sellers will send you quotes",
+        "myRequirements": "My requirements",
+        "browse": "Browse Wanted"
+      },
       "browseByIndustry": "Browse by industry",
       "industryHeading": "Explore machines by industry",
       "browseAll": "Browse all",
@@ -515,6 +575,54 @@
     }
   },
   "buyer": {
+    "newRequirement": {
+      "eyebrow": "Wanted",
+      "title": "Post a requirement",
+      "description": "Tell verified sellers exactly what machine you need — matching sellers can send you a quote.",
+      "submit": "Post requirement",
+      "errors": { "createFailed": "Could not post this requirement." },
+      "submitted": {
+        "title": "Requirement submitted for review",
+        "description": "will go live once our team approves it, and you'll start receiving quotes from matching sellers.",
+        "goToRequirements": "Go to my requirements",
+        "viewWanted": "Browse Wanted"
+      }
+    },
+    "requirements": {
+      "eyebrow": "Wanted",
+      "title": "My requirements",
+      "description": "Machines you're looking to buy, and the quotes sellers have sent you.",
+      "postRequirement": "Post a requirement",
+      "manage": "Manage",
+      "table": { "requirement": "Requirement", "status": "Status", "quotes": "Quotes", "updated": "Updated" },
+      "emptyState": {
+        "title": "No requirements posted yet",
+        "description": "Post what machine you're looking for and matching sellers can send you a quote."
+      }
+    },
+    "editRequirement": {
+      "description": "Manage this requirement and review quotes from sellers.",
+      "backToRequirements": "Back to my requirements",
+      "errors": {
+        "notFound": "This requirement could not be found.",
+        "updateFailed": "Could not update this requirement.",
+        "submitFailed": "Could not submit this requirement for review.",
+        "closeFailed": "Could not close this requirement."
+      },
+      "notices": {
+        "updated": "Requirement updated.",
+        "submitted": "Requirement submitted for admin review.",
+        "closed": "Requirement closed."
+      },
+      "sections": { "detailsHeading": "Requirement details", "quotesHeading": "Quotes received" },
+      "noQuotes": "No approved quotes yet — check back once sellers respond.",
+      "quoteFrom": "From {{name}}",
+      "saveChanges": "Save changes",
+      "submitting": "Submitting…",
+      "submitForReview": "Submit for review",
+      "closing": "Closing…",
+      "closeRequirement": "Close requirement"
+    },
     "buyback": {
       "errorAccept": "Could not accept this agreement.",
       "machineFallback": "Machine",
@@ -746,6 +854,17 @@
     }
   },
   "seller": {
+    "myQuotes": {
+      "eyebrow": "Wanted",
+      "title": "My quotes",
+      "description": "Quotes you've sent against buyer requirements, and their review status.",
+      "browseWanted": "Browse Wanted requirements",
+      "table": { "requirement": "Requirement", "yourQuote": "Your quote", "status": "Status", "sent": "Sent" },
+      "emptyState": {
+        "title": "No quotes sent yet",
+        "description": "Browse buyer requirements and send a quote if you have a matching machine."
+      }
+    },
     "dashboard": {
       "eyebrow": "Seller workspace",
       "welcomeTitle": "Welcome back, {{name}}",
@@ -956,6 +1075,43 @@
     }
   },
   "admin": {
+    "requirements": {
+      "eyebrow": "Wanted moderation",
+      "title": "Requirement review",
+      "description": "Approve buyer requirements before they go live on Wanted.",
+      "review": "Review",
+      "table": { "requirement": "Requirement", "buyer": "Buyer", "status": "Status" },
+      "emptyState": { "title": "No requirements in this status", "description": "Check back later or switch the status filter." }
+    },
+    "requirementReview": {
+      "notFound": "This requirement could not be found.",
+      "backToQueue": "Back to queue",
+      "actionError": "Could not update this requirement.",
+      "quoteActionError": "Could not update this quote.",
+      "category": "Category",
+      "origin": "Origin",
+      "location": "Location",
+      "budget": "Budget (up to)",
+      "quotesHeading": "Quotes on this requirement",
+      "noQuotes": "No quotes yet.",
+      "responder": "From",
+      "approveQuote": "Approve quote",
+      "rejectQuote": "Reject quote",
+      "decisionHeading": "Decision",
+      "approve": "Approve",
+      "reject": "Reject"
+    },
+    "quotes": {
+      "eyebrow": "Wanted moderation",
+      "title": "Quote review",
+      "description": "Every quote a seller sends against a requirement is held here until you approve it — the buyer never sees it before that.",
+      "actionError": "Could not update this quote.",
+      "from": "from",
+      "for": "for",
+      "approve": "Approve",
+      "reject": "Reject",
+      "emptyState": { "title": "No quotes in this status", "description": "Check back later or switch the status filter." }
+    },
     "dashboard": {
       "eyebrow": "Admin console",
       "title": "Welcome, {{name}}",
@@ -1635,6 +1791,25 @@
     }
   },
   "components": {
+    "requirementDetailsForm": {
+      "titleLabel": "Requirement title",
+      "titleHint": "Be specific — this helps sellers spot a match quickly",
+      "titlePlaceholder": "e.g. Looking for a CNC turning centre, 2015 or newer",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Describe what you need, expected specs, and any must-haves",
+      "yearHint": "Leave blank if any year works",
+      "anyYear": "Any year",
+      "anyOrigin": "Either — Indian or Imported",
+      "anyCondition": "Either — Old or New",
+      "quantityLabel": "Quantity needed",
+      "budgetMinLabel": "Budget — from (₹)",
+      "budgetMaxLabel": "Budget — up to (₹)",
+      "budgetPlaceholder": "Optional",
+      "locationHint": "Leave blank if location doesn't matter",
+      "anyState": "Any state",
+      "runningHoursHint": "Maximum acceptable running hours, if it matters",
+      "errors": { "budgetRangeInvalid": "Budget \"from\" must not be more than budget \"up to\"." }
+    },
     "boostListingModal": {
       "loadError": "Could not load boost options.",
       "paymentFailed": "Payment failed. Please try again.",
@@ -1776,6 +1951,33 @@
       "priceNegotiable": "Price is negotiable",
       "beforeYouContinue": "Before you continue:",
       "saving": "Saving…"
+    },
+    "quoteForm": {
+      "yourDetailsHeading": "— Your details",
+      "nameLabel": "Name",
+      "namePlaceholder": "Your full name",
+      "phoneLabel": "Phone",
+      "emailLabel": "Email",
+      "companyLabel": "Company",
+      "companyPlaceholder": "Company name (optional)",
+      "notProvided": "Not provided",
+      "theMachineHeading": "— The machine",
+      "askingPriceLabel": "Asking price (INR)",
+      "askingPriceHint": "Your asking price in rupees",
+      "machineLocationLabel": "Machine location",
+      "machineLocationHint": "Where is the machine currently?",
+      "machineLocationPlaceholder": "e.g. Pune, Maharashtra",
+      "categoryLabel": "Category",
+      "subcategoryLabel": "Type / Sub-category",
+      "prefilled": "Pre-filled from requirement",
+      "descriptionLabel": "Description",
+      "descriptionHint": "Additional details about the machine",
+      "descriptionPlaceholder": "Describe the machine's condition, recent maintenance, included accessories, etc.",
+      "photosLabel": "Photos",
+      "photosHint": "Upload at least 1 photo. Include the nameplate and overall machine view. Max 10 MB per image.",
+      "addPhotos": "Click to add photos",
+      "photosCount": "{{count}} of {{max}} photos added",
+      "photosMoreRequired": "{{count}} more required"
     },
     "listingMediaManager": {
       "errors": {

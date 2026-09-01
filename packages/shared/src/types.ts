@@ -18,6 +18,8 @@ import type {
   SpecFilterType,
   SupportedLanguage,
   AdPlacement,
+  RequirementStatus,
+  QuoteStatus,
   ListingCondition,
 } from './enums';
 
@@ -96,6 +98,97 @@ export interface ListingDto {
   catalogCategory?: CategoryDto | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface RequirementMediaDto {
+  id: string;
+  requirementId: string;
+  type: MediaType;
+  storageKey: string;
+  url: string;
+  capturedAt: string | null;
+  durationSeconds: number | null;
+  orderIndex: number;
+  isPrimary: boolean;
+}
+
+export interface RequirementDto {
+  id: string;
+  buyerId: string;
+  title: string;
+  description: string;
+  machineCategory: string;
+  machineSubcategory: string | null;
+  origin: ListingOrigin | null;
+  importedCountry: string | null;
+  manufactureYear: number | null;
+  runningHours: number | null;
+  condition: ListingCondition | null;
+  complexityTier: ComplexityTier;
+  catalogCategoryId: string | null;
+  specs: Record<string, unknown> | null;
+  budgetMin: string | null;
+  budgetMax: string | null;
+  quantity: number | null;
+  locationCity: string | null;
+  locationState: string | null;
+  status: RequirementStatus;
+  postedAt: string | null;
+  media?: RequirementMediaDto[];
+  buyer?: {
+    id: string;
+    fullName: string;
+    phone?: string;
+    email?: string | null;
+    locationCity?: string | null;
+    locationState?: string | null;
+  };
+  catalogCategory?: CategoryDto | null;
+  quotes?: QuoteDto[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface QuoteMediaDto {
+  id: string;
+  quoteId: string;
+  type: MediaType;
+  storageKey: string;
+  url: string;
+  orderIndex: number;
+  isPrimary: boolean;
+}
+
+export interface QuoteDto {
+  id: string;
+  requirementId: string;
+  responderId: string;
+  listingId: string | null;
+  contactName: string | null;
+  contactPhone: string | null;
+  contactEmail: string | null;
+  contactCompany: string | null;
+  catalogCategoryId: string | null;
+  machineCategory: string | null;
+  machineMake: string | null;
+  machineModel: string | null;
+  manufactureYear: number | null;
+  origin: ListingOrigin | null;
+  importedCountry: string | null;
+  condition: ListingCondition | null;
+  machineLocation: string | null;
+  price: string | null;
+  description: string | null;
+  specs: Record<string, unknown> | null;
+  message: string | null;
+  status: QuoteStatus;
+  adminReviewedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  media?: QuoteMediaDto[];
+  requirement?: { id: string; title: string; machineCategory: string; status?: RequirementStatus; buyer?: { id: string; fullName: string } };
+  responder?: { id: string; fullName: string; phone?: string; email?: string | null; gstStatus?: GstStatus };
+  listing?: ListingDto | { id: string; title: string; askingPrice?: string } | null;
 }
 
 export interface WishlistDto {

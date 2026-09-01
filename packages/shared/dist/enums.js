@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MACHINE_CATEGORIES = exports.QUOTA_ALERT_REMAINING_THRESHOLD = exports.QUOTA_ALERT_AFTER_USED = exports.DEFAULT_BUYER_CONTACT_VIEW_QUOTA = exports.CONTACT_REVEAL_PRICE_INR = exports.STANDARD_SUBSCRIPTION_PRICE_INR = exports.STANDARD_LISTING_QUOTA = exports.FREE_LISTING_QUOTA = exports.MIN_VIDEO_DURATION_SECONDS = exports.PHOTO_MAX_AGE_DAYS = exports.MAX_LISTING_PHOTOS = exports.MIN_LISTING_PHOTOS = exports.SELLER_COMMISSION_RATE = exports.BUYER_COMMISSION_RATE = exports.AdPlacement = exports.LANGUAGE_OPTIONS = exports.SupportedLanguage = exports.SpecFilterType = exports.SpecFieldType = exports.SubscriptionStatus = exports.SubscriptionPlan = exports.BuybackStatus = exports.FinancePartnerType = exports.LoanApplicationStatus = exports.CertificationConditionGrade = exports.CertificationStatus = exports.CommissionStatus = exports.EnquiryStatus = exports.MediaType = exports.ListingCondition = exports.ListingOrigin = exports.ComplexityTier = exports.ListingStatus = exports.GstStatus = exports.UserRole = void 0;
+exports.MACHINE_CATEGORIES = exports.QUOTA_ALERT_REMAINING_THRESHOLD = exports.QUOTA_ALERT_AFTER_USED = exports.DEFAULT_BUYER_CONTACT_VIEW_QUOTA = exports.CONTACT_REVEAL_PRICE_INR = exports.STANDARD_SUBSCRIPTION_PRICE_INR = exports.STANDARD_LISTING_QUOTA = exports.FREE_LISTING_QUOTA = exports.MIN_VIDEO_DURATION_SECONDS = exports.PHOTO_MAX_AGE_DAYS = exports.MAX_LISTING_PHOTOS = exports.MIN_LISTING_PHOTOS = exports.SELLER_COMMISSION_RATE = exports.BUYER_COMMISSION_RATE = exports.QuoteStatus = exports.RequirementStatus = exports.AdPlacement = exports.LANGUAGE_OPTIONS = exports.SupportedLanguage = exports.SpecFilterType = exports.SpecFieldType = exports.SubscriptionStatus = exports.SubscriptionPlan = exports.BuybackStatus = exports.FinancePartnerType = exports.LoanApplicationStatus = exports.CertificationConditionGrade = exports.CertificationStatus = exports.CommissionStatus = exports.EnquiryStatus = exports.MediaType = exports.ListingCondition = exports.ListingOrigin = exports.ComplexityTier = exports.ListingStatus = exports.GstStatus = exports.UserRole = void 0;
 var UserRole;
 (function (UserRole) {
     UserRole["SELLER"] = "SELLER";
@@ -130,6 +130,21 @@ var AdPlacement;
     AdPlacement["IN_GRID"] = "IN_GRID";
     AdPlacement["HOME_BANNER"] = "HOME_BANNER";
 })(AdPlacement || (exports.AdPlacement = AdPlacement = {}));
+var RequirementStatus;
+(function (RequirementStatus) {
+    RequirementStatus["DRAFT"] = "DRAFT";
+    RequirementStatus["PENDING_REVIEW"] = "PENDING_REVIEW";
+    RequirementStatus["ACTIVE"] = "ACTIVE";
+    RequirementStatus["FULFILLED"] = "FULFILLED";
+    RequirementStatus["CLOSED"] = "CLOSED";
+    RequirementStatus["REJECTED"] = "REJECTED";
+})(RequirementStatus || (exports.RequirementStatus = RequirementStatus = {}));
+var QuoteStatus;
+(function (QuoteStatus) {
+    QuoteStatus["PENDING_ADMIN"] = "PENDING_ADMIN";
+    QuoteStatus["APPROVED"] = "APPROVED";
+    QuoteStatus["REJECTED"] = "REJECTED";
+})(QuoteStatus || (exports.QuoteStatus = QuoteStatus = {}));
 /** Commission split: 2% total, 1% buyer + 1% seller (non-negotiable, see project_spec.md §8.6) */
 exports.BUYER_COMMISSION_RATE = 0.01;
 exports.SELLER_COMMISSION_RATE = 0.01;

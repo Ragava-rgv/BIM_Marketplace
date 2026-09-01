@@ -1,4 +1,24 @@
 {
+  "wanted": {
+    "title": "Wanted — Buyer Requirements",
+    "intro": "Active machine requirements from verified buyers. If you have a match, send details via the app.",
+    "badge": "Wanted",
+    "emptyState": { "title": "No open requirements right now", "description": "Check back soon, or post your own requirement if you're a buyer." }
+  },
+  "requirementDetail": {
+    "notFoundError": "This requirement could not be found.",
+    "backToWanted": "Back to Wanted",
+    "quoteHeading": "Have a matching machine?",
+    "quoteSubheading": "Send a quote — it goes to our team first, and reaches the buyer once approved.",
+    "needsSellerPrompt": "Only GST-verified sellers can send a quote. Verify your GST to respond to buyer requirements.",
+    "quoteSentNotice": "Quote sent for admin review — we'll notify you once it's approved.",
+    "selectListing": "Select a listing",
+    "priceLabel": "Price (₹)",
+    "messageLabel": "Message",
+    "sending": "Sending…",
+    "sendQuote": "Send quote",
+    "errors": { "quoteFailed": "Could not send this quote." }
+  },
   "onboarding": {
     "chooseLanguage": "Choose your language"
   },
@@ -11,6 +31,12 @@
       "gstVerified": "840 GST verified",
       "bankPartners": "12 bank partners",
       "review": "24h review"
+    },
+    "wantedCta": {
+      "title": "Looking for a machine?",
+      "subtitle": "Post what you need — sellers will send you quotes",
+      "myRequirements": "My requirements",
+      "browse": "Browse Wanted"
     },
     "filters": {
       "all": "All",
@@ -156,6 +182,15 @@
     }
   },
   "seller": {
+    "myQuotes": {
+      "title": "My quotes",
+      "description": "Quotes you've sent against buyer requirements",
+      "browseWanted": "Browse Wanted",
+      "emptyState": {
+        "title": "No quotes sent yet",
+        "description": "Browse buyer requirements and send a quote if you have a matching machine."
+      }
+    },
     "subscription": {
       "header": {
         "title": "Subscription",
@@ -556,16 +591,19 @@
       "language": "Language",
       "sellerDashboard": "Seller dashboard",
       "myListings": "My listings",
+      "myQuotes": "My quotes",
       "enquiriesFromBuyers": "Enquiries from buyers",
       "subscriptionPlan": "Subscription & plan",
       "gstVerification": "GST verification",
       "buyerDashboard": "Buyer dashboard",
+      "myRequirements": "My requirements",
       "myEnquiries": "My enquiries",
       "savedListings": "Saved listings",
       "loanApplications": "Loan applications",
       "buybackAgreements": "Buyback agreements",
       "switchToSeller": "Switch to seller",
-      "browseAllListings": "Browse all listings"
+      "browseAllListings": "Browse all listings",
+      "browseWanted": "Browse Wanted"
     }
   },
   "enquiries": {
@@ -721,6 +759,68 @@
     }
   },
   "buyer": {
+    "newRequirement": {
+      "title": "Post a requirement",
+      "submit": "Post requirement",
+      "posting": "Posting…",
+      "errors": {
+        "createFailed": "Could not post this requirement.",
+        "titleTooShort": "Title must be at least 5 characters.",
+        "descriptionTooShort": "Description must be at least 20 characters.",
+        "categoryRequired": "Please select a machine category."
+      },
+      "fields": {
+        "title": "Requirement title",
+        "titlePlaceholder": "e.g. Looking for a CNC turning centre",
+        "description": "Description",
+        "descriptionPlaceholder": "Describe what you need, expected specs, and any must-haves",
+        "category": "Machine category",
+        "selectCategory": "Select category…",
+        "subcategory": "Subcategory",
+        "selectSubcategory": "Select subcategory…",
+        "origin": "Origin",
+        "anyOrigin": "Either — Indian or Imported",
+        "anyCondition": "Either — Old or New",
+        "budgetMin": "Budget — from (₹)",
+        "budgetMax": "Budget — up to (₹)",
+        "budgetPlaceholder": "Optional",
+        "state": "State",
+        "anyState": "Any state",
+        "city": "City",
+        "selectCity": "Select city…",
+        "selectStateFirst": "Select state first"
+      },
+      "submitted": {
+        "title": "Requirement submitted for review",
+        "description": "Once approved, matching sellers can start sending you quotes.",
+        "goToRequirements": "Go to my requirements"
+      }
+    },
+    "requirements": {
+      "title": "My requirements",
+      "description": "Machines you're looking to buy",
+      "postRequirement": "Post a requirement",
+      "table": { "quotes": "Quotes" },
+      "emptyState": {
+        "title": "No requirements posted yet",
+        "description": "Post what machine you're looking for and matching sellers can send you a quote."
+      }
+    },
+    "editRequirement": {
+      "backToRequirements": "Back to my requirements",
+      "errors": {
+        "notFound": "This requirement could not be found.",
+        "submitFailed": "Could not submit this requirement for review.",
+        "closeFailed": "Could not close this requirement."
+      },
+      "sections": { "quotesHeading": "Quotes received" },
+      "noQuotes": "No approved quotes yet — check back once sellers respond.",
+      "quoteFrom": "From {{name}}",
+      "submitting": "Submitting…",
+      "submitForReview": "Submit for review",
+      "closing": "Closing…",
+      "closeRequirement": "Close requirement"
+    },
     "buyback": {
       "title": "Buyback Agreements",
       "offerCount_one": "{{count}} offer",

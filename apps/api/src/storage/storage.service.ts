@@ -6,6 +6,9 @@ import { extname, join, resolve } from 'path';
 
 export const LISTING_PHOTOS_DIR = 'listing-photos';
 export const LISTING_VIDEOS_DIR = 'listing-videos';
+export const REQUIREMENT_PHOTOS_DIR = 'requirement-photos';
+export const REQUIREMENT_VIDEOS_DIR = 'requirement-videos';
+export const QUOTE_PHOTOS_DIR = 'quote-photos';
 export const CERTIFICATION_REPORTS_DIR = 'certification-reports';
 export const CATEGORY_IMAGES_DIR = 'category-images';
 export const ADVERTISEMENT_IMAGES_DIR = 'advertisement-images';

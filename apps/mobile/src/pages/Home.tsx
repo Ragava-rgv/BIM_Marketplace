@@ -363,6 +363,23 @@ export function Home() {
         ))}
       </div>
 
+      {/* ── Wanted CTA — as prominent/one-tap as the Sell FAB, so buyers can post or
+          find their requirement without digging through the Profile menu ── */}
+      <div className="px-[14px] pt-[6px] pb-1">
+        <button
+          onClick={() => navigate(user ? '/buyer/requirements' : '/wanted')}
+          className="w-full flex items-center justify-between gap-2 bg-copper rounded-[12px] px-4 py-3 text-left shadow-[0_4px_12px_rgba(232,130,12,.25)]"
+        >
+          <div>
+            <p className="text-[13px] font-extrabold text-white leading-tight">{t('home.wantedCta.title')}</p>
+            <p className="text-[11px] text-white/80 mt-0.5">{t('home.wantedCta.subtitle')}</p>
+          </div>
+          <span className="flex-shrink-0 bg-white text-copper text-[11.5px] font-bold rounded-full px-3 py-1.5">
+            {user ? t('home.wantedCta.myRequirements') : t('home.wantedCta.browse')}
+          </span>
+        </button>
+      </div>
+
       {/* ── Category chips (horizontal scroll) ── */}
       <div className="flex gap-1.5 px-[14px] pt-[6px] pb-1 overflow-x-auto">
         <button onClick={() => selectCategory(null)}

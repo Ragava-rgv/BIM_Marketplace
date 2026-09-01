@@ -7,10 +7,15 @@
     "condition": "நிலை",
     "conditionOld": "பழையது",
     "conditionNew": "புதியது",
-    "conditionRequired": "இயந்திரத்தின் நிலையைத் தேர்ந்தெடுக்கவும்."
+    "conditionRequired": "இயந்திரத்தின் நிலையைத் தேர்ந்தெடுக்கவும்.",
+    "origin": "தோற்றம்",
+    "originIndian": "இந்திய",
+    "originImported": "இறக்குமதி",
+    "importedFrom": "இறக்குமதி · {{country}}"
   },
   "nav": {
     "marketplace": "சந்தை",
+    "wanted": "தேவை",
     "howItWorks": "இது எப்படி செயல்படுகிறது",
     "sell": "விற்க",
     "login": "உள்நுழைக",
@@ -98,6 +103,19 @@
       "ACCEPTED": "ஏற்கப்பட்டது",
       "EXPIRED": "காலாவதியானது",
       "COMPLETED": "முடிந்தது"
+    },
+    "requirement": {
+      "DRAFT": "வரைவு",
+      "PENDING_REVIEW": "மதிப்பாய்வு நிலுவையில்",
+      "ACTIVE": "செயலில்",
+      "FULFILLED": "நிறைவேற்றப்பட்டது",
+      "CLOSED": "மூடப்பட்டது",
+      "REJECTED": "நிராகரிக்கப்பட்டது"
+    },
+    "quote": {
+      "PENDING_ADMIN": "மதிப்பாய்வு நிலுவையில்",
+      "APPROVED": "அங்கீகரிக்கப்பட்டது",
+      "REJECTED": "நிராகரிக்கப்பட்டது"
     }
   },
   "role": {

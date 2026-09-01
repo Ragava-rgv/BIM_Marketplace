@@ -258,6 +258,20 @@ export const TargetIcon = (props: SVGProps<SVGSVGElement>) => (
   </Icon>
 );
 
+export const CartIcon = (props: SVGProps<SVGSVGElement>) => (
+  <Icon {...props}>
+    <path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L20.5 8H6.2" />
+    <circle cx="9.5" cy="20" r="1.4" fill="currentColor" stroke="none" />
+    <circle cx="17" cy="20" r="1.4" fill="currentColor" stroke="none" />
+  </Icon>
+);
+
+export const WrenchIcon = (props: SVGProps<SVGSVGElement>) => (
+  <Icon {...props}>
+    <path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.8 2.8-2.6-2.6 2.5-2.5Z" />
+  </Icon>
+);
+
 /* ── Category icons (matching the spec-sheet machine-illustration style) ── */
 
 export const CncTurningIcon = (props: SVGProps<SVGSVGElement>) => (

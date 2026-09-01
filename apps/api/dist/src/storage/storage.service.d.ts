@@ -1,6 +1,9 @@
 import { ConfigService } from '@nestjs/config';
 export declare const LISTING_PHOTOS_DIR = "listing-photos";
 export declare const LISTING_VIDEOS_DIR = "listing-videos";
+export declare const REQUIREMENT_PHOTOS_DIR = "requirement-photos";
+export declare const REQUIREMENT_VIDEOS_DIR = "requirement-videos";
+export declare const QUOTE_PHOTOS_DIR = "quote-photos";
 export declare const CERTIFICATION_REPORTS_DIR = "certification-reports";
 export declare const CATEGORY_IMAGES_DIR = "category-images";
 export declare const ADVERTISEMENT_IMAGES_DIR = "advertisement-images";

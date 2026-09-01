@@ -128,6 +128,21 @@ export enum AdPlacement {
   HOME_BANNER = 'HOME_BANNER',
 }
 
+export enum RequirementStatus {
+  DRAFT = 'DRAFT',
+  PENDING_REVIEW = 'PENDING_REVIEW',
+  ACTIVE = 'ACTIVE',
+  FULFILLED = 'FULFILLED',
+  CLOSED = 'CLOSED',
+  REJECTED = 'REJECTED',
+}
+
+export enum QuoteStatus {
+  PENDING_ADMIN = 'PENDING_ADMIN',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
 /** Commission split: 2% total, 1% buyer + 1% seller (non-negotiable, see project_spec.md §8.6) */
 export const BUYER_COMMISSION_RATE = 0.01;
 export const SELLER_COMMISSION_RATE = 0.01;

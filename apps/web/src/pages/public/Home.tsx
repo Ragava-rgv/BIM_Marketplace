@@ -26,6 +26,7 @@ import {
   BuildingIcon,
 } from '../../components/icons';
 import { HomeAdBanner } from '../../components/HomeAdBanner';
+import { QuickNavigationTiles } from '../../components/QuickNavigationTiles';
 
 const CATEGORY_ICON_MAP: Record<string, (p: { className?: string }) => React.ReactElement> = {
   metalworking: CncTurningIcon,
@@ -166,6 +167,29 @@ export function Home() {
               <span className="font-bold text-forest">{formatCount(total)}</span> {t('public.home.activeListings')}
             </div>
           )}
+        </div>
+      </div>
+
+      {/* ── QUICK NAVIGATION — Buy / Sell / Machine Required / Spare Parts jump-off tiles ── */}
+      <QuickNavigationTiles />
+
+      {/* ── WANTED CTA — as prominent/one-click as the header's Sell button, so buyers
+          can post or find their requirement without hunting through the dashboard. ── */}
+      <div className="bg-white px-6 pb-6 lg:px-[52px]">
+        <div className="mx-auto max-w-7xl">
+          <button
+            type="button"
+            onClick={() => navigate('/wanted')}
+            className="flex w-full items-center justify-between gap-3 rounded-[12px] bg-copper px-5 py-4 text-left transition hover:bg-copper-2 sm:px-6"
+          >
+            <div>
+              <p className="text-[14px] font-extrabold text-white sm:text-[15px]">{t('public.home.wantedCta.title')}</p>
+              <p className="mt-0.5 text-[12px] text-white/80 sm:text-[13px]">{t('public.home.wantedCta.subtitle')}</p>
+            </div>
+            <span className="shrink-0 rounded-full bg-white px-4 py-2 text-[12.5px] font-bold text-copper">
+              {t('public.home.wantedCta.browse')}
+            </span>
+          </button>
         </div>
       </div>
 

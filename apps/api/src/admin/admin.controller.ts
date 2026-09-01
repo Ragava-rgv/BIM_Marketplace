@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query, UseGuards } from '@nestjs/common';
-import { UserRole } from '@prisma/client';
+import { QuoteStatus, UserRole } from '@prisma/client';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -7,6 +7,8 @@ import { AdminService } from './admin.service';
 import { ListingsService } from '../listings/listings.service';
 import { AdminQueryListingsDto } from '../listings/dto/query-listings.dto';
 import { BulkListingStatusDto, type BulkListingStatusAction } from './dto/bulk-listing-status.dto';
+import { RequirementsService } from '../requirements/requirements.service';
+import { AdminQueryRequirementsDto } from '../requirements/dto/query-requirements.dto';
 
 /**
  * Admin Module (project_spec.md §6.8): a thin, admin-gated aggregation layer over
@@ -22,6 +24,7 @@ export class AdminController {
   constructor(
     private readonly admin: AdminService,
     private readonly listings: ListingsService,
+    private readonly requirements: RequirementsService,
   ) {}
 
   @Get('dashboard')
@@ -97,5 +100,48 @@ export class AdminController {
       case 'reactivate':
         return (id) => this.listings.reactivate(id);
     }
+  }
+
+  // -- Requirement ("Wanted") review queue -------------------------------------
+
+  @Get('requirements')
+  async requirementQueue(@Query() query: AdminQueryRequirementsDto) {
+    return this.requirements.adminList(query);
+  }
+
+  @Get('requirements/:id')
+  async requirementDetail(@Param('id') id: string) {
+    return this.requirements.findAnyById(id);
+  }
+
+  @Post('requirements/:id/approve')
+  @HttpCode(HttpStatus.OK)
+  async approveRequirement(@Param('id') id: string) {
+    return this.requirements.approve(id);
+  }
+
+  @Post('requirements/:id/reject')
+  @HttpCode(HttpStatus.OK)
+  async rejectRequirement(@Param('id') id: string) {
+    return this.requirements.reject(id);
+  }
+
+  // -- Quote review queue --------------------------------------------------------
+
+  @Get('quotes')
+  async quoteQueue(@Query('status') status?: QuoteStatus) {
+    return this.requirements.adminListQuotes(status);
+  }
+
+  @Post('quotes/:id/approve')
+  @HttpCode(HttpStatus.OK)
+  async approveQuote(@Param('id') id: string) {
+    return this.requirements.approveQuote(id);
+  }
+
+  @Post('quotes/:id/reject')
+  @HttpCode(HttpStatus.OK)
+  async rejectQuote(@Param('id') id: string) {
+    return this.requirements.rejectQuote(id);
   }
 }
