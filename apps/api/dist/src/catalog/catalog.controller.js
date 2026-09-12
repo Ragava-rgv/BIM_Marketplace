@@ -58,8 +58,8 @@ let CategoriesController = class CategoriesController {
     getBySlug(slug) {
         return this.catalog.getCategoryBySlug(slug);
     }
-    getSpecTemplate(id) {
-        return this.catalog.getCategoryWithSpecTemplate(id);
+    getSpecTemplate(id, subcategoryId) {
+        return this.catalog.getCategoryWithSpecTemplate(id, subcategoryId || undefined);
     }
     listPublicSubcategories(id) {
         return this.catalog.listSubcategories(id);
@@ -82,8 +82,9 @@ __decorate([
 __decorate([
     (0, common_1.Get)(':id/spec-template'),
     __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
+    __param(1, (0, common_1.Query)('subcategoryId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], CategoriesController.prototype, "getSpecTemplate", null);
 __decorate([

@@ -88,7 +88,15 @@ export class QueryListingsDto {
 
 export class AdminQueryListingsDto extends QueryListingsDto {
   @IsOptional()
-  @IsIn(['DRAFT', 'PENDING_REVIEW', 'ACTIVE', 'UNDER_OFFER', 'SOLD', 'REJECTED', 'WITHDRAWN'])
+  @IsIn([
+    'DRAFT',
+    'PENDING_REVIEW',
+    'ACTIVE',
+    'UNDER_OFFER',
+    'SOLD',
+    'REJECTED',
+    'WITHDRAWN',
+  ])
   status?: ListingStatus;
 
   /** Free-text search over the seller's name/email/phone. */

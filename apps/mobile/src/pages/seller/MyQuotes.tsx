@@ -8,9 +8,8 @@ import { AppLayout } from '../../components/AppLayout';
 import { MachineIcon } from '../../components/icons';
 
 const STATUS_STYLE: Record<string, string> = {
-  APPROVED: 'bg-green-bg text-green-txt',
-  PENDING_ADMIN: 'bg-copper-bg text-copper',
-  REJECTED: 'bg-red-50 text-red-600',
+  SUBMITTED: 'bg-green-bg text-green-txt',
+  WITHDRAWN: 'bg-red-50 text-red-600',
 };
 
 export function MyQuotes() {

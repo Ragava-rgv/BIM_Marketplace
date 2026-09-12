@@ -14,7 +14,10 @@ const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const prisma_service_1 = require("../prisma/prisma.service");
 const razorpay_service_1 = require("../payments/razorpay.service");
-const BOOSTABLE_STATUSES = [client_1.ListingStatus.ACTIVE, client_1.ListingStatus.UNDER_OFFER];
+const BOOSTABLE_STATUSES = [
+    client_1.ListingStatus.ACTIVE,
+    client_1.ListingStatus.UNDER_OFFER,
+];
 let ListingBoostsService = class ListingBoostsService {
     prisma;
     razorpay;
@@ -23,7 +26,9 @@ let ListingBoostsService = class ListingBoostsService {
         this.razorpay = razorpay;
     }
     async findOwnedListing(sellerId, listingId) {
-        const listing = await this.prisma.listing.findUnique({ where: { id: listingId } });
+        const listing = await this.prisma.listing.findUnique({
+            where: { id: listingId },
+        });
         if (!listing || listing.sellerId !== sellerId) {
             throw new common_1.NotFoundException('Listing not found');
         }
@@ -31,21 +36,28 @@ let ListingBoostsService = class ListingBoostsService {
     }
     async getStatus(sellerId, listingId) {
         const listing = await this.findOwnedListing(sellerId, listingId);
-        if (listing.isBoosted && listing.boostExpiresAt && listing.boostExpiresAt <= new Date()) {
+        if (listing.isBoosted &&
+            listing.boostExpiresAt &&
+            listing.boostExpiresAt <= new Date()) {
             await this.prisma.listing.update({
                 where: { id: listingId },
                 data: { isBoosted: false, boostExpiresAt: null },
             });
             return { isBoosted: false, boostExpiresAt: null };
         }
-        return { isBoosted: listing.isBoosted, boostExpiresAt: listing.boostExpiresAt };
+        return {
+            isBoosted: listing.isBoosted,
+            boostExpiresAt: listing.boostExpiresAt,
+        };
     }
     async createOrder(sellerId, listingId, dto) {
         const listing = await this.findOwnedListing(sellerId, listingId);
         if (!BOOSTABLE_STATUSES.includes(listing.status)) {
             throw new common_1.ForbiddenException(`A listing in ${listing.status} status cannot be boosted`);
         }
-        const plan = await this.prisma.promotionPlan.findUnique({ where: { id: dto.planId } });
+        const plan = await this.prisma.promotionPlan.findUnique({
+            where: { id: dto.planId },
+        });
         if (!plan || plan.deletedAt)
             throw new common_1.NotFoundException('Boost plan not found');
         if (!plan.isActive)
@@ -65,7 +77,9 @@ let ListingBoostsService = class ListingBoostsService {
         const valid = this.razorpay.verifySignature(dto.razorpayOrderId, dto.razorpayPaymentId, dto.razorpaySignature);
         if (!valid)
             throw new common_1.UnauthorizedException('Payment verification failed');
-        const plan = await this.prisma.promotionPlan.findUnique({ where: { id: dto.planId } });
+        const plan = await this.prisma.promotionPlan.findUnique({
+            where: { id: dto.planId },
+        });
         if (!plan || plan.deletedAt)
             throw new common_1.NotFoundException('Boost plan not found');
         const existing = await this.prisma.listingBoost.findFirst({

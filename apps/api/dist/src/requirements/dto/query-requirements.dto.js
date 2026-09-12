@@ -63,7 +63,7 @@ class AdminQueryRequirementsDto extends QueryRequirementsDto {
 exports.AdminQueryRequirementsDto = AdminQueryRequirementsDto;
 __decorate([
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsIn)(['DRAFT', 'PENDING_REVIEW', 'ACTIVE', 'FULFILLED', 'CLOSED', 'REJECTED']),
+    (0, class_validator_1.IsIn)(['ACTIVE', 'FULFILLED', 'CLOSED']),
     __metadata("design:type", String)
 ], AdminQueryRequirementsDto.prototype, "status", void 0);
 //# sourceMappingURL=query-requirements.dto.js.map

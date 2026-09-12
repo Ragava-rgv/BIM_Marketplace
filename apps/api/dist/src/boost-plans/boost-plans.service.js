@@ -31,13 +31,17 @@ let BoostPlansService = class BoostPlansService {
         });
     }
     async findById(id) {
-        const plan = await this.prisma.promotionPlan.findFirst({ where: { id, deletedAt: null } });
+        const plan = await this.prisma.promotionPlan.findFirst({
+            where: { id, deletedAt: null },
+        });
         if (!plan)
             throw new common_1.NotFoundException('Boost plan not found');
         return plan;
     }
     async create(dto) {
-        const existing = await this.prisma.promotionPlan.findUnique({ where: { name: dto.name } });
+        const existing = await this.prisma.promotionPlan.findUnique({
+            where: { name: dto.name },
+        });
         if (existing && !existing.deletedAt) {
             throw new common_1.BadRequestException(`A boost plan named "${dto.name}" already exists`);
         }
@@ -68,8 +72,12 @@ let BoostPlansService = class BoostPlansService {
             data: {
                 ...(dto.name !== undefined && { name: dto.name }),
                 ...(dto.displayName !== undefined && { displayName: dto.displayName }),
-                ...(dto.priceInr !== undefined && { priceInr: new client_1.Prisma.Decimal(dto.priceInr) }),
-                ...(dto.durationDays !== undefined && { durationDays: dto.durationDays }),
+                ...(dto.priceInr !== undefined && {
+                    priceInr: new client_1.Prisma.Decimal(dto.priceInr),
+                }),
+                ...(dto.durationDays !== undefined && {
+                    durationDays: dto.durationDays,
+                }),
                 ...(dto.sortWeight !== undefined && { sortWeight: dto.sortWeight }),
                 ...(dto.description !== undefined && { description: dto.description }),
                 ...(dto.sortOrder !== undefined && { sortOrder: dto.sortOrder }),
@@ -79,11 +87,16 @@ let BoostPlansService = class BoostPlansService {
     }
     async remove(id) {
         await this.findById(id);
-        const inUse = await this.prisma.listingBoost.count({ where: { planId: id } });
+        const inUse = await this.prisma.listingBoost.count({
+            where: { planId: id },
+        });
         if (inUse > 0) {
             throw new common_1.BadRequestException(`Cannot delete a plan with ${inUse} boost purchase(s) on record. Deactivate it instead.`);
         }
-        return this.prisma.promotionPlan.update({ where: { id }, data: { deletedAt: new Date() } });
+        return this.prisma.promotionPlan.update({
+            where: { id },
+            data: { deletedAt: new Date() },
+        });
     }
     async purge(id) {
         const plan = await this.prisma.promotionPlan.findUnique({ where: { id } });
@@ -92,7 +105,9 @@ let BoostPlansService = class BoostPlansService {
         if (!plan.deletedAt) {
             throw new common_1.BadRequestException('Soft-delete this plan before permanently purging it.');
         }
-        const dependents = await this.prisma.listingBoost.count({ where: { planId: id } });
+        const dependents = await this.prisma.listingBoost.count({
+            where: { planId: id },
+        });
         if (dependents > 0) {
             throw new common_1.BadRequestException(`Cannot purge a plan with ${dependents} boost record(s) still referencing it.`);
         }

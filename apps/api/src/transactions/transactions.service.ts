@@ -1,6 +1,19 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { CommissionStatus, ListingStatus, Prisma, Transaction, UserRole } from '@prisma/client';
-import { BUYER_COMMISSION_RATE, SELLER_COMMISSION_RATE } from '@machinebazaar/shared';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import {
+  CommissionStatus,
+  ListingStatus,
+  Prisma,
+  Transaction,
+  UserRole,
+} from '@prisma/client';
+import {
+  BUYER_COMMISSION_RATE,
+  SELLER_COMMISSION_RATE,
+} from '@machinebazaar/shared';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -11,8 +24,13 @@ export class TransactionsService {
    * Create a transaction once buyer and seller have agreed an offer.
    * Commission split is fixed at 1% buyer + 1% seller = 2% total (§8.6) — non-negotiable.
    */
-  async create(sellerId: string, dto: { listingId: string; buyerId: string; salePrice: number }): Promise<Transaction> {
-    const listing = await this.prisma.listing.findUnique({ where: { id: dto.listingId } });
+  async create(
+    sellerId: string,
+    dto: { listingId: string; buyerId: string; salePrice: number },
+  ): Promise<Transaction> {
+    const listing = await this.prisma.listing.findUnique({
+      where: { id: dto.listingId },
+    });
     if (!listing || listing.sellerId !== sellerId) {
       throw new NotFoundException('Listing not found');
     }
@@ -21,10 +39,14 @@ export class TransactionsService {
     }
 
     const enquiry = await this.prisma.enquiry.findUnique({
-      where: { listingId_buyerId: { listingId: dto.listingId, buyerId: dto.buyerId } },
+      where: {
+        listingId_buyerId: { listingId: dto.listingId, buyerId: dto.buyerId },
+      },
     });
     if (!enquiry) {
-      throw new ForbiddenException('This buyer must enquire about the listing before a transaction can be created');
+      throw new ForbiddenException(
+        'This buyer must enquire about the listing before a transaction can be created',
+      );
     }
 
     const salePrice = new Prisma.Decimal(dto.salePrice);
@@ -54,14 +76,22 @@ export class TransactionsService {
 
   async listForUser(userId: string, role: UserRole): Promise<Transaction[]> {
     if (role === UserRole.ADMIN) {
-      return this.prisma.transaction.findMany({ orderBy: { createdAt: 'desc' } });
+      return this.prisma.transaction.findMany({
+        orderBy: { createdAt: 'desc' },
+      });
     }
-    const where = role === UserRole.SELLER ? { sellerId: userId } : { buyerId: userId };
-    return this.prisma.transaction.findMany({ where, orderBy: { createdAt: 'desc' } });
+    const where =
+      role === UserRole.SELLER ? { sellerId: userId } : { buyerId: userId };
+    return this.prisma.transaction.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
   async findById(id: string): Promise<Transaction> {
-    const transaction = await this.prisma.transaction.findUnique({ where: { id } });
+    const transaction = await this.prisma.transaction.findUnique({
+      where: { id },
+    });
     if (!transaction) {
       throw new NotFoundException('Transaction not found');
     }
@@ -108,7 +138,10 @@ export class TransactionsService {
       return { released: false as const };
     }
 
-    const counterpartId = transaction.buyerId === userId ? transaction.sellerId : transaction.buyerId;
+    const counterpartId =
+      transaction.buyerId === userId
+        ? transaction.sellerId
+        : transaction.buyerId;
     const counterpart = await this.prisma.user.findUnique({
       where: { id: counterpartId },
       select: { fullName: true, phone: true, email: true },
@@ -142,7 +175,8 @@ export class TransactionsService {
       listingId: transaction.listingId,
       listingTitle: transaction.listing.title,
       contactReleasedAt: transaction.contactReleasedAt,
-      contact: role === UserRole.SELLER ? transaction.buyer : transaction.seller,
+      contact:
+        role === UserRole.SELLER ? transaction.buyer : transaction.seller,
     }));
   }
 }

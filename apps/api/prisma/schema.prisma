@@ -67,19 +67,18 @@ enum MediaType {
   VIDEO
 }
 
+/// No approval gate: a requirement goes ACTIVE the moment it's posted.
 enum RequirementStatus {
-  DRAFT
-  PENDING_REVIEW
   ACTIVE
   FULFILLED
   CLOSED
-  REJECTED
 }
 
+/// No approval gate: a quote reaches the requirement owner the moment it's submitted.
+/// Admin retains a traceability record (see Quote.adminReviewedAt) but does not gate it.
 enum QuoteStatus {
-  PENDING_ADMIN
-  APPROVED
-  REJECTED
+  SUBMITTED
+  WITHDRAWN
 }
 
 enum EnquiryStatus {
@@ -179,6 +178,7 @@ model User {
   listingBoosts         ListingBoost[]
   requirements          Requirement[]
   quotesGiven           Quote[]              @relation("QuoteResponder")
+  notifications         Notification[]
 
   @@map("users")
 }
@@ -335,7 +335,7 @@ model Requirement {
   quantity           Int?              @default(1)
   locationCity       String?           @map("location_city")
   locationState      String?           @map("location_state")
-  status             RequirementStatus @default(DRAFT)
+  status             RequirementStatus @default(ACTIVE)
   postedAt           DateTime?         @map("posted_at")
   createdAt          DateTime          @default(now()) @map("created_at")
   updatedAt          DateTime          @updatedAt @map("updated_at")
@@ -390,7 +390,8 @@ model Quote {
   description       String?
   specs             Json?
   message           String?
-  status            QuoteStatus       @default(PENDING_ADMIN)
+  status            QuoteStatus       @default(SUBMITTED)
+  /// No longer set by an approval action — kept only as a leftover traceability column.
   adminReviewedAt   DateTime?         @map("admin_reviewed_at")
   createdAt         DateTime          @default(now()) @map("created_at")
   updatedAt         DateTime          @updatedAt @map("updated_at")
@@ -416,6 +417,25 @@ model QuoteMedia {
   quote Quote @relation(fields: [quoteId], references: [id], onDelete: Cascade)
 
   @@map("quote_media")
+}
+
+/// Minimal in-app notification — e.g. "you received a quote". `relatedId` is a loose
+/// pointer (a quote id, a requirement id, ...) resolved by the frontend from `type`,
+/// not a foreign key, so notifications survive the referenced row being deleted.
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  type      String
+  title     String
+  body      String?
+  relatedId String?  @map("related_id")
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@map("notifications")
 }
 
 model Enquiry {
@@ -587,31 +607,36 @@ model Subcategory {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  category     Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category     Category               @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   listings     Listing[]
   requirements Requirement[]
+  specFields   CategorySpecTemplate[]
 
   @@unique([categoryId, slug])
   @@map("subcategories")
 }
 
 model CategorySpecTemplate {
-  id           String         @id @default(uuid())
-  categoryId   String         @map("category_id")
-  fieldKey     String         @map("field_key")
-  fieldLabel   String         @map("field_label")
-  unit         String?
-  fieldType    SpecFieldType  @map("field_type")
-  options      String[]       @default([])
-  isRequired   Boolean        @default(false) @map("is_required")
-  isFilterable Boolean        @default(false) @map("is_filterable")
-  filterType   SpecFilterType @default(none) @map("filter_type")
-  displayOrder Int            @default(0) @map("display_order")
-  helpText     String?        @map("help_text")
+  id            String         @id @default(uuid())
+  categoryId    String         @map("category_id")
+  /// Null = "common" field shown for every subcategory under this category.
+  /// Set = shown only when that specific subcategory is selected.
+  subcategoryId String?        @map("subcategory_id")
+  fieldKey      String         @map("field_key")
+  fieldLabel    String         @map("field_label")
+  unit          String?
+  fieldType     SpecFieldType  @map("field_type")
+  options       String[]       @default([])
+  isRequired    Boolean        @default(false) @map("is_required")
+  isFilterable  Boolean        @default(false) @map("is_filterable")
+  filterType    SpecFilterType @default(none) @map("filter_type")
+  displayOrder  Int            @default(0) @map("display_order")
+  helpText      String?        @map("help_text")
 
-  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category    Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  subcategory Subcategory? @relation(fields: [subcategoryId], references: [id], onDelete: Cascade)
 
-  @@unique([categoryId, fieldKey])
+  @@unique([categoryId, subcategoryId, fieldKey])
   @@map("category_spec_templates")
 }
 

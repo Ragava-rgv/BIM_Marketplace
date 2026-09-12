@@ -1,4 +1,13 @@
-import { IsBoolean, IsDateString, IsIn, IsInt, IsNumber, IsString, Min, MaxLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsDateString,
+  IsIn,
+  IsInt,
+  IsNumber,
+  IsString,
+  Min,
+  MaxLength,
+} from 'class-validator';
 
 /**
  * Prefixed inspection template the certifying inspector fills in

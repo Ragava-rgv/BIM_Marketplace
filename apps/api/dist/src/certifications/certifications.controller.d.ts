@@ -5,10 +5,10 @@ export declare class CertificationsController {
     constructor(certifications: CertificationsService);
     list(): Promise<({
         listing: {
-            machineCategory: string;
             locationCity: string;
             locationState: string;
             title: string;
+            machineCategory: string;
             machineMake: string;
             machineModel: string;
             manufactureYear: number | null;

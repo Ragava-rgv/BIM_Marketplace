@@ -14,12 +14,12 @@ export declare class BuyerSubscriptionsController {
         subscription: {
             plan: {
                 id: string;
-                name: string;
                 createdAt: Date;
+                name: string;
                 updatedAt: Date;
+                durationDays: number | null;
                 displayName: string;
                 priceInr: import("@prisma/client/runtime/library").Decimal;
-                durationDays: number | null;
                 isActive: boolean;
                 isFree: boolean;
                 description: string | null;
@@ -30,18 +30,18 @@ export declare class BuyerSubscriptionsController {
             } | null;
         } & {
             id: string;
+            expiresAt: Date | null;
             createdAt: Date;
             updatedAt: Date;
-            durationDays: number | null;
-            deletedAt: Date | null;
-            expiresAt: Date | null;
             status: import("@prisma/client").$Enums.SubscriptionStatus;
-            planId: string | null;
+            price: import("@prisma/client/runtime/library").Decimal;
+            durationDays: number | null;
+            startsAt: Date;
             razorpayOrderId: string | null;
             razorpayPaymentId: string | null;
-            price: import("@prisma/client/runtime/library").Decimal;
-            startsAt: Date;
             buyerId: string;
+            deletedAt: Date | null;
+            planId: string | null;
             quotaTotal: number;
             quotaUsed: number;
             adjustedBy: string | null;
@@ -58,12 +58,12 @@ export declare class BuyerSubscriptionsController {
     verify(user: AuthenticatedUser, dto: VerifyBuyerSubscriptionDto): Promise<{
         plan: {
             id: string;
-            name: string;
             createdAt: Date;
+            name: string;
             updatedAt: Date;
+            durationDays: number | null;
             displayName: string;
             priceInr: import("@prisma/client/runtime/library").Decimal;
-            durationDays: number | null;
             isActive: boolean;
             isFree: boolean;
             description: string | null;
@@ -74,18 +74,18 @@ export declare class BuyerSubscriptionsController {
         } | null;
     } & {
         id: string;
+        expiresAt: Date | null;
         createdAt: Date;
         updatedAt: Date;
-        durationDays: number | null;
-        deletedAt: Date | null;
-        expiresAt: Date | null;
         status: import("@prisma/client").$Enums.SubscriptionStatus;
-        planId: string | null;
+        price: import("@prisma/client/runtime/library").Decimal;
+        durationDays: number | null;
+        startsAt: Date;
         razorpayOrderId: string | null;
         razorpayPaymentId: string | null;
-        price: import("@prisma/client/runtime/library").Decimal;
-        startsAt: Date;
         buyerId: string;
+        deletedAt: Date | null;
+        planId: string | null;
         quotaTotal: number;
         quotaUsed: number;
         adjustedBy: string | null;
@@ -126,8 +126,8 @@ export declare class BuyerSubscriptionsController {
         items: ({
             listing: {
                 id: string;
-                machineCategory: string;
                 title: string;
+                machineCategory: string;
             };
             seller: {
                 id: string;
@@ -137,11 +137,11 @@ export declare class BuyerSubscriptionsController {
         } & {
             id: string;
             createdAt: Date;
-            deletedAt: Date | null;
             sellerId: string;
             listingId: string;
             viewedAt: Date;
             buyerId: string;
+            deletedAt: Date | null;
             buyerSubscriptionId: string;
         })[];
         total: number;
@@ -156,12 +156,12 @@ export declare class AdminBuyerSubscriptionsController {
         items: ({
             plan: {
                 id: string;
-                name: string;
                 createdAt: Date;
+                name: string;
                 updatedAt: Date;
+                durationDays: number | null;
                 displayName: string;
                 priceInr: import("@prisma/client/runtime/library").Decimal;
-                durationDays: number | null;
                 isActive: boolean;
                 isFree: boolean;
                 description: string | null;
@@ -171,25 +171,25 @@ export declare class AdminBuyerSubscriptionsController {
                 deletedAt: Date | null;
             } | null;
             buyer: {
-                id: string;
-                email: string | null;
                 phone: string;
+                id: string;
                 fullName: string;
+                email: string | null;
             };
         } & {
             id: string;
+            expiresAt: Date | null;
             createdAt: Date;
             updatedAt: Date;
-            durationDays: number | null;
-            deletedAt: Date | null;
-            expiresAt: Date | null;
             status: import("@prisma/client").$Enums.SubscriptionStatus;
-            planId: string | null;
+            price: import("@prisma/client/runtime/library").Decimal;
+            durationDays: number | null;
+            startsAt: Date;
             razorpayOrderId: string | null;
             razorpayPaymentId: string | null;
-            price: import("@prisma/client/runtime/library").Decimal;
-            startsAt: Date;
             buyerId: string;
+            deletedAt: Date | null;
+            planId: string | null;
             quotaTotal: number;
             quotaUsed: number;
             adjustedBy: string | null;
@@ -203,12 +203,12 @@ export declare class AdminBuyerSubscriptionsController {
     adjustQuota(admin: AuthenticatedUser, id: string, dto: AdjustQuotaDto): Promise<{
         plan: {
             id: string;
-            name: string;
             createdAt: Date;
+            name: string;
             updatedAt: Date;
+            durationDays: number | null;
             displayName: string;
             priceInr: import("@prisma/client/runtime/library").Decimal;
-            durationDays: number | null;
             isActive: boolean;
             isFree: boolean;
             description: string | null;
@@ -218,25 +218,25 @@ export declare class AdminBuyerSubscriptionsController {
             deletedAt: Date | null;
         } | null;
         buyer: {
-            id: string;
-            email: string | null;
             phone: string;
+            id: string;
             fullName: string;
+            email: string | null;
         };
     } & {
         id: string;
+        expiresAt: Date | null;
         createdAt: Date;
         updatedAt: Date;
-        durationDays: number | null;
-        deletedAt: Date | null;
-        expiresAt: Date | null;
         status: import("@prisma/client").$Enums.SubscriptionStatus;
-        planId: string | null;
+        price: import("@prisma/client/runtime/library").Decimal;
+        durationDays: number | null;
+        startsAt: Date;
         razorpayOrderId: string | null;
         razorpayPaymentId: string | null;
-        price: import("@prisma/client/runtime/library").Decimal;
-        startsAt: Date;
         buyerId: string;
+        deletedAt: Date | null;
+        planId: string | null;
         quotaTotal: number;
         quotaUsed: number;
         adjustedBy: string | null;

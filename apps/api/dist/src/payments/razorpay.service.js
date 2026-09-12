@@ -70,7 +70,10 @@ let RazorpayService = RazorpayService_1 = class RazorpayService {
             if (!this.keyId || !this.keySecret) {
                 throw new common_1.ServiceUnavailableException('Payment gateway is not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET.');
             }
-            this._razorpay = new razorpay_1.default({ key_id: this.keyId, key_secret: this.keySecret });
+            this._razorpay = new razorpay_1.default({
+                key_id: this.keyId,
+                key_secret: this.keySecret,
+            });
         }
         return this._razorpay;
     }
@@ -83,7 +86,10 @@ let RazorpayService = RazorpayService_1 = class RazorpayService {
     }
     verifySignature(orderId, paymentId, signature) {
         const body = `${orderId}|${paymentId}`;
-        const expected = crypto.createHmac('sha256', this.keySecret).update(body).digest('hex');
+        const expected = crypto
+            .createHmac('sha256', this.keySecret)
+            .update(body)
+            .digest('hex');
         return expected === signature;
     }
 };

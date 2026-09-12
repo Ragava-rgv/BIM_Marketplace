@@ -1,5 +1,15 @@
 import { Transform, Type } from 'class-transformer';
-import { IsBoolean, IsDateString, IsEnum, IsInt, IsOptional, IsString, IsUrl, Length, Min } from 'class-validator';
+import {
+  IsBoolean,
+  IsDateString,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUrl,
+  Length,
+  Min,
+} from 'class-validator';
 import { PartialType } from '@nestjs/mapped-types';
 import { AdPlacement } from '@prisma/client';
 
@@ -50,4 +60,6 @@ export class CreateAdvertisementDto {
   endsAt?: string;
 }
 
-export class UpdateAdvertisementDto extends PartialType(CreateAdvertisementDto) {}
+export class UpdateAdvertisementDto extends PartialType(
+  CreateAdvertisementDto,
+) {}

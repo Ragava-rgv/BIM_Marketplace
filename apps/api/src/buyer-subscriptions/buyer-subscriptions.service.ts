@@ -9,7 +9,10 @@ import {
 import { Prisma, ListingStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { RazorpayService } from '../payments/razorpay.service';
-import type { CreateBuyerSubscriptionOrderDto, VerifyBuyerSubscriptionDto } from './dto/subscribe.dto';
+import type {
+  CreateBuyerSubscriptionOrderDto,
+  VerifyBuyerSubscriptionDto,
+} from './dto/subscribe.dto';
 
 const SELLER_CONTACT_SELECT = {
   fullName: true,
@@ -20,9 +23,16 @@ const SELLER_CONTACT_SELECT = {
   locationState: true,
 } as const;
 
-function resolveAddress(seller: { address: string | null; locationCity: string | null; locationState: string | null }): string {
+function resolveAddress(seller: {
+  address: string | null;
+  locationCity: string | null;
+  locationState: string | null;
+}): string {
   if (seller.address) return seller.address;
-  return [seller.locationCity, seller.locationState].filter(Boolean).join(', ') || 'Not provided';
+  return (
+    [seller.locationCity, seller.locationState].filter(Boolean).join(', ') ||
+    'Not provided'
+  );
 }
 
 @Injectable()
@@ -54,7 +64,9 @@ export class BuyerSubscriptionsService {
       where: { isDefault: true, isActive: true, deletedAt: null },
     });
     if (!defaultPlan) {
-      throw new ServiceUnavailableException('No default buyer plan configured — contact support');
+      throw new ServiceUnavailableException(
+        'No default buyer plan configured — contact support',
+      );
     }
 
     const now = new Date();
@@ -83,7 +95,10 @@ export class BuyerSubscriptionsService {
     return {
       quotaTotal: subscription.quotaTotal,
       quotaUsed: subscription.quotaUsed,
-      quotaRemaining: Math.max(0, subscription.quotaTotal - subscription.quotaUsed),
+      quotaRemaining: Math.max(
+        0,
+        subscription.quotaTotal - subscription.quotaUsed,
+      ),
       expiresAt: subscription.expiresAt,
       status: subscription.status,
       subscription,
@@ -95,8 +110,12 @@ export class BuyerSubscriptionsService {
       where: { id: dto.planId, deletedAt: null },
     });
     if (!plan) throw new NotFoundException('Buyer subscription plan not found');
-    if (!plan.isActive) throw new BadRequestException('This subscription plan is no longer available');
-    if (plan.isFree) throw new BadRequestException('Free plan does not require payment');
+    if (!plan.isActive)
+      throw new BadRequestException(
+        'This subscription plan is no longer available',
+      );
+    if (plan.isFree)
+      throw new BadRequestException('Free plan does not require payment');
 
     const amountInr = Number(plan.priceInr);
     const receiptId = `bsub-${buyerId.slice(0, 12)}-${Date.now()}`;
@@ -126,14 +145,17 @@ export class BuyerSubscriptionsService {
     const existingPayment = await this.prisma.buyerSubscription.findFirst({
       where: { razorpayPaymentId: dto.razorpayPaymentId },
     });
-    if (existingPayment) throw new BadRequestException('Payment already applied');
+    if (existingPayment)
+      throw new BadRequestException('Payment already applied');
 
     // Carry over unused quota from the current active subscription, if any.
     const current = await this.prisma.buyerSubscription.findFirst({
       where: this.activeWhere(buyerId),
       orderBy: { createdAt: 'desc' },
     });
-    const carryOver = current ? Math.max(0, current.quotaTotal - current.quotaUsed) : 0;
+    const carryOver = current
+      ? Math.max(0, current.quotaTotal - current.quotaUsed)
+      : 0;
 
     const now = new Date();
     const expiresAt = plan.durationDays
@@ -213,7 +235,9 @@ export class BuyerSubscriptionsService {
       throw new NotFoundException('Listing not found');
     }
     if (listing.sellerId === buyerId) {
-      throw new ForbiddenException('Cannot reveal contact details for your own listing');
+      throw new ForbiddenException(
+        'Cannot reveal contact details for your own listing',
+      );
     }
 
     const contact = {
@@ -229,7 +253,13 @@ export class BuyerSubscriptionsService {
     });
     if (existingView) {
       const status = await this.getStatus(buyerId);
-      return { contact, quotaUsed: status.quotaUsed, quotaTotal: status.quotaTotal, quotaRemaining: status.quotaRemaining, isIdempotent: true };
+      return {
+        contact,
+        quotaUsed: status.quotaUsed,
+        quotaTotal: status.quotaTotal,
+        quotaRemaining: status.quotaRemaining,
+        isIdempotent: true,
+      };
     }
 
     // 2. Fetch/auto-provision active subscription.
@@ -238,7 +268,8 @@ export class BuyerSubscriptionsService {
     // 3. Quota check.
     if (subscription.quotaUsed >= subscription.quotaTotal) {
       throw new ForbiddenException({
-        message: 'Contact view quota exhausted — upgrade your plan to view more contacts',
+        message:
+          'Contact view quota exhausted — upgrade your plan to view more contacts',
         error: 'QUOTA_EXHAUSTED',
         quotaUsed: subscription.quotaUsed,
         quotaTotal: subscription.quotaTotal,
@@ -249,7 +280,10 @@ export class BuyerSubscriptionsService {
     // 4. Atomic increment + create the ledger row.
     const result = await this.prisma.$transaction(async (tx) => {
       const updated = await tx.buyerSubscription.updateMany({
-        where: { id: subscription.id, quotaUsed: { lt: subscription.quotaTotal } },
+        where: {
+          id: subscription.id,
+          quotaUsed: { lt: subscription.quotaTotal },
+        },
         data: { quotaUsed: { increment: 1 } },
       });
       if (updated.count === 0) {
@@ -257,21 +291,32 @@ export class BuyerSubscriptionsService {
       }
       try {
         await tx.contactView.create({
-          data: { buyerId, listingId, sellerId: listing.sellerId, buyerSubscriptionId: subscription.id },
+          data: {
+            buyerId,
+            listingId,
+            sellerId: listing.sellerId,
+            buyerSubscriptionId: subscription.id,
+          },
         });
       } catch (err) {
         // P2002 = unique constraint violation on (buyerId, listingId): another concurrent
         // request already created this view. Treat as success (idempotent), not an error.
-        if (!(err instanceof Prisma.PrismaClientKnownRequestError) || err.code !== 'P2002') {
+        if (
+          !(err instanceof Prisma.PrismaClientKnownRequestError) ||
+          err.code !== 'P2002'
+        ) {
           throw err;
         }
       }
-      return tx.buyerSubscription.findUnique({ where: { id: subscription.id } });
+      return tx.buyerSubscription.findUnique({
+        where: { id: subscription.id },
+      });
     });
 
     if (!result) {
       throw new ForbiddenException({
-        message: 'Contact view quota exhausted — upgrade your plan to view more contacts',
+        message:
+          'Contact view quota exhausted — upgrade your plan to view more contacts',
         error: 'QUOTA_EXHAUSTED',
         quotaUsed: subscription.quotaTotal,
         quotaTotal: subscription.quotaTotal,
@@ -328,7 +373,9 @@ export class BuyerSubscriptionsService {
         where,
         include: {
           plan: true,
-          buyer: { select: { id: true, fullName: true, phone: true, email: true } },
+          buyer: {
+            select: { id: true, fullName: true, phone: true, email: true },
+          },
         },
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * pageSize,
@@ -339,11 +386,17 @@ export class BuyerSubscriptionsService {
     return { items, total, page, pageSize };
   }
 
-  async adjustQuota(id: string, adminId: string, delta: number, reason: string) {
+  async adjustQuota(
+    id: string,
+    adminId: string,
+    delta: number,
+    reason: string,
+  ) {
     const subscription = await this.prisma.buyerSubscription.findFirst({
       where: { id, deletedAt: null },
     });
-    if (!subscription) throw new NotFoundException('Buyer subscription not found');
+    if (!subscription)
+      throw new NotFoundException('Buyer subscription not found');
 
     const newQuotaTotal = subscription.quotaTotal + delta;
     if (newQuotaTotal < subscription.quotaUsed) {
@@ -360,7 +413,12 @@ export class BuyerSubscriptionsService {
         adjustedAt: new Date(),
         adjustmentReason: reason,
       },
-      include: { plan: true, buyer: { select: { id: true, fullName: true, phone: true, email: true } } },
+      include: {
+        plan: true,
+        buyer: {
+          select: { id: true, fullName: true, phone: true, email: true },
+        },
+      },
     });
   }
 }

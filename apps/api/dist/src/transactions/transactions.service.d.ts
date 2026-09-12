@@ -17,9 +17,9 @@ export declare class TransactionsService {
     } | {
         released: true;
         contact: {
-            email: string | null;
             phone: string;
             fullName: string;
+            email: string | null;
         };
     }>;
     listReleasedContacts(userId: string, role: UserRole): Promise<{
@@ -28,9 +28,9 @@ export declare class TransactionsService {
         listingTitle: string;
         contactReleasedAt: Date | null;
         contact: {
-            email: string | null;
             phone: string;
             fullName: string;
+            email: string | null;
         };
     }[]>;
 }

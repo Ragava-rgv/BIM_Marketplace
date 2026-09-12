@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { UserRole } from '@machinebazaar/shared';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -6,8 +15,14 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '../auth/types/jwt-payload.interface';
 import { BuyerSubscriptionsService } from './buyer-subscriptions.service';
-import { CreateBuyerSubscriptionOrderDto, VerifyBuyerSubscriptionDto } from './dto/subscribe.dto';
-import { AdjustQuotaDto, AdminQueryBuyerSubscriptionsDto } from './dto/admin-query.dto';
+import {
+  CreateBuyerSubscriptionOrderDto,
+  VerifyBuyerSubscriptionDto,
+} from './dto/subscribe.dto';
+import {
+  AdjustQuotaDto,
+  AdminQueryBuyerSubscriptionsDto,
+} from './dto/admin-query.dto';
 
 @Controller('buyer-subscriptions')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -23,25 +38,37 @@ export class BuyerSubscriptionsController {
 
   @Post('order')
   @Roles(UserRole.BUYER, UserRole.SELLER)
-  createOrder(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateBuyerSubscriptionOrderDto) {
+  createOrder(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: CreateBuyerSubscriptionOrderDto,
+  ) {
     return this.service.createOrder(user.id, dto);
   }
 
   @Post('verify')
   @Roles(UserRole.BUYER, UserRole.SELLER)
-  verify(@CurrentUser() user: AuthenticatedUser, @Body() dto: VerifyBuyerSubscriptionDto) {
+  verify(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: VerifyBuyerSubscriptionDto,
+  ) {
     return this.service.verifyAndActivate(user.id, dto);
   }
 
   @Get('reveal-status/:listingId')
   @Roles(UserRole.BUYER, UserRole.SELLER)
-  revealStatus(@CurrentUser() user: AuthenticatedUser, @Param('listingId') listingId: string) {
+  revealStatus(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('listingId') listingId: string,
+  ) {
     return this.service.revealStatus(user.id, listingId);
   }
 
   @Post('reveal/:listingId')
   @Roles(UserRole.BUYER, UserRole.SELLER)
-  reveal(@CurrentUser() user: AuthenticatedUser, @Param('listingId') listingId: string) {
+  reveal(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('listingId') listingId: string,
+  ) {
     return this.service.reveal(user.id, listingId);
   }
 
@@ -52,7 +79,11 @@ export class BuyerSubscriptionsController {
     @Query('page') page?: string,
     @Query('pageSize') pageSize?: string,
   ) {
-    return this.service.listContactViews(user.id, Number(page) || 1, Number(pageSize) || 20);
+    return this.service.listContactViews(
+      user.id,
+      Number(page) || 1,
+      Number(pageSize) || 20,
+    );
   }
 }
 
@@ -64,7 +95,11 @@ export class AdminBuyerSubscriptionsController {
 
   @Get()
   list(@Query() query: AdminQueryBuyerSubscriptionsDto) {
-    return this.service.adminList(query.search, query.page ?? 1, query.pageSize ?? 20);
+    return this.service.adminList(
+      query.search,
+      query.page ?? 1,
+      query.pageSize ?? 20,
+    );
   }
 
   @Patch(':id/adjust-quota')

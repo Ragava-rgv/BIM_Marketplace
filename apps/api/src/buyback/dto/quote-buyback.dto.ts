@@ -1,5 +1,14 @@
 import { Type } from 'class-transformer';
-import { IsInt, IsNumber, IsOptional, IsString, IsUUID, Length, Min, ValidateIf } from 'class-validator';
+import {
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Length,
+  Min,
+  ValidateIf,
+} from 'class-validator';
 
 export class QuoteBuybackDto {
   @IsOptional()

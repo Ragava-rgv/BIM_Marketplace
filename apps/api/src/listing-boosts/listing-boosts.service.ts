@@ -8,9 +8,15 @@ import {
 import { ListingStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { RazorpayService } from '../payments/razorpay.service';
-import type { CreateBoostOrderDto, VerifyBoostDto } from './dto/boost-order.dto';
+import type {
+  CreateBoostOrderDto,
+  VerifyBoostDto,
+} from './dto/boost-order.dto';
 
-const BOOSTABLE_STATUSES: ListingStatus[] = [ListingStatus.ACTIVE, ListingStatus.UNDER_OFFER];
+const BOOSTABLE_STATUSES: ListingStatus[] = [
+  ListingStatus.ACTIVE,
+  ListingStatus.UNDER_OFFER,
+];
 
 @Injectable()
 export class ListingBoostsService {
@@ -20,7 +26,9 @@ export class ListingBoostsService {
   ) {}
 
   private async findOwnedListing(sellerId: string, listingId: string) {
-    const listing = await this.prisma.listing.findUnique({ where: { id: listingId } });
+    const listing = await this.prisma.listing.findUnique({
+      where: { id: listingId },
+    });
     if (!listing || listing.sellerId !== sellerId) {
       throw new NotFoundException('Listing not found');
     }
@@ -31,7 +39,11 @@ export class ListingBoostsService {
     const listing = await this.findOwnedListing(sellerId, listingId);
 
     // Lazy expiry sweep — mirrors the buyer-subscription auto-provisioning pattern (no cron job needed).
-    if (listing.isBoosted && listing.boostExpiresAt && listing.boostExpiresAt <= new Date()) {
+    if (
+      listing.isBoosted &&
+      listing.boostExpiresAt &&
+      listing.boostExpiresAt <= new Date()
+    ) {
       await this.prisma.listing.update({
         where: { id: listingId },
         data: { isBoosted: false, boostExpiresAt: null },
@@ -39,18 +51,31 @@ export class ListingBoostsService {
       return { isBoosted: false, boostExpiresAt: null };
     }
 
-    return { isBoosted: listing.isBoosted, boostExpiresAt: listing.boostExpiresAt };
+    return {
+      isBoosted: listing.isBoosted,
+      boostExpiresAt: listing.boostExpiresAt,
+    };
   }
 
-  async createOrder(sellerId: string, listingId: string, dto: CreateBoostOrderDto) {
+  async createOrder(
+    sellerId: string,
+    listingId: string,
+    dto: CreateBoostOrderDto,
+  ) {
     const listing = await this.findOwnedListing(sellerId, listingId);
     if (!BOOSTABLE_STATUSES.includes(listing.status)) {
-      throw new ForbiddenException(`A listing in ${listing.status} status cannot be boosted`);
+      throw new ForbiddenException(
+        `A listing in ${listing.status} status cannot be boosted`,
+      );
     }
 
-    const plan = await this.prisma.promotionPlan.findUnique({ where: { id: dto.planId } });
-    if (!plan || plan.deletedAt) throw new NotFoundException('Boost plan not found');
-    if (!plan.isActive) throw new BadRequestException('This boost plan is no longer available');
+    const plan = await this.prisma.promotionPlan.findUnique({
+      where: { id: dto.planId },
+    });
+    if (!plan || plan.deletedAt)
+      throw new NotFoundException('Boost plan not found');
+    if (!plan.isActive)
+      throw new BadRequestException('This boost plan is no longer available');
 
     const amountInr = Number(plan.priceInr);
     const receiptId = `boost-${listingId.slice(0, 8)}-${Date.now()}`;
@@ -64,14 +89,25 @@ export class ListingBoostsService {
     };
   }
 
-  async verifyAndActivate(sellerId: string, listingId: string, dto: VerifyBoostDto) {
+  async verifyAndActivate(
+    sellerId: string,
+    listingId: string,
+    dto: VerifyBoostDto,
+  ) {
     const listing = await this.findOwnedListing(sellerId, listingId);
 
-    const valid = this.razorpay.verifySignature(dto.razorpayOrderId, dto.razorpayPaymentId, dto.razorpaySignature);
+    const valid = this.razorpay.verifySignature(
+      dto.razorpayOrderId,
+      dto.razorpayPaymentId,
+      dto.razorpaySignature,
+    );
     if (!valid) throw new UnauthorizedException('Payment verification failed');
 
-    const plan = await this.prisma.promotionPlan.findUnique({ where: { id: dto.planId } });
-    if (!plan || plan.deletedAt) throw new NotFoundException('Boost plan not found');
+    const plan = await this.prisma.promotionPlan.findUnique({
+      where: { id: dto.planId },
+    });
+    if (!plan || plan.deletedAt)
+      throw new NotFoundException('Boost plan not found');
 
     const existing = await this.prisma.listingBoost.findFirst({
       where: { razorpayPaymentId: dto.razorpayPaymentId },

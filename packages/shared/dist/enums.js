@@ -130,20 +130,18 @@ var AdPlacement;
     AdPlacement["IN_GRID"] = "IN_GRID";
     AdPlacement["HOME_BANNER"] = "HOME_BANNER";
 })(AdPlacement || (exports.AdPlacement = AdPlacement = {}));
+/** No approval gate: a requirement goes ACTIVE the moment it's posted. */
 var RequirementStatus;
 (function (RequirementStatus) {
-    RequirementStatus["DRAFT"] = "DRAFT";
-    RequirementStatus["PENDING_REVIEW"] = "PENDING_REVIEW";
     RequirementStatus["ACTIVE"] = "ACTIVE";
     RequirementStatus["FULFILLED"] = "FULFILLED";
     RequirementStatus["CLOSED"] = "CLOSED";
-    RequirementStatus["REJECTED"] = "REJECTED";
 })(RequirementStatus || (exports.RequirementStatus = RequirementStatus = {}));
+/** No approval gate: a quote reaches the requirement owner the moment it's submitted. */
 var QuoteStatus;
 (function (QuoteStatus) {
-    QuoteStatus["PENDING_ADMIN"] = "PENDING_ADMIN";
-    QuoteStatus["APPROVED"] = "APPROVED";
-    QuoteStatus["REJECTED"] = "REJECTED";
+    QuoteStatus["SUBMITTED"] = "SUBMITTED";
+    QuoteStatus["WITHDRAWN"] = "WITHDRAWN";
 })(QuoteStatus || (exports.QuoteStatus = QuoteStatus = {}));
 /** Commission split: 2% total, 1% buyer + 1% seller (non-negotiable, see project_spec.md §8.6) */
 exports.BUYER_COMMISSION_RATE = 0.01;
@@ -170,6 +168,7 @@ exports.MACHINE_CATEGORIES = [
         label: 'Metal Working Machines',
         description: 'CNC lathes, milling centres, grinding, EDM and more',
         subcategories: [
+            'SPM Machine',
             'CNC Turning Centres',
             'CNC Milling Machines',
             'VMC – Vertical Machining Centres',

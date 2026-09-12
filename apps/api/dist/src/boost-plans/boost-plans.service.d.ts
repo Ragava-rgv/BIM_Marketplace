@@ -6,12 +6,12 @@ export declare class BoostPlansService {
     constructor(prisma: PrismaService);
     listAll(): Prisma.PrismaPromise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number;
         displayName: string;
         priceInr: Prisma.Decimal;
-        durationDays: number;
         isActive: boolean;
         description: string | null;
         sortOrder: number;
@@ -20,12 +20,12 @@ export declare class BoostPlansService {
     }[]>;
     listActive(): Prisma.PrismaPromise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number;
         displayName: string;
         priceInr: Prisma.Decimal;
-        durationDays: number;
         isActive: boolean;
         description: string | null;
         sortOrder: number;
@@ -34,12 +34,12 @@ export declare class BoostPlansService {
     }[]>;
     findById(id: string): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number;
         displayName: string;
         priceInr: Prisma.Decimal;
-        durationDays: number;
         isActive: boolean;
         description: string | null;
         sortOrder: number;
@@ -48,12 +48,12 @@ export declare class BoostPlansService {
     }>;
     create(dto: CreateBoostPlanDto): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number;
         displayName: string;
         priceInr: Prisma.Decimal;
-        durationDays: number;
         isActive: boolean;
         description: string | null;
         sortOrder: number;
@@ -62,12 +62,12 @@ export declare class BoostPlansService {
     }>;
     update(id: string, dto: UpdateBoostPlanDto): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number;
         displayName: string;
         priceInr: Prisma.Decimal;
-        durationDays: number;
         isActive: boolean;
         description: string | null;
         sortOrder: number;
@@ -76,12 +76,12 @@ export declare class BoostPlansService {
     }>;
     remove(id: string): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number;
         displayName: string;
         priceInr: Prisma.Decimal;
-        durationDays: number;
         isActive: boolean;
         description: string | null;
         sortOrder: number;
@@ -90,12 +90,12 @@ export declare class BoostPlansService {
     }>;
     purge(id: string): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number;
         displayName: string;
         priceInr: Prisma.Decimal;
-        durationDays: number;
         isActive: boolean;
         description: string | null;
         sortOrder: number;

@@ -5,6 +5,7 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  IsUUID,
   Length,
   Min,
 } from 'class-validator';
@@ -24,6 +25,12 @@ export enum SpecFilterTypeDto {
 }
 
 export class AddSpecFieldDto {
+  /** Omit for a "common" field shown for every subcategory under this category;
+      set to scope the field to one specific subcategory only. */
+  @IsOptional()
+  @IsUUID()
+  subcategoryId?: string;
+
   @IsString()
   @Length(1, 80)
   fieldKey: string;

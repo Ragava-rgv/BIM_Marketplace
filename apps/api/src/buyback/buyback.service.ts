@@ -1,6 +1,21 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { BuybackOffer, BuybackStatus, CertificationStatus, Prisma, UserRole } from '@prisma/client';
-import type { BuybackAgreementTermsDto, BuybackScheduleEntryDto, InspectionReportDto } from '@machinebazaar/shared';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import {
+  BuybackOffer,
+  BuybackStatus,
+  CertificationStatus,
+  Prisma,
+  UserRole,
+} from '@prisma/client';
+import type {
+  BuybackAgreementTermsDto,
+  BuybackScheduleEntryDto,
+  InspectionReportDto,
+} from '@machinebazaar/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import type { QuoteBuybackDto } from './dto/quote-buyback.dto';
 import type { UpdateBuybackAgreementDto } from './dto/update-buyback-agreement.dto';
@@ -36,17 +51,26 @@ export class BuybackService {
   /** Quote engine: reads depreciation_schedule to compute depreciated_value and offer_amount (§6.6). */
   async quote(dto: QuoteBuybackDto): Promise<BuybackOffer> {
     const schedule = await this.prisma.depreciationSchedule.findUnique({
-      where: { machineCategory_yearOffset: { machineCategory: dto.machineCategory, yearOffset: dto.machineAgeYears } },
+      where: {
+        machineCategory_yearOffset: {
+          machineCategory: dto.machineCategory,
+          yearOffset: dto.machineAgeYears,
+        },
+      },
     });
 
-    const retainedPct = schedule?.retainedValuePct ?? this.fallbackRetainedPct(dto.machineAgeYears);
+    const retainedPct =
+      schedule?.retainedValuePct ??
+      this.fallbackRetainedPct(dto.machineAgeYears);
 
     const originalPrice = new Prisma.Decimal(dto.originalPrice);
     const depreciatedValue = originalPrice.mul(retainedPct).div(100);
     const offerAmount = depreciatedValue.mul(BUYBACK_OFFER_RATIO);
 
     if (dto.listingId) {
-      const listing = await this.prisma.listing.findUnique({ where: { id: dto.listingId } });
+      const listing = await this.prisma.listing.findUnique({
+        where: { id: dto.listingId },
+      });
       if (!listing) {
         throw new NotFoundException('Listing not found');
       }
@@ -76,7 +100,9 @@ export class BuybackService {
    * is created with a year-on-year depreciation/buyback table anchored on that certified
    * value (step 5). Buyback only exists for financed deals — cash deals never reach here.
    */
-  async initiateFromLoanApplication(loanApplicationId: string): Promise<BuybackOffer> {
+  async initiateFromLoanApplication(
+    loanApplicationId: string,
+  ): Promise<BuybackOffer> {
     const application = await this.prisma.loanApplication.findUnique({
       where: { id: loanApplicationId },
       include: { listing: true, certification: true, buybackOffer: true },
@@ -85,37 +111,61 @@ export class BuybackService {
       throw new NotFoundException('Loan application not found');
     }
     if (application.buybackOffer) {
-      throw new BadRequestException('A buyback agreement already exists for this application');
+      throw new BadRequestException(
+        'A buyback agreement already exists for this application',
+      );
     }
 
     const certification = application.certification;
-    if (!certification || certification.status !== CertificationStatus.COMPLETED) {
-      throw new BadRequestException('Certification must be completed before a buyback agreement can be created');
+    if (
+      !certification ||
+      certification.status !== CertificationStatus.COMPLETED
+    ) {
+      throw new BadRequestException(
+        'Certification must be completed before a buyback agreement can be created',
+      );
     }
-    const inspectionReport = certification.inspectionReport as unknown as InspectionReportDto | null;
+    const inspectionReport =
+      certification.inspectionReport as unknown as InspectionReportDto | null;
     if (!inspectionReport) {
-      throw new BadRequestException('The certification report is missing its inspection details');
+      throw new BadRequestException(
+        'The certification report is missing its inspection details',
+      );
     }
 
     const listing = application.listing;
     if (listing.manufactureYear == null) {
       throw new BadRequestException({
-        message: 'This listing needs a manufacturing year before a buyback quote can be generated',
+        message:
+          'This listing needs a manufacturing year before a buyback quote can be generated',
         error: 'MANUFACTURE_YEAR_REQUIRED',
       });
     }
-    const certifiedValue = new Prisma.Decimal(inspectionReport.recommendedMarketValue);
-    const machineAgeYears = Math.max(0, new Date().getFullYear() - listing.manufactureYear);
+    const certifiedValue = new Prisma.Decimal(
+      inspectionReport.recommendedMarketValue,
+    );
+    const machineAgeYears = Math.max(
+      0,
+      new Date().getFullYear() - listing.manufactureYear,
+    );
 
     const depreciationSchedule: BuybackScheduleEntryDto[] = [];
     for (let yearOffset = 0; yearOffset <= BUYBACK_WINDOW_YEARS; yearOffset++) {
       const scheduleEntry = await this.prisma.depreciationSchedule.findUnique({
         where: {
-          machineCategory_yearOffset: { machineCategory: listing.machineCategory, yearOffset: machineAgeYears + yearOffset },
+          machineCategory_yearOffset: {
+            machineCategory: listing.machineCategory,
+            yearOffset: machineAgeYears + yearOffset,
+          },
         },
       });
-      const retainedPct = scheduleEntry?.retainedValuePct ?? this.fallbackRetainedPct(machineAgeYears + yearOffset);
-      const buybackValue = certifiedValue.mul(retainedPct).div(100).mul(BUYBACK_OFFER_RATIO);
+      const retainedPct =
+        scheduleEntry?.retainedValuePct ??
+        this.fallbackRetainedPct(machineAgeYears + yearOffset);
+      const buybackValue = certifiedValue
+        .mul(retainedPct)
+        .div(100)
+        .mul(BUYBACK_OFFER_RATIO);
       depreciationSchedule.push({
         yearOffset,
         retainedValuePct: new Prisma.Decimal(retainedPct).toFixed(2),
@@ -125,7 +175,9 @@ export class BuybackService {
 
     const firstYearRetainedPct = depreciationSchedule[0].retainedValuePct;
     const depreciatedValue = certifiedValue.mul(firstYearRetainedPct).div(100);
-    const offerAmount = new Prisma.Decimal(depreciationSchedule[0].buybackValue);
+    const offerAmount = new Prisma.Decimal(
+      depreciationSchedule[0].buybackValue,
+    );
 
     return this.prisma.buybackOffer.create({
       data: {
@@ -136,23 +188,33 @@ export class BuybackService {
         certifiedValue,
         depreciatedValue,
         offerAmount,
-        depreciationSchedule: depreciationSchedule as unknown as Prisma.InputJsonValue,
-        agreementTerms: DEFAULT_AGREEMENT_TERMS as unknown as Prisma.InputJsonValue,
+        depreciationSchedule:
+          depreciationSchedule as unknown as Prisma.InputJsonValue,
+        agreementTerms:
+          DEFAULT_AGREEMENT_TERMS as unknown as Prisma.InputJsonValue,
         status: BuybackStatus.QUOTED,
       },
     });
   }
 
   /** Admin edits the agreement terms and/or value table before the seller accepts it. */
-  async updateAgreement(id: string, dto: UpdateBuybackAgreementDto): Promise<BuybackOffer> {
+  async updateAgreement(
+    id: string,
+    dto: UpdateBuybackAgreementDto,
+  ): Promise<BuybackOffer> {
     const offer = await this.findById(id);
     if (offer.status !== BuybackStatus.QUOTED) {
-      throw new BadRequestException('The agreement can only be edited while the offer is QUOTED');
+      throw new BadRequestException(
+        'The agreement can only be edited while the offer is QUOTED',
+      );
     }
 
-    const currentTerms = (offer.agreementTerms as unknown as BuybackAgreementTermsDto | null) ?? DEFAULT_AGREEMENT_TERMS;
+    const currentTerms =
+      (offer.agreementTerms as unknown as BuybackAgreementTermsDto | null) ??
+      DEFAULT_AGREEMENT_TERMS;
     const agreementTerms: BuybackAgreementTermsDto = {
-      buybackWindowYears: dto.buybackWindowYears ?? currentTerms.buybackWindowYears,
+      buybackWindowYears:
+        dto.buybackWindowYears ?? currentTerms.buybackWindowYears,
       noticePeriodDays: dto.noticePeriodDays ?? currentTerms.noticePeriodDays,
       conditions: dto.conditions ?? currentTerms.conditions,
     };
@@ -163,20 +225,31 @@ export class BuybackService {
 
     if (dto.depreciationSchedule) {
       if (dto.depreciationSchedule.length === 0) {
-        throw new BadRequestException('The depreciation schedule cannot be empty');
+        throw new BadRequestException(
+          'The depreciation schedule cannot be empty',
+        );
       }
-      const sorted = [...dto.depreciationSchedule].sort((a, b) => a.yearOffset - b.yearOffset);
-      const depreciationSchedule: BuybackScheduleEntryDto[] = sorted.map((entry) => ({
-        yearOffset: entry.yearOffset,
-        retainedValuePct: new Prisma.Decimal(entry.retainedValuePct).toFixed(2),
-        buybackValue: new Prisma.Decimal(entry.buybackValue).toFixed(2),
-      }));
-      data.depreciationSchedule = depreciationSchedule as unknown as Prisma.InputJsonValue;
+      const sorted = [...dto.depreciationSchedule].sort(
+        (a, b) => a.yearOffset - b.yearOffset,
+      );
+      const depreciationSchedule: BuybackScheduleEntryDto[] = sorted.map(
+        (entry) => ({
+          yearOffset: entry.yearOffset,
+          retainedValuePct: new Prisma.Decimal(entry.retainedValuePct).toFixed(
+            2,
+          ),
+          buybackValue: new Prisma.Decimal(entry.buybackValue).toFixed(2),
+        }),
+      );
+      data.depreciationSchedule =
+        depreciationSchedule as unknown as Prisma.InputJsonValue;
 
       const first = depreciationSchedule[0];
       const certifiedValue = offer.certifiedValue;
       if (certifiedValue) {
-        data.depreciatedValue = certifiedValue.mul(first.retainedValuePct).div(100);
+        data.depreciatedValue = certifiedValue
+          .mul(first.retainedValuePct)
+          .div(100);
       }
       data.offerAmount = new Prisma.Decimal(first.buybackValue);
     }
@@ -192,12 +265,17 @@ export class BuybackService {
     return offer;
   }
 
-  async accept(id: string, user: { id: string; role: UserRole }): Promise<BuybackOffer> {
+  async accept(
+    id: string,
+    user: { id: string; role: UserRole },
+  ): Promise<BuybackOffer> {
     const offer = await this.findById(id);
 
     if (user.role === UserRole.BUYER) {
       const loanApplication = offer.loanApplicationId
-        ? await this.prisma.loanApplication.findUnique({ where: { id: offer.loanApplicationId } })
+        ? await this.prisma.loanApplication.findUnique({
+            where: { id: offer.loanApplicationId },
+          })
         : null;
       if (!loanApplication || loanApplication.buyerId !== user.id) {
         throw new ForbiddenException('This is not your buyback agreement');
@@ -205,16 +283,26 @@ export class BuybackService {
     }
 
     if (offer.status !== BuybackStatus.QUOTED) {
-      throw new BadRequestException(`Offer cannot be accepted from ${offer.status} status`);
+      throw new BadRequestException(
+        `Offer cannot be accepted from ${offer.status} status`,
+      );
     }
 
     const ageMs = Date.now() - offer.createdAt.getTime();
     if (ageMs > QUOTE_VALIDITY_DAYS * 24 * 60 * 60 * 1000) {
-      await this.prisma.buybackOffer.update({ where: { id }, data: { status: BuybackStatus.EXPIRED } });
-      throw new BadRequestException('This quote has expired — request a fresh one');
+      await this.prisma.buybackOffer.update({
+        where: { id },
+        data: { status: BuybackStatus.EXPIRED },
+      });
+      throw new BadRequestException(
+        'This quote has expired — request a fresh one',
+      );
     }
 
-    return this.prisma.buybackOffer.update({ where: { id }, data: { status: BuybackStatus.ACCEPTED } });
+    return this.prisma.buybackOffer.update({
+      where: { id },
+      data: { status: BuybackStatus.ACCEPTED },
+    });
   }
 
   async listAll() {
@@ -267,6 +355,9 @@ export class BuybackService {
     if (offer.status !== BuybackStatus.ACCEPTED) {
       throw new BadRequestException('Only an accepted offer can be completed');
     }
-    return this.prisma.buybackOffer.update({ where: { id }, data: { status: BuybackStatus.COMPLETED } });
+    return this.prisma.buybackOffer.update({
+      where: { id },
+      data: { status: BuybackStatus.COMPLETED },
+    });
   }
 }

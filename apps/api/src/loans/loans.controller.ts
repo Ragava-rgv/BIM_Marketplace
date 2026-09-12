@@ -1,4 +1,14 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { LoanApplicationStatus, UserRole } from '@prisma/client';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -16,7 +26,10 @@ export class LoansController {
 
   @Post()
   @Roles(UserRole.BUYER)
-  async create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateLoanApplicationDto) {
+  async create(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: CreateLoanApplicationDto,
+  ) {
     return this.loans.create(user.id, dto);
   }
 
@@ -28,14 +41,22 @@ export class LoansController {
 
   @Get(':id')
   @Roles(UserRole.BUYER, UserRole.ADMIN)
-  async findOne(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return user.role === UserRole.ADMIN ? this.loans.findById(id) : this.loans.findForBuyer(user.id, id);
+  async findOne(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ) {
+    return user.role === UserRole.ADMIN
+      ? this.loans.findById(id)
+      : this.loans.findForBuyer(user.id, id);
   }
 
   @Post(':id/submit')
   @HttpCode(HttpStatus.OK)
   @Roles(UserRole.BUYER)
-  async submit(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+  async submit(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ) {
     return this.loans.submit(user.id, id);
   }
 
@@ -47,7 +68,10 @@ export class LoansController {
 
   @Patch(':id/status')
   @Roles(UserRole.ADMIN)
-  async updateStatus(@Param('id') id: string, @Body() dto: UpdateLoanStatusDto) {
-    return this.loans.adminUpdateStatus(id, dto.status as LoanApplicationStatus, dto.partnerId);
+  async updateStatus(
+    @Param('id') id: string,
+    @Body() dto: UpdateLoanStatusDto,
+  ) {
+    return this.loans.adminUpdateStatus(id, dto.status, dto.partnerId);
   }
 }

@@ -23,8 +23,8 @@ export function NewRequirement() {
     setError(null);
     setCreating(true);
     try {
+      // No approval gate — posting goes live immediately, no separate submit-for-review step.
       const { data } = await api.post<RequirementDto>('/requirements', requirementDetailsToPayload(values));
-      await api.post(`/requirements/${data.id}/submit`);
       setPosted(data);
     } catch (err) {
       setError(apiErrorMessage(err, t('buyer.newRequirement.errors.createFailed')));

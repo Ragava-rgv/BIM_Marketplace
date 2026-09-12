@@ -5,13 +5,13 @@ export declare class SubscriptionPlansController {
     constructor(service: SubscriptionPlansService);
     listActive(): import("@prisma/client").Prisma.PrismaPromise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
-        displayName: string;
         listingQuota: number;
-        priceInr: import("@prisma/client/runtime/library").Decimal;
         durationDays: number;
+        displayName: string;
+        priceInr: import("@prisma/client/runtime/library").Decimal;
         isActive: boolean;
         isFree: boolean;
         description: string | null;
@@ -19,13 +19,13 @@ export declare class SubscriptionPlansController {
     }[]>;
     listAll(): import("@prisma/client").Prisma.PrismaPromise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
-        displayName: string;
         listingQuota: number;
-        priceInr: import("@prisma/client/runtime/library").Decimal;
         durationDays: number;
+        displayName: string;
+        priceInr: import("@prisma/client/runtime/library").Decimal;
         isActive: boolean;
         isFree: boolean;
         description: string | null;
@@ -33,13 +33,13 @@ export declare class SubscriptionPlansController {
     }[]>;
     create(dto: CreatePlanDto): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
-        displayName: string;
         listingQuota: number;
-        priceInr: import("@prisma/client/runtime/library").Decimal;
         durationDays: number;
+        displayName: string;
+        priceInr: import("@prisma/client/runtime/library").Decimal;
         isActive: boolean;
         isFree: boolean;
         description: string | null;
@@ -47,13 +47,13 @@ export declare class SubscriptionPlansController {
     }>;
     update(id: string, dto: UpdatePlanDto): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
-        displayName: string;
         listingQuota: number;
-        priceInr: import("@prisma/client/runtime/library").Decimal;
         durationDays: number;
+        displayName: string;
+        priceInr: import("@prisma/client/runtime/library").Decimal;
         isActive: boolean;
         isFree: boolean;
         description: string | null;
@@ -61,13 +61,13 @@ export declare class SubscriptionPlansController {
     }>;
     remove(id: string): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
-        displayName: string;
         listingQuota: number;
-        priceInr: import("@prisma/client/runtime/library").Decimal;
         durationDays: number;
+        displayName: string;
+        priceInr: import("@prisma/client/runtime/library").Decimal;
         isActive: boolean;
         isFree: boolean;
         description: string | null;

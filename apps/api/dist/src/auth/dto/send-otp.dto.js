@@ -17,7 +17,9 @@ class SendOtpDto {
 }
 exports.SendOtpDto = SendOtpDto;
 __decorate([
-    (0, class_validator_1.Matches)(/^[6-9]\d{9}$/, { message: 'phone must be a valid 10-digit Indian mobile number' }),
+    (0, class_validator_1.Matches)(/^[6-9]\d{9}$/, {
+        message: 'phone must be a valid 10-digit Indian mobile number',
+    }),
     __metadata("design:type", String)
 ], SendOtpDto.prototype, "phone", void 0);
 __decorate([

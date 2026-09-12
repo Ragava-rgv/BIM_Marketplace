@@ -4,7 +4,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { StorageService, CATEGORY_IMAGES_DIR } from '../storage/storage.service';
+import {
+  StorageService,
+  CATEGORY_IMAGES_DIR,
+} from '../storage/storage.service';
 import type { CreateCategoryGroupDto } from './dto/create-category-group.dto';
 import type { CreateCategoryDto } from './dto/create-category.dto';
 import type { CreateSubcategoryDto } from './dto/create-subcategory.dto';
@@ -57,7 +60,9 @@ export class CatalogService {
         _count: { id: true },
       }),
     ]);
-    const catCountMap = new Map(catCounts.map((c) => [c.machineCategory.toLowerCase(), c._count.id]));
+    const catCountMap = new Map(
+      catCounts.map((c) => [c.machineCategory.toLowerCase(), c._count.id]),
+    );
     const subCountMap = new Map(
       subCounts
         .filter((s) => s.machineSubcategory)
@@ -88,11 +93,23 @@ export class CatalogService {
     }));
   }
 
-  async getCategoryWithSpecTemplate(categoryId: string) {
+  /** `subcategoryId`, when given, merges that subcategory's own fields in with the
+      category's "common" fields (subcategoryId: null) — common fields first, then the
+      subcategory-specific ones, each in their own displayOrder. Omit it to get only the
+      common fields (e.g. before the seller has picked a subcategory yet). */
+  async getCategoryWithSpecTemplate(
+    categoryId: string,
+    subcategoryId?: string,
+  ) {
     const cat = await this.prisma.category.findUnique({
       where: { id: categoryId },
       include: {
-        specFields: { orderBy: { displayOrder: 'asc' } },
+        specFields: {
+          where: subcategoryId
+            ? { OR: [{ subcategoryId: null }, { subcategoryId }] }
+            : { subcategoryId: null },
+          orderBy: { displayOrder: 'asc' },
+        },
         subcategories: {
           where: { isActive: true },
           orderBy: { displayOrder: 'asc' },
@@ -100,6 +117,12 @@ export class CatalogService {
       },
     });
     if (!cat) throw new NotFoundException('Category not found');
+    // Common fields (subcategoryId: null) first, then the subcategory-specific ones —
+    // sorted in JS rather than relying on a DB-level nulls-first ordering feature.
+    cat.specFields.sort(
+      (a, b) =>
+        Number(a.subcategoryId !== null) - Number(b.subcategoryId !== null),
+    );
     return cat;
   }
 
@@ -151,7 +174,9 @@ export class CatalogService {
     await this.requireGroup(id);
     const count = await this.prisma.category.count({ where: { groupId: id } });
     if (count > 0) {
-      throw new BadRequestException('Cannot delete a group that still has categories — reassign or delete them first');
+      throw new BadRequestException(
+        'Cannot delete a group that still has categories — reassign or delete them first',
+      );
     }
     await this.prisma.categoryGroup.delete({ where: { id } });
   }
@@ -159,7 +184,10 @@ export class CatalogService {
   async reorderGroups(ids: string[]) {
     await Promise.all(
       ids.map((id, index) =>
-        this.prisma.categoryGroup.update({ where: { id }, data: { displayOrder: index } }),
+        this.prisma.categoryGroup.update({
+          where: { id },
+          data: { displayOrder: index },
+        }),
       ),
     );
   }
@@ -179,8 +207,11 @@ export class CatalogService {
   }
 
   async createCategory(dto: CreateCategoryDto) {
-    const existing = await this.prisma.category.findUnique({ where: { slug: dto.slug } });
-    if (existing) throw new BadRequestException(`Slug "${dto.slug}" is already taken`);
+    const existing = await this.prisma.category.findUnique({
+      where: { slug: dto.slug },
+    });
+    if (existing)
+      throw new BadRequestException(`Slug "${dto.slug}" is already taken`);
     return this.prisma.category.create({
       data: {
         name: dto.name,
@@ -201,7 +232,8 @@ export class CatalogService {
       const clash = await this.prisma.category.findFirst({
         where: { slug: dto.slug, id: { not: id } },
       });
-      if (clash) throw new BadRequestException(`Slug "${dto.slug}" is already taken`);
+      if (clash)
+        throw new BadRequestException(`Slug "${dto.slug}" is already taken`);
     }
     return this.prisma.category.update({
       where: { id },
@@ -220,13 +252,17 @@ export class CatalogService {
 
   async hardDeleteCategory(id: string) {
     await this.requireCategory(id);
-    const listingCount = await this.prisma.listing.count({ where: { catalogCategoryId: id } });
+    const listingCount = await this.prisma.listing.count({
+      where: { catalogCategoryId: id },
+    });
     if (listingCount > 0) {
       throw new BadRequestException(
         `Cannot permanently delete: ${listingCount} listing(s) reference this category. Deactivate it instead.`,
       );
     }
-    const subCount = await this.prisma.subcategory.count({ where: { categoryId: id } });
+    const subCount = await this.prisma.subcategory.count({
+      where: { categoryId: id },
+    });
     if (subCount > 0) {
       throw new BadRequestException(
         `Cannot permanently delete: ${subCount} subcategory/ies exist. Delete them first.`,
@@ -244,7 +280,10 @@ export class CatalogService {
   async reorderCategories(ids: string[]) {
     await Promise.all(
       ids.map((id, index) =>
-        this.prisma.category.update({ where: { id }, data: { displayOrder: index } }),
+        this.prisma.category.update({
+          where: { id },
+          data: { displayOrder: index },
+        }),
       ),
     );
   }
@@ -274,7 +313,10 @@ export class CatalogService {
     const clash = await this.prisma.subcategory.findFirst({
       where: { categoryId: dto.categoryId, slug: dto.slug },
     });
-    if (clash) throw new BadRequestException(`Slug "${dto.slug}" already exists in this category`);
+    if (clash)
+      throw new BadRequestException(
+        `Slug "${dto.slug}" already exists in this category`,
+      );
     return this.prisma.subcategory.create({
       data: {
         categoryId: dto.categoryId,
@@ -288,20 +330,29 @@ export class CatalogService {
     });
   }
 
-  async updateSubcategory(id: string, dto: Partial<Omit<CreateSubcategoryDto, 'categoryId'>>) {
+  async updateSubcategory(
+    id: string,
+    dto: Partial<Omit<CreateSubcategoryDto, 'categoryId'>>,
+  ) {
     const sub = await this.requireSubcategory(id);
     if (dto.slug && dto.slug !== sub.slug) {
       const clash = await this.prisma.subcategory.findFirst({
         where: { categoryId: sub.categoryId, slug: dto.slug, id: { not: id } },
       });
-      if (clash) throw new BadRequestException(`Slug "${dto.slug}" already exists in this category`);
+      if (clash)
+        throw new BadRequestException(
+          `Slug "${dto.slug}" already exists in this category`,
+        );
     }
     return this.prisma.subcategory.update({ where: { id }, data: dto });
   }
 
   async softDeleteSubcategory(id: string) {
     await this.requireSubcategory(id);
-    return this.prisma.subcategory.update({ where: { id }, data: { isActive: false } });
+    return this.prisma.subcategory.update({
+      where: { id },
+      data: { isActive: false },
+    });
   }
 
   async hardDeleteSubcategory(id: string) {
@@ -314,12 +365,18 @@ export class CatalogService {
     await this.requireCategory(categoryId);
     await Promise.all(
       ids.map((id, index) =>
-        this.prisma.subcategory.update({ where: { id }, data: { displayOrder: index } }),
+        this.prisma.subcategory.update({
+          where: { id },
+          data: { displayOrder: index },
+        }),
       ),
     );
   }
 
-  async uploadSubcategoryImage(subcategoryId: string, file: Express.Multer.File) {
+  async uploadSubcategoryImage(
+    subcategoryId: string,
+    file: Express.Multer.File,
+  ) {
     await this.requireSubcategory(subcategoryId);
     const uploaded = await this.storage.upload(file, CATEGORY_IMAGES_DIR);
     return this.prisma.subcategory.update({
@@ -332,15 +389,35 @@ export class CatalogService {
 
   async addSpecField(categoryId: string, dto: AddSpecFieldDto) {
     await this.requireCategory(categoryId);
+    if (dto.subcategoryId) {
+      const sub = await this.prisma.subcategory.findUnique({
+        where: { id: dto.subcategoryId },
+      });
+      if (!sub || sub.categoryId !== categoryId) {
+        throw new BadRequestException(
+          'subcategoryId must belong to this category',
+        );
+      }
+    }
     const existing = await this.prisma.categorySpecTemplate.findFirst({
-      where: { categoryId, fieldKey: dto.fieldKey },
+      where: {
+        categoryId,
+        subcategoryId: dto.subcategoryId ?? null,
+        fieldKey: dto.fieldKey,
+      },
     });
     if (existing) {
-      throw new BadRequestException(`Field key "${dto.fieldKey}" already exists on this category`);
+      const scope = dto.subcategoryId
+        ? 'this subcategory'
+        : "this category's common fields";
+      throw new BadRequestException(
+        `Field key "${dto.fieldKey}" already exists on ${scope}`,
+      );
     }
     return this.prisma.categorySpecTemplate.create({
       data: {
         categoryId,
+        subcategoryId: dto.subcategoryId ?? null,
         fieldKey: dto.fieldKey,
         fieldLabel: dto.fieldLabel,
         unit: dto.unit ?? null,
@@ -356,13 +433,20 @@ export class CatalogService {
   }
 
   async updateSpecField(fieldId: string, dto: Partial<AddSpecFieldDto>) {
-    const field = await this.prisma.categorySpecTemplate.findUnique({ where: { id: fieldId } });
+    const field = await this.prisma.categorySpecTemplate.findUnique({
+      where: { id: fieldId },
+    });
     if (!field) throw new NotFoundException('Spec field not found');
-    return this.prisma.categorySpecTemplate.update({ where: { id: fieldId }, data: dto });
+    return this.prisma.categorySpecTemplate.update({
+      where: { id: fieldId },
+      data: dto,
+    });
   }
 
   async deleteSpecField(fieldId: string) {
-    const field = await this.prisma.categorySpecTemplate.findUnique({ where: { id: fieldId } });
+    const field = await this.prisma.categorySpecTemplate.findUnique({
+      where: { id: fieldId },
+    });
     if (!field) throw new NotFoundException('Spec field not found');
     await this.prisma.categorySpecTemplate.delete({ where: { id: fieldId } });
   }

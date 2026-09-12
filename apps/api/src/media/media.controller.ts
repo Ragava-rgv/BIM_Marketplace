@@ -30,7 +30,9 @@ export class MediaController {
       throw new NotFoundException('File not found');
     }
 
-    const contentType = CONTENT_TYPES[extname(filename).toLowerCase()] ?? 'application/octet-stream';
+    const contentType =
+      CONTENT_TYPES[extname(filename).toLowerCase()] ??
+      'application/octet-stream';
     res.setHeader('Content-Type', contentType);
     createReadStream(this.storage.resolveKey(key)).pipe(res);
   }

@@ -19,7 +19,9 @@ let EnquiriesService = class EnquiriesService {
         this.prisma = prisma;
     }
     async create(buyerId, listingId) {
-        const listing = await this.prisma.listing.findUnique({ where: { id: listingId } });
+        const listing = await this.prisma.listing.findUnique({
+            where: { id: listingId },
+        });
         if (!listing || listing.status !== client_1.ListingStatus.ACTIVE) {
             throw new common_1.NotFoundException('Listing not found');
         }
@@ -42,7 +44,9 @@ let EnquiriesService = class EnquiriesService {
             where: { buyerId },
             orderBy: { createdAt: 'desc' },
             include: {
-                listing: { select: { id: true, title: true, askingPrice: true, status: true } },
+                listing: {
+                    select: { id: true, title: true, askingPrice: true, status: true },
+                },
             },
         });
     }
@@ -52,7 +56,9 @@ let EnquiriesService = class EnquiriesService {
             orderBy: { createdAt: 'desc' },
             include: {
                 listing: { select: { id: true, title: true } },
-                buyer: { select: { fullName: true, locationCity: true, locationState: true } },
+                buyer: {
+                    select: { fullName: true, locationCity: true, locationState: true },
+                },
             },
         });
         return enquiries.map((enquiry) => ({
@@ -70,7 +76,9 @@ let EnquiriesService = class EnquiriesService {
         return this.prisma.enquiry.findMany({
             orderBy: { createdAt: 'desc' },
             include: {
-                listing: { select: { id: true, title: true, askingPrice: true, status: true } },
+                listing: {
+                    select: { id: true, title: true, askingPrice: true, status: true },
+                },
                 buyer: {
                     select: {
                         fullName: true,

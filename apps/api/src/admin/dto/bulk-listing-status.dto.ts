@@ -1,8 +1,19 @@
 import { ArrayMinSize, IsArray, IsIn, IsUUID } from 'class-validator';
 
-export type BulkListingStatusAction = 'approve' | 'reject' | 'mark-sold' | 'mark-inactive' | 'reactivate';
+export type BulkListingStatusAction =
+  | 'approve'
+  | 'reject'
+  | 'mark-sold'
+  | 'mark-inactive'
+  | 'reactivate';
 
-const ACTIONS: BulkListingStatusAction[] = ['approve', 'reject', 'mark-sold', 'mark-inactive', 'reactivate'];
+const ACTIONS: BulkListingStatusAction[] = [
+  'approve',
+  'reject',
+  'mark-sold',
+  'mark-inactive',
+  'reactivate',
+];
 
 export class BulkListingStatusDto {
   @IsArray()

@@ -28,6 +28,9 @@ let QuotesController = class QuotesController {
     async findMine(user) {
         return this.requirements.findMyQuotesGiven(user.id);
     }
+    async withdraw(user, id) {
+        return this.requirements.withdrawQuote(user.id, id);
+    }
 };
 exports.QuotesController = QuotesController;
 __decorate([
@@ -37,6 +40,15 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], QuotesController.prototype, "findMine", null);
+__decorate([
+    (0, common_1.Post)(':id/withdraw'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], QuotesController.prototype, "withdraw", null);
 exports.QuotesController = QuotesController = __decorate([
     (0, common_1.Controller)('quotes'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

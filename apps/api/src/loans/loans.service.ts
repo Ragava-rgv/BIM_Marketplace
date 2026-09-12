@@ -1,4 +1,9 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   CertificationStatus,
   GstStatus,
@@ -10,11 +15,23 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CertificationsService } from '../certifications/certifications.service';
 import type { CreateLoanApplicationDto } from './dto/create-loan-application.dto';
 
-const VALID_ADMIN_TRANSITIONS: Record<LoanApplicationStatus, LoanApplicationStatus[]> = {
+const VALID_ADMIN_TRANSITIONS: Record<
+  LoanApplicationStatus,
+  LoanApplicationStatus[]
+> = {
   DRAFT: [],
-  SUBMITTED: [LoanApplicationStatus.CERT_PENDING, LoanApplicationStatus.REJECTED],
-  CERT_PENDING: [LoanApplicationStatus.WITH_PARTNER, LoanApplicationStatus.REJECTED],
-  WITH_PARTNER: [LoanApplicationStatus.APPROVED, LoanApplicationStatus.REJECTED],
+  SUBMITTED: [
+    LoanApplicationStatus.CERT_PENDING,
+    LoanApplicationStatus.REJECTED,
+  ],
+  CERT_PENDING: [
+    LoanApplicationStatus.WITH_PARTNER,
+    LoanApplicationStatus.REJECTED,
+  ],
+  WITH_PARTNER: [
+    LoanApplicationStatus.APPROVED,
+    LoanApplicationStatus.REJECTED,
+  ],
   APPROVED: [],
   REJECTED: [],
 };
@@ -26,8 +43,13 @@ export class LoansService {
     private readonly certifications: CertificationsService,
   ) {}
 
-  async create(buyerId: string, dto: CreateLoanApplicationDto): Promise<LoanApplication> {
-    const listing = await this.prisma.listing.findUnique({ where: { id: dto.listingId } });
+  async create(
+    buyerId: string,
+    dto: CreateLoanApplicationDto,
+  ): Promise<LoanApplication> {
+    const listing = await this.prisma.listing.findUnique({
+      where: { id: dto.listingId },
+    });
     if (!listing) {
       throw new NotFoundException('Listing not found');
     }
@@ -52,7 +74,9 @@ export class LoansService {
   }
 
   async findById(id: string): Promise<LoanApplication> {
-    const application = await this.prisma.loanApplication.findUnique({ where: { id } });
+    const application = await this.prisma.loanApplication.findUnique({
+      where: { id },
+    });
     if (!application) {
       throw new NotFoundException('Loan application not found');
     }
@@ -81,15 +105,21 @@ export class LoansService {
       throw new ForbiddenException('This is not your loan application');
     }
     if (application.status !== LoanApplicationStatus.DRAFT) {
-      throw new BadRequestException(`Loan application is already ${application.status}`);
+      throw new BadRequestException(
+        `Loan application is already ${application.status}`,
+      );
     }
 
     const buyer = await this.prisma.user.findUnique({ where: { id: buyerId } });
     if (!buyer || buyer.gstStatus !== GstStatus.ACTIVE) {
-      throw new ForbiddenException('Your GST must be verified and ACTIVE before submitting a loan application');
+      throw new ForbiddenException(
+        'Your GST must be verified and ACTIVE before submitting a loan application',
+      );
     }
 
-    const listing = await this.prisma.listing.findUnique({ where: { id: application.listingId } });
+    const listing = await this.prisma.listing.findUnique({
+      where: { id: application.listingId },
+    });
     if (!listing) {
       throw new NotFoundException('Listing not found');
     }
@@ -107,15 +137,23 @@ export class LoansService {
    * partner. Buyers no longer pick a finance partner — admin assigns/confirms
    * one when moving the application to WITH_PARTNER.
    */
-  async adminUpdateStatus(id: string, status: LoanApplicationStatus, partnerId?: string): Promise<LoanApplication> {
+  async adminUpdateStatus(
+    id: string,
+    status: LoanApplicationStatus,
+    partnerId?: string,
+  ): Promise<LoanApplication> {
     const application = await this.findById(id);
 
     if (!VALID_ADMIN_TRANSITIONS[application.status].includes(status)) {
-      throw new BadRequestException(`Cannot transition loan application from ${application.status} to ${status}`);
+      throw new BadRequestException(
+        `Cannot transition loan application from ${application.status} to ${status}`,
+      );
     }
 
     if (status === LoanApplicationStatus.CERT_PENDING) {
-      const listing = await this.prisma.listing.findUnique({ where: { id: application.listingId } });
+      const listing = await this.prisma.listing.findUnique({
+        where: { id: application.listingId },
+      });
       if (!listing) {
         throw new NotFoundException('Listing not found');
       }
@@ -123,32 +161,53 @@ export class LoansService {
         where: { id },
         data: { status: LoanApplicationStatus.CERT_PENDING },
       });
-      await this.certifications.createForLoanApplication(updated.id, listing.id, listing.complexityTier);
+      await this.certifications.createForLoanApplication(
+        updated.id,
+        listing.id,
+        listing.complexityTier,
+      );
       return updated;
     }
 
     let resolvedPartnerId = application.partnerId;
     if (status === LoanApplicationStatus.WITH_PARTNER) {
-      const certification = await this.prisma.certification.findUnique({ where: { loanApplicationId: id } });
-      if (!certification || certification.status !== CertificationStatus.COMPLETED) {
-        throw new BadRequestException('Certification must be COMPLETED before routing to the finance partner');
+      const certification = await this.prisma.certification.findUnique({
+        where: { loanApplicationId: id },
+      });
+      if (
+        !certification ||
+        certification.status !== CertificationStatus.COMPLETED
+      ) {
+        throw new BadRequestException(
+          'Certification must be COMPLETED before routing to the finance partner',
+        );
       }
       const targetPartnerId = partnerId ?? application.partnerId;
       if (!targetPartnerId) {
-        throw new BadRequestException('A finance partner must be selected when routing this application');
+        throw new BadRequestException(
+          'A finance partner must be selected when routing this application',
+        );
       }
-      const partner = await this.prisma.financePartner.findUnique({ where: { id: targetPartnerId } });
+      const partner = await this.prisma.financePartner.findUnique({
+        where: { id: targetPartnerId },
+      });
       if (!partner || !partner.active) {
-        throw new BadRequestException('Selected finance partner is not available');
+        throw new BadRequestException(
+          'Selected finance partner is not available',
+        );
       }
       resolvedPartnerId = targetPartnerId;
     }
 
     let referralCommission = application.referralCommission;
     if (status === LoanApplicationStatus.APPROVED && resolvedPartnerId) {
-      const partner = await this.prisma.financePartner.findUnique({ where: { id: resolvedPartnerId } });
+      const partner = await this.prisma.financePartner.findUnique({
+        where: { id: resolvedPartnerId },
+      });
       if (partner) {
-        referralCommission = application.amountRequested.mul(partner.referralRate).div(100);
+        referralCommission = application.amountRequested
+          .mul(partner.referralRate)
+          .div(100);
       }
     }
 
@@ -178,7 +237,9 @@ export class LoansService {
             status: true,
           },
         },
-        buyer: { select: { fullName: true, phone: true, email: true, gstStatus: true } },
+        buyer: {
+          select: { fullName: true, phone: true, email: true, gstStatus: true },
+        },
         certification: true,
         buybackOffer: { select: { id: true } },
       },

@@ -25,7 +25,9 @@ export class SubscriptionPlansService {
   }
 
   async findById(id: string) {
-    const plan = await this.prisma.subscriptionPlanConfig.findUnique({ where: { id } });
+    const plan = await this.prisma.subscriptionPlanConfig.findUnique({
+      where: { id },
+    });
     if (!plan) throw new NotFoundException('Subscription plan not found');
     return plan;
   }
@@ -34,7 +36,10 @@ export class SubscriptionPlansService {
     const existing = await this.prisma.subscriptionPlanConfig.findUnique({
       where: { name: dto.name },
     });
-    if (existing) throw new BadRequestException(`A plan named "${dto.name}" already exists`);
+    if (existing)
+      throw new BadRequestException(
+        `A plan named "${dto.name}" already exists`,
+      );
 
     return this.prisma.subscriptionPlanConfig.create({
       data: {
@@ -58,7 +63,10 @@ export class SubscriptionPlansService {
       const conflict = await this.prisma.subscriptionPlanConfig.findFirst({
         where: { name: dto.name, NOT: { id } },
       });
-      if (conflict) throw new BadRequestException(`A plan named "${dto.name}" already exists`);
+      if (conflict)
+        throw new BadRequestException(
+          `A plan named "${dto.name}" already exists`,
+        );
     }
 
     return this.prisma.subscriptionPlanConfig.update({
@@ -66,9 +74,15 @@ export class SubscriptionPlansService {
       data: {
         ...(dto.name !== undefined && { name: dto.name }),
         ...(dto.displayName !== undefined && { displayName: dto.displayName }),
-        ...(dto.listingQuota !== undefined && { listingQuota: dto.listingQuota }),
-        ...(dto.priceInr !== undefined && { priceInr: new Prisma.Decimal(dto.priceInr) }),
-        ...(dto.durationDays !== undefined && { durationDays: dto.durationDays }),
+        ...(dto.listingQuota !== undefined && {
+          listingQuota: dto.listingQuota,
+        }),
+        ...(dto.priceInr !== undefined && {
+          priceInr: new Prisma.Decimal(dto.priceInr),
+        }),
+        ...(dto.durationDays !== undefined && {
+          durationDays: dto.durationDays,
+        }),
         ...(dto.description !== undefined && { description: dto.description }),
         ...(dto.sortOrder !== undefined && { sortOrder: dto.sortOrder }),
         ...(dto.isActive !== undefined && { isActive: dto.isActive }),

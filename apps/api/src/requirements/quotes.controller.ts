@@ -1,4 +1,12 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { UserRole } from '@prisma/client';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -16,5 +24,16 @@ export class QuotesController {
   @Get('mine')
   async findMine(@CurrentUser() user: AuthenticatedUser) {
     return this.requirements.findMyQuotesGiven(user.id);
+  }
+
+  /** The only status transition left now that quotes aren't admin-gated — a responder
+      pulling back their own quote. */
+  @Post(':id/withdraw')
+  @HttpCode(HttpStatus.OK)
+  async withdraw(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ) {
+    return this.requirements.withdrawQuote(user.id, id);
   }
 }

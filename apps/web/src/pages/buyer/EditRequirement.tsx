@@ -12,7 +12,7 @@ import {
 import { Button, Card, ErrorBanner, LoadingBlock, PageHeading, StatusBadge, SuccessBanner } from '../../components/ui';
 import { ArrowLeftIcon } from '../../components/icons';
 
-const EDITABLE = new Set(['DRAFT', 'REJECTED']);
+const EDITABLE = new Set(['ACTIVE']);
 
 function toDetailsValues(req: RequirementDto): RequirementDetailsValues {
   return {
@@ -46,8 +46,8 @@ export function EditRequirement() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
   const [closing, setClosing] = useState(false);
+  const [fulfilling, setFulfilling] = useState(false);
 
   const load = () => {
     if (!id) return;
@@ -90,18 +90,18 @@ export function EditRequirement() {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleFulfilled = async () => {
     setActionError(null);
     setNotice(null);
-    setSubmitting(true);
+    setFulfilling(true);
     try {
-      const { data } = await api.post<RequirementDto>(`/requirements/${req.id}/submit`);
+      const { data } = await api.post<RequirementDto>(`/requirements/${req.id}/fulfilled`);
       setReq(data);
-      setNotice(t('buyer.editRequirement.notices.submitted'));
+      setNotice(t('buyer.editRequirement.notices.fulfilled'));
     } catch (err) {
-      setActionError(apiErrorMessage(err, t('buyer.editRequirement.errors.submitFailed')));
+      setActionError(apiErrorMessage(err, t('buyer.editRequirement.errors.fulfilledFailed')));
     } finally {
-      setSubmitting(false);
+      setFulfilling(false);
     }
   };
 
@@ -173,9 +173,9 @@ export function EditRequirement() {
         </section>
 
         <section className="flex flex-wrap gap-3 border-t border-navy/10 pt-8">
-          {editable && (
-            <Button onClick={handleSubmit} disabled={submitting}>
-              {submitting ? t('buyer.editRequirement.submitting') : t('buyer.editRequirement.submitForReview')}
+          {req.status === 'ACTIVE' && (
+            <Button onClick={handleFulfilled} disabled={fulfilling}>
+              {fulfilling ? t('buyer.editRequirement.markingFulfilled') : t('buyer.editRequirement.markFulfilled')}
             </Button>
           )}
           {req.status !== 'CLOSED' && (

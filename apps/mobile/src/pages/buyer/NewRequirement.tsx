@@ -117,7 +117,7 @@ export function NewRequirement() {
         locationCity: form.locationCity || undefined,
         locationState: form.locationState || undefined,
       });
-      await api.post(`/requirements/${data.id}/submit`);
+      // No approval gate — posting goes live immediately, no separate submit-for-review step.
       setPosted(data);
     } catch (err) {
       setError(apiErrorMessage(err, t('buyer.newRequirement.errors.createFailed')));

@@ -1,4 +1,13 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { UserRole } from '@prisma/client';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -20,7 +29,10 @@ export class ListingBoostsController {
   }
 
   @Get(':listingId/status')
-  getStatus(@CurrentUser() user: AuthenticatedUser, @Param('listingId') listingId: string) {
+  getStatus(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('listingId') listingId: string,
+  ) {
     return this.boosts.getStatus(user.id, listingId);
   }
 

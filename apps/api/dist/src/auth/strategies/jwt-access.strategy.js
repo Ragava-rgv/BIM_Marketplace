@@ -29,7 +29,9 @@ let JwtAccessStrategy = class JwtAccessStrategy extends (0, passport_1.PassportS
         if (payload.type !== 'access') {
             throw new common_1.UnauthorizedException('Invalid token type');
         }
-        const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
+        const user = await this.prisma.user.findUnique({
+            where: { id: payload.sub },
+        });
         if (!user) {
             throw new common_1.UnauthorizedException('Account no longer exists');
         }

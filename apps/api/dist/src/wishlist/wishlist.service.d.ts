@@ -7,26 +7,27 @@ export declare class WishlistService {
     list(buyerId: string): Promise<({
         media: {
             id: string;
-            type: import("@prisma/client").$Enums.MediaType;
             url: string;
-            capturedAt: Date | null;
-            durationSeconds: number | null;
+            type: import("@prisma/client").$Enums.MediaType;
             orderIndex: number;
+            isPrimary: boolean;
             listingId: string;
             storageKey: string;
-            isPrimary: boolean;
+            capturedAt: Date | null;
+            durationSeconds: number | null;
         }[];
     } & {
         id: string;
-        machineCategory: string;
+        createdAt: Date;
         locationCity: string;
         locationState: string;
-        createdAt: Date;
         updatedAt: Date;
-        description: string;
         status: import("@prisma/client").$Enums.ListingStatus;
         sellerId: string;
+        description: string;
+        subcategoryId: string | null;
         title: string;
+        machineCategory: string;
         machineSubcategory: string | null;
         machineMake: string;
         machineModel: string;
@@ -42,7 +43,6 @@ export declare class WishlistService {
         runningHours: number | null;
         serialNumber: string | null;
         negotiable: boolean;
-        subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
         postedAt: Date | null;

@@ -582,8 +582,8 @@
       "submit": "Post requirement",
       "errors": { "createFailed": "Could not post this requirement." },
       "submitted": {
-        "title": "Requirement submitted for review",
-        "description": "will go live once our team approves it, and you'll start receiving quotes from matching sellers.",
+        "title": "Your requirement is live",
+        "description": "is now visible to GST-verified sellers — you'll be notified as soon as a matching quote comes in.",
         "goToRequirements": "Go to my requirements",
         "viewWanted": "Browse Wanted"
       }
@@ -606,20 +606,20 @@
       "errors": {
         "notFound": "This requirement could not be found.",
         "updateFailed": "Could not update this requirement.",
-        "submitFailed": "Could not submit this requirement for review.",
+        "fulfilledFailed": "Could not mark this requirement fulfilled.",
         "closeFailed": "Could not close this requirement."
       },
       "notices": {
         "updated": "Requirement updated.",
-        "submitted": "Requirement submitted for admin review.",
+        "fulfilled": "Requirement marked fulfilled.",
         "closed": "Requirement closed."
       },
       "sections": { "detailsHeading": "Requirement details", "quotesHeading": "Quotes received" },
-      "noQuotes": "No approved quotes yet — check back once sellers respond.",
+      "noQuotes": "No quotes yet — check back once sellers respond.",
       "quoteFrom": "From {{name}}",
       "saveChanges": "Save changes",
-      "submitting": "Submitting…",
-      "submitForReview": "Submit for review",
+      "markingFulfilled": "Saving…",
+      "markFulfilled": "Mark fulfilled",
       "closing": "Closing…",
       "closeRequirement": "Close requirement"
     },
@@ -1102,14 +1102,13 @@
       "reject": "Reject"
     },
     "quotes": {
-      "eyebrow": "Wanted moderation",
-      "title": "Quote review",
-      "description": "Every quote a seller sends against a requirement is held here until you approve it — the buyer never sees it before that.",
-      "actionError": "Could not update this quote.",
+      "eyebrow": "Wanted traceability",
+      "title": "Quotes",
+      "description": "Every quote a seller sends against a requirement, for audit and commission tracking.",
+      "traceabilityDescription": "A read-only log of every quote submitted — no approval gate, so a quote reaches the requirement owner immediately. Kept here for audit and commission tracking.",
+      "allStatuses": "All statuses",
       "from": "from",
       "for": "for",
-      "approve": "Approve",
-      "reject": "Reject",
       "emptyState": { "title": "No quotes in this status", "description": "Check back later or switch the status filter." }
     },
     "dashboard": {
@@ -1758,7 +1757,10 @@
       "newSpecField": "New spec field",
       "addField": "Add field",
       "selectCategoryPrompt": "Select a category on the left to manage its subcategories and spec fields.",
+      "commonScope": "Common",
+      "unknownSubcategory": "Unknown subcategory",
       "columns": {
+        "scope": "Applies to",
         "fieldKey": "Field key",
         "label": "Label",
         "type": "Type",
@@ -1773,6 +1775,8 @@
         "group": "Group",
         "description": "Description",
         "autoFilled": "Auto-filled",
+        "appliesTo": "Applies to",
+        "appliesToHint": "Common = shown for every subcategory. Pick a subcategory to scope this field to it only.",
         "fieldKey": "Field key",
         "fieldKeyHint": "snake_case, e.g. max_rpm",
         "fieldLabel": "Field label",

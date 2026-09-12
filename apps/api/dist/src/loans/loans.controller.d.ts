@@ -11,8 +11,8 @@ export declare class LoansController {
         status: import("@prisma/client").$Enums.LoanApplicationStatus;
         listingId: string;
         buyerId: string;
-        amountRequested: import("@prisma/client/runtime/library").Decimal;
         partnerId: string | null;
+        amountRequested: import("@prisma/client/runtime/library").Decimal;
         referralCommission: import("@prisma/client/runtime/library").Decimal | null;
     }>;
     mine(user: AuthenticatedUser): Promise<{
@@ -21,8 +21,8 @@ export declare class LoansController {
         status: import("@prisma/client").$Enums.LoanApplicationStatus;
         listingId: string;
         buyerId: string;
-        amountRequested: import("@prisma/client/runtime/library").Decimal;
         partnerId: string | null;
+        amountRequested: import("@prisma/client/runtime/library").Decimal;
         referralCommission: import("@prisma/client/runtime/library").Decimal | null;
     }[]>;
     findOne(user: AuthenticatedUser, id: string): Promise<{
@@ -31,8 +31,8 @@ export declare class LoansController {
         status: import("@prisma/client").$Enums.LoanApplicationStatus;
         listingId: string;
         buyerId: string;
-        amountRequested: import("@prisma/client/runtime/library").Decimal;
         partnerId: string | null;
+        amountRequested: import("@prisma/client/runtime/library").Decimal;
         referralCommission: import("@prisma/client/runtime/library").Decimal | null;
     }>;
     submit(user: AuthenticatedUser, id: string): Promise<{
@@ -41,18 +41,18 @@ export declare class LoansController {
         status: import("@prisma/client").$Enums.LoanApplicationStatus;
         listingId: string;
         buyerId: string;
-        amountRequested: import("@prisma/client/runtime/library").Decimal;
         partnerId: string | null;
+        amountRequested: import("@prisma/client/runtime/library").Decimal;
         referralCommission: import("@prisma/client/runtime/library").Decimal | null;
     }>;
     listAll(): Promise<({
         listing: {
             id: string;
-            machineCategory: string;
             locationCity: string;
             locationState: string;
             status: import("@prisma/client").$Enums.ListingStatus;
             title: string;
+            machineCategory: string;
             machineMake: string;
             machineModel: string;
             manufactureYear: number | null;
@@ -76,17 +76,17 @@ export declare class LoansController {
             id: string;
         } | null;
         buyer: {
-            email: string | null;
             phone: string;
             fullName: string;
+            email: string | null;
             gstStatus: import("@prisma/client").$Enums.GstStatus;
         };
         partner: {
             id: string;
             name: string;
+            active: boolean;
             type: import("@prisma/client").$Enums.FinancePartnerType;
             referralRate: import("@prisma/client/runtime/library").Decimal;
-            active: boolean;
         } | null;
     } & {
         id: string;
@@ -94,8 +94,8 @@ export declare class LoansController {
         status: import("@prisma/client").$Enums.LoanApplicationStatus;
         listingId: string;
         buyerId: string;
-        amountRequested: import("@prisma/client/runtime/library").Decimal;
         partnerId: string | null;
+        amountRequested: import("@prisma/client/runtime/library").Decimal;
         referralCommission: import("@prisma/client/runtime/library").Decimal | null;
     })[]>;
     updateStatus(id: string, dto: UpdateLoanStatusDto): Promise<{
@@ -104,8 +104,8 @@ export declare class LoansController {
         status: import("@prisma/client").$Enums.LoanApplicationStatus;
         listingId: string;
         buyerId: string;
-        amountRequested: import("@prisma/client/runtime/library").Decimal;
         partnerId: string | null;
+        amountRequested: import("@prisma/client/runtime/library").Decimal;
         referralCommission: import("@prisma/client/runtime/library").Decimal | null;
     }>;
 }

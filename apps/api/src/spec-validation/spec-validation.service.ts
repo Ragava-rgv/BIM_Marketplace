@@ -32,7 +32,10 @@ export class SpecValidationService {
       const missing = value === undefined || value === null || value === '';
 
       if (field.isRequired && missing) {
-        errors.push({ field: field.fieldKey, message: `${field.fieldLabel} is required` });
+        errors.push({
+          field: field.fieldKey,
+          message: `${field.fieldLabel} is required`,
+        });
         continue;
       }
 
@@ -59,7 +62,11 @@ export class SpecValidationService {
           break;
         }
         case 'boolean': {
-          if (typeof value !== 'boolean' && value !== 'true' && value !== 'false') {
+          if (
+            typeof value !== 'boolean' &&
+            value !== 'true' &&
+            value !== 'false'
+          ) {
             errors.push({
               field: field.fieldKey,
               message: `${field.fieldLabel} must be true or false`,
@@ -74,7 +81,10 @@ export class SpecValidationService {
     }
 
     if (errors.length > 0) {
-      throw new BadRequestException({ message: 'Spec validation failed', errors });
+      throw new BadRequestException({
+        message: 'Spec validation failed',
+        errors,
+      });
     }
 
     // Coerce numbers so we store clean values

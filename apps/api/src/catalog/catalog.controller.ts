@@ -7,6 +7,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -53,8 +54,14 @@ export class CategoriesController {
   }
 
   @Get(':id/spec-template')
-  getSpecTemplate(@Param('id', ParseUUIDPipe) id: string) {
-    return this.catalog.getCategoryWithSpecTemplate(id);
+  getSpecTemplate(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query('subcategoryId') subcategoryId?: string,
+  ) {
+    return this.catalog.getCategoryWithSpecTemplate(
+      id,
+      subcategoryId || undefined,
+    );
   }
 
   @Get(':id/subcategories')

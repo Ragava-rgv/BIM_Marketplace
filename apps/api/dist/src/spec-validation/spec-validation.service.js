@@ -21,7 +21,10 @@ let SpecValidationService = class SpecValidationService {
             const value = submitted[field.fieldKey];
             const missing = value === undefined || value === null || value === '';
             if (field.isRequired && missing) {
-                errors.push({ field: field.fieldKey, message: `${field.fieldLabel} is required` });
+                errors.push({
+                    field: field.fieldKey,
+                    message: `${field.fieldLabel} is required`,
+                });
                 continue;
             }
             if (missing)
@@ -47,7 +50,9 @@ let SpecValidationService = class SpecValidationService {
                     break;
                 }
                 case 'boolean': {
-                    if (typeof value !== 'boolean' && value !== 'true' && value !== 'false') {
+                    if (typeof value !== 'boolean' &&
+                        value !== 'true' &&
+                        value !== 'false') {
                         errors.push({
                             field: field.fieldKey,
                             message: `${field.fieldLabel} must be true or false`,
@@ -60,7 +65,10 @@ let SpecValidationService = class SpecValidationService {
             }
         }
         if (errors.length > 0) {
-            throw new common_1.BadRequestException({ message: 'Spec validation failed', errors });
+            throw new common_1.BadRequestException({
+                message: 'Spec validation failed',
+                errors,
+            });
         }
         const cleaned = {};
         for (const field of template) {

@@ -541,6 +541,8 @@ export interface ContactViewStatusDto {
 export interface CategorySpecTemplateDto {
     id: string;
     categoryId: string;
+    /** Null = a "common" field shown for every subcategory under this category. */
+    subcategoryId: string | null;
     fieldKey: string;
     fieldLabel: string;
     unit: string | null;

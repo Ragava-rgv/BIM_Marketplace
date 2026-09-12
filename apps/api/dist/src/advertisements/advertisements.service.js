@@ -43,7 +43,9 @@ let AdvertisementsService = class AdvertisementsService {
         });
     }
     async findById(id) {
-        const ad = await this.prisma.advertisement.findFirst({ where: { id, deletedAt: null } });
+        const ad = await this.prisma.advertisement.findFirst({
+            where: { id, deletedAt: null },
+        });
         if (!ad)
             throw new common_1.NotFoundException('Advertisement not found');
         return ad;
@@ -68,7 +70,9 @@ let AdvertisementsService = class AdvertisementsService {
     }
     async update(id, dto, file) {
         await this.findById(id);
-        const imageUrl = file ? (await this.storage.upload(file, storage_service_1.ADVERTISEMENT_IMAGES_DIR)).url : undefined;
+        const imageUrl = file
+            ? (await this.storage.upload(file, storage_service_1.ADVERTISEMENT_IMAGES_DIR)).url
+            : undefined;
         return this.prisma.advertisement.update({
             where: { id },
             data: {
@@ -76,8 +80,12 @@ let AdvertisementsService = class AdvertisementsService {
                 ...(dto.linkUrl !== undefined && { linkUrl: dto.linkUrl }),
                 ...(dto.position !== undefined && { position: dto.position }),
                 ...(dto.placement !== undefined && { placement: dto.placement }),
-                ...(dto.startsAt !== undefined && { startsAt: dto.startsAt ? new Date(dto.startsAt) : null }),
-                ...(dto.endsAt !== undefined && { endsAt: dto.endsAt ? new Date(dto.endsAt) : null }),
+                ...(dto.startsAt !== undefined && {
+                    startsAt: dto.startsAt ? new Date(dto.startsAt) : null,
+                }),
+                ...(dto.endsAt !== undefined && {
+                    endsAt: dto.endsAt ? new Date(dto.endsAt) : null,
+                }),
                 ...(dto.sortOrder !== undefined && { sortOrder: dto.sortOrder }),
                 ...(dto.isActive !== undefined && { isActive: dto.isActive }),
                 ...(imageUrl !== undefined && { imageUrl }),
@@ -86,7 +94,10 @@ let AdvertisementsService = class AdvertisementsService {
     }
     async remove(id) {
         await this.findById(id);
-        return this.prisma.advertisement.update({ where: { id }, data: { deletedAt: new Date() } });
+        return this.prisma.advertisement.update({
+            where: { id },
+            data: { deletedAt: new Date() },
+        });
     }
     async purge(id) {
         const ad = await this.prisma.advertisement.findUnique({ where: { id } });

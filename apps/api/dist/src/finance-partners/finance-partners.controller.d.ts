@@ -7,29 +7,29 @@ export declare class FinancePartnersController {
     listActive(): Promise<{
         id: string;
         name: string;
+        active: boolean;
         type: import("@prisma/client").$Enums.FinancePartnerType;
         referralRate: import("@prisma/client/runtime/library").Decimal;
-        active: boolean;
     }[]>;
     listAll(): Promise<{
         id: string;
         name: string;
+        active: boolean;
         type: import("@prisma/client").$Enums.FinancePartnerType;
         referralRate: import("@prisma/client/runtime/library").Decimal;
-        active: boolean;
     }[]>;
     create(dto: CreateFinancePartnerDto): Promise<{
         id: string;
         name: string;
+        active: boolean;
         type: import("@prisma/client").$Enums.FinancePartnerType;
         referralRate: import("@prisma/client/runtime/library").Decimal;
-        active: boolean;
     }>;
     update(id: string, dto: UpdateFinancePartnerDto): Promise<{
         id: string;
         name: string;
+        active: boolean;
         type: import("@prisma/client").$Enums.FinancePartnerType;
         referralRate: import("@prisma/client/runtime/library").Decimal;
-        active: boolean;
     }>;
 }

@@ -35,6 +35,6 @@ export class QueryRequirementsDto {
 
 export class AdminQueryRequirementsDto extends QueryRequirementsDto {
   @IsOptional()
-  @IsIn(['DRAFT', 'PENDING_REVIEW', 'ACTIVE', 'FULFILLED', 'CLOSED', 'REJECTED'])
+  @IsIn(['ACTIVE', 'FULFILLED', 'CLOSED'])
   status?: RequirementStatus;
 }

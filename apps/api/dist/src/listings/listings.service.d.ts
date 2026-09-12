@@ -41,26 +41,27 @@ export declare class ListingsService {
         items: ({
             media: {
                 id: string;
-                type: import("@prisma/client").$Enums.MediaType;
                 url: string;
-                capturedAt: Date | null;
-                durationSeconds: number | null;
+                type: import("@prisma/client").$Enums.MediaType;
                 orderIndex: number;
+                isPrimary: boolean;
                 listingId: string;
                 storageKey: string;
-                isPrimary: boolean;
+                capturedAt: Date | null;
+                durationSeconds: number | null;
             }[];
         } & {
             id: string;
-            machineCategory: string;
+            createdAt: Date;
             locationCity: string;
             locationState: string;
-            createdAt: Date;
             updatedAt: Date;
-            description: string;
             status: import("@prisma/client").$Enums.ListingStatus;
             sellerId: string;
+            description: string;
+            subcategoryId: string | null;
             title: string;
+            machineCategory: string;
             machineSubcategory: string | null;
             machineMake: string;
             machineModel: string;
@@ -76,7 +77,6 @@ export declare class ListingsService {
             runningHours: number | null;
             serialNumber: string | null;
             negotiable: boolean;
-            subcategoryId: string | null;
             isBoosted: boolean;
             boostExpiresAt: Date | null;
             postedAt: Date | null;
@@ -93,51 +93,52 @@ export declare class ListingsService {
     findAnyById(listingId: string): Promise<{
         media: {
             id: string;
-            type: import("@prisma/client").$Enums.MediaType;
             url: string;
-            capturedAt: Date | null;
-            durationSeconds: number | null;
+            type: import("@prisma/client").$Enums.MediaType;
             orderIndex: number;
+            isPrimary: boolean;
             listingId: string;
             storageKey: string;
-            isPrimary: boolean;
+            capturedAt: Date | null;
+            durationSeconds: number | null;
         }[];
         seller: {
-            id: string;
-            email: string | null;
             phone: string;
+            id: string;
             fullName: string;
+            email: string | null;
+            locationCity: string | null;
+            locationState: string | null;
             gstNumber: string | null;
             businessName: string | null;
             gstStatus: import("@prisma/client").$Enums.GstStatus;
-            locationCity: string | null;
-            locationState: string | null;
         };
         catalogCategory: ({
             specFields: {
                 id: string;
-                isFilterable: boolean;
-                unit: string | null;
-                filterType: import("@prisma/client").$Enums.SpecFilterType;
                 options: string[];
-                displayOrder: number;
                 categoryId: string;
+                subcategoryId: string | null;
                 fieldKey: string;
                 fieldLabel: string;
+                unit: string | null;
                 fieldType: import("@prisma/client").$Enums.SpecFieldType;
                 isRequired: boolean;
+                isFilterable: boolean;
+                filterType: import("@prisma/client").$Enums.SpecFilterType;
+                displayOrder: number;
                 helpText: string | null;
             }[];
         } & {
             id: string;
-            name: string;
             createdAt: Date;
+            name: string;
             updatedAt: Date;
             isActive: boolean;
             description: string | null;
             displayOrder: number;
-            slug: string;
             groupId: string | null;
+            slug: string;
             iconKey: string | null;
             imageUrl: string | null;
             thumbnailUrl: string | null;
@@ -145,15 +146,16 @@ export declare class ListingsService {
         }) | null;
     } & {
         id: string;
-        machineCategory: string;
+        createdAt: Date;
         locationCity: string;
         locationState: string;
-        createdAt: Date;
         updatedAt: Date;
-        description: string;
         status: import("@prisma/client").$Enums.ListingStatus;
         sellerId: string;
+        description: string;
+        subcategoryId: string | null;
         title: string;
+        machineCategory: string;
         machineSubcategory: string | null;
         machineMake: string;
         machineModel: string;
@@ -169,7 +171,6 @@ export declare class ListingsService {
         runningHours: number | null;
         serialNumber: string | null;
         negotiable: boolean;
-        subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
         postedAt: Date | null;
@@ -179,32 +180,33 @@ export declare class ListingsService {
         items: ({
             media: {
                 id: string;
-                type: import("@prisma/client").$Enums.MediaType;
                 url: string;
-                capturedAt: Date | null;
-                durationSeconds: number | null;
+                type: import("@prisma/client").$Enums.MediaType;
                 orderIndex: number;
+                isPrimary: boolean;
                 listingId: string;
                 storageKey: string;
-                isPrimary: boolean;
+                capturedAt: Date | null;
+                durationSeconds: number | null;
             }[];
             seller: {
-                id: string;
-                email: string | null;
                 phone: string;
+                id: string;
                 fullName: string;
+                email: string | null;
             };
         } & {
             id: string;
-            machineCategory: string;
+            createdAt: Date;
             locationCity: string;
             locationState: string;
-            createdAt: Date;
             updatedAt: Date;
-            description: string;
             status: import("@prisma/client").$Enums.ListingStatus;
             sellerId: string;
+            description: string;
+            subcategoryId: string | null;
             title: string;
+            machineCategory: string;
             machineSubcategory: string | null;
             machineMake: string;
             machineModel: string;
@@ -220,7 +222,6 @@ export declare class ListingsService {
             runningHours: number | null;
             serialNumber: string | null;
             negotiable: boolean;
-            subcategoryId: string | null;
             isBoosted: boolean;
             boostExpiresAt: Date | null;
             postedAt: Date | null;

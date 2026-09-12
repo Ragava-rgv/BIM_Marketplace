@@ -18,16 +18,16 @@ export declare class ListingBoostsService {
     }>;
     verifyAndActivate(sellerId: string, listingId: string, dto: VerifyBoostDto): Promise<{
         id: string;
-        createdAt: Date;
-        durationDays: number;
         expiresAt: Date;
-        planId: string | null;
-        razorpayOrderId: string | null;
-        razorpayPaymentId: string | null;
+        createdAt: Date;
         sellerId: string;
         price: import("@prisma/client/runtime/library").Decimal;
+        durationDays: number;
         startsAt: Date;
+        razorpayOrderId: string | null;
+        razorpayPaymentId: string | null;
         listingId: string;
+        planId: string | null;
     }>;
     listMine(sellerId: string): Promise<({
         listing: {
@@ -36,12 +36,12 @@ export declare class ListingBoostsService {
         };
         plan: {
             id: string;
-            name: string;
             createdAt: Date;
+            name: string;
             updatedAt: Date;
+            durationDays: number;
             displayName: string;
             priceInr: import("@prisma/client/runtime/library").Decimal;
-            durationDays: number;
             isActive: boolean;
             description: string | null;
             sortOrder: number;
@@ -50,16 +50,16 @@ export declare class ListingBoostsService {
         } | null;
     } & {
         id: string;
-        createdAt: Date;
-        durationDays: number;
         expiresAt: Date;
-        planId: string | null;
-        razorpayOrderId: string | null;
-        razorpayPaymentId: string | null;
+        createdAt: Date;
         sellerId: string;
         price: import("@prisma/client/runtime/library").Decimal;
+        durationDays: number;
         startsAt: Date;
+        razorpayOrderId: string | null;
+        razorpayPaymentId: string | null;
         listingId: string;
+        planId: string | null;
     })[]>;
     sweepExpired(): Promise<void>;
 }

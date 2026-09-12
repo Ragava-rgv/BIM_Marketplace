@@ -13,10 +13,10 @@ export declare class CertificationsService {
     private static readonly LISTING_SELECT;
     listAll(): Promise<({
         listing: {
-            machineCategory: string;
             locationCity: string;
             locationState: string;
             title: string;
+            machineCategory: string;
             machineMake: string;
             machineModel: string;
             manufactureYear: number | null;

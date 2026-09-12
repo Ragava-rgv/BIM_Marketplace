@@ -7,7 +7,7 @@ import { formatInrShort } from '../../lib/format';
 import { AppLayout } from '../../components/AppLayout';
 import { ChevronRightIcon } from '../../components/icons';
 
-const EDITABLE = new Set(['DRAFT', 'REJECTED']);
+const EDITABLE = new Set(['ACTIVE']);
 
 export function EditRequirement() {
   const { t } = useTranslation();
@@ -28,15 +28,15 @@ export function EditRequirement() {
 
   useEffect(load, [id]);
 
-  const submitForReview = async () => {
+  const markFulfilled = async () => {
     if (!req) return;
     setBusy(true);
     setActionError(null);
     try {
-      await api.post(`/requirements/${req.id}/submit`);
+      await api.post(`/requirements/${req.id}/fulfilled`);
       load();
     } catch (err) {
-      setActionError(apiErrorMessage(err, t('buyer.editRequirement.errors.submitFailed')));
+      setActionError(apiErrorMessage(err, t('buyer.editRequirement.errors.fulfilledFailed')));
     } finally {
       setBusy(false);
     }
@@ -114,8 +114,8 @@ export function EditRequirement() {
         </div>
 
         {editable && (
-          <button onClick={submitForReview} disabled={busy} className="w-full h-[50px] bg-forest text-white rounded-[13px] text-[14px] font-bold disabled:opacity-50">
-            {busy ? t('buyer.editRequirement.submitting') : t('buyer.editRequirement.submitForReview')}
+          <button onClick={markFulfilled} disabled={busy} className="w-full h-[50px] bg-forest text-white rounded-[13px] text-[14px] font-bold disabled:opacity-50">
+            {busy ? t('buyer.editRequirement.markingFulfilled') : t('buyer.editRequirement.markFulfilled')}
           </button>
         )}
         {req.status !== 'CLOSED' && (

@@ -29,7 +29,9 @@ let AdvertisementsController = class AdvertisementsController {
         this.service = service;
     }
     listActive(placement) {
-        return this.service.listActive(placement && Object.values(client_1.AdPlacement).includes(placement) ? placement : client_1.AdPlacement.IN_GRID);
+        return this.service.listActive(placement && Object.values(client_1.AdPlacement).includes(placement)
+            ? placement
+            : client_1.AdPlacement.IN_GRID);
     }
     listAll() {
         return this.service.listAll();

@@ -26,7 +26,10 @@ let DepreciationService = class DepreciationService {
     async upsert(dto) {
         return this.prisma.depreciationSchedule.upsert({
             where: {
-                machineCategory_yearOffset: { machineCategory: dto.machineCategory, yearOffset: dto.yearOffset },
+                machineCategory_yearOffset: {
+                    machineCategory: dto.machineCategory,
+                    yearOffset: dto.yearOffset,
+                },
             },
             update: { retainedValuePct: new client_1.Prisma.Decimal(dto.retainedValuePct) },
             create: {

@@ -36,7 +36,8 @@ let MediaController = class MediaController {
         if (!(await this.storage.exists(key))) {
             throw new common_1.NotFoundException('File not found');
         }
-        const contentType = CONTENT_TYPES[(0, path_1.extname)(filename).toLowerCase()] ?? 'application/octet-stream';
+        const contentType = CONTENT_TYPES[(0, path_1.extname)(filename).toLowerCase()] ??
+            'application/octet-stream';
         res.setHeader('Content-Type', contentType);
         (0, fs_1.createReadStream)(this.storage.resolveKey(key)).pipe(res);
     }

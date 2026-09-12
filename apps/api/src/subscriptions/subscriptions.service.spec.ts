@@ -12,7 +12,10 @@ import { RazorpayService } from '../payments/razorpay.service';
  */
 describe('SubscriptionsService.getStatus — live vs snapshotted quota (Bug 8)', () => {
   let service: SubscriptionsService;
-  let prisma: { sellerSubscription: { findFirst: jest.Mock }; listing: { count: jest.Mock } };
+  let prisma: {
+    sellerSubscription: { findFirst: jest.Mock };
+    listing: { count: jest.Mock };
+  };
 
   beforeEach(async () => {
     prisma = {

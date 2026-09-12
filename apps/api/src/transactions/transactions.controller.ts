@@ -1,4 +1,13 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { UserRole } from '@prisma/client';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -15,7 +24,10 @@ export class TransactionsController {
 
   @Post()
   @Roles(UserRole.SELLER)
-  async create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateTransactionDto) {
+  async create(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: CreateTransactionDto,
+  ) {
     return this.transactions.create(user.id, dto);
   }
 
@@ -45,7 +57,10 @@ export class TransactionsController {
 
   @Get(':id/contact')
   @Roles(UserRole.BUYER, UserRole.SELLER)
-  async contact(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+  async contact(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
     return this.transactions.getContact(id, user.id);
   }
 

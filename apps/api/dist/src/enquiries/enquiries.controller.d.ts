@@ -46,13 +46,13 @@ export declare class EnquiriesController {
             askingPrice: import("@prisma/client/runtime/library").Decimal;
         };
         buyer: {
-            email: string | null;
             phone: string;
             fullName: string;
-            gstNumber: string | null;
-            businessName: string | null;
+            email: string | null;
             locationCity: string | null;
             locationState: string | null;
+            gstNumber: string | null;
+            businessName: string | null;
         };
     } & {
         id: string;

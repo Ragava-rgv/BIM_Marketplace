@@ -16,9 +16,18 @@ const prisma_service_1 = require("../prisma/prisma.service");
 const certifications_service_1 = require("../certifications/certifications.service");
 const VALID_ADMIN_TRANSITIONS = {
     DRAFT: [],
-    SUBMITTED: [client_1.LoanApplicationStatus.CERT_PENDING, client_1.LoanApplicationStatus.REJECTED],
-    CERT_PENDING: [client_1.LoanApplicationStatus.WITH_PARTNER, client_1.LoanApplicationStatus.REJECTED],
-    WITH_PARTNER: [client_1.LoanApplicationStatus.APPROVED, client_1.LoanApplicationStatus.REJECTED],
+    SUBMITTED: [
+        client_1.LoanApplicationStatus.CERT_PENDING,
+        client_1.LoanApplicationStatus.REJECTED,
+    ],
+    CERT_PENDING: [
+        client_1.LoanApplicationStatus.WITH_PARTNER,
+        client_1.LoanApplicationStatus.REJECTED,
+    ],
+    WITH_PARTNER: [
+        client_1.LoanApplicationStatus.APPROVED,
+        client_1.LoanApplicationStatus.REJECTED,
+    ],
     APPROVED: [],
     REJECTED: [],
 };
@@ -30,7 +39,9 @@ let LoansService = class LoansService {
         this.certifications = certifications;
     }
     async create(buyerId, dto) {
-        const listing = await this.prisma.listing.findUnique({ where: { id: dto.listingId } });
+        const listing = await this.prisma.listing.findUnique({
+            where: { id: dto.listingId },
+        });
         if (!listing) {
             throw new common_1.NotFoundException('Listing not found');
         }
@@ -52,7 +63,9 @@ let LoansService = class LoansService {
         });
     }
     async findById(id) {
-        const application = await this.prisma.loanApplication.findUnique({ where: { id } });
+        const application = await this.prisma.loanApplication.findUnique({
+            where: { id },
+        });
         if (!application) {
             throw new common_1.NotFoundException('Loan application not found');
         }
@@ -77,7 +90,9 @@ let LoansService = class LoansService {
         if (!buyer || buyer.gstStatus !== client_1.GstStatus.ACTIVE) {
             throw new common_1.ForbiddenException('Your GST must be verified and ACTIVE before submitting a loan application');
         }
-        const listing = await this.prisma.listing.findUnique({ where: { id: application.listingId } });
+        const listing = await this.prisma.listing.findUnique({
+            where: { id: application.listingId },
+        });
         if (!listing) {
             throw new common_1.NotFoundException('Listing not found');
         }
@@ -92,7 +107,9 @@ let LoansService = class LoansService {
             throw new common_1.BadRequestException(`Cannot transition loan application from ${application.status} to ${status}`);
         }
         if (status === client_1.LoanApplicationStatus.CERT_PENDING) {
-            const listing = await this.prisma.listing.findUnique({ where: { id: application.listingId } });
+            const listing = await this.prisma.listing.findUnique({
+                where: { id: application.listingId },
+            });
             if (!listing) {
                 throw new common_1.NotFoundException('Listing not found');
             }
@@ -105,15 +122,20 @@ let LoansService = class LoansService {
         }
         let resolvedPartnerId = application.partnerId;
         if (status === client_1.LoanApplicationStatus.WITH_PARTNER) {
-            const certification = await this.prisma.certification.findUnique({ where: { loanApplicationId: id } });
-            if (!certification || certification.status !== client_1.CertificationStatus.COMPLETED) {
+            const certification = await this.prisma.certification.findUnique({
+                where: { loanApplicationId: id },
+            });
+            if (!certification ||
+                certification.status !== client_1.CertificationStatus.COMPLETED) {
                 throw new common_1.BadRequestException('Certification must be COMPLETED before routing to the finance partner');
             }
             const targetPartnerId = partnerId ?? application.partnerId;
             if (!targetPartnerId) {
                 throw new common_1.BadRequestException('A finance partner must be selected when routing this application');
             }
-            const partner = await this.prisma.financePartner.findUnique({ where: { id: targetPartnerId } });
+            const partner = await this.prisma.financePartner.findUnique({
+                where: { id: targetPartnerId },
+            });
             if (!partner || !partner.active) {
                 throw new common_1.BadRequestException('Selected finance partner is not available');
             }
@@ -121,9 +143,13 @@ let LoansService = class LoansService {
         }
         let referralCommission = application.referralCommission;
         if (status === client_1.LoanApplicationStatus.APPROVED && resolvedPartnerId) {
-            const partner = await this.prisma.financePartner.findUnique({ where: { id: resolvedPartnerId } });
+            const partner = await this.prisma.financePartner.findUnique({
+                where: { id: resolvedPartnerId },
+            });
             if (partner) {
-                referralCommission = application.amountRequested.mul(partner.referralRate).div(100);
+                referralCommission = application.amountRequested
+                    .mul(partner.referralRate)
+                    .div(100);
             }
         }
         return this.prisma.loanApplication.update({
@@ -151,7 +177,9 @@ let LoansService = class LoansService {
                         status: true,
                     },
                 },
-                buyer: { select: { fullName: true, phone: true, email: true, gstStatus: true } },
+                buyer: {
+                    select: { fullName: true, phone: true, email: true, gstStatus: true },
+                },
                 certification: true,
                 buybackOffer: { select: { id: true } },
             },

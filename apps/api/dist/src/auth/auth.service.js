@@ -65,12 +65,16 @@ let AuthService = class AuthService {
         this.otp = otp;
     }
     async signup(dto) {
-        const existing = await this.prisma.user.findUnique({ where: { phone: dto.phone } });
+        const existing = await this.prisma.user.findUnique({
+            where: { phone: dto.phone },
+        });
         if (existing) {
             throw new common_1.ConflictException('An account with this phone number already exists');
         }
         if (dto.email) {
-            const existingEmail = await this.prisma.user.findUnique({ where: { email: dto.email } });
+            const existingEmail = await this.prisma.user.findUnique({
+                where: { email: dto.email },
+            });
             if (existingEmail) {
                 throw new common_1.ConflictException('An account with this email already exists');
             }
@@ -123,7 +127,10 @@ let AuthService = class AuthService {
             throw new common_1.BadRequestException('No account found for this phone number');
         }
         if (purpose === 'SIGNUP' && !user.phoneVerified) {
-            await this.prisma.user.update({ where: { id: user.id }, data: { phoneVerified: true } });
+            await this.prisma.user.update({
+                where: { id: user.id },
+                data: { phoneVerified: true },
+            });
         }
         return this.issueTokenPair(user);
     }
@@ -163,14 +170,23 @@ let AuthService = class AuthService {
         return this.issueTokenPair(user);
     }
     async issueTokenPair(user) {
-        const accessPayload = { sub: user.id, role: user.role, type: 'access' };
+        const accessPayload = {
+            sub: user.id,
+            role: user.role,
+            type: 'access',
+        };
         const accessTtl = this.config.get('JWT_ACCESS_TTL') ?? '15m';
         const accessToken = await this.jwt.signAsync(accessPayload, {
             secret: this.config.get('JWT_ACCESS_SECRET'),
             expiresIn: accessTtl,
         });
         const jti = (0, crypto_1.randomUUID)();
-        const refreshPayload = { sub: user.id, role: user.role, jti, type: 'refresh' };
+        const refreshPayload = {
+            sub: user.id,
+            role: user.role,
+            jti,
+            type: 'refresh',
+        };
         const refreshTtl = this.config.get('JWT_REFRESH_TTL') ?? '30d';
         const refreshToken = await this.jwt.signAsync(refreshPayload, {
             secret: this.config.get('JWT_REFRESH_SECRET'),
@@ -200,7 +216,9 @@ let AuthService = class AuthService {
         if (payload.type !== 'refresh') {
             throw new common_1.UnauthorizedException('Invalid token type');
         }
-        const stored = await this.prisma.refreshToken.findUnique({ where: { id: payload.jti } });
+        const stored = await this.prisma.refreshToken.findUnique({
+            where: { id: payload.jti },
+        });
         if (!stored || stored.revoked || stored.expiresAt < new Date()) {
             throw new common_1.UnauthorizedException('Refresh token is no longer valid');
         }
@@ -208,11 +226,16 @@ let AuthService = class AuthService {
         if (!matches) {
             throw new common_1.UnauthorizedException('Refresh token is no longer valid');
         }
-        const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
+        const user = await this.prisma.user.findUnique({
+            where: { id: payload.sub },
+        });
         if (!user) {
             throw new common_1.UnauthorizedException('Account no longer exists');
         }
-        await this.prisma.refreshToken.update({ where: { id: stored.id }, data: { revoked: true } });
+        await this.prisma.refreshToken.update({
+            where: { id: stored.id },
+            data: { revoked: true },
+        });
         return this.issueTokenPair(user);
     }
     async me(userId) {
@@ -299,7 +322,12 @@ let AuthService = class AuthService {
             return new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
         }
         const value = Number(match[1]);
-        const unitMs = { s: 1000, m: 60_000, h: 3_600_000, d: 86_400_000 };
+        const unitMs = {
+            s: 1000,
+            m: 60_000,
+            h: 3_600_000,
+            d: 86_400_000,
+        };
         return new Date(Date.now() + value * unitMs[match[2]]);
     }
 };

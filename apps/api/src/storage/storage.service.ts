@@ -32,11 +32,18 @@ export class StorageService {
   private readonly mediaBaseUrl: string;
 
   constructor(private readonly config: ConfigService) {
-    this.rootPath = resolve(this.config.get<string>('STORAGE_LOCAL_PATH') ?? './uploads');
-    this.mediaBaseUrl = (this.config.get<string>('MEDIA_BASE_URL') ?? 'http://localhost:3001/media').replace(/\/$/, '');
+    this.rootPath = resolve(
+      this.config.get<string>('STORAGE_LOCAL_PATH') ?? './uploads',
+    );
+    this.mediaBaseUrl = (
+      this.config.get<string>('MEDIA_BASE_URL') ?? 'http://localhost:3001/media'
+    ).replace(/\/$/, '');
   }
 
-  async upload(file: Express.Multer.File, subfolder: string): Promise<UploadedObject> {
+  async upload(
+    file: Express.Multer.File,
+    subfolder: string,
+  ): Promise<UploadedObject> {
     const key = `${subfolder}/${randomUUID()}${extname(file.originalname).toLowerCase()}`;
     await this.write(key, file.buffer);
     return { key, url: this.getUrl(key) };

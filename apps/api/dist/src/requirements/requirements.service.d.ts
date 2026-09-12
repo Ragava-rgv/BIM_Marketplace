@@ -1,5 +1,6 @@
 import { Prisma, Quote, QuoteStatus, Requirement, RequirementMedia } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { StorageService } from '../storage/storage.service';
 import type { CreateRequirementDto } from './dto/create-requirement.dto';
 import type { UpdateRequirementDto } from './dto/update-requirement.dto';
@@ -9,7 +10,8 @@ import type { SubmitQuoteDto } from './dto/submit-quote.dto';
 export declare class RequirementsService {
     private readonly prisma;
     private readonly storage;
-    constructor(prisma: PrismaService, storage: StorageService);
+    private readonly notifications;
+    constructor(prisma: PrismaService, storage: StorageService, notifications: NotificationsService);
     create(buyerId: string, dto: CreateRequirementDto): Promise<Requirement>;
     findMine(buyerId: string): Promise<(Requirement & {
         media: RequirementMedia[];
@@ -23,20 +25,19 @@ export declare class RequirementsService {
     update(buyerId: string, id: string, dto: UpdateRequirementDto): Promise<Requirement>;
     close(buyerId: string, id: string): Promise<Requirement>;
     markFulfilled(buyerId: string, id: string): Promise<Requirement>;
-    submitForReview(buyerId: string, id: string): Promise<Requirement>;
     addMedia(buyerId: string, id: string, dto: UploadRequirementMediaDto, file: Express.Multer.File): Promise<RequirementMedia>;
     removeMedia(buyerId: string, id: string, mediaId: string): Promise<void>;
     browse(query: QueryRequirementsDto): Promise<{
         items: ({
             media: {
                 id: string;
-                type: import("@prisma/client").$Enums.MediaType;
                 url: string;
+                type: import("@prisma/client").$Enums.MediaType;
+                orderIndex: number;
+                isPrimary: boolean;
+                storageKey: string;
                 capturedAt: Date | null;
                 durationSeconds: number | null;
-                orderIndex: number;
-                storageKey: string;
-                isPrimary: boolean;
                 requirementId: string;
             }[];
             buyer: {
@@ -47,14 +48,15 @@ export declare class RequirementsService {
             };
         } & {
             id: string;
-            machineCategory: string;
+            createdAt: Date;
             locationCity: string | null;
             locationState: string | null;
-            createdAt: Date;
             updatedAt: Date;
-            description: string;
             status: import("@prisma/client").$Enums.RequirementStatus;
+            description: string;
+            subcategoryId: string | null;
             title: string;
+            machineCategory: string;
             machineSubcategory: string | null;
             manufactureYear: number | null;
             origin: import("@prisma/client").$Enums.ListingOrigin | null;
@@ -64,7 +66,6 @@ export declare class RequirementsService {
             catalogCategoryId: string | null;
             specs: Prisma.JsonValue | null;
             runningHours: number | null;
-            subcategoryId: string | null;
             postedAt: Date | null;
             buyerId: string;
             budgetMin: Prisma.Decimal | null;
@@ -82,40 +83,41 @@ export declare class RequirementsService {
     findAnyById(id: string): Promise<{
         media: {
             id: string;
-            type: import("@prisma/client").$Enums.MediaType;
             url: string;
+            type: import("@prisma/client").$Enums.MediaType;
+            orderIndex: number;
+            isPrimary: boolean;
+            storageKey: string;
             capturedAt: Date | null;
             durationSeconds: number | null;
-            orderIndex: number;
-            storageKey: string;
-            isPrimary: boolean;
             requirementId: string;
         }[];
         catalogCategory: ({
             specFields: {
                 id: string;
-                isFilterable: boolean;
-                unit: string | null;
-                filterType: import("@prisma/client").$Enums.SpecFilterType;
                 options: string[];
-                displayOrder: number;
                 categoryId: string;
+                subcategoryId: string | null;
                 fieldKey: string;
                 fieldLabel: string;
+                unit: string | null;
                 fieldType: import("@prisma/client").$Enums.SpecFieldType;
                 isRequired: boolean;
+                isFilterable: boolean;
+                filterType: import("@prisma/client").$Enums.SpecFilterType;
+                displayOrder: number;
                 helpText: string | null;
             }[];
         } & {
             id: string;
-            name: string;
             createdAt: Date;
+            name: string;
             updatedAt: Date;
             isActive: boolean;
             description: string | null;
             displayOrder: number;
-            slug: string;
             groupId: string | null;
+            slug: string;
             iconKey: string | null;
             imageUrl: string | null;
             thumbnailUrl: string | null;
@@ -124,15 +126,16 @@ export declare class RequirementsService {
         quotes: ({
             listing: {
                 id: string;
-                machineCategory: string;
+                createdAt: Date;
                 locationCity: string;
                 locationState: string;
-                createdAt: Date;
                 updatedAt: Date;
-                description: string;
                 status: import("@prisma/client").$Enums.ListingStatus;
                 sellerId: string;
+                description: string;
+                subcategoryId: string | null;
                 title: string;
+                machineCategory: string;
                 machineSubcategory: string | null;
                 machineMake: string;
                 machineModel: string;
@@ -148,7 +151,6 @@ export declare class RequirementsService {
                 runningHours: number | null;
                 serialNumber: string | null;
                 negotiable: boolean;
-                subcategoryId: string | null;
                 isBoosted: boolean;
                 boostExpiresAt: Date | null;
                 postedAt: Date | null;
@@ -159,14 +161,14 @@ export declare class RequirementsService {
                 fullName: string;
             };
         } & {
+            message: string | null;
             id: string;
-            machineCategory: string | null;
             createdAt: Date;
             updatedAt: Date;
-            description: string | null;
-            message: string | null;
             status: import("@prisma/client").$Enums.QuoteStatus;
             price: Prisma.Decimal | null;
+            description: string | null;
+            machineCategory: string | null;
             machineMake: string | null;
             machineModel: string | null;
             manufactureYear: number | null;
@@ -186,23 +188,24 @@ export declare class RequirementsService {
             adminReviewedAt: Date | null;
         })[];
         buyer: {
-            id: string;
-            email: string | null;
             phone: string;
+            id: string;
             fullName: string;
+            email: string | null;
             locationCity: string | null;
             locationState: string | null;
         };
     } & {
         id: string;
-        machineCategory: string;
+        createdAt: Date;
         locationCity: string | null;
         locationState: string | null;
-        createdAt: Date;
         updatedAt: Date;
-        description: string;
         status: import("@prisma/client").$Enums.RequirementStatus;
+        description: string;
+        subcategoryId: string | null;
         title: string;
+        machineCategory: string;
         machineSubcategory: string | null;
         manufactureYear: number | null;
         origin: import("@prisma/client").$Enums.ListingOrigin | null;
@@ -212,7 +215,6 @@ export declare class RequirementsService {
         catalogCategoryId: string | null;
         specs: Prisma.JsonValue | null;
         runningHours: number | null;
-        subcategoryId: string | null;
         postedAt: Date | null;
         buyerId: string;
         budgetMin: Prisma.Decimal | null;
@@ -226,31 +228,32 @@ export declare class RequirementsService {
             };
             media: {
                 id: string;
-                type: import("@prisma/client").$Enums.MediaType;
                 url: string;
+                type: import("@prisma/client").$Enums.MediaType;
+                orderIndex: number;
+                isPrimary: boolean;
+                storageKey: string;
                 capturedAt: Date | null;
                 durationSeconds: number | null;
-                orderIndex: number;
-                storageKey: string;
-                isPrimary: boolean;
                 requirementId: string;
             }[];
             buyer: {
-                id: string;
-                email: string | null;
                 phone: string;
+                id: string;
                 fullName: string;
+                email: string | null;
             };
         } & {
             id: string;
-            machineCategory: string;
+            createdAt: Date;
             locationCity: string | null;
             locationState: string | null;
-            createdAt: Date;
             updatedAt: Date;
-            description: string;
             status: import("@prisma/client").$Enums.RequirementStatus;
+            description: string;
+            subcategoryId: string | null;
             title: string;
+            machineCategory: string;
             machineSubcategory: string | null;
             manufactureYear: number | null;
             origin: import("@prisma/client").$Enums.ListingOrigin | null;
@@ -260,7 +263,6 @@ export declare class RequirementsService {
             catalogCategoryId: string | null;
             specs: Prisma.JsonValue | null;
             runningHours: number | null;
-            subcategoryId: string | null;
             postedAt: Date | null;
             buyerId: string;
             budgetMin: Prisma.Decimal | null;
@@ -271,9 +273,6 @@ export declare class RequirementsService {
         page: number;
         pageSize: number;
     }>;
-    approve(id: string): Promise<Requirement>;
-    reject(id: string): Promise<Requirement>;
-    private requirePendingReview;
     submitQuote(responderId: string, requirementId: string, dto: SubmitQuoteDto, photos: Express.Multer.File[]): Promise<Quote>;
     findMyQuotesGiven(responderId: string): Promise<({
         listing: {
@@ -282,28 +281,28 @@ export declare class RequirementsService {
         } | null;
         requirement: {
             id: string;
-            machineCategory: string;
             status: import("@prisma/client").$Enums.RequirementStatus;
             title: string;
+            machineCategory: string;
         };
         media: {
             id: string;
-            type: import("@prisma/client").$Enums.MediaType;
             url: string;
+            type: import("@prisma/client").$Enums.MediaType;
             orderIndex: number;
-            storageKey: string;
             isPrimary: boolean;
+            storageKey: string;
             quoteId: string;
         }[];
     } & {
+        message: string | null;
         id: string;
-        machineCategory: string | null;
         createdAt: Date;
         updatedAt: Date;
-        description: string | null;
-        message: string | null;
         status: import("@prisma/client").$Enums.QuoteStatus;
         price: Prisma.Decimal | null;
+        description: string | null;
+        machineCategory: string | null;
         machineMake: string | null;
         machineModel: string | null;
         manufactureYear: number | null;
@@ -322,30 +321,31 @@ export declare class RequirementsService {
         responderId: string;
         adminReviewedAt: Date | null;
     })[]>;
-    findApprovedQuotesForRequirement(buyerId: string, requirementId: string): Promise<({
+    findQuotesForRequirement(buyerId: string, requirementId: string): Promise<({
         listing: ({
             media: {
                 id: string;
-                type: import("@prisma/client").$Enums.MediaType;
                 url: string;
-                capturedAt: Date | null;
-                durationSeconds: number | null;
+                type: import("@prisma/client").$Enums.MediaType;
                 orderIndex: number;
+                isPrimary: boolean;
                 listingId: string;
                 storageKey: string;
-                isPrimary: boolean;
+                capturedAt: Date | null;
+                durationSeconds: number | null;
             }[];
         } & {
             id: string;
-            machineCategory: string;
+            createdAt: Date;
             locationCity: string;
             locationState: string;
-            createdAt: Date;
             updatedAt: Date;
-            description: string;
             status: import("@prisma/client").$Enums.ListingStatus;
             sellerId: string;
+            description: string;
+            subcategoryId: string | null;
             title: string;
+            machineCategory: string;
             machineSubcategory: string | null;
             machineMake: string;
             machineModel: string;
@@ -361,7 +361,6 @@ export declare class RequirementsService {
             runningHours: number | null;
             serialNumber: string | null;
             negotiable: boolean;
-            subcategoryId: string | null;
             isBoosted: boolean;
             boostExpiresAt: Date | null;
             postedAt: Date | null;
@@ -369,11 +368,11 @@ export declare class RequirementsService {
         }) | null;
         media: {
             id: string;
-            type: import("@prisma/client").$Enums.MediaType;
             url: string;
+            type: import("@prisma/client").$Enums.MediaType;
             orderIndex: number;
-            storageKey: string;
             isPrimary: boolean;
+            storageKey: string;
             quoteId: string;
         }[];
         responder: {
@@ -381,14 +380,14 @@ export declare class RequirementsService {
             fullName: string;
         };
     } & {
+        message: string | null;
         id: string;
-        machineCategory: string | null;
         createdAt: Date;
         updatedAt: Date;
-        description: string | null;
-        message: string | null;
         status: import("@prisma/client").$Enums.QuoteStatus;
         price: Prisma.Decimal | null;
+        description: string | null;
+        machineCategory: string | null;
         machineMake: string | null;
         machineModel: string | null;
         manufactureYear: number | null;
@@ -403,6 +402,7 @@ export declare class RequirementsService {
         responderId: string;
         adminReviewedAt: Date | null;
     })[]>;
+    withdrawQuote(responderId: string, id: string): Promise<Quote>;
     adminListQuotes(status?: QuoteStatus): Promise<({
         listing: {
             id: string;
@@ -411,8 +411,8 @@ export declare class RequirementsService {
         } | null;
         requirement: {
             id: string;
-            machineCategory: string;
             title: string;
+            machineCategory: string;
             buyer: {
                 id: string;
                 fullName: string;
@@ -420,29 +420,29 @@ export declare class RequirementsService {
         };
         media: {
             id: string;
-            type: import("@prisma/client").$Enums.MediaType;
             url: string;
+            type: import("@prisma/client").$Enums.MediaType;
             orderIndex: number;
-            storageKey: string;
             isPrimary: boolean;
+            storageKey: string;
             quoteId: string;
         }[];
         responder: {
-            id: string;
-            email: string | null;
             phone: string;
+            id: string;
             fullName: string;
+            email: string | null;
             gstStatus: import("@prisma/client").$Enums.GstStatus;
         };
     } & {
+        message: string | null;
         id: string;
-        machineCategory: string | null;
         createdAt: Date;
         updatedAt: Date;
-        description: string | null;
-        message: string | null;
         status: import("@prisma/client").$Enums.QuoteStatus;
         price: Prisma.Decimal | null;
+        description: string | null;
+        machineCategory: string | null;
         machineMake: string | null;
         machineModel: string | null;
         manufactureYear: number | null;
@@ -461,7 +461,4 @@ export declare class RequirementsService {
         responderId: string;
         adminReviewedAt: Date | null;
     })[]>;
-    approveQuote(id: string): Promise<Quote>;
-    rejectQuote(id: string): Promise<Quote>;
-    private requirePendingQuote;
 }

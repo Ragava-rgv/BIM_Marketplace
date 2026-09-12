@@ -46,7 +46,9 @@ __decorate([
     __metadata("design:type", String)
 ], SubmitQuoteDto.prototype, "contactName", void 0);
 __decorate([
-    (0, class_validator_1.Matches)(/^[6-9]\d{9}$/, { message: 'contactPhone must be a valid 10-digit Indian mobile number' }),
+    (0, class_validator_1.Matches)(/^[6-9]\d{9}$/, {
+        message: 'contactPhone must be a valid 10-digit Indian mobile number',
+    }),
     __metadata("design:type", String)
 ], SubmitQuoteDto.prototype, "contactPhone", void 0);
 __decorate([
@@ -126,7 +128,7 @@ __decorate([
 ], SubmitQuoteDto.prototype, "description", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
-    (0, class_transformer_1.Transform)(({ value }) => (typeof value === 'string' ? JSON.parse(value) : value)),
+    (0, class_transformer_1.Transform)(({ value }) => typeof value === 'string' ? JSON.parse(value) : value),
     (0, class_validator_1.IsObject)(),
     __metadata("design:type", Object)
 ], SubmitQuoteDto.prototype, "specs", void 0);

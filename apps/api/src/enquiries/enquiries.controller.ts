@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { UserRole } from '@prisma/client';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -16,7 +24,10 @@ export class EnquiriesController {
 
   @Post()
   @Roles(UserRole.BUYER, UserRole.SELLER)
-  async create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateEnquiryDto) {
+  async create(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: CreateEnquiryDto,
+  ) {
     return this.enquiries.create(user.id, dto.listingId);
   }
 

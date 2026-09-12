@@ -53,7 +53,10 @@ export class RequirementsController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.BUYER, UserRole.SELLER)
-  async create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateRequirementDto) {
+  async create(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: CreateRequirementDto,
+  ) {
     return this.requirements.create(user.id, dto);
   }
 
@@ -67,23 +70,22 @@ export class RequirementsController {
   @Get('mine/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.BUYER, UserRole.SELLER)
-  async findOwned(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+  async findOwned(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ) {
     return this.requirements.findOwned(user.id, id);
   }
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.BUYER, UserRole.SELLER)
-  async update(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string, @Body() dto: UpdateRequirementDto) {
+  async update(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() dto: UpdateRequirementDto,
+  ) {
     return this.requirements.update(user.id, id, dto);
-  }
-
-  @Post(':id/submit')
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.BUYER, UserRole.SELLER)
-  async submit(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.requirements.submitForReview(user.id, id);
   }
 
   @Post(':id/close')
@@ -98,14 +100,19 @@ export class RequirementsController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.BUYER, UserRole.SELLER)
-  async markFulfilled(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+  async markFulfilled(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ) {
     return this.requirements.markFulfilled(user.id, id);
   }
 
   @Post(':id/media')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.BUYER, UserRole.SELLER)
-  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: MAX_UPLOAD_BYTES } }))
+  @UseInterceptors(
+    FileInterceptor('file', { limits: { fileSize: MAX_UPLOAD_BYTES } }),
+  )
   async addMedia(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
@@ -119,7 +126,11 @@ export class RequirementsController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.BUYER, UserRole.SELLER)
-  async removeMedia(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string, @Param('mediaId') mediaId: string) {
+  async removeMedia(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Param('mediaId') mediaId: string,
+  ) {
     await this.requirements.removeMedia(user.id, id, mediaId);
     return { removed: true };
   }
@@ -127,8 +138,11 @@ export class RequirementsController {
   @Get(':id/quotes')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.BUYER, UserRole.SELLER)
-  async approvedQuotes(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.requirements.findApprovedQuotesForRequirement(user.id, id);
+  async quotesReceived(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ) {
+    return this.requirements.findQuotesForRequirement(user.id, id);
   }
 
   // -- Seller: submit a quote against a live requirement -------------------------
@@ -136,7 +150,11 @@ export class RequirementsController {
   @Post(':id/quotes')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.SELLER)
-  @UseInterceptors(FilesInterceptor('photos', MAX_QUOTE_PHOTOS, { limits: { fileSize: MAX_QUOTE_PHOTO_BYTES } }))
+  @UseInterceptors(
+    FilesInterceptor('photos', MAX_QUOTE_PHOTOS, {
+      limits: { fileSize: MAX_QUOTE_PHOTO_BYTES },
+    }),
+  )
   async submitQuote(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,

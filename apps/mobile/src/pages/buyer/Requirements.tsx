@@ -8,9 +8,6 @@ import { PlusIcon, MachineIcon } from '../../components/icons';
 
 const STATUS_STYLE: Record<string, string> = {
   ACTIVE: 'bg-green-bg text-green-txt',
-  PENDING_REVIEW: 'bg-copper-bg text-copper',
-  DRAFT: 'bg-gray-100 text-gray-600',
-  REJECTED: 'bg-red-50 text-red-600',
   FULFILLED: 'bg-forest text-white',
   CLOSED: 'bg-gray-200 text-gray-600',
 };

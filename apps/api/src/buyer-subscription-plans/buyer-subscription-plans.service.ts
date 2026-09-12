@@ -39,7 +39,9 @@ export class BuyerSubscriptionPlansService {
       where: { name: dto.name },
     });
     if (existing && !existing.deletedAt) {
-      throw new BadRequestException(`A plan named "${dto.name}" already exists`);
+      throw new BadRequestException(
+        `A plan named "${dto.name}" already exists`,
+      );
     }
 
     return this.prisma.$transaction(async (tx) => {
@@ -73,7 +75,10 @@ export class BuyerSubscriptionPlansService {
       const conflict = await this.prisma.buyerSubscriptionPlan.findFirst({
         where: { name: dto.name, deletedAt: null, NOT: { id } },
       });
-      if (conflict) throw new BadRequestException(`A plan named "${dto.name}" already exists`);
+      if (conflict)
+        throw new BadRequestException(
+          `A plan named "${dto.name}" already exists`,
+        );
     }
 
     // Guard against leaving zero default plans.
@@ -94,11 +99,21 @@ export class BuyerSubscriptionPlansService {
         where: { id },
         data: {
           ...(dto.name !== undefined && { name: dto.name }),
-          ...(dto.displayName !== undefined && { displayName: dto.displayName }),
-          ...(dto.contactViewQuota !== undefined && { contactViewQuota: dto.contactViewQuota }),
-          ...(dto.priceInr !== undefined && { priceInr: new Prisma.Decimal(dto.priceInr) }),
-          ...(dto.durationDays !== undefined && { durationDays: dto.durationDays ?? null }),
-          ...(dto.description !== undefined && { description: dto.description }),
+          ...(dto.displayName !== undefined && {
+            displayName: dto.displayName,
+          }),
+          ...(dto.contactViewQuota !== undefined && {
+            contactViewQuota: dto.contactViewQuota,
+          }),
+          ...(dto.priceInr !== undefined && {
+            priceInr: new Prisma.Decimal(dto.priceInr),
+          }),
+          ...(dto.durationDays !== undefined && {
+            durationDays: dto.durationDays ?? null,
+          }),
+          ...(dto.description !== undefined && {
+            description: dto.description,
+          }),
           ...(dto.sortOrder !== undefined && { sortOrder: dto.sortOrder }),
           ...(dto.isActive !== undefined && { isActive: dto.isActive }),
           ...(dto.isFree !== undefined && { isFree: dto.isFree }),
@@ -132,12 +147,18 @@ export class BuyerSubscriptionPlansService {
 
   /** Hard delete — only permitted once the plan is already soft-deleted and has no dependents. */
   async purge(id: string) {
-    const plan = await this.prisma.buyerSubscriptionPlan.findUnique({ where: { id } });
+    const plan = await this.prisma.buyerSubscriptionPlan.findUnique({
+      where: { id },
+    });
     if (!plan) throw new NotFoundException('Buyer subscription plan not found');
     if (!plan.deletedAt) {
-      throw new BadRequestException('Soft-delete this plan before permanently purging it.');
+      throw new BadRequestException(
+        'Soft-delete this plan before permanently purging it.',
+      );
     }
-    const dependents = await this.prisma.buyerSubscription.count({ where: { planId: id } });
+    const dependents = await this.prisma.buyerSubscription.count({
+      where: { planId: id },
+    });
     if (dependents > 0) {
       throw new BadRequestException(
         `Cannot purge a plan with ${dependents} subscription record(s) still referencing it.`,

@@ -25,7 +25,8 @@ const SELLER_CONTACT_SELECT = {
 function resolveAddress(seller) {
     if (seller.address)
         return seller.address;
-    return [seller.locationCity, seller.locationState].filter(Boolean).join(', ') || 'Not provided';
+    return ([seller.locationCity, seller.locationState].filter(Boolean).join(', ') ||
+        'Not provided');
 }
 let BuyerSubscriptionsService = class BuyerSubscriptionsService {
     prisma;
@@ -124,7 +125,9 @@ let BuyerSubscriptionsService = class BuyerSubscriptionsService {
             where: this.activeWhere(buyerId),
             orderBy: { createdAt: 'desc' },
         });
-        const carryOver = current ? Math.max(0, current.quotaTotal - current.quotaUsed) : 0;
+        const carryOver = current
+            ? Math.max(0, current.quotaTotal - current.quotaUsed)
+            : 0;
         const now = new Date();
         const expiresAt = plan.durationDays
             ? new Date(now.getTime() + plan.durationDays * 24 * 60 * 60 * 1000)
@@ -210,7 +213,13 @@ let BuyerSubscriptionsService = class BuyerSubscriptionsService {
         });
         if (existingView) {
             const status = await this.getStatus(buyerId);
-            return { contact, quotaUsed: status.quotaUsed, quotaTotal: status.quotaTotal, quotaRemaining: status.quotaRemaining, isIdempotent: true };
+            return {
+                contact,
+                quotaUsed: status.quotaUsed,
+                quotaTotal: status.quotaTotal,
+                quotaRemaining: status.quotaRemaining,
+                isIdempotent: true,
+            };
         }
         const subscription = await this.getOrProvisionActiveSubscription(buyerId);
         if (subscription.quotaUsed >= subscription.quotaTotal) {
@@ -224,7 +233,10 @@ let BuyerSubscriptionsService = class BuyerSubscriptionsService {
         }
         const result = await this.prisma.$transaction(async (tx) => {
             const updated = await tx.buyerSubscription.updateMany({
-                where: { id: subscription.id, quotaUsed: { lt: subscription.quotaTotal } },
+                where: {
+                    id: subscription.id,
+                    quotaUsed: { lt: subscription.quotaTotal },
+                },
                 data: { quotaUsed: { increment: 1 } },
             });
             if (updated.count === 0) {
@@ -232,15 +244,23 @@ let BuyerSubscriptionsService = class BuyerSubscriptionsService {
             }
             try {
                 await tx.contactView.create({
-                    data: { buyerId, listingId, sellerId: listing.sellerId, buyerSubscriptionId: subscription.id },
+                    data: {
+                        buyerId,
+                        listingId,
+                        sellerId: listing.sellerId,
+                        buyerSubscriptionId: subscription.id,
+                    },
                 });
             }
             catch (err) {
-                if (!(err instanceof client_1.Prisma.PrismaClientKnownRequestError) || err.code !== 'P2002') {
+                if (!(err instanceof client_1.Prisma.PrismaClientKnownRequestError) ||
+                    err.code !== 'P2002') {
                     throw err;
                 }
             }
-            return tx.buyerSubscription.findUnique({ where: { id: subscription.id } });
+            return tx.buyerSubscription.findUnique({
+                where: { id: subscription.id },
+            });
         });
         if (!result) {
             throw new common_1.ForbiddenException({
@@ -295,7 +315,9 @@ let BuyerSubscriptionsService = class BuyerSubscriptionsService {
                 where,
                 include: {
                     plan: true,
-                    buyer: { select: { id: true, fullName: true, phone: true, email: true } },
+                    buyer: {
+                        select: { id: true, fullName: true, phone: true, email: true },
+                    },
                 },
                 orderBy: { createdAt: 'desc' },
                 skip: (page - 1) * pageSize,
@@ -323,7 +345,12 @@ let BuyerSubscriptionsService = class BuyerSubscriptionsService {
                 adjustedAt: new Date(),
                 adjustmentReason: reason,
             },
-            include: { plan: true, buyer: { select: { id: true, fullName: true, phone: true, email: true } } },
+            include: {
+                plan: true,
+                buyer: {
+                    select: { id: true, fullName: true, phone: true, email: true },
+                },
+            },
         });
     }
 };

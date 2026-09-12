@@ -140,7 +140,15 @@ class AdminQueryListingsDto extends QueryListingsDto {
 exports.AdminQueryListingsDto = AdminQueryListingsDto;
 __decorate([
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsIn)(['DRAFT', 'PENDING_REVIEW', 'ACTIVE', 'UNDER_OFFER', 'SOLD', 'REJECTED', 'WITHDRAWN']),
+    (0, class_validator_1.IsIn)([
+        'DRAFT',
+        'PENDING_REVIEW',
+        'ACTIVE',
+        'UNDER_OFFER',
+        'SOLD',
+        'REJECTED',
+        'WITHDRAWN',
+    ]),
     __metadata("design:type", String)
 ], AdminQueryListingsDto.prototype, "status", void 0);
 __decorate([

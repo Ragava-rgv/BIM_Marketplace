@@ -10,6 +10,7 @@ exports.RequirementsModule = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_module_1 = require("../prisma/prisma.module");
 const storage_module_1 = require("../storage/storage.module");
+const notifications_module_1 = require("../notifications/notifications.module");
 const requirements_controller_1 = require("./requirements.controller");
 const quotes_controller_1 = require("./quotes.controller");
 const requirements_service_1 = require("./requirements.service");
@@ -18,7 +19,7 @@ let RequirementsModule = class RequirementsModule {
 exports.RequirementsModule = RequirementsModule;
 exports.RequirementsModule = RequirementsModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule, storage_module_1.StorageModule],
+        imports: [prisma_module_1.PrismaModule, storage_module_1.StorageModule, notifications_module_1.NotificationsModule],
         controllers: [requirements_controller_1.RequirementsController, quotes_controller_1.QuotesController],
         providers: [requirements_service_1.RequirementsService],
         exports: [requirements_service_1.RequirementsService],

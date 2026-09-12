@@ -15,7 +15,11 @@ let CatalogModule = class CatalogModule {
 exports.CatalogModule = CatalogModule;
 exports.CatalogModule = CatalogModule = __decorate([
     (0, common_1.Module)({
-        controllers: [catalog_controller_1.CategoryGroupsController, catalog_controller_1.CategoriesController, catalog_controller_1.AdminCatalogController],
+        controllers: [
+            catalog_controller_1.CategoryGroupsController,
+            catalog_controller_1.CategoriesController,
+            catalog_controller_1.AdminCatalogController,
+        ],
         providers: [catalog_service_1.CatalogService],
         exports: [catalog_service_1.CatalogService],
     })

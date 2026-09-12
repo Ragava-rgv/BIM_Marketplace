@@ -104,17 +104,13 @@
       "COMPLETED": "Completed"
     },
     "requirement": {
-      "DRAFT": "Draft",
-      "PENDING_REVIEW": "Pending review",
       "ACTIVE": "Active",
       "FULFILLED": "Fulfilled",
-      "CLOSED": "Closed",
-      "REJECTED": "Rejected"
+      "CLOSED": "Closed"
     },
     "quote": {
-      "PENDING_ADMIN": "Pending review",
-      "APPROVED": "Approved",
-      "REJECTED": "Rejected"
+      "SUBMITTED": "Submitted",
+      "WITHDRAWN": "Withdrawn"
     }
   },
   "role": {

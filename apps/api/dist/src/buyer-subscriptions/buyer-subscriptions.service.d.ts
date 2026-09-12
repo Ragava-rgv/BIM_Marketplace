@@ -17,12 +17,12 @@ export declare class BuyerSubscriptionsService {
         subscription: {
             plan: {
                 id: string;
-                name: string;
                 createdAt: Date;
+                name: string;
                 updatedAt: Date;
+                durationDays: number | null;
                 displayName: string;
                 priceInr: Prisma.Decimal;
-                durationDays: number | null;
                 isActive: boolean;
                 isFree: boolean;
                 description: string | null;
@@ -33,18 +33,18 @@ export declare class BuyerSubscriptionsService {
             } | null;
         } & {
             id: string;
+            expiresAt: Date | null;
             createdAt: Date;
             updatedAt: Date;
-            durationDays: number | null;
-            deletedAt: Date | null;
-            expiresAt: Date | null;
             status: import("@prisma/client").$Enums.SubscriptionStatus;
-            planId: string | null;
+            price: Prisma.Decimal;
+            durationDays: number | null;
+            startsAt: Date;
             razorpayOrderId: string | null;
             razorpayPaymentId: string | null;
-            price: Prisma.Decimal;
-            startsAt: Date;
             buyerId: string;
+            deletedAt: Date | null;
+            planId: string | null;
             quotaTotal: number;
             quotaUsed: number;
             adjustedBy: string | null;
@@ -61,12 +61,12 @@ export declare class BuyerSubscriptionsService {
     verifyAndActivate(buyerId: string, dto: VerifyBuyerSubscriptionDto): Promise<{
         plan: {
             id: string;
-            name: string;
             createdAt: Date;
+            name: string;
             updatedAt: Date;
+            durationDays: number | null;
             displayName: string;
             priceInr: Prisma.Decimal;
-            durationDays: number | null;
             isActive: boolean;
             isFree: boolean;
             description: string | null;
@@ -77,18 +77,18 @@ export declare class BuyerSubscriptionsService {
         } | null;
     } & {
         id: string;
+        expiresAt: Date | null;
         createdAt: Date;
         updatedAt: Date;
-        durationDays: number | null;
-        deletedAt: Date | null;
-        expiresAt: Date | null;
         status: import("@prisma/client").$Enums.SubscriptionStatus;
-        planId: string | null;
+        price: Prisma.Decimal;
+        durationDays: number | null;
+        startsAt: Date;
         razorpayOrderId: string | null;
         razorpayPaymentId: string | null;
-        price: Prisma.Decimal;
-        startsAt: Date;
         buyerId: string;
+        deletedAt: Date | null;
+        planId: string | null;
         quotaTotal: number;
         quotaUsed: number;
         adjustedBy: string | null;
@@ -129,8 +129,8 @@ export declare class BuyerSubscriptionsService {
         items: ({
             listing: {
                 id: string;
-                machineCategory: string;
                 title: string;
+                machineCategory: string;
             };
             seller: {
                 id: string;
@@ -140,11 +140,11 @@ export declare class BuyerSubscriptionsService {
         } & {
             id: string;
             createdAt: Date;
-            deletedAt: Date | null;
             sellerId: string;
             listingId: string;
             viewedAt: Date;
             buyerId: string;
+            deletedAt: Date | null;
             buyerSubscriptionId: string;
         })[];
         total: number;
@@ -155,12 +155,12 @@ export declare class BuyerSubscriptionsService {
         items: ({
             plan: {
                 id: string;
-                name: string;
                 createdAt: Date;
+                name: string;
                 updatedAt: Date;
+                durationDays: number | null;
                 displayName: string;
                 priceInr: Prisma.Decimal;
-                durationDays: number | null;
                 isActive: boolean;
                 isFree: boolean;
                 description: string | null;
@@ -170,25 +170,25 @@ export declare class BuyerSubscriptionsService {
                 deletedAt: Date | null;
             } | null;
             buyer: {
-                id: string;
-                email: string | null;
                 phone: string;
+                id: string;
                 fullName: string;
+                email: string | null;
             };
         } & {
             id: string;
+            expiresAt: Date | null;
             createdAt: Date;
             updatedAt: Date;
-            durationDays: number | null;
-            deletedAt: Date | null;
-            expiresAt: Date | null;
             status: import("@prisma/client").$Enums.SubscriptionStatus;
-            planId: string | null;
+            price: Prisma.Decimal;
+            durationDays: number | null;
+            startsAt: Date;
             razorpayOrderId: string | null;
             razorpayPaymentId: string | null;
-            price: Prisma.Decimal;
-            startsAt: Date;
             buyerId: string;
+            deletedAt: Date | null;
+            planId: string | null;
             quotaTotal: number;
             quotaUsed: number;
             adjustedBy: string | null;
@@ -202,12 +202,12 @@ export declare class BuyerSubscriptionsService {
     adjustQuota(id: string, adminId: string, delta: number, reason: string): Promise<{
         plan: {
             id: string;
-            name: string;
             createdAt: Date;
+            name: string;
             updatedAt: Date;
+            durationDays: number | null;
             displayName: string;
             priceInr: Prisma.Decimal;
-            durationDays: number | null;
             isActive: boolean;
             isFree: boolean;
             description: string | null;
@@ -217,25 +217,25 @@ export declare class BuyerSubscriptionsService {
             deletedAt: Date | null;
         } | null;
         buyer: {
-            id: string;
-            email: string | null;
             phone: string;
+            id: string;
             fullName: string;
+            email: string | null;
         };
     } & {
         id: string;
+        expiresAt: Date | null;
         createdAt: Date;
         updatedAt: Date;
-        durationDays: number | null;
-        deletedAt: Date | null;
-        expiresAt: Date | null;
         status: import("@prisma/client").$Enums.SubscriptionStatus;
-        planId: string | null;
+        price: Prisma.Decimal;
+        durationDays: number | null;
+        startsAt: Date;
         razorpayOrderId: string | null;
         razorpayPaymentId: string | null;
-        price: Prisma.Decimal;
-        startsAt: Date;
         buyerId: string;
+        deletedAt: Date | null;
+        planId: string | null;
         quotaTotal: number;
         quotaUsed: number;
         adjustedBy: string | null;

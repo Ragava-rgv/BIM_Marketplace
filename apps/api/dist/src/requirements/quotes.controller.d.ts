@@ -10,28 +10,28 @@ export declare class QuotesController {
         } | null;
         requirement: {
             id: string;
-            machineCategory: string;
             status: import("@prisma/client").$Enums.RequirementStatus;
             title: string;
+            machineCategory: string;
         };
         media: {
             id: string;
-            type: import("@prisma/client").$Enums.MediaType;
             url: string;
+            type: import("@prisma/client").$Enums.MediaType;
             orderIndex: number;
-            storageKey: string;
             isPrimary: boolean;
+            storageKey: string;
             quoteId: string;
         }[];
     } & {
+        message: string | null;
         id: string;
-        machineCategory: string | null;
         createdAt: Date;
         updatedAt: Date;
-        description: string | null;
-        message: string | null;
         status: import("@prisma/client").$Enums.QuoteStatus;
         price: import("@prisma/client/runtime/library").Decimal | null;
+        description: string | null;
+        machineCategory: string | null;
         machineMake: string | null;
         machineModel: string | null;
         manufactureYear: number | null;
@@ -50,4 +50,31 @@ export declare class QuotesController {
         responderId: string;
         adminReviewedAt: Date | null;
     })[]>;
+    withdraw(user: AuthenticatedUser, id: string): Promise<{
+        message: string | null;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        status: import("@prisma/client").$Enums.QuoteStatus;
+        price: import("@prisma/client/runtime/library").Decimal | null;
+        description: string | null;
+        machineCategory: string | null;
+        machineMake: string | null;
+        machineModel: string | null;
+        manufactureYear: number | null;
+        origin: import("@prisma/client").$Enums.ListingOrigin | null;
+        importedCountry: string | null;
+        condition: import("@prisma/client").$Enums.ListingCondition | null;
+        catalogCategoryId: string | null;
+        specs: import("@prisma/client/runtime/library").JsonValue | null;
+        listingId: string | null;
+        contactName: string | null;
+        contactPhone: string | null;
+        contactEmail: string | null;
+        contactCompany: string | null;
+        machineLocation: string | null;
+        requirementId: string;
+        responderId: string;
+        adminReviewedAt: Date | null;
+    }>;
 }

@@ -15,32 +15,33 @@ export declare class AdminController {
         items: ({
             media: {
                 id: string;
-                type: import("@prisma/client").$Enums.MediaType;
                 url: string;
-                capturedAt: Date | null;
-                durationSeconds: number | null;
+                type: import("@prisma/client").$Enums.MediaType;
                 orderIndex: number;
+                isPrimary: boolean;
                 listingId: string;
                 storageKey: string;
-                isPrimary: boolean;
+                capturedAt: Date | null;
+                durationSeconds: number | null;
             }[];
             seller: {
-                id: string;
-                email: string | null;
                 phone: string;
+                id: string;
                 fullName: string;
+                email: string | null;
             };
         } & {
             id: string;
-            machineCategory: string;
+            createdAt: Date;
             locationCity: string;
             locationState: string;
-            createdAt: Date;
             updatedAt: Date;
-            description: string;
             status: import("@prisma/client").$Enums.ListingStatus;
             sellerId: string;
+            description: string;
+            subcategoryId: string | null;
             title: string;
+            machineCategory: string;
             machineSubcategory: string | null;
             machineMake: string;
             machineModel: string;
@@ -56,7 +57,6 @@ export declare class AdminController {
             runningHours: number | null;
             serialNumber: string | null;
             negotiable: boolean;
-            subcategoryId: string | null;
             isBoosted: boolean;
             boostExpiresAt: Date | null;
             postedAt: Date | null;
@@ -69,51 +69,52 @@ export declare class AdminController {
     listingDetail(id: string): Promise<{
         media: {
             id: string;
-            type: import("@prisma/client").$Enums.MediaType;
             url: string;
-            capturedAt: Date | null;
-            durationSeconds: number | null;
+            type: import("@prisma/client").$Enums.MediaType;
             orderIndex: number;
+            isPrimary: boolean;
             listingId: string;
             storageKey: string;
-            isPrimary: boolean;
+            capturedAt: Date | null;
+            durationSeconds: number | null;
         }[];
         seller: {
-            id: string;
-            email: string | null;
             phone: string;
+            id: string;
             fullName: string;
+            email: string | null;
+            locationCity: string | null;
+            locationState: string | null;
             gstNumber: string | null;
             businessName: string | null;
             gstStatus: import("@prisma/client").$Enums.GstStatus;
-            locationCity: string | null;
-            locationState: string | null;
         };
         catalogCategory: ({
             specFields: {
                 id: string;
-                isFilterable: boolean;
-                unit: string | null;
-                filterType: import("@prisma/client").$Enums.SpecFilterType;
                 options: string[];
-                displayOrder: number;
                 categoryId: string;
+                subcategoryId: string | null;
                 fieldKey: string;
                 fieldLabel: string;
+                unit: string | null;
                 fieldType: import("@prisma/client").$Enums.SpecFieldType;
                 isRequired: boolean;
+                isFilterable: boolean;
+                filterType: import("@prisma/client").$Enums.SpecFilterType;
+                displayOrder: number;
                 helpText: string | null;
             }[];
         } & {
             id: string;
-            name: string;
             createdAt: Date;
+            name: string;
             updatedAt: Date;
             isActive: boolean;
             description: string | null;
             displayOrder: number;
-            slug: string;
             groupId: string | null;
+            slug: string;
             iconKey: string | null;
             imageUrl: string | null;
             thumbnailUrl: string | null;
@@ -121,15 +122,16 @@ export declare class AdminController {
         }) | null;
     } & {
         id: string;
-        machineCategory: string;
+        createdAt: Date;
         locationCity: string;
         locationState: string;
-        createdAt: Date;
         updatedAt: Date;
-        description: string;
         status: import("@prisma/client").$Enums.ListingStatus;
         sellerId: string;
+        description: string;
+        subcategoryId: string | null;
         title: string;
+        machineCategory: string;
         machineSubcategory: string | null;
         machineMake: string;
         machineModel: string;
@@ -145,7 +147,6 @@ export declare class AdminController {
         runningHours: number | null;
         serialNumber: string | null;
         negotiable: boolean;
-        subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
         postedAt: Date | null;
@@ -153,15 +154,16 @@ export declare class AdminController {
     }>;
     approveListing(id: string): Promise<{
         id: string;
-        machineCategory: string;
+        createdAt: Date;
         locationCity: string;
         locationState: string;
-        createdAt: Date;
         updatedAt: Date;
-        description: string;
         status: import("@prisma/client").$Enums.ListingStatus;
         sellerId: string;
+        description: string;
+        subcategoryId: string | null;
         title: string;
+        machineCategory: string;
         machineSubcategory: string | null;
         machineMake: string;
         machineModel: string;
@@ -177,7 +179,6 @@ export declare class AdminController {
         runningHours: number | null;
         serialNumber: string | null;
         negotiable: boolean;
-        subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
         postedAt: Date | null;
@@ -185,15 +186,16 @@ export declare class AdminController {
     }>;
     rejectListing(id: string): Promise<{
         id: string;
-        machineCategory: string;
+        createdAt: Date;
         locationCity: string;
         locationState: string;
-        createdAt: Date;
         updatedAt: Date;
-        description: string;
         status: import("@prisma/client").$Enums.ListingStatus;
         sellerId: string;
+        description: string;
+        subcategoryId: string | null;
         title: string;
+        machineCategory: string;
         machineSubcategory: string | null;
         machineMake: string;
         machineModel: string;
@@ -209,7 +211,6 @@ export declare class AdminController {
         runningHours: number | null;
         serialNumber: string | null;
         negotiable: boolean;
-        subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
         postedAt: Date | null;
@@ -217,15 +218,16 @@ export declare class AdminController {
     }>;
     markSoldListing(id: string): Promise<{
         id: string;
-        machineCategory: string;
+        createdAt: Date;
         locationCity: string;
         locationState: string;
-        createdAt: Date;
         updatedAt: Date;
-        description: string;
         status: import("@prisma/client").$Enums.ListingStatus;
         sellerId: string;
+        description: string;
+        subcategoryId: string | null;
         title: string;
+        machineCategory: string;
         machineSubcategory: string | null;
         machineMake: string;
         machineModel: string;
@@ -241,7 +243,6 @@ export declare class AdminController {
         runningHours: number | null;
         serialNumber: string | null;
         negotiable: boolean;
-        subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
         postedAt: Date | null;
@@ -249,15 +250,16 @@ export declare class AdminController {
     }>;
     markInactiveListing(id: string): Promise<{
         id: string;
-        machineCategory: string;
+        createdAt: Date;
         locationCity: string;
         locationState: string;
-        createdAt: Date;
         updatedAt: Date;
-        description: string;
         status: import("@prisma/client").$Enums.ListingStatus;
         sellerId: string;
+        description: string;
+        subcategoryId: string | null;
         title: string;
+        machineCategory: string;
         machineSubcategory: string | null;
         machineMake: string;
         machineModel: string;
@@ -273,7 +275,6 @@ export declare class AdminController {
         runningHours: number | null;
         serialNumber: string | null;
         negotiable: boolean;
-        subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
         postedAt: Date | null;
@@ -281,15 +282,16 @@ export declare class AdminController {
     }>;
     reactivateListing(id: string): Promise<{
         id: string;
-        machineCategory: string;
+        createdAt: Date;
         locationCity: string;
         locationState: string;
-        createdAt: Date;
         updatedAt: Date;
-        description: string;
         status: import("@prisma/client").$Enums.ListingStatus;
         sellerId: string;
+        description: string;
+        subcategoryId: string | null;
         title: string;
+        machineCategory: string;
         machineSubcategory: string | null;
         machineMake: string;
         machineModel: string;
@@ -305,7 +307,6 @@ export declare class AdminController {
         runningHours: number | null;
         serialNumber: string | null;
         negotiable: boolean;
-        subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
         postedAt: Date | null;
@@ -326,31 +327,32 @@ export declare class AdminController {
             };
             media: {
                 id: string;
-                type: import("@prisma/client").$Enums.MediaType;
                 url: string;
+                type: import("@prisma/client").$Enums.MediaType;
+                orderIndex: number;
+                isPrimary: boolean;
+                storageKey: string;
                 capturedAt: Date | null;
                 durationSeconds: number | null;
-                orderIndex: number;
-                storageKey: string;
-                isPrimary: boolean;
                 requirementId: string;
             }[];
             buyer: {
-                id: string;
-                email: string | null;
                 phone: string;
+                id: string;
                 fullName: string;
+                email: string | null;
             };
         } & {
             id: string;
-            machineCategory: string;
+            createdAt: Date;
             locationCity: string | null;
             locationState: string | null;
-            createdAt: Date;
             updatedAt: Date;
-            description: string;
             status: import("@prisma/client").$Enums.RequirementStatus;
+            description: string;
+            subcategoryId: string | null;
             title: string;
+            machineCategory: string;
             machineSubcategory: string | null;
             manufactureYear: number | null;
             origin: import("@prisma/client").$Enums.ListingOrigin | null;
@@ -360,7 +362,6 @@ export declare class AdminController {
             catalogCategoryId: string | null;
             specs: import("@prisma/client/runtime/library").JsonValue | null;
             runningHours: number | null;
-            subcategoryId: string | null;
             postedAt: Date | null;
             buyerId: string;
             budgetMin: import("@prisma/client/runtime/library").Decimal | null;
@@ -374,40 +375,41 @@ export declare class AdminController {
     requirementDetail(id: string): Promise<{
         media: {
             id: string;
-            type: import("@prisma/client").$Enums.MediaType;
             url: string;
+            type: import("@prisma/client").$Enums.MediaType;
+            orderIndex: number;
+            isPrimary: boolean;
+            storageKey: string;
             capturedAt: Date | null;
             durationSeconds: number | null;
-            orderIndex: number;
-            storageKey: string;
-            isPrimary: boolean;
             requirementId: string;
         }[];
         catalogCategory: ({
             specFields: {
                 id: string;
-                isFilterable: boolean;
-                unit: string | null;
-                filterType: import("@prisma/client").$Enums.SpecFilterType;
                 options: string[];
-                displayOrder: number;
                 categoryId: string;
+                subcategoryId: string | null;
                 fieldKey: string;
                 fieldLabel: string;
+                unit: string | null;
                 fieldType: import("@prisma/client").$Enums.SpecFieldType;
                 isRequired: boolean;
+                isFilterable: boolean;
+                filterType: import("@prisma/client").$Enums.SpecFilterType;
+                displayOrder: number;
                 helpText: string | null;
             }[];
         } & {
             id: string;
-            name: string;
             createdAt: Date;
+            name: string;
             updatedAt: Date;
             isActive: boolean;
             description: string | null;
             displayOrder: number;
-            slug: string;
             groupId: string | null;
+            slug: string;
             iconKey: string | null;
             imageUrl: string | null;
             thumbnailUrl: string | null;
@@ -416,15 +418,16 @@ export declare class AdminController {
         quotes: ({
             listing: {
                 id: string;
-                machineCategory: string;
+                createdAt: Date;
                 locationCity: string;
                 locationState: string;
-                createdAt: Date;
                 updatedAt: Date;
-                description: string;
                 status: import("@prisma/client").$Enums.ListingStatus;
                 sellerId: string;
+                description: string;
+                subcategoryId: string | null;
                 title: string;
+                machineCategory: string;
                 machineSubcategory: string | null;
                 machineMake: string;
                 machineModel: string;
@@ -440,7 +443,6 @@ export declare class AdminController {
                 runningHours: number | null;
                 serialNumber: string | null;
                 negotiable: boolean;
-                subcategoryId: string | null;
                 isBoosted: boolean;
                 boostExpiresAt: Date | null;
                 postedAt: Date | null;
@@ -451,14 +453,14 @@ export declare class AdminController {
                 fullName: string;
             };
         } & {
+            message: string | null;
             id: string;
-            machineCategory: string | null;
             createdAt: Date;
             updatedAt: Date;
-            description: string | null;
-            message: string | null;
             status: import("@prisma/client").$Enums.QuoteStatus;
             price: import("@prisma/client/runtime/library").Decimal | null;
+            description: string | null;
+            machineCategory: string | null;
             machineMake: string | null;
             machineModel: string | null;
             manufactureYear: number | null;
@@ -478,23 +480,24 @@ export declare class AdminController {
             adminReviewedAt: Date | null;
         })[];
         buyer: {
-            id: string;
-            email: string | null;
             phone: string;
+            id: string;
             fullName: string;
+            email: string | null;
             locationCity: string | null;
             locationState: string | null;
         };
     } & {
         id: string;
-        machineCategory: string;
+        createdAt: Date;
         locationCity: string | null;
         locationState: string | null;
-        createdAt: Date;
         updatedAt: Date;
-        description: string;
         status: import("@prisma/client").$Enums.RequirementStatus;
+        description: string;
+        subcategoryId: string | null;
         title: string;
+        machineCategory: string;
         machineSubcategory: string | null;
         manufactureYear: number | null;
         origin: import("@prisma/client").$Enums.ListingOrigin | null;
@@ -504,59 +507,6 @@ export declare class AdminController {
         catalogCategoryId: string | null;
         specs: import("@prisma/client/runtime/library").JsonValue | null;
         runningHours: number | null;
-        subcategoryId: string | null;
-        postedAt: Date | null;
-        buyerId: string;
-        budgetMin: import("@prisma/client/runtime/library").Decimal | null;
-        budgetMax: import("@prisma/client/runtime/library").Decimal | null;
-        quantity: number | null;
-    }>;
-    approveRequirement(id: string): Promise<{
-        id: string;
-        machineCategory: string;
-        locationCity: string | null;
-        locationState: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        description: string;
-        status: import("@prisma/client").$Enums.RequirementStatus;
-        title: string;
-        machineSubcategory: string | null;
-        manufactureYear: number | null;
-        origin: import("@prisma/client").$Enums.ListingOrigin | null;
-        importedCountry: string | null;
-        complexityTier: import("@prisma/client").$Enums.ComplexityTier;
-        condition: import("@prisma/client").$Enums.ListingCondition | null;
-        catalogCategoryId: string | null;
-        specs: import("@prisma/client/runtime/library").JsonValue | null;
-        runningHours: number | null;
-        subcategoryId: string | null;
-        postedAt: Date | null;
-        buyerId: string;
-        budgetMin: import("@prisma/client/runtime/library").Decimal | null;
-        budgetMax: import("@prisma/client/runtime/library").Decimal | null;
-        quantity: number | null;
-    }>;
-    rejectRequirement(id: string): Promise<{
-        id: string;
-        machineCategory: string;
-        locationCity: string | null;
-        locationState: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        description: string;
-        status: import("@prisma/client").$Enums.RequirementStatus;
-        title: string;
-        machineSubcategory: string | null;
-        manufactureYear: number | null;
-        origin: import("@prisma/client").$Enums.ListingOrigin | null;
-        importedCountry: string | null;
-        complexityTier: import("@prisma/client").$Enums.ComplexityTier;
-        condition: import("@prisma/client").$Enums.ListingCondition | null;
-        catalogCategoryId: string | null;
-        specs: import("@prisma/client/runtime/library").JsonValue | null;
-        runningHours: number | null;
-        subcategoryId: string | null;
         postedAt: Date | null;
         buyerId: string;
         budgetMin: import("@prisma/client/runtime/library").Decimal | null;
@@ -571,8 +521,8 @@ export declare class AdminController {
         } | null;
         requirement: {
             id: string;
-            machineCategory: string;
             title: string;
+            machineCategory: string;
             buyer: {
                 id: string;
                 fullName: string;
@@ -580,29 +530,29 @@ export declare class AdminController {
         };
         media: {
             id: string;
-            type: import("@prisma/client").$Enums.MediaType;
             url: string;
+            type: import("@prisma/client").$Enums.MediaType;
             orderIndex: number;
-            storageKey: string;
             isPrimary: boolean;
+            storageKey: string;
             quoteId: string;
         }[];
         responder: {
-            id: string;
-            email: string | null;
             phone: string;
+            id: string;
             fullName: string;
+            email: string | null;
             gstStatus: import("@prisma/client").$Enums.GstStatus;
         };
     } & {
+        message: string | null;
         id: string;
-        machineCategory: string | null;
         createdAt: Date;
         updatedAt: Date;
-        description: string | null;
-        message: string | null;
         status: import("@prisma/client").$Enums.QuoteStatus;
         price: import("@prisma/client/runtime/library").Decimal | null;
+        description: string | null;
+        machineCategory: string | null;
         machineMake: string | null;
         machineModel: string | null;
         manufactureYear: number | null;
@@ -621,58 +571,4 @@ export declare class AdminController {
         responderId: string;
         adminReviewedAt: Date | null;
     })[]>;
-    approveQuote(id: string): Promise<{
-        id: string;
-        machineCategory: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        description: string | null;
-        message: string | null;
-        status: import("@prisma/client").$Enums.QuoteStatus;
-        price: import("@prisma/client/runtime/library").Decimal | null;
-        machineMake: string | null;
-        machineModel: string | null;
-        manufactureYear: number | null;
-        origin: import("@prisma/client").$Enums.ListingOrigin | null;
-        importedCountry: string | null;
-        condition: import("@prisma/client").$Enums.ListingCondition | null;
-        catalogCategoryId: string | null;
-        specs: import("@prisma/client/runtime/library").JsonValue | null;
-        listingId: string | null;
-        contactName: string | null;
-        contactPhone: string | null;
-        contactEmail: string | null;
-        contactCompany: string | null;
-        machineLocation: string | null;
-        requirementId: string;
-        responderId: string;
-        adminReviewedAt: Date | null;
-    }>;
-    rejectQuote(id: string): Promise<{
-        id: string;
-        machineCategory: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        description: string | null;
-        message: string | null;
-        status: import("@prisma/client").$Enums.QuoteStatus;
-        price: import("@prisma/client/runtime/library").Decimal | null;
-        machineMake: string | null;
-        machineModel: string | null;
-        manufactureYear: number | null;
-        origin: import("@prisma/client").$Enums.ListingOrigin | null;
-        importedCountry: string | null;
-        condition: import("@prisma/client").$Enums.ListingCondition | null;
-        catalogCategoryId: string | null;
-        specs: import("@prisma/client/runtime/library").JsonValue | null;
-        listingId: string | null;
-        contactName: string | null;
-        contactPhone: string | null;
-        contactEmail: string | null;
-        contactCompany: string | null;
-        machineLocation: string | null;
-        requirementId: string;
-        responderId: string;
-        adminReviewedAt: Date | null;
-    }>;
 }

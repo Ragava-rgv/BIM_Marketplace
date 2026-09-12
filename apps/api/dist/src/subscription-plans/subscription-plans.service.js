@@ -30,7 +30,9 @@ let SubscriptionPlansService = class SubscriptionPlansService {
         });
     }
     async findById(id) {
-        const plan = await this.prisma.subscriptionPlanConfig.findUnique({ where: { id } });
+        const plan = await this.prisma.subscriptionPlanConfig.findUnique({
+            where: { id },
+        });
         if (!plan)
             throw new common_1.NotFoundException('Subscription plan not found');
         return plan;
@@ -69,9 +71,15 @@ let SubscriptionPlansService = class SubscriptionPlansService {
             data: {
                 ...(dto.name !== undefined && { name: dto.name }),
                 ...(dto.displayName !== undefined && { displayName: dto.displayName }),
-                ...(dto.listingQuota !== undefined && { listingQuota: dto.listingQuota }),
-                ...(dto.priceInr !== undefined && { priceInr: new client_1.Prisma.Decimal(dto.priceInr) }),
-                ...(dto.durationDays !== undefined && { durationDays: dto.durationDays }),
+                ...(dto.listingQuota !== undefined && {
+                    listingQuota: dto.listingQuota,
+                }),
+                ...(dto.priceInr !== undefined && {
+                    priceInr: new client_1.Prisma.Decimal(dto.priceInr),
+                }),
+                ...(dto.durationDays !== undefined && {
+                    durationDays: dto.durationDays,
+                }),
                 ...(dto.description !== undefined && { description: dto.description }),
                 ...(dto.sortOrder !== undefined && { sortOrder: dto.sortOrder }),
                 ...(dto.isActive !== undefined && { isActive: dto.isActive }),

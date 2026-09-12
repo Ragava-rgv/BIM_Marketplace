@@ -20,17 +20,35 @@ let AdminService = class AdminService {
     }
     async dashboardSummary() {
         const [listingsPendingReview, listingsActive, listingsSold, listingsInactive, loansAwaitingAction, certificationsInProgress, commissionsPending, enquiriesNew,] = await this.prisma.$transaction([
-            this.prisma.listing.count({ where: { status: client_1.ListingStatus.PENDING_REVIEW } }),
+            this.prisma.listing.count({
+                where: { status: client_1.ListingStatus.PENDING_REVIEW },
+            }),
             this.prisma.listing.count({ where: { status: client_1.ListingStatus.ACTIVE } }),
             this.prisma.listing.count({ where: { status: client_1.ListingStatus.SOLD } }),
             this.prisma.listing.count({ where: { status: client_1.ListingStatus.WITHDRAWN } }),
             this.prisma.loanApplication.count({
-                where: { status: { in: [client_1.LoanApplicationStatus.CERT_PENDING, client_1.LoanApplicationStatus.WITH_PARTNER] } },
+                where: {
+                    status: {
+                        in: [
+                            client_1.LoanApplicationStatus.CERT_PENDING,
+                            client_1.LoanApplicationStatus.WITH_PARTNER,
+                        ],
+                    },
+                },
             }),
             this.prisma.certification.count({
-                where: { status: { in: [client_1.CertificationStatus.REQUESTED, client_1.CertificationStatus.IN_PROGRESS] } },
+                where: {
+                    status: {
+                        in: [
+                            client_1.CertificationStatus.REQUESTED,
+                            client_1.CertificationStatus.IN_PROGRESS,
+                        ],
+                    },
+                },
             }),
-            this.prisma.transaction.count({ where: { commissionStatus: client_1.CommissionStatus.PENDING } }),
+            this.prisma.transaction.count({
+                where: { commissionStatus: client_1.CommissionStatus.PENDING },
+            }),
             this.prisma.enquiry.count({ where: { status: client_1.EnquiryStatus.NEW } }),
         ]);
         return {

@@ -15,7 +15,10 @@ import { OtpService } from './otp.service';
  */
 describe('AuthService — seller mode switching (Bug 3)', () => {
   let service: AuthService;
-  let prisma: { user: { findUnique: jest.Mock; update: jest.Mock }; refreshToken: { create: jest.Mock } };
+  let prisma: {
+    user: { findUnique: jest.Mock; update: jest.Mock };
+    refreshToken: { create: jest.Mock };
+  };
 
   const baseUser = {
     id: 'user-1',
@@ -37,8 +40,14 @@ describe('AuthService — seller mode switching (Bug 3)', () => {
       providers: [
         AuthService,
         { provide: PrismaService, useValue: prisma },
-        { provide: JwtService, useValue: { signAsync: jest.fn().mockResolvedValue('token') } },
-        { provide: ConfigService, useValue: { get: jest.fn().mockReturnValue(undefined) } },
+        {
+          provide: JwtService,
+          useValue: { signAsync: jest.fn().mockResolvedValue('token') },
+        },
+        {
+          provide: ConfigService,
+          useValue: { get: jest.fn().mockReturnValue(undefined) },
+        },
         { provide: OtpService, useValue: {} },
       ],
     }).compile();
@@ -47,7 +56,10 @@ describe('AuthService — seller mode switching (Bug 3)', () => {
   });
 
   it('switchToSeller sets canSell, role, and activeMode when GST is ACTIVE', async () => {
-    prisma.user.findUnique.mockResolvedValue({ ...baseUser, gstStatus: GstStatus.ACTIVE });
+    prisma.user.findUnique.mockResolvedValue({
+      ...baseUser,
+      gstStatus: GstStatus.ACTIVE,
+    });
     prisma.user.update.mockResolvedValue({
       ...baseUser,
       gstStatus: GstStatus.ACTIVE,
@@ -65,22 +77,33 @@ describe('AuthService — seller mode switching (Bug 3)', () => {
   });
 
   it('switchToSeller is rejected when GST is not ACTIVE', async () => {
-    prisma.user.findUnique.mockResolvedValue({ ...baseUser, gstStatus: GstStatus.PENDING });
+    prisma.user.findUnique.mockResolvedValue({
+      ...baseUser,
+      gstStatus: GstStatus.PENDING,
+    });
 
-    await expect(service.switchToSeller('user-1')).rejects.toThrow(ForbiddenException);
+    await expect(service.switchToSeller('user-1')).rejects.toThrow(
+      ForbiddenException,
+    );
     expect(prisma.user.update).not.toHaveBeenCalled();
   });
 
   it('switchMode("SELLER") is rejected until canSell is true — this is why first-time enablement must call switchToSeller', async () => {
     prisma.user.findUnique.mockResolvedValue({ ...baseUser, canSell: false });
 
-    await expect(service.switchMode('user-1', 'SELLER')).rejects.toThrow(ForbiddenException);
+    await expect(service.switchMode('user-1', 'SELLER')).rejects.toThrow(
+      ForbiddenException,
+    );
     expect(prisma.user.update).not.toHaveBeenCalled();
   });
 
   it('switchMode("SELLER") succeeds once canSell is true, and persists activeMode', async () => {
     prisma.user.findUnique.mockResolvedValue({ ...baseUser, canSell: true });
-    prisma.user.update.mockResolvedValue({ ...baseUser, canSell: true, activeMode: 'SELLER' });
+    prisma.user.update.mockResolvedValue({
+      ...baseUser,
+      canSell: true,
+      activeMode: 'SELLER',
+    });
 
     const result = await service.switchMode('user-1', 'SELLER');
 

@@ -6,12 +6,12 @@ export declare class BuyerSubscriptionPlansService {
     constructor(prisma: PrismaService);
     listAll(): Prisma.PrismaPromise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number | null;
         displayName: string;
         priceInr: Prisma.Decimal;
-        durationDays: number | null;
         isActive: boolean;
         isFree: boolean;
         description: string | null;
@@ -22,12 +22,12 @@ export declare class BuyerSubscriptionPlansService {
     }[]>;
     listActive(): Prisma.PrismaPromise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number | null;
         displayName: string;
         priceInr: Prisma.Decimal;
-        durationDays: number | null;
         isActive: boolean;
         isFree: boolean;
         description: string | null;
@@ -38,12 +38,12 @@ export declare class BuyerSubscriptionPlansService {
     }[]>;
     findById(id: string): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number | null;
         displayName: string;
         priceInr: Prisma.Decimal;
-        durationDays: number | null;
         isActive: boolean;
         isFree: boolean;
         description: string | null;
@@ -54,12 +54,12 @@ export declare class BuyerSubscriptionPlansService {
     }>;
     create(dto: CreateBuyerPlanDto): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number | null;
         displayName: string;
         priceInr: Prisma.Decimal;
-        durationDays: number | null;
         isActive: boolean;
         isFree: boolean;
         description: string | null;
@@ -70,12 +70,12 @@ export declare class BuyerSubscriptionPlansService {
     }>;
     update(id: string, dto: UpdateBuyerPlanDto): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number | null;
         displayName: string;
         priceInr: Prisma.Decimal;
-        durationDays: number | null;
         isActive: boolean;
         isFree: boolean;
         description: string | null;
@@ -86,12 +86,12 @@ export declare class BuyerSubscriptionPlansService {
     }>;
     remove(id: string): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number | null;
         displayName: string;
         priceInr: Prisma.Decimal;
-        durationDays: number | null;
         isActive: boolean;
         isFree: boolean;
         description: string | null;
@@ -102,12 +102,12 @@ export declare class BuyerSubscriptionPlansService {
     }>;
     purge(id: string): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number | null;
         displayName: string;
         priceInr: Prisma.Decimal;
-        durationDays: number | null;
         isActive: boolean;
         isFree: boolean;
         description: string | null;

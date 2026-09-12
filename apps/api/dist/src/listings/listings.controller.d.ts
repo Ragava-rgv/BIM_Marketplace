@@ -13,26 +13,27 @@ export declare class ListingsController {
         items: ({
             media: {
                 id: string;
-                type: import("@prisma/client").$Enums.MediaType;
                 url: string;
-                capturedAt: Date | null;
-                durationSeconds: number | null;
+                type: import("@prisma/client").$Enums.MediaType;
                 orderIndex: number;
+                isPrimary: boolean;
                 listingId: string;
                 storageKey: string;
-                isPrimary: boolean;
+                capturedAt: Date | null;
+                durationSeconds: number | null;
             }[];
         } & {
             id: string;
-            machineCategory: string;
+            createdAt: Date;
             locationCity: string;
             locationState: string;
-            createdAt: Date;
             updatedAt: Date;
-            description: string;
             status: import("@prisma/client").$Enums.ListingStatus;
             sellerId: string;
+            description: string;
+            subcategoryId: string | null;
             title: string;
+            machineCategory: string;
             machineSubcategory: string | null;
             machineMake: string;
             machineModel: string;
@@ -48,7 +49,6 @@ export declare class ListingsController {
             runningHours: number | null;
             serialNumber: string | null;
             negotiable: boolean;
-            subcategoryId: string | null;
             isBoosted: boolean;
             boostExpiresAt: Date | null;
             postedAt: Date | null;
@@ -60,15 +60,16 @@ export declare class ListingsController {
     }>;
     getOne(id: string, user: AuthenticatedUser | undefined, req: Request): Promise<{
         id: string;
-        machineCategory: string;
+        createdAt: Date;
         locationCity: string;
         locationState: string;
-        createdAt: Date;
         updatedAt: Date;
-        description: string;
         status: import("@prisma/client").$Enums.ListingStatus;
         sellerId: string;
+        description: string;
+        subcategoryId: string | null;
         title: string;
+        machineCategory: string;
         machineSubcategory: string | null;
         machineMake: string;
         machineModel: string;
@@ -84,7 +85,6 @@ export declare class ListingsController {
         runningHours: number | null;
         serialNumber: string | null;
         negotiable: boolean;
-        subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
         postedAt: Date | null;
@@ -94,15 +94,16 @@ export declare class ListingsController {
     }>;
     create(user: AuthenticatedUser, dto: CreateListingDto): Promise<{
         id: string;
-        machineCategory: string;
+        createdAt: Date;
         locationCity: string;
         locationState: string;
-        createdAt: Date;
         updatedAt: Date;
-        description: string;
         status: import("@prisma/client").$Enums.ListingStatus;
         sellerId: string;
+        description: string;
+        subcategoryId: string | null;
         title: string;
+        machineCategory: string;
         machineSubcategory: string | null;
         machineMake: string;
         machineModel: string;
@@ -118,7 +119,6 @@ export declare class ListingsController {
         runningHours: number | null;
         serialNumber: string | null;
         negotiable: boolean;
-        subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
         postedAt: Date | null;
@@ -126,15 +126,16 @@ export declare class ListingsController {
     }>;
     findMine(user: AuthenticatedUser): Promise<{
         id: string;
-        machineCategory: string;
+        createdAt: Date;
         locationCity: string;
         locationState: string;
-        createdAt: Date;
         updatedAt: Date;
-        description: string;
         status: import("@prisma/client").$Enums.ListingStatus;
         sellerId: string;
+        description: string;
+        subcategoryId: string | null;
         title: string;
+        machineCategory: string;
         machineSubcategory: string | null;
         machineMake: string;
         machineModel: string;
@@ -150,7 +151,6 @@ export declare class ListingsController {
         runningHours: number | null;
         serialNumber: string | null;
         negotiable: boolean;
-        subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
         postedAt: Date | null;
@@ -158,15 +158,16 @@ export declare class ListingsController {
     }[]>;
     findOwned(user: AuthenticatedUser, id: string): Promise<{
         id: string;
-        machineCategory: string;
+        createdAt: Date;
         locationCity: string;
         locationState: string;
-        createdAt: Date;
         updatedAt: Date;
-        description: string;
         status: import("@prisma/client").$Enums.ListingStatus;
         sellerId: string;
+        description: string;
+        subcategoryId: string | null;
         title: string;
+        machineCategory: string;
         machineSubcategory: string | null;
         machineMake: string;
         machineModel: string;
@@ -182,7 +183,6 @@ export declare class ListingsController {
         runningHours: number | null;
         serialNumber: string | null;
         negotiable: boolean;
-        subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
         postedAt: Date | null;
@@ -192,15 +192,16 @@ export declare class ListingsController {
     }>;
     update(user: AuthenticatedUser, id: string, dto: UpdateListingDto): Promise<{
         id: string;
-        machineCategory: string;
+        createdAt: Date;
         locationCity: string;
         locationState: string;
-        createdAt: Date;
         updatedAt: Date;
-        description: string;
         status: import("@prisma/client").$Enums.ListingStatus;
         sellerId: string;
+        description: string;
+        subcategoryId: string | null;
         title: string;
+        machineCategory: string;
         machineSubcategory: string | null;
         machineMake: string;
         machineModel: string;
@@ -216,7 +217,6 @@ export declare class ListingsController {
         runningHours: number | null;
         serialNumber: string | null;
         negotiable: boolean;
-        subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
         postedAt: Date | null;
@@ -224,15 +224,16 @@ export declare class ListingsController {
     }>;
     withdraw(user: AuthenticatedUser, id: string): Promise<{
         id: string;
-        machineCategory: string;
+        createdAt: Date;
         locationCity: string;
         locationState: string;
-        createdAt: Date;
         updatedAt: Date;
-        description: string;
         status: import("@prisma/client").$Enums.ListingStatus;
         sellerId: string;
+        description: string;
+        subcategoryId: string | null;
         title: string;
+        machineCategory: string;
         machineSubcategory: string | null;
         machineMake: string;
         machineModel: string;
@@ -248,7 +249,6 @@ export declare class ListingsController {
         runningHours: number | null;
         serialNumber: string | null;
         negotiable: boolean;
-        subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
         postedAt: Date | null;
@@ -256,51 +256,52 @@ export declare class ListingsController {
     }>;
     addMedia(user: AuthenticatedUser, id: string, dto: UploadMediaDto, file: Express.Multer.File): Promise<{
         id: string;
-        type: import("@prisma/client").$Enums.MediaType;
         url: string;
-        capturedAt: Date | null;
-        durationSeconds: number | null;
+        type: import("@prisma/client").$Enums.MediaType;
         orderIndex: number;
+        isPrimary: boolean;
         listingId: string;
         storageKey: string;
-        isPrimary: boolean;
+        capturedAt: Date | null;
+        durationSeconds: number | null;
     }>;
     removeMedia(user: AuthenticatedUser, id: string, mediaId: string): Promise<{
         removed: boolean;
     }>;
     reorderMedia(user: AuthenticatedUser, id: string, dto: ReorderMediaDto): Promise<{
         id: string;
-        type: import("@prisma/client").$Enums.MediaType;
         url: string;
-        capturedAt: Date | null;
-        durationSeconds: number | null;
+        type: import("@prisma/client").$Enums.MediaType;
         orderIndex: number;
+        isPrimary: boolean;
         listingId: string;
         storageKey: string;
-        isPrimary: boolean;
+        capturedAt: Date | null;
+        durationSeconds: number | null;
     }[]>;
     setPrimaryMedia(user: AuthenticatedUser, id: string, mediaId: string): Promise<{
         id: string;
-        type: import("@prisma/client").$Enums.MediaType;
         url: string;
-        capturedAt: Date | null;
-        durationSeconds: number | null;
+        type: import("@prisma/client").$Enums.MediaType;
         orderIndex: number;
+        isPrimary: boolean;
         listingId: string;
         storageKey: string;
-        isPrimary: boolean;
+        capturedAt: Date | null;
+        durationSeconds: number | null;
     }[]>;
     submit(user: AuthenticatedUser, id: string): Promise<{
         id: string;
-        machineCategory: string;
+        createdAt: Date;
         locationCity: string;
         locationState: string;
-        createdAt: Date;
         updatedAt: Date;
-        description: string;
         status: import("@prisma/client").$Enums.ListingStatus;
         sellerId: string;
+        description: string;
+        subcategoryId: string | null;
         title: string;
+        machineCategory: string;
         machineSubcategory: string | null;
         machineMake: string;
         machineModel: string;
@@ -316,7 +317,6 @@ export declare class ListingsController {
         runningHours: number | null;
         serialNumber: string | null;
         negotiable: boolean;
-        subcategoryId: string | null;
         isBoosted: boolean;
         boostExpiresAt: Date | null;
         postedAt: Date | null;

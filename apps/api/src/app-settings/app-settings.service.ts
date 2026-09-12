@@ -16,7 +16,9 @@ export class AppSettingsService {
   }
 
   async update(key: string, value: string) {
-    const existing = await this.prisma.appSetting.findUnique({ where: { key } });
+    const existing = await this.prisma.appSetting.findUnique({
+      where: { key },
+    });
     if (!existing) throw new NotFoundException(`Setting '${key}' not found`);
     return this.prisma.appSetting.update({ where: { key }, data: { value } });
   }

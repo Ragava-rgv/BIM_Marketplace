@@ -5,12 +5,12 @@ export declare class BuyerSubscriptionPlansController {
     constructor(service: BuyerSubscriptionPlansService);
     listActive(): import("@prisma/client").Prisma.PrismaPromise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number | null;
         displayName: string;
         priceInr: import("@prisma/client/runtime/library").Decimal;
-        durationDays: number | null;
         isActive: boolean;
         isFree: boolean;
         description: string | null;
@@ -21,12 +21,12 @@ export declare class BuyerSubscriptionPlansController {
     }[]>;
     listAll(): import("@prisma/client").Prisma.PrismaPromise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number | null;
         displayName: string;
         priceInr: import("@prisma/client/runtime/library").Decimal;
-        durationDays: number | null;
         isActive: boolean;
         isFree: boolean;
         description: string | null;
@@ -37,12 +37,12 @@ export declare class BuyerSubscriptionPlansController {
     }[]>;
     create(dto: CreateBuyerPlanDto): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number | null;
         displayName: string;
         priceInr: import("@prisma/client/runtime/library").Decimal;
-        durationDays: number | null;
         isActive: boolean;
         isFree: boolean;
         description: string | null;
@@ -53,12 +53,12 @@ export declare class BuyerSubscriptionPlansController {
     }>;
     update(id: string, dto: UpdateBuyerPlanDto): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number | null;
         displayName: string;
         priceInr: import("@prisma/client/runtime/library").Decimal;
-        durationDays: number | null;
         isActive: boolean;
         isFree: boolean;
         description: string | null;
@@ -69,12 +69,12 @@ export declare class BuyerSubscriptionPlansController {
     }>;
     remove(id: string): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number | null;
         displayName: string;
         priceInr: import("@prisma/client/runtime/library").Decimal;
-        durationDays: number | null;
         isActive: boolean;
         isFree: boolean;
         description: string | null;
@@ -85,12 +85,12 @@ export declare class BuyerSubscriptionPlansController {
     }>;
     purge(id: string): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number | null;
         displayName: string;
         priceInr: import("@prisma/client/runtime/library").Decimal;
-        durationDays: number | null;
         isActive: boolean;
         isFree: boolean;
         description: string | null;

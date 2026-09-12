@@ -128,19 +128,17 @@ export enum AdPlacement {
   HOME_BANNER = 'HOME_BANNER',
 }
 
+/** No approval gate: a requirement goes ACTIVE the moment it's posted. */
 export enum RequirementStatus {
-  DRAFT = 'DRAFT',
-  PENDING_REVIEW = 'PENDING_REVIEW',
   ACTIVE = 'ACTIVE',
   FULFILLED = 'FULFILLED',
   CLOSED = 'CLOSED',
-  REJECTED = 'REJECTED',
 }
 
+/** No approval gate: a quote reaches the requirement owner the moment it's submitted. */
 export enum QuoteStatus {
-  PENDING_ADMIN = 'PENDING_ADMIN',
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
+  SUBMITTED = 'SUBMITTED',
+  WITHDRAWN = 'WITHDRAWN',
 }
 
 /** Commission split: 2% total, 1% buyer + 1% seller (non-negotiable, see project_spec.md §8.6) */
@@ -173,6 +171,7 @@ export const MACHINE_CATEGORIES = [
     label: 'Metal Working Machines',
     description: 'CNC lathes, milling centres, grinding, EDM and more',
     subcategories: [
+      'SPM Machine',
       'CNC Turning Centres',
       'CNC Milling Machines',
       'VMC – Vertical Machining Centres',

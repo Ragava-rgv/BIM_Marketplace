@@ -25,7 +25,9 @@ let GstVerifyClient = GstVerifyClient_1 = class GstVerifyClient {
     constructor(config) {
         this.config = config;
         this.apiKey = this.config.get('GST_VERIFY_API_KEY');
-        this.baseUrl = this.config.get('GST_VERIFY_BASE_URL') ?? 'https://gstverify.co.in';
+        this.baseUrl =
+            this.config.get('GST_VERIFY_BASE_URL') ??
+                'https://gstverify.co.in';
     }
     async lookupGstin(gstNumber) {
         if (!this.apiKey || this.apiKey.startsWith('dev_')) {

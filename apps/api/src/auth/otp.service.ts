@@ -25,10 +25,16 @@ export class OtpService {
 
   private generateCode(): string {
     const max = 10 ** OTP_LENGTH;
-    return Math.floor(Math.random() * max).toString().padStart(OTP_LENGTH, '0');
+    return Math.floor(Math.random() * max)
+      .toString()
+      .padStart(OTP_LENGTH, '0');
   }
 
-  async issue(phone: string, purpose: OtpPurpose, userId?: string): Promise<void> {
+  async issue(
+    phone: string,
+    purpose: OtpPurpose,
+    userId?: string,
+  ): Promise<void> {
     const code = this.generateCode();
     const expiresAt = new Date(Date.now() + OTP_TTL_MINUTES * 60 * 1000);
 
@@ -41,7 +47,9 @@ export class OtpService {
 
   private async dispatch(phone: string, code: string): Promise<void> {
     if (!this.providerKey || this.providerKey.startsWith('dev_')) {
-      this.logger.log(`[DEV OTP] phone=${phone} code=${code} (configure OTP_PROVIDER_KEY for real SMS delivery)`);
+      this.logger.log(
+        `[DEV OTP] phone=${phone} code=${code} (configure OTP_PROVIDER_KEY for real SMS delivery)`,
+      );
       return;
     }
 
@@ -51,7 +59,11 @@ export class OtpService {
     this.logger.log(`OTP dispatched to ${phone} via 2Factor.in`);
   }
 
-  async verify(phone: string, code: string, purpose: OtpPurpose): Promise<void> {
+  async verify(
+    phone: string,
+    code: string,
+    purpose: OtpPurpose,
+  ): Promise<void> {
     const record = await this.prisma.otpCode.findFirst({
       where: { phone, purpose, consumed: false },
       orderBy: { createdAt: 'desc' },

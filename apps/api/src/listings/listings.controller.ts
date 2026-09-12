@@ -45,7 +45,11 @@ export class ListingsController {
 
   @Get(':id')
   @UseGuards(OptionalJwtAuthGuard)
-  async getOne(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser | undefined, @Req() req: Request) {
+  async getOne(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser | undefined,
+    @Req() req: Request,
+  ) {
     return this.listings.findPublicById(id, user, req.ip);
   }
 
@@ -54,7 +58,10 @@ export class ListingsController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.SELLER)
-  async create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateListingDto) {
+  async create(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: CreateListingDto,
+  ) {
     return this.listings.create(user.id, dto);
   }
 
@@ -68,7 +75,10 @@ export class ListingsController {
   @Get('mine/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.SELLER)
-  async findOwned(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+  async findOwned(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ) {
     return this.listings.findOwned(user.id, id);
   }
 
@@ -87,14 +97,19 @@ export class ListingsController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.SELLER)
-  async withdraw(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+  async withdraw(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ) {
     return this.listings.withdraw(user.id, id);
   }
 
   @Post(':id/media')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.SELLER)
-  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: MAX_UPLOAD_BYTES } }))
+  @UseInterceptors(
+    FileInterceptor('file', { limits: { fileSize: MAX_UPLOAD_BYTES } }),
+  )
   async addMedia(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
@@ -143,7 +158,10 @@ export class ListingsController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.SELLER)
-  async submit(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+  async submit(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ) {
     return this.listings.submitForReview(user.id, id);
   }
 }

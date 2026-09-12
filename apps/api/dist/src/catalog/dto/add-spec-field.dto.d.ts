@@ -10,6 +10,7 @@ export declare enum SpecFilterTypeDto {
     none = "none"
 }
 export declare class AddSpecFieldDto {
+    subcategoryId?: string;
     fieldKey: string;
     fieldLabel: string;
     unit?: string;

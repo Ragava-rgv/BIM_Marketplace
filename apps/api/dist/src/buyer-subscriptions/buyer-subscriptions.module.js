@@ -15,7 +15,10 @@ let BuyerSubscriptionsModule = class BuyerSubscriptionsModule {
 exports.BuyerSubscriptionsModule = BuyerSubscriptionsModule;
 exports.BuyerSubscriptionsModule = BuyerSubscriptionsModule = __decorate([
     (0, common_1.Module)({
-        controllers: [buyer_subscriptions_controller_1.BuyerSubscriptionsController, buyer_subscriptions_controller_1.AdminBuyerSubscriptionsController],
+        controllers: [
+            buyer_subscriptions_controller_1.BuyerSubscriptionsController,
+            buyer_subscriptions_controller_1.AdminBuyerSubscriptionsController,
+        ],
         providers: [buyer_subscriptions_service_1.BuyerSubscriptionsService],
         exports: [buyer_subscriptions_service_1.BuyerSubscriptionsService],
     })

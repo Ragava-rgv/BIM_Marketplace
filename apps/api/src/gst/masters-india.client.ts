@@ -24,7 +24,9 @@ export class GstVerifyClient {
 
   constructor(private readonly config: ConfigService) {
     this.apiKey = this.config.get<string>('GST_VERIFY_API_KEY');
-    this.baseUrl = this.config.get<string>('GST_VERIFY_BASE_URL') ?? 'https://gstverify.co.in';
+    this.baseUrl =
+      this.config.get<string>('GST_VERIFY_BASE_URL') ??
+      'https://gstverify.co.in';
   }
 
   async lookupGstin(gstNumber: string): Promise<GstVerifyResult | null> {
@@ -54,7 +56,9 @@ export class GstVerifyClient {
   }
 
   private stubbedLookup(gstNumber: string): GstVerifyResult {
-    this.logger.log(`[DEV GST] Stubbing gstverify.co.in lookup for ${gstNumber} (configure GST_VERIFY_API_KEY for live data)`);
+    this.logger.log(
+      `[DEV GST] Stubbing gstverify.co.in lookup for ${gstNumber} (configure GST_VERIFY_API_KEY for live data)`,
+    );
     return {
       gstin: gstNumber,
       status: 'Active',

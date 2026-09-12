@@ -22,6 +22,7 @@ type SpecFieldType = (typeof FIELD_TYPES)[number];
 type SpecFilterType = (typeof FILTER_TYPES)[number];
 
 interface NewSpecFieldValues {
+  subcategoryId: string;
   fieldKey: string;
   fieldLabel: string;
   unit: string;
@@ -34,7 +35,7 @@ interface NewSpecFieldValues {
 }
 
 const EMPTY_FIELD: NewSpecFieldValues = {
-  fieldKey: '', fieldLabel: '', unit: '', fieldType: 'text',
+  subcategoryId: '', fieldKey: '', fieldLabel: '', unit: '', fieldType: 'text',
   options: '', isRequired: false, isFilterable: false, filterType: 'none', helpText: '',
 };
 
@@ -299,6 +300,7 @@ export function AdminCatalogManager() {
     setError(null);
     try {
       await api.post(`/admin/catalog/categories/${selectedCatId}/spec-fields`, {
+        subcategoryId: newField.subcategoryId || undefined,
         fieldKey: newField.fieldKey.trim(),
         fieldLabel: newField.fieldLabel.trim(),
         unit: newField.unit.trim() || undefined,
@@ -686,6 +688,7 @@ export function AdminCatalogManager() {
                       <thead className="bg-navy/[.03] text-xs font-bold uppercase tracking-wide text-muted">
                         <tr>
                           {[
+                            t('admin.catalogManager.columns.scope'),
                             t('admin.catalogManager.columns.fieldKey'),
                             t('admin.catalogManager.columns.label'),
                             t('admin.catalogManager.columns.type'),
@@ -701,6 +704,17 @@ export function AdminCatalogManager() {
                       <tbody className="divide-y divide-line">
                         {selectedCat.specFields?.map((f) => (
                           <tr key={f.id} className="hover:bg-navy/[.02]">
+                            <td className="px-3 py-2.5">
+                              {f.subcategoryId ? (
+                                <span className="rounded-full bg-copper/10 px-2 py-0.5 text-[11px] font-semibold text-copper-2">
+                                  {selectedCat.subcategories?.find((s) => s.id === f.subcategoryId)?.name ?? t('admin.catalogManager.unknownSubcategory')}
+                                </span>
+                              ) : (
+                                <span className="rounded-full bg-navy/[.06] px-2 py-0.5 text-[11px] font-semibold text-navy/60">
+                                  {t('admin.catalogManager.commonScope')}
+                                </span>
+                              )}
+                            </td>
                             <td className="px-3 py-2.5 font-mono text-[12px] text-ink">{f.fieldKey}</td>
                             <td className="px-3 py-2.5 text-ink">{f.fieldLabel}</td>
                             <td className="px-3 py-2.5">
@@ -750,6 +764,19 @@ export function AdminCatalogManager() {
                 {showFieldForm && (
                   <form onSubmit={(e) => void handleAddSpecField(e)} className="mt-4 grid grid-cols-2 gap-4 rounded-lg border border-line bg-navy/[.02] p-5">
                     <h3 className="col-span-2 text-xs font-bold uppercase tracking-wide text-muted">{t('admin.catalogManager.newSpecField')}</h3>
+                    <div className="col-span-2">
+                      <Field label={t('admin.catalogManager.fields.appliesTo')} hint={t('admin.catalogManager.fields.appliesToHint')}>
+                        <Select
+                          value={newField.subcategoryId}
+                          onChange={(e) => setNewField((v) => ({ ...v, subcategoryId: e.target.value }))}
+                        >
+                          <option value="">{t('admin.catalogManager.commonScope')}</option>
+                          {selectedCat.subcategories?.map((sub) => (
+                            <option key={sub.id} value={sub.id}>{sub.name}</option>
+                          ))}
+                        </Select>
+                      </Field>
+                    </div>
                     <Field label={t('admin.catalogManager.fields.fieldKey')} hint={t('admin.catalogManager.fields.fieldKeyHint')}>
                       <Input
                         value={newField.fieldKey}

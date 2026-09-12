@@ -41,8 +41,13 @@ export class CertificationsController {
   }
 
   @Post(':id/report')
-  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: MAX_REPORT_BYTES } }))
-  async uploadReport(@Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
+  @UseInterceptors(
+    FileInterceptor('file', { limits: { fileSize: MAX_REPORT_BYTES } }),
+  )
+  async uploadReport(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
     return this.certifications.uploadReport(id, file);
   }
 }

@@ -17,8 +17,15 @@ const prisma_service_1 = require("../prisma/prisma.service");
 const storage_service_1 = require("../storage/storage.service");
 const subscriptions_service_1 = require("../subscriptions/subscriptions.service");
 const spec_validation_service_1 = require("../spec-validation/spec-validation.service");
-const EDITABLE_STATUSES = [client_1.ListingStatus.DRAFT, client_1.ListingStatus.REJECTED];
-const DETAILS_EDITABLE_STATUSES = [client_1.ListingStatus.DRAFT, client_1.ListingStatus.REJECTED, client_1.ListingStatus.ACTIVE];
+const EDITABLE_STATUSES = [
+    client_1.ListingStatus.DRAFT,
+    client_1.ListingStatus.REJECTED,
+];
+const DETAILS_EDITABLE_STATUSES = [
+    client_1.ListingStatus.DRAFT,
+    client_1.ListingStatus.REJECTED,
+    client_1.ListingStatus.ACTIVE,
+];
 const MEDIA_UPDATABLE_STATUSES = [
     client_1.ListingStatus.DRAFT,
     client_1.ListingStatus.REJECTED,
@@ -36,7 +43,9 @@ let ListingsService = class ListingsService {
         this.specValidation = specValidation;
     }
     async create(sellerId, dto) {
-        const seller = await this.prisma.user.findUnique({ where: { id: sellerId } });
+        const seller = await this.prisma.user.findUnique({
+            where: { id: sellerId },
+        });
         if (!seller) {
             throw new common_1.NotFoundException('Seller not found');
         }
@@ -74,7 +83,9 @@ let ListingsService = class ListingsService {
                 complexityTier: dto.complexityTier ?? client_1.ComplexityTier.STANDARD,
                 condition: dto.condition,
                 catalogCategoryId: dto.catalogCategoryId ?? null,
-                specs: validatedSpecs ? validatedSpecs : client_1.Prisma.JsonNull,
+                specs: validatedSpecs
+                    ? validatedSpecs
+                    : client_1.Prisma.JsonNull,
                 conditionGrade: dto.conditionGrade ?? null,
                 runningHours: dto.runningHours ?? null,
                 serialNumber: dto.serialNumber ?? null,
@@ -110,12 +121,18 @@ let ListingsService = class ListingsService {
             where: { id: listingId },
             data: {
                 ...rest,
-                askingPrice: askingPrice !== undefined ? new client_1.Prisma.Decimal(askingPrice) : undefined,
+                askingPrice: askingPrice !== undefined
+                    ? new client_1.Prisma.Decimal(askingPrice)
+                    : undefined,
                 complexityTier: complexityTier,
                 catalogCategoryId: catalogCategoryId ?? undefined,
                 specs: specs !== undefined ? specs : undefined,
                 origin,
-                importedCountry: origin === 'IMPORTED' ? importedCountry : origin === 'INDIAN' ? null : undefined,
+                importedCountry: origin === 'IMPORTED'
+                    ? importedCountry
+                    : origin === 'INDIAN'
+                        ? null
+                        : undefined,
             },
         });
     }
@@ -206,7 +223,10 @@ let ListingsService = class ListingsService {
                 orderBy: { orderIndex: 'asc' },
             });
             if (next) {
-                await this.prisma.listingMedia.update({ where: { id: next.id }, data: { isPrimary: true } });
+                await this.prisma.listingMedia.update({
+                    where: { id: next.id },
+                    data: { isPrimary: true },
+                });
             }
         }
     }
@@ -216,11 +236,18 @@ let ListingsService = class ListingsService {
             throw new common_1.ForbiddenException(`Media cannot be reordered while listing is in ${listing.status} status`);
         }
         const ownedIds = new Set(listing.media.map((m) => m.id));
-        if (mediaIds.length !== ownedIds.size || !mediaIds.every((id) => ownedIds.has(id))) {
+        if (mediaIds.length !== ownedIds.size ||
+            !mediaIds.every((id) => ownedIds.has(id))) {
             throw new common_1.BadRequestException('mediaIds must include exactly the media items belonging to this listing');
         }
-        await this.prisma.$transaction(mediaIds.map((id, index) => this.prisma.listingMedia.update({ where: { id }, data: { orderIndex: index } })));
-        return this.prisma.listingMedia.findMany({ where: { listingId }, orderBy: { orderIndex: 'asc' } });
+        await this.prisma.$transaction(mediaIds.map((id, index) => this.prisma.listingMedia.update({
+            where: { id },
+            data: { orderIndex: index },
+        })));
+        return this.prisma.listingMedia.findMany({
+            where: { listingId },
+            orderBy: { orderIndex: 'asc' },
+        });
     }
     async setPrimaryMedia(sellerId, listingId, mediaId) {
         const listing = await this.findOwned(sellerId, listingId);
@@ -239,9 +266,15 @@ let ListingsService = class ListingsService {
                 where: { listingId, type: client_1.MediaType.PHOTO },
                 data: { isPrimary: false },
             }),
-            this.prisma.listingMedia.update({ where: { id: mediaId }, data: { isPrimary: true } }),
+            this.prisma.listingMedia.update({
+                where: { id: mediaId },
+                data: { isPrimary: true },
+            }),
         ]);
-        return this.prisma.listingMedia.findMany({ where: { listingId }, orderBy: { orderIndex: 'asc' } });
+        return this.prisma.listingMedia.findMany({
+            where: { listingId },
+            orderBy: { orderIndex: 'asc' },
+        });
     }
     assertPhotoIsRecent(capturedAt) {
         if (Number.isNaN(capturedAt.getTime())) {
@@ -268,7 +301,8 @@ let ListingsService = class ListingsService {
     assertMediaGate(media) {
         const photos = media.filter((m) => m.type === client_1.MediaType.PHOTO);
         const videos = media.filter((m) => m.type === client_1.MediaType.VIDEO);
-        if (photos.length < shared_1.MIN_LISTING_PHOTOS || photos.length > shared_1.MAX_LISTING_PHOTOS) {
+        if (photos.length < shared_1.MIN_LISTING_PHOTOS ||
+            photos.length > shared_1.MAX_LISTING_PHOTOS) {
             throw new common_1.BadRequestException(`Listing requires between ${shared_1.MIN_LISTING_PHOTOS} and ${shared_1.MAX_LISTING_PHOTOS} photos (found ${photos.length})`);
         }
         for (const photo of photos) {
@@ -281,7 +315,8 @@ let ListingsService = class ListingsService {
             throw new common_1.BadRequestException('Listing requires exactly one running video showing the machine operating');
         }
         const [video] = videos;
-        if (!video.durationSeconds || video.durationSeconds < shared_1.MIN_VIDEO_DURATION_SECONDS) {
+        if (!video.durationSeconds ||
+            video.durationSeconds < shared_1.MIN_VIDEO_DURATION_SECONDS) {
             throw new common_1.BadRequestException(`The running video must be at least ${shared_1.MIN_VIDEO_DURATION_SECONDS} seconds with a timestamp overlay`);
         }
     }
@@ -289,30 +324,56 @@ let ListingsService = class ListingsService {
         const listing = await this.requirePendingReview(listingId);
         return this.prisma.listing.update({
             where: { id: listing.id },
-            data: { status: client_1.ListingStatus.ACTIVE, postedAt: listing.postedAt ?? new Date() },
+            data: {
+                status: client_1.ListingStatus.ACTIVE,
+                postedAt: listing.postedAt ?? new Date(),
+            },
         });
     }
     async reject(listingId) {
         const listing = await this.requirePendingReview(listingId);
-        return this.prisma.listing.update({ where: { id: listing.id }, data: { status: client_1.ListingStatus.REJECTED } });
-    }
-    async markSold(listingId) {
-        const listing = await this.requireStatus(listingId, [client_1.ListingStatus.ACTIVE, client_1.ListingStatus.UNDER_OFFER]);
-        return this.prisma.listing.update({ where: { id: listing.id }, data: { status: client_1.ListingStatus.SOLD } });
-    }
-    async markInactive(listingId) {
-        const listing = await this.requireStatus(listingId, [client_1.ListingStatus.ACTIVE, client_1.ListingStatus.UNDER_OFFER]);
-        return this.prisma.listing.update({ where: { id: listing.id }, data: { status: client_1.ListingStatus.WITHDRAWN } });
-    }
-    async reactivate(listingId) {
-        const listing = await this.requireStatus(listingId, [client_1.ListingStatus.SOLD, client_1.ListingStatus.WITHDRAWN]);
         return this.prisma.listing.update({
             where: { id: listing.id },
-            data: { status: client_1.ListingStatus.ACTIVE, postedAt: listing.postedAt ?? new Date() },
+            data: { status: client_1.ListingStatus.REJECTED },
+        });
+    }
+    async markSold(listingId) {
+        const listing = await this.requireStatus(listingId, [
+            client_1.ListingStatus.ACTIVE,
+            client_1.ListingStatus.UNDER_OFFER,
+        ]);
+        return this.prisma.listing.update({
+            where: { id: listing.id },
+            data: { status: client_1.ListingStatus.SOLD },
+        });
+    }
+    async markInactive(listingId) {
+        const listing = await this.requireStatus(listingId, [
+            client_1.ListingStatus.ACTIVE,
+            client_1.ListingStatus.UNDER_OFFER,
+        ]);
+        return this.prisma.listing.update({
+            where: { id: listing.id },
+            data: { status: client_1.ListingStatus.WITHDRAWN },
+        });
+    }
+    async reactivate(listingId) {
+        const listing = await this.requireStatus(listingId, [
+            client_1.ListingStatus.SOLD,
+            client_1.ListingStatus.WITHDRAWN,
+        ]);
+        return this.prisma.listing.update({
+            where: { id: listing.id },
+            data: {
+                status: client_1.ListingStatus.ACTIVE,
+                postedAt: listing.postedAt ?? new Date(),
+            },
         });
     }
     async requireStatus(listingId, allowed) {
-        const listing = await this.prisma.listing.findUnique({ where: { id: listingId } });
+        const listing = await this.prisma.listing.findUnique({
+            where: { id: listingId },
+        });
         if (!listing) {
             throw new common_1.NotFoundException('Listing not found');
         }
@@ -322,7 +383,9 @@ let ListingsService = class ListingsService {
         return listing;
     }
     async requirePendingReview(listingId) {
-        const listing = await this.prisma.listing.findUnique({ where: { id: listingId } });
+        const listing = await this.prisma.listing.findUnique({
+            where: { id: listingId },
+        });
         if (!listing) {
             throw new common_1.NotFoundException('Listing not found');
         }
@@ -337,10 +400,21 @@ let ListingsService = class ListingsService {
     }
     async findPublicById(listingId, viewer, ip) {
         const listing = await this.prisma.listing.findFirst({
-            where: { id: listingId, status: { in: [client_1.ListingStatus.ACTIVE, client_1.ListingStatus.UNDER_OFFER, client_1.ListingStatus.SOLD] } },
+            where: {
+                id: listingId,
+                status: {
+                    in: [
+                        client_1.ListingStatus.ACTIVE,
+                        client_1.ListingStatus.UNDER_OFFER,
+                        client_1.ListingStatus.SOLD,
+                    ],
+                },
+            },
             include: {
                 media: { orderBy: { orderIndex: 'asc' } },
-                catalogCategory: { include: { specFields: { orderBy: { displayOrder: 'asc' } } } },
+                catalogCategory: {
+                    include: { specFields: { orderBy: { displayOrder: 'asc' } } },
+                },
             },
         });
         if (!listing) {
@@ -364,7 +438,8 @@ let ListingsService = class ListingsService {
         const existing = await this.prisma.listingView.findUnique({
             where: { listingId_viewerKey: { listingId, viewerKey } },
         });
-        if (existing && Date.now() - existing.viewedAt.getTime() < 24 * 60 * 60 * 1000) {
+        if (existing &&
+            Date.now() - existing.viewedAt.getTime() < 24 * 60 * 60 * 1000) {
             return false;
         }
         await this.prisma.$transaction([
@@ -373,7 +448,10 @@ let ListingsService = class ListingsService {
                 create: { listingId, viewerKey },
                 update: { viewedAt: new Date() },
             }),
-            this.prisma.listing.update({ where: { id: listingId }, data: { viewCount: { increment: 1 } } }),
+            this.prisma.listing.update({
+                where: { id: listingId },
+                data: { viewCount: { increment: 1 } },
+            }),
         ]);
         return true;
     }
@@ -382,7 +460,9 @@ let ListingsService = class ListingsService {
             where: { id: listingId },
             include: {
                 media: { orderBy: { orderIndex: 'asc' } },
-                catalogCategory: { include: { specFields: { orderBy: { displayOrder: 'asc' } } } },
+                catalogCategory: {
+                    include: { specFields: { orderBy: { displayOrder: 'asc' } } },
+                },
                 seller: {
                     select: {
                         id: true,
@@ -433,7 +513,9 @@ let ListingsService = class ListingsService {
                         orderBy: [{ isPrimary: 'desc' }, { orderIndex: 'asc' }],
                         take: 1,
                     },
-                    seller: { select: { id: true, fullName: true, email: true, phone: true } },
+                    seller: {
+                        select: { id: true, fullName: true, email: true, phone: true },
+                    },
                 },
                 orderBy,
                 skip: (page - 1) * pageSize,
@@ -448,14 +530,21 @@ let ListingsService = class ListingsService {
         if (query.category)
             where.machineCategory = { equals: query.category, mode: 'insensitive' };
         if (query.subcategory)
-            where.machineSubcategory = { equals: query.subcategory, mode: 'insensitive' };
+            where.machineSubcategory = {
+                equals: query.subcategory,
+                mode: 'insensitive',
+            };
         if (query.categorySlug) {
-            const cat = await this.prisma.category.findUnique({ where: { slug: query.categorySlug } });
+            const cat = await this.prisma.category.findUnique({
+                where: { slug: query.categorySlug },
+            });
             if (cat)
                 where.machineCategory = { equals: cat.name, mode: 'insensitive' };
         }
         if (query.subcategorySlug) {
-            const sub = await this.prisma.subcategory.findFirst({ where: { slug: query.subcategorySlug } });
+            const sub = await this.prisma.subcategory.findFirst({
+                where: { slug: query.subcategorySlug },
+            });
             if (sub)
                 where.machineSubcategory = { equals: sub.name, mode: 'insensitive' };
         }
@@ -510,7 +599,10 @@ let ListingsService = class ListingsService {
                 : query.sort === 'year_desc'
                     ? { manufactureYear: 'desc' }
                     : { createdAt: 'desc' };
-        const orderBy = [{ isBoosted: 'desc' }, secondarySort];
+        const orderBy = [
+            { isBoosted: 'desc' },
+            secondarySort,
+        ];
         const [items, total] = await this.prisma.$transaction([
             this.prisma.listing.findMany({
                 where,

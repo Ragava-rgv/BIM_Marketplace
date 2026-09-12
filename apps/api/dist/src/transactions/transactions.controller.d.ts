@@ -46,9 +46,9 @@ export declare class TransactionsController {
         listingTitle: string;
         contactReleasedAt: Date | null;
         contact: {
-            email: string | null;
             phone: string;
             fullName: string;
+            email: string | null;
         };
     }[]>;
     findOne(id: string): Promise<{
@@ -69,9 +69,9 @@ export declare class TransactionsController {
     } | {
         released: true;
         contact: {
-            email: string | null;
             phone: string;
             fullName: string;
+            email: string | null;
         };
     }>;
     markPaid(id: string): Promise<{

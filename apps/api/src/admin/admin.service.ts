@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { CertificationStatus, CommissionStatus, EnquiryStatus, ListingStatus, LoanApplicationStatus } from '@prisma/client';
+import {
+  CertificationStatus,
+  CommissionStatus,
+  EnquiryStatus,
+  ListingStatus,
+  LoanApplicationStatus,
+} from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 export interface AdminDashboardSummary {
@@ -28,17 +34,35 @@ export class AdminService {
       commissionsPending,
       enquiriesNew,
     ] = await this.prisma.$transaction([
-      this.prisma.listing.count({ where: { status: ListingStatus.PENDING_REVIEW } }),
+      this.prisma.listing.count({
+        where: { status: ListingStatus.PENDING_REVIEW },
+      }),
       this.prisma.listing.count({ where: { status: ListingStatus.ACTIVE } }),
       this.prisma.listing.count({ where: { status: ListingStatus.SOLD } }),
       this.prisma.listing.count({ where: { status: ListingStatus.WITHDRAWN } }),
       this.prisma.loanApplication.count({
-        where: { status: { in: [LoanApplicationStatus.CERT_PENDING, LoanApplicationStatus.WITH_PARTNER] } },
+        where: {
+          status: {
+            in: [
+              LoanApplicationStatus.CERT_PENDING,
+              LoanApplicationStatus.WITH_PARTNER,
+            ],
+          },
+        },
       }),
       this.prisma.certification.count({
-        where: { status: { in: [CertificationStatus.REQUESTED, CertificationStatus.IN_PROGRESS] } },
+        where: {
+          status: {
+            in: [
+              CertificationStatus.REQUESTED,
+              CertificationStatus.IN_PROGRESS,
+            ],
+          },
+        },
       }),
-      this.prisma.transaction.count({ where: { commissionStatus: CommissionStatus.PENDING } }),
+      this.prisma.transaction.count({
+        where: { commissionStatus: CommissionStatus.PENDING },
+      }),
       this.prisma.enquiry.count({ where: { status: EnquiryStatus.NEW } }),
     ]);
 

@@ -17,18 +17,18 @@ export declare class BuybackService {
     listAll(): Promise<({
         listing: {
             id: string;
-            machineCategory: string;
             locationCity: string;
             locationState: string;
             sellerId: string;
             title: string;
+            machineCategory: string;
             machineMake: string;
             machineModel: string;
             manufactureYear: number | null;
         } | null;
     } & {
-        id: string;
         depreciationSchedule: Prisma.JsonValue | null;
+        id: string;
         createdAt: Date;
         status: import("@prisma/client").$Enums.BuybackStatus;
         listingId: string | null;
@@ -44,18 +44,18 @@ export declare class BuybackService {
     listForBuyer(buyerId: string): Promise<({
         listing: {
             id: string;
-            machineCategory: string;
             locationCity: string;
             locationState: string;
             sellerId: string;
             title: string;
+            machineCategory: string;
             machineMake: string;
             machineModel: string;
             manufactureYear: number | null;
         } | null;
     } & {
-        id: string;
         depreciationSchedule: Prisma.JsonValue | null;
+        id: string;
         createdAt: Date;
         status: import("@prisma/client").$Enums.BuybackStatus;
         listingId: string | null;

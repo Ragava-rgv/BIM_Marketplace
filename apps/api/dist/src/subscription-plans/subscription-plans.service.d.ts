@@ -6,13 +6,13 @@ export declare class SubscriptionPlansService {
     constructor(prisma: PrismaService);
     listAll(): Prisma.PrismaPromise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
-        displayName: string;
         listingQuota: number;
-        priceInr: Prisma.Decimal;
         durationDays: number;
+        displayName: string;
+        priceInr: Prisma.Decimal;
         isActive: boolean;
         isFree: boolean;
         description: string | null;
@@ -20,13 +20,13 @@ export declare class SubscriptionPlansService {
     }[]>;
     listActive(): Prisma.PrismaPromise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
-        displayName: string;
         listingQuota: number;
-        priceInr: Prisma.Decimal;
         durationDays: number;
+        displayName: string;
+        priceInr: Prisma.Decimal;
         isActive: boolean;
         isFree: boolean;
         description: string | null;
@@ -34,13 +34,13 @@ export declare class SubscriptionPlansService {
     }[]>;
     findById(id: string): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
-        displayName: string;
         listingQuota: number;
-        priceInr: Prisma.Decimal;
         durationDays: number;
+        displayName: string;
+        priceInr: Prisma.Decimal;
         isActive: boolean;
         isFree: boolean;
         description: string | null;
@@ -48,13 +48,13 @@ export declare class SubscriptionPlansService {
     }>;
     create(dto: CreatePlanDto): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
-        displayName: string;
         listingQuota: number;
-        priceInr: Prisma.Decimal;
         durationDays: number;
+        displayName: string;
+        priceInr: Prisma.Decimal;
         isActive: boolean;
         isFree: boolean;
         description: string | null;
@@ -62,13 +62,13 @@ export declare class SubscriptionPlansService {
     }>;
     update(id: string, dto: UpdatePlanDto): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
-        displayName: string;
         listingQuota: number;
-        priceInr: Prisma.Decimal;
         durationDays: number;
+        displayName: string;
+        priceInr: Prisma.Decimal;
         isActive: boolean;
         isFree: boolean;
         description: string | null;
@@ -76,13 +76,13 @@ export declare class SubscriptionPlansService {
     }>;
     remove(id: string): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
-        displayName: string;
         listingQuota: number;
-        priceInr: Prisma.Decimal;
         durationDays: number;
+        displayName: string;
+        priceInr: Prisma.Decimal;
         isActive: boolean;
         isFree: boolean;
         description: string | null;

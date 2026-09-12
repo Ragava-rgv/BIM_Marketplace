@@ -91,11 +91,21 @@ let BuyerSubscriptionPlansService = class BuyerSubscriptionPlansService {
                 where: { id },
                 data: {
                     ...(dto.name !== undefined && { name: dto.name }),
-                    ...(dto.displayName !== undefined && { displayName: dto.displayName }),
-                    ...(dto.contactViewQuota !== undefined && { contactViewQuota: dto.contactViewQuota }),
-                    ...(dto.priceInr !== undefined && { priceInr: new client_1.Prisma.Decimal(dto.priceInr) }),
-                    ...(dto.durationDays !== undefined && { durationDays: dto.durationDays ?? null }),
-                    ...(dto.description !== undefined && { description: dto.description }),
+                    ...(dto.displayName !== undefined && {
+                        displayName: dto.displayName,
+                    }),
+                    ...(dto.contactViewQuota !== undefined && {
+                        contactViewQuota: dto.contactViewQuota,
+                    }),
+                    ...(dto.priceInr !== undefined && {
+                        priceInr: new client_1.Prisma.Decimal(dto.priceInr),
+                    }),
+                    ...(dto.durationDays !== undefined && {
+                        durationDays: dto.durationDays ?? null,
+                    }),
+                    ...(dto.description !== undefined && {
+                        description: dto.description,
+                    }),
                     ...(dto.sortOrder !== undefined && { sortOrder: dto.sortOrder }),
                     ...(dto.isActive !== undefined && { isActive: dto.isActive }),
                     ...(dto.isFree !== undefined && { isFree: dto.isFree }),
@@ -121,13 +131,17 @@ let BuyerSubscriptionPlansService = class BuyerSubscriptionPlansService {
         });
     }
     async purge(id) {
-        const plan = await this.prisma.buyerSubscriptionPlan.findUnique({ where: { id } });
+        const plan = await this.prisma.buyerSubscriptionPlan.findUnique({
+            where: { id },
+        });
         if (!plan)
             throw new common_1.NotFoundException('Buyer subscription plan not found');
         if (!plan.deletedAt) {
             throw new common_1.BadRequestException('Soft-delete this plan before permanently purging it.');
         }
-        const dependents = await this.prisma.buyerSubscription.count({ where: { planId: id } });
+        const dependents = await this.prisma.buyerSubscription.count({
+            where: { planId: id },
+        });
         if (dependents > 0) {
             throw new common_1.BadRequestException(`Cannot purge a plan with ${dependents} subscription record(s) still referencing it.`);
         }

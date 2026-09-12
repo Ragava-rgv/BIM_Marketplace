@@ -9,7 +9,10 @@ export class FinancePartnersService {
   constructor(private readonly prisma: PrismaService) {}
 
   async listActive(): Promise<FinancePartner[]> {
-    return this.prisma.financePartner.findMany({ where: { active: true }, orderBy: { name: 'asc' } });
+    return this.prisma.financePartner.findMany({
+      where: { active: true },
+      orderBy: { name: 'asc' },
+    });
   }
 
   async listAll(): Promise<FinancePartner[]> {
@@ -17,7 +20,9 @@ export class FinancePartnersService {
   }
 
   async findById(id: string): Promise<FinancePartner> {
-    const partner = await this.prisma.financePartner.findUnique({ where: { id } });
+    const partner = await this.prisma.financePartner.findUnique({
+      where: { id },
+    });
     if (!partner) {
       throw new NotFoundException('Finance partner not found');
     }
@@ -35,13 +40,19 @@ export class FinancePartnersService {
     });
   }
 
-  async update(id: string, dto: UpdateFinancePartnerDto): Promise<FinancePartner> {
+  async update(
+    id: string,
+    dto: UpdateFinancePartnerDto,
+  ): Promise<FinancePartner> {
     await this.findById(id);
     return this.prisma.financePartner.update({
       where: { id },
       data: {
         ...dto,
-        referralRate: dto.referralRate !== undefined ? new Prisma.Decimal(dto.referralRate) : undefined,
+        referralRate:
+          dto.referralRate !== undefined
+            ? new Prisma.Decimal(dto.referralRate)
+            : undefined,
       },
     });
   }

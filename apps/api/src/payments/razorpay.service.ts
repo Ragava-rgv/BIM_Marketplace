@@ -1,4 +1,8 @@
-import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Razorpay from 'razorpay';
 import * as crypto from 'crypto';
@@ -14,7 +18,9 @@ export class RazorpayService {
     this.keyId = this.config.get<string>('RAZORPAY_KEY_ID') ?? '';
     this.keySecret = this.config.get<string>('RAZORPAY_KEY_SECRET') ?? '';
     if (!this.keyId || !this.keySecret) {
-      this.logger.warn('RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET not set — payment features disabled');
+      this.logger.warn(
+        'RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET not set — payment features disabled',
+      );
     }
   }
 
@@ -25,7 +31,10 @@ export class RazorpayService {
           'Payment gateway is not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET.',
         );
       }
-      this._razorpay = new Razorpay({ key_id: this.keyId, key_secret: this.keySecret });
+      this._razorpay = new Razorpay({
+        key_id: this.keyId,
+        key_secret: this.keySecret,
+      });
     }
     return this._razorpay;
   }
@@ -38,9 +47,16 @@ export class RazorpayService {
     });
   }
 
-  verifySignature(orderId: string, paymentId: string, signature: string): boolean {
+  verifySignature(
+    orderId: string,
+    paymentId: string,
+    signature: string,
+  ): boolean {
     const body = `${orderId}|${paymentId}`;
-    const expected = crypto.createHmac('sha256', this.keySecret).update(body).digest('hex');
+    const expected = crypto
+      .createHmac('sha256', this.keySecret)
+      .update(body)
+      .digest('hex');
     return expected === signature;
   }
 }

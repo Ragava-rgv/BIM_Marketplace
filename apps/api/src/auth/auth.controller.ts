@@ -1,4 +1,12 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { IsIn } from 'class-validator';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
@@ -95,14 +103,20 @@ export class AuthController {
   @Post('switch-mode')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
-  async switchMode(@CurrentUser() user: AuthenticatedUser, @Body() dto: SwitchModeDto) {
+  async switchMode(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: SwitchModeDto,
+  ) {
     return this.auth.switchMode(user.id, dto.mode);
   }
 
   @Post('language')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
-  async switchLanguage(@CurrentUser() user: AuthenticatedUser, @Body() dto: SwitchLanguageDto) {
+  async switchLanguage(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: SwitchLanguageDto,
+  ) {
     return this.auth.switchLanguage(user.id, dto.language);
   }
 

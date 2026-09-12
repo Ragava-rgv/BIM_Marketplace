@@ -1,1 +1,1 @@
-{"version":3,"file":"update-finance-partner.dto.js","sourceRoot":"","sources":["../../../../src/finance-partners/dto/update-finance-partner.dto.ts"],"names":[],"mappings":";;;AAAA,uDAAmD;AACnD,6EAAuE;AAEvE,MAAa,uBAAwB,SAAQ,IAAA,0BAAW,EAAC,oDAAuB,CAAC;CAAG;AAApF,0DAAoF"}
+{"version":3,"file":"update-finance-partner.dto.js","sourceRoot":"","sources":["../../../../src/finance-partners/dto/update-finance-partner.dto.ts"],"names":[],"mappings":";;;AAAA,uDAAmD;AACnD,6EAAuE;AAEvE,MAAa,uBAAwB,SAAQ,IAAA,0BAAW,EACtD,oDAAuB,CACxB;CAAG;AAFJ,0DAEI"}

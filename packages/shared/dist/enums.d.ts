@@ -107,18 +107,16 @@ export declare enum AdPlacement {
     IN_GRID = "IN_GRID",
     HOME_BANNER = "HOME_BANNER"
 }
+/** No approval gate: a requirement goes ACTIVE the moment it's posted. */
 export declare enum RequirementStatus {
-    DRAFT = "DRAFT",
-    PENDING_REVIEW = "PENDING_REVIEW",
     ACTIVE = "ACTIVE",
     FULFILLED = "FULFILLED",
-    CLOSED = "CLOSED",
-    REJECTED = "REJECTED"
+    CLOSED = "CLOSED"
 }
+/** No approval gate: a quote reaches the requirement owner the moment it's submitted. */
 export declare enum QuoteStatus {
-    PENDING_ADMIN = "PENDING_ADMIN",
-    APPROVED = "APPROVED",
-    REJECTED = "REJECTED"
+    SUBMITTED = "SUBMITTED",
+    WITHDRAWN = "WITHDRAWN"
 }
 /** Commission split: 2% total, 1% buyer + 1% seller (non-negotiable, see project_spec.md §8.6) */
 export declare const BUYER_COMMISSION_RATE = 0.01;
@@ -143,7 +141,7 @@ export declare const MACHINE_CATEGORIES: readonly [{
     readonly id: "metalworking";
     readonly label: "Metal Working Machines";
     readonly description: "CNC lathes, milling centres, grinding, EDM and more";
-    readonly subcategories: readonly ["CNC Turning Centres", "CNC Milling Machines", "VMC – Vertical Machining Centres", "HMC – Horizontal Machining Centres", "Conventional Lathes", "Surface Grinding Machines", "Cylindrical Grinding Machines", "EDM / Wire Cut Machines", "Drilling Machines", "Boring Machines", "Hydraulic Power Presses", "Mechanical Power Presses", "Miscellaneous Metal Working"];
+    readonly subcategories: readonly ["SPM Machine", "CNC Turning Centres", "CNC Milling Machines", "VMC – Vertical Machining Centres", "HMC – Horizontal Machining Centres", "Conventional Lathes", "Surface Grinding Machines", "Cylindrical Grinding Machines", "EDM / Wire Cut Machines", "Drilling Machines", "Boring Machines", "Hydraulic Power Presses", "Mechanical Power Presses", "Miscellaneous Metal Working"];
 }, {
     readonly id: "sheet-metal";
     readonly label: "Sheet Metal Machines";

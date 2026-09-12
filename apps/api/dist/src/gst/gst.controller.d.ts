@@ -5,23 +5,23 @@ export declare class GstController {
     private readonly gst;
     constructor(gst: GstService);
     verify(user: AuthenticatedUser, dto: VerifyGstDto): Promise<{
-        id: string;
-        email: string | null;
         phone: string;
+        id: string;
+        createdAt: Date;
         role: import("@prisma/client").$Enums.UserRole;
-        passwordHash: string | null;
         fullName: string;
+        email: string | null;
+        locationCity: string | null;
+        locationState: string | null;
+        passwordHash: string | null;
         phoneVerified: boolean;
         gstNumber: string | null;
         businessName: string | null;
         gstStatus: import("@prisma/client").$Enums.GstStatus;
-        locationCity: string | null;
-        locationState: string | null;
         address: string | null;
         activeMode: string;
         canSell: boolean;
         preferredLanguage: import("@prisma/client").$Enums.SupportedLanguage;
-        createdAt: Date;
         updatedAt: Date;
     }>;
 }

@@ -6,8 +6,8 @@ export declare class BuybackController {
     private readonly buyback;
     constructor(buyback: BuybackService);
     quote(dto: QuoteBuybackDto): Promise<{
-        id: string;
         depreciationSchedule: import("@prisma/client/runtime/library").JsonValue | null;
+        id: string;
         createdAt: Date;
         status: import("@prisma/client").$Enums.BuybackStatus;
         listingId: string | null;
@@ -23,18 +23,18 @@ export declare class BuybackController {
     mine(user: AuthenticatedUser): Promise<({
         listing: {
             id: string;
-            machineCategory: string;
             locationCity: string;
             locationState: string;
             sellerId: string;
             title: string;
+            machineCategory: string;
             machineMake: string;
             machineModel: string;
             manufactureYear: number | null;
         } | null;
     } & {
-        id: string;
         depreciationSchedule: import("@prisma/client/runtime/library").JsonValue | null;
+        id: string;
         createdAt: Date;
         status: import("@prisma/client").$Enums.BuybackStatus;
         listingId: string | null;
@@ -48,8 +48,8 @@ export declare class BuybackController {
         agreementTerms: import("@prisma/client/runtime/library").JsonValue | null;
     })[]>;
     findOne(id: string): Promise<{
-        id: string;
         depreciationSchedule: import("@prisma/client/runtime/library").JsonValue | null;
+        id: string;
         createdAt: Date;
         status: import("@prisma/client").$Enums.BuybackStatus;
         listingId: string | null;
@@ -63,8 +63,8 @@ export declare class BuybackController {
         agreementTerms: import("@prisma/client/runtime/library").JsonValue | null;
     }>;
     accept(user: AuthenticatedUser, id: string): Promise<{
-        id: string;
         depreciationSchedule: import("@prisma/client/runtime/library").JsonValue | null;
+        id: string;
         createdAt: Date;
         status: import("@prisma/client").$Enums.BuybackStatus;
         listingId: string | null;
@@ -80,18 +80,18 @@ export declare class BuybackController {
     listAll(): Promise<({
         listing: {
             id: string;
-            machineCategory: string;
             locationCity: string;
             locationState: string;
             sellerId: string;
             title: string;
+            machineCategory: string;
             machineMake: string;
             machineModel: string;
             manufactureYear: number | null;
         } | null;
     } & {
-        id: string;
         depreciationSchedule: import("@prisma/client/runtime/library").JsonValue | null;
+        id: string;
         createdAt: Date;
         status: import("@prisma/client").$Enums.BuybackStatus;
         listingId: string | null;
@@ -105,8 +105,8 @@ export declare class BuybackController {
         agreementTerms: import("@prisma/client/runtime/library").JsonValue | null;
     })[]>;
     initiateFromLoan(loanApplicationId: string): Promise<{
-        id: string;
         depreciationSchedule: import("@prisma/client/runtime/library").JsonValue | null;
+        id: string;
         createdAt: Date;
         status: import("@prisma/client").$Enums.BuybackStatus;
         listingId: string | null;
@@ -120,8 +120,8 @@ export declare class BuybackController {
         agreementTerms: import("@prisma/client/runtime/library").JsonValue | null;
     }>;
     updateAgreement(id: string, dto: UpdateBuybackAgreementDto): Promise<{
-        id: string;
         depreciationSchedule: import("@prisma/client/runtime/library").JsonValue | null;
+        id: string;
         createdAt: Date;
         status: import("@prisma/client").$Enums.BuybackStatus;
         listingId: string | null;
@@ -135,8 +135,8 @@ export declare class BuybackController {
         agreementTerms: import("@prisma/client/runtime/library").JsonValue | null;
     }>;
     complete(id: string): Promise<{
-        id: string;
         depreciationSchedule: import("@prisma/client/runtime/library").JsonValue | null;
+        id: string;
         createdAt: Date;
         status: import("@prisma/client").$Enums.BuybackStatus;
         listingId: string | null;

@@ -13,13 +13,13 @@ export declare class SubscriptionsService {
         subscription: ({
             planConfig: {
                 id: string;
-                name: string;
                 createdAt: Date;
+                name: string;
                 updatedAt: Date;
-                displayName: string;
                 listingQuota: number;
-                priceInr: import("@prisma/client/runtime/library").Decimal;
                 durationDays: number;
+                displayName: string;
+                priceInr: import("@prisma/client/runtime/library").Decimal;
                 isActive: boolean;
                 isFree: boolean;
                 description: string | null;
@@ -27,18 +27,18 @@ export declare class SubscriptionsService {
             } | null;
         } & {
             id: string;
-            createdAt: Date;
-            listingQuota: number;
-            durationDays: number;
             expiresAt: Date;
+            createdAt: Date;
             status: import("@prisma/client").$Enums.SubscriptionStatus;
-            razorpayOrderId: string | null;
-            razorpayPaymentId: string | null;
             sellerId: string;
             plan: import("@prisma/client").$Enums.SubscriptionPlan;
             planConfigId: string | null;
+            listingQuota: number;
             price: import("@prisma/client/runtime/library").Decimal;
+            durationDays: number;
             startsAt: Date;
+            razorpayOrderId: string | null;
+            razorpayPaymentId: string | null;
         }) | null;
     }>;
     createOrder(sellerId: string, dto: CreateSubscriptionOrderDto): Promise<{
@@ -49,18 +49,18 @@ export declare class SubscriptionsService {
     }>;
     verifyAndActivate(sellerId: string, dto: VerifySubscriptionDto): Promise<{
         id: string;
-        createdAt: Date;
-        listingQuota: number;
-        durationDays: number;
         expiresAt: Date;
+        createdAt: Date;
         status: import("@prisma/client").$Enums.SubscriptionStatus;
-        razorpayOrderId: string | null;
-        razorpayPaymentId: string | null;
         sellerId: string;
         plan: import("@prisma/client").$Enums.SubscriptionPlan;
         planConfigId: string | null;
+        listingQuota: number;
         price: import("@prisma/client/runtime/library").Decimal;
+        durationDays: number;
         startsAt: Date;
+        razorpayOrderId: string | null;
+        razorpayPaymentId: string | null;
     }>;
     enforceQuota(sellerId: string): Promise<void>;
 }

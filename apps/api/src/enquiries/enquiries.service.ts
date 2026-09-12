@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Enquiry, EnquiryStatus, ListingStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -11,7 +15,9 @@ export class EnquiriesService {
    * full profile to admin and a minimal name+location notice to the seller.
    */
   async create(buyerId: string, listingId: string): Promise<Enquiry> {
-    const listing = await this.prisma.listing.findUnique({ where: { id: listingId } });
+    const listing = await this.prisma.listing.findUnique({
+      where: { id: listingId },
+    });
     if (!listing || listing.status !== ListingStatus.ACTIVE) {
       throw new NotFoundException('Listing not found');
     }
@@ -36,7 +42,9 @@ export class EnquiriesService {
       where: { buyerId },
       orderBy: { createdAt: 'desc' },
       include: {
-        listing: { select: { id: true, title: true, askingPrice: true, status: true } },
+        listing: {
+          select: { id: true, title: true, askingPrice: true, status: true },
+        },
       },
     });
   }
@@ -48,7 +56,9 @@ export class EnquiriesService {
       orderBy: { createdAt: 'desc' },
       include: {
         listing: { select: { id: true, title: true } },
-        buyer: { select: { fullName: true, locationCity: true, locationState: true } },
+        buyer: {
+          select: { fullName: true, locationCity: true, locationState: true },
+        },
       },
     });
 
@@ -69,7 +79,9 @@ export class EnquiriesService {
     return this.prisma.enquiry.findMany({
       orderBy: { createdAt: 'desc' },
       include: {
-        listing: { select: { id: true, title: true, askingPrice: true, status: true } },
+        listing: {
+          select: { id: true, title: true, askingPrice: true, status: true },
+        },
         buyer: {
           select: {
             fullName: true,

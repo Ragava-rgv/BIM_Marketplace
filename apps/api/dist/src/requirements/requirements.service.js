@@ -13,16 +13,22 @@ exports.RequirementsService = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const prisma_service_1 = require("../prisma/prisma.service");
+const notifications_service_1 = require("../notifications/notifications.service");
 const storage_service_1 = require("../storage/storage.service");
-const EDITABLE_STATUSES = [client_1.RequirementStatus.DRAFT, client_1.RequirementStatus.REJECTED];
+const EDITABLE_STATUSES = [client_1.RequirementStatus.ACTIVE];
 const MAX_REQUIREMENT_PHOTOS = 6;
-const PUBLIC_VISIBLE_STATUSES = [client_1.RequirementStatus.ACTIVE, client_1.RequirementStatus.FULFILLED];
+const PUBLIC_VISIBLE_STATUSES = [
+    client_1.RequirementStatus.ACTIVE,
+    client_1.RequirementStatus.FULFILLED,
+];
 let RequirementsService = class RequirementsService {
     prisma;
     storage;
-    constructor(prisma, storage) {
+    notifications;
+    constructor(prisma, storage, notifications) {
         this.prisma = prisma;
         this.storage = storage;
+        this.notifications = notifications;
     }
     async create(buyerId, dto) {
         let validatedSpecs;
@@ -44,12 +50,17 @@ let RequirementsService = class RequirementsService {
                 complexityTier: dto.complexityTier ?? client_1.ComplexityTier.STANDARD,
                 catalogCategoryId: dto.catalogCategoryId ?? null,
                 specs: validatedSpecs ?? client_1.Prisma.JsonNull,
-                budgetMin: dto.budgetMin !== undefined ? new client_1.Prisma.Decimal(dto.budgetMin) : null,
-                budgetMax: dto.budgetMax !== undefined ? new client_1.Prisma.Decimal(dto.budgetMax) : null,
+                budgetMin: dto.budgetMin !== undefined
+                    ? new client_1.Prisma.Decimal(dto.budgetMin)
+                    : null,
+                budgetMax: dto.budgetMax !== undefined
+                    ? new client_1.Prisma.Decimal(dto.budgetMax)
+                    : null,
                 quantity: dto.quantity ?? 1,
                 locationCity: dto.locationCity ?? null,
                 locationState: dto.locationState ?? null,
-                status: client_1.RequirementStatus.DRAFT,
+                status: client_1.RequirementStatus.ACTIVE,
+                postedAt: new Date(),
             },
         });
     }
@@ -86,7 +97,11 @@ let RequirementsService = class RequirementsService {
                 catalogCategoryId: catalogCategoryId ?? undefined,
                 specs: specs !== undefined ? specs : undefined,
                 origin,
-                importedCountry: origin === 'IMPORTED' ? importedCountry : origin === 'INDIAN' ? null : undefined,
+                importedCountry: origin === 'IMPORTED'
+                    ? importedCountry
+                    : origin === 'INDIAN'
+                        ? null
+                        : undefined,
                 budgetMin: budgetMin !== undefined ? new client_1.Prisma.Decimal(budgetMin) : undefined,
                 budgetMax: budgetMax !== undefined ? new client_1.Prisma.Decimal(budgetMax) : undefined,
             },
@@ -97,25 +112,24 @@ let RequirementsService = class RequirementsService {
         if (req.status === client_1.RequirementStatus.CLOSED) {
             throw new common_1.BadRequestException('Requirement is already closed');
         }
-        return this.prisma.requirement.update({ where: { id }, data: { status: client_1.RequirementStatus.CLOSED } });
+        return this.prisma.requirement.update({
+            where: { id },
+            data: { status: client_1.RequirementStatus.CLOSED },
+        });
     }
     async markFulfilled(buyerId, id) {
         const req = await this.findOwned(buyerId, id);
         if (req.status !== client_1.RequirementStatus.ACTIVE) {
             throw new common_1.BadRequestException(`Requirement is in ${req.status} status, not ACTIVE`);
         }
-        return this.prisma.requirement.update({ where: { id }, data: { status: client_1.RequirementStatus.FULFILLED } });
-    }
-    async submitForReview(buyerId, id) {
-        const req = await this.findOwned(buyerId, id);
-        if (!EDITABLE_STATUSES.includes(req.status)) {
-            throw new common_1.ForbiddenException(`Requirement is already in ${req.status} status`);
-        }
-        return this.prisma.requirement.update({ where: { id }, data: { status: client_1.RequirementStatus.PENDING_REVIEW } });
+        return this.prisma.requirement.update({
+            where: { id },
+            data: { status: client_1.RequirementStatus.FULFILLED },
+        });
     }
     async addMedia(buyerId, id, dto, file) {
         const req = await this.findOwned(buyerId, id);
-        if (![...EDITABLE_STATUSES, client_1.RequirementStatus.ACTIVE].includes(req.status)) {
+        if (!EDITABLE_STATUSES.includes(req.status)) {
             throw new common_1.ForbiddenException(`Media cannot be added while requirement is in ${req.status} status`);
         }
         if (dto.type === client_1.MediaType.PHOTO) {
@@ -165,14 +179,27 @@ let RequirementsService = class RequirementsService {
             this.prisma.requirement.findMany({
                 where: { ...where, status: client_1.RequirementStatus.ACTIVE },
                 include: {
-                    media: { where: { type: client_1.MediaType.PHOTO }, orderBy: [{ isPrimary: 'desc' }, { orderIndex: 'asc' }], take: 1 },
-                    buyer: { select: { id: true, fullName: true, locationCity: true, locationState: true } },
+                    media: {
+                        where: { type: client_1.MediaType.PHOTO },
+                        orderBy: [{ isPrimary: 'desc' }, { orderIndex: 'asc' }],
+                        take: 1,
+                    },
+                    buyer: {
+                        select: {
+                            id: true,
+                            fullName: true,
+                            locationCity: true,
+                            locationState: true,
+                        },
+                    },
                 },
                 orderBy: { postedAt: 'desc' },
                 skip: (page - 1) * pageSize,
                 take: pageSize,
             }),
-            this.prisma.requirement.count({ where: { ...where, status: client_1.RequirementStatus.ACTIVE } }),
+            this.prisma.requirement.count({
+                where: { ...where, status: client_1.RequirementStatus.ACTIVE },
+            }),
         ]);
         return { items, total, page, pageSize };
     }
@@ -181,7 +208,9 @@ let RequirementsService = class RequirementsService {
             where: { id, status: { in: PUBLIC_VISIBLE_STATUSES } },
             include: {
                 media: { orderBy: { orderIndex: 'asc' } },
-                catalogCategory: { include: { specFields: { orderBy: { displayOrder: 'asc' } } } },
+                catalogCategory: {
+                    include: { specFields: { orderBy: { displayOrder: 'asc' } } },
+                },
             },
         });
         if (!req) {
@@ -194,9 +223,14 @@ let RequirementsService = class RequirementsService {
         if (query.category)
             where.machineCategory = { equals: query.category, mode: 'insensitive' };
         if (query.subcategory)
-            where.machineSubcategory = { equals: query.subcategory, mode: 'insensitive' };
+            where.machineSubcategory = {
+                equals: query.subcategory,
+                mode: 'insensitive',
+            };
         if (query.categorySlug) {
-            const cat = await this.prisma.category.findUnique({ where: { slug: query.categorySlug } });
+            const cat = await this.prisma.category.findUnique({
+                where: { slug: query.categorySlug },
+            });
             if (cat)
                 where.machineCategory = { equals: cat.name, mode: 'insensitive' };
         }
@@ -213,9 +247,26 @@ let RequirementsService = class RequirementsService {
             where: { id },
             include: {
                 media: { orderBy: { orderIndex: 'asc' } },
-                catalogCategory: { include: { specFields: { orderBy: { displayOrder: 'asc' } } } },
-                buyer: { select: { id: true, fullName: true, phone: true, email: true, locationCity: true, locationState: true } },
-                quotes: { include: { responder: { select: { id: true, fullName: true } }, listing: true }, orderBy: { createdAt: 'desc' } },
+                catalogCategory: {
+                    include: { specFields: { orderBy: { displayOrder: 'asc' } } },
+                },
+                buyer: {
+                    select: {
+                        id: true,
+                        fullName: true,
+                        phone: true,
+                        email: true,
+                        locationCity: true,
+                        locationState: true,
+                    },
+                },
+                quotes: {
+                    include: {
+                        responder: { select: { id: true, fullName: true } },
+                        listing: true,
+                    },
+                    orderBy: { createdAt: 'desc' },
+                },
             },
         });
         if (!req) {
@@ -233,8 +284,14 @@ let RequirementsService = class RequirementsService {
             this.prisma.requirement.findMany({
                 where,
                 include: {
-                    media: { where: { type: client_1.MediaType.PHOTO }, orderBy: [{ isPrimary: 'desc' }, { orderIndex: 'asc' }], take: 1 },
-                    buyer: { select: { id: true, fullName: true, phone: true, email: true } },
+                    media: {
+                        where: { type: client_1.MediaType.PHOTO },
+                        orderBy: [{ isPrimary: 'desc' }, { orderIndex: 'asc' }],
+                        take: 1,
+                    },
+                    buyer: {
+                        select: { id: true, fullName: true, phone: true, email: true },
+                    },
                     _count: { select: { quotes: true } },
                 },
                 orderBy: { createdAt: 'desc' },
@@ -245,33 +302,16 @@ let RequirementsService = class RequirementsService {
         ]);
         return { items, total, page, pageSize };
     }
-    async approve(id) {
-        const req = await this.requirePendingReview(id);
-        return this.prisma.requirement.update({
-            where: { id: req.id },
-            data: { status: client_1.RequirementStatus.ACTIVE, postedAt: req.postedAt ?? new Date() },
-        });
-    }
-    async reject(id) {
-        const req = await this.requirePendingReview(id);
-        return this.prisma.requirement.update({ where: { id: req.id }, data: { status: client_1.RequirementStatus.REJECTED } });
-    }
-    async requirePendingReview(id) {
-        const req = await this.prisma.requirement.findUnique({ where: { id } });
-        if (!req) {
-            throw new common_1.NotFoundException('Requirement not found');
-        }
-        if (req.status !== client_1.RequirementStatus.PENDING_REVIEW) {
-            throw new common_1.BadRequestException(`Requirement is in ${req.status} status, not awaiting review`);
-        }
-        return req;
-    }
     async submitQuote(responderId, requirementId, dto, photos) {
-        const responder = await this.prisma.user.findUnique({ where: { id: responderId } });
+        const responder = await this.prisma.user.findUnique({
+            where: { id: responderId },
+        });
         if (!responder?.canSell) {
             throw new common_1.ForbiddenException('Only GST-verified sellers can submit a quote');
         }
-        const req = await this.prisma.requirement.findUnique({ where: { id: requirementId } });
+        const req = await this.prisma.requirement.findUnique({
+            where: { id: requirementId },
+        });
         if (!req || req.status !== client_1.RequirementStatus.ACTIVE) {
             throw new common_1.NotFoundException('Requirement not found or no longer accepting quotes');
         }
@@ -279,13 +319,15 @@ let RequirementsService = class RequirementsService {
             throw new common_1.BadRequestException('At least one photo is required');
         }
         if (dto.listingId) {
-            const listing = await this.prisma.listing.findUnique({ where: { id: dto.listingId } });
+            const listing = await this.prisma.listing.findUnique({
+                where: { id: dto.listingId },
+            });
             if (!listing || listing.sellerId !== responderId) {
                 throw new common_1.ForbiddenException('You can only quote using your own listing');
             }
         }
         const uploaded = await Promise.all(photos.map((file) => this.storage.upload(file, storage_service_1.QUOTE_PHOTOS_DIR)));
-        return this.prisma.quote.create({
+        const quote = await this.prisma.quote.create({
             data: {
                 requirementId,
                 responderId,
@@ -307,7 +349,7 @@ let RequirementsService = class RequirementsService {
                 description: dto.description ?? null,
                 specs: dto.specs ?? client_1.Prisma.JsonNull,
                 message: dto.message ?? null,
-                status: client_1.QuoteStatus.PENDING_ADMIN,
+                status: client_1.QuoteStatus.SUBMITTED,
                 media: {
                     create: uploaded.map((file, i) => ({
                         type: client_1.MediaType.PHOTO,
@@ -320,75 +362,103 @@ let RequirementsService = class RequirementsService {
             },
             include: { media: true },
         });
+        await this.notifications.notify(req.buyerId, {
+            type: 'QUOTE_RECEIVED',
+            title: 'You received a quote on your requirement',
+            body: `${quote.machineCategory ?? req.machineCategory}${quote.machineMake ? ` — ${quote.machineMake} ${quote.machineModel ?? ''}`.trim() : ''}`,
+            relatedId: quote.id,
+        });
+        return quote;
     }
     async findMyQuotesGiven(responderId) {
         return this.prisma.quote.findMany({
             where: { responderId },
             include: {
-                requirement: { select: { id: true, title: true, machineCategory: true, status: true } },
+                requirement: {
+                    select: {
+                        id: true,
+                        title: true,
+                        machineCategory: true,
+                        status: true,
+                    },
+                },
                 listing: { select: { id: true, title: true } },
                 media: { orderBy: { orderIndex: 'asc' } },
             },
             orderBy: { createdAt: 'desc' },
         });
     }
-    async findApprovedQuotesForRequirement(buyerId, requirementId) {
-        const req = await this.prisma.requirement.findUnique({ where: { id: requirementId } });
+    async findQuotesForRequirement(buyerId, requirementId) {
+        const req = await this.prisma.requirement.findUnique({
+            where: { id: requirementId },
+        });
         if (!req || req.buyerId !== buyerId) {
             throw new common_1.NotFoundException('Requirement not found');
         }
         return this.prisma.quote.findMany({
-            where: { requirementId, status: client_1.QuoteStatus.APPROVED },
-            omit: { contactName: true, contactPhone: true, contactEmail: true, contactCompany: true },
+            where: { requirementId, status: client_1.QuoteStatus.SUBMITTED },
+            omit: {
+                contactName: true,
+                contactPhone: true,
+                contactEmail: true,
+                contactCompany: true,
+            },
             include: {
                 responder: { select: { id: true, fullName: true } },
-                listing: { include: { media: { where: { type: client_1.MediaType.PHOTO }, take: 1 } } },
+                listing: {
+                    include: { media: { where: { type: client_1.MediaType.PHOTO }, take: 1 } },
+                },
                 media: { orderBy: { orderIndex: 'asc' } },
             },
             orderBy: { createdAt: 'desc' },
+        });
+    }
+    async withdrawQuote(responderId, id) {
+        const quote = await this.prisma.quote.findUnique({ where: { id } });
+        if (!quote || quote.responderId !== responderId) {
+            throw new common_1.NotFoundException('Quote not found');
+        }
+        if (quote.status === client_1.QuoteStatus.WITHDRAWN) {
+            throw new common_1.BadRequestException('Quote is already withdrawn');
+        }
+        return this.prisma.quote.update({
+            where: { id },
+            data: { status: client_1.QuoteStatus.WITHDRAWN },
         });
     }
     async adminListQuotes(status) {
         return this.prisma.quote.findMany({
             where: status ? { status } : undefined,
             include: {
-                requirement: { select: { id: true, title: true, machineCategory: true, buyer: { select: { id: true, fullName: true } } } },
-                responder: { select: { id: true, fullName: true, phone: true, email: true, gstStatus: true } },
+                requirement: {
+                    select: {
+                        id: true,
+                        title: true,
+                        machineCategory: true,
+                        buyer: { select: { id: true, fullName: true } },
+                    },
+                },
+                responder: {
+                    select: {
+                        id: true,
+                        fullName: true,
+                        phone: true,
+                        email: true,
+                        gstStatus: true,
+                    },
+                },
                 listing: { select: { id: true, title: true, askingPrice: true } },
                 media: { orderBy: { orderIndex: 'asc' } },
             },
             orderBy: { createdAt: 'desc' },
         });
     }
-    async approveQuote(id) {
-        const quote = await this.requirePendingQuote(id);
-        return this.prisma.quote.update({
-            where: { id: quote.id },
-            data: { status: client_1.QuoteStatus.APPROVED, adminReviewedAt: new Date() },
-        });
-    }
-    async rejectQuote(id) {
-        const quote = await this.requirePendingQuote(id);
-        return this.prisma.quote.update({
-            where: { id: quote.id },
-            data: { status: client_1.QuoteStatus.REJECTED, adminReviewedAt: new Date() },
-        });
-    }
-    async requirePendingQuote(id) {
-        const quote = await this.prisma.quote.findUnique({ where: { id } });
-        if (!quote) {
-            throw new common_1.NotFoundException('Quote not found');
-        }
-        if (quote.status !== client_1.QuoteStatus.PENDING_ADMIN) {
-            throw new common_1.BadRequestException(`Quote is already ${quote.status}`);
-        }
-        return quote;
-    }
 };
 exports.RequirementsService = RequirementsService;
 exports.RequirementsService = RequirementsService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        storage_service_1.StorageService])
+        storage_service_1.StorageService,
+        notifications_service_1.NotificationsService])
 ], RequirementsService);
 //# sourceMappingURL=requirements.service.js.map

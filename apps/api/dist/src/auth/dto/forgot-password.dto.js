@@ -16,7 +16,9 @@ class ForgotPasswordDto {
 }
 exports.ForgotPasswordDto = ForgotPasswordDto;
 __decorate([
-    (0, class_validator_1.Matches)(/^[6-9]\d{9}$/, { message: 'phone must be a valid 10-digit Indian mobile number' }),
+    (0, class_validator_1.Matches)(/^[6-9]\d{9}$/, {
+        message: 'phone must be a valid 10-digit Indian mobile number',
+    }),
     __metadata("design:type", String)
 ], ForgotPasswordDto.prototype, "phone", void 0);
 //# sourceMappingURL=forgot-password.dto.js.map

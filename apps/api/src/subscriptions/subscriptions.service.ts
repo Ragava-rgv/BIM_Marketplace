@@ -9,7 +9,10 @@ import { SubscriptionPlan, SubscriptionStatus } from '@prisma/client';
 import { FREE_LISTING_QUOTA } from '@machinebazaar/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { RazorpayService } from '../payments/razorpay.service';
-import type { CreateSubscriptionOrderDto, VerifySubscriptionDto } from './dto/verify-subscription.dto';
+import type {
+  CreateSubscriptionOrderDto,
+  VerifySubscriptionDto,
+} from './dto/verify-subscription.dto';
 
 @Injectable()
 export class SubscriptionsService {
@@ -35,7 +38,10 @@ export class SubscriptionsService {
     // since deleted/deactivated, so an existing subscriber isn't cut off by that.
     let quota: number;
     if (active) {
-      quota = active.planConfig && active.planConfig.isActive ? active.planConfig.listingQuota : active.listingQuota;
+      quota =
+        active.planConfig && active.planConfig.isActive
+          ? active.planConfig.listingQuota
+          : active.listingQuota;
     } else {
       // Sellers with no paid subscription sit on the admin-configured "Free" plan config —
       // read its live listingQuota so admin edits apply immediately, same as paid plans.
@@ -67,8 +73,12 @@ export class SubscriptionsService {
       where: { id: dto.planId },
     });
     if (!plan) throw new NotFoundException('Subscription plan not found');
-    if (!plan.isActive) throw new BadRequestException('This subscription plan is no longer available');
-    if (plan.isFree) throw new BadRequestException('Free plan does not require payment');
+    if (!plan.isActive)
+      throw new BadRequestException(
+        'This subscription plan is no longer available',
+      );
+    if (plan.isFree)
+      throw new BadRequestException('Free plan does not require payment');
 
     const amountInr = Number(plan.priceInr);
     const receiptId = `sub-${sellerId.slice(0, 12)}-${Date.now()}`;

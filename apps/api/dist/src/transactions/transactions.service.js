@@ -20,7 +20,9 @@ let TransactionsService = class TransactionsService {
         this.prisma = prisma;
     }
     async create(sellerId, dto) {
-        const listing = await this.prisma.listing.findUnique({ where: { id: dto.listingId } });
+        const listing = await this.prisma.listing.findUnique({
+            where: { id: dto.listingId },
+        });
         if (!listing || listing.sellerId !== sellerId) {
             throw new common_1.NotFoundException('Listing not found');
         }
@@ -28,7 +30,9 @@ let TransactionsService = class TransactionsService {
             throw new common_1.ForbiddenException('This listing has already been sold');
         }
         const enquiry = await this.prisma.enquiry.findUnique({
-            where: { listingId_buyerId: { listingId: dto.listingId, buyerId: dto.buyerId } },
+            where: {
+                listingId_buyerId: { listingId: dto.listingId, buyerId: dto.buyerId },
+            },
         });
         if (!enquiry) {
             throw new common_1.ForbiddenException('This buyer must enquire about the listing before a transaction can be created');
@@ -57,13 +61,20 @@ let TransactionsService = class TransactionsService {
     }
     async listForUser(userId, role) {
         if (role === client_1.UserRole.ADMIN) {
-            return this.prisma.transaction.findMany({ orderBy: { createdAt: 'desc' } });
+            return this.prisma.transaction.findMany({
+                orderBy: { createdAt: 'desc' },
+            });
         }
         const where = role === client_1.UserRole.SELLER ? { sellerId: userId } : { buyerId: userId };
-        return this.prisma.transaction.findMany({ where, orderBy: { createdAt: 'desc' } });
+        return this.prisma.transaction.findMany({
+            where,
+            orderBy: { createdAt: 'desc' },
+        });
     }
     async findById(id) {
-        const transaction = await this.prisma.transaction.findUnique({ where: { id } });
+        const transaction = await this.prisma.transaction.findUnique({
+            where: { id },
+        });
         if (!transaction) {
             throw new common_1.NotFoundException('Transaction not found');
         }
@@ -95,7 +106,9 @@ let TransactionsService = class TransactionsService {
         if (!transaction.contactReleasedAt) {
             return { released: false };
         }
-        const counterpartId = transaction.buyerId === userId ? transaction.sellerId : transaction.buyerId;
+        const counterpartId = transaction.buyerId === userId
+            ? transaction.sellerId
+            : transaction.buyerId;
         const counterpart = await this.prisma.user.findUnique({
             where: { id: counterpartId },
             select: { fullName: true, phone: true, email: true },

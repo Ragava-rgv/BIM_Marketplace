@@ -15,7 +15,10 @@ export class GstController {
   constructor(private readonly gst: GstService) {}
 
   @Post('verify')
-  async verify(@CurrentUser() user: AuthenticatedUser, @Body() dto: VerifyGstDto) {
+  async verify(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: VerifyGstDto,
+  ) {
     return this.gst.verify(user.id, dto.gstNumber, dto.address, user.role);
   }
 }

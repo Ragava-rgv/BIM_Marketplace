@@ -1,5 +1,14 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsInt, IsNumber, IsOptional, IsString, Min, MaxLength, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+  MaxLength,
+  ValidateNested,
+} from 'class-validator';
 
 export class BuybackScheduleEntryInputDto {
   @IsInt()

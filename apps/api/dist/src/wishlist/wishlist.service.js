@@ -20,7 +20,9 @@ let WishlistService = class WishlistService {
         this.prisma = prisma;
     }
     async add(buyerId, listingId) {
-        const listing = await this.prisma.listing.findUnique({ where: { id: listingId } });
+        const listing = await this.prisma.listing.findUnique({
+            where: { id: listingId },
+        });
         if (!listing || listing.status === client_1.ListingStatus.WITHDRAWN) {
             throw new common_1.NotFoundException('Listing not found');
         }
@@ -29,7 +31,10 @@ let WishlistService = class WishlistService {
         });
         if (existing) {
             if (existing.deletedAt) {
-                await this.prisma.wishlist.update({ where: { id: existing.id }, data: { deletedAt: null } });
+                await this.prisma.wishlist.update({
+                    where: { id: existing.id },
+                    data: { deletedAt: null },
+                });
             }
             return;
         }

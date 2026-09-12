@@ -1,5 +1,19 @@
 import { Transform, Type } from 'class-transformer';
-import { IsEmail, IsIn, IsInt, IsNotEmpty, IsObject, IsOptional, IsString, IsUUID, Length, Matches, Max, Min, ValidateIf } from 'class-validator';
+import {
+  IsEmail,
+  IsIn,
+  IsInt,
+  IsNotEmpty,
+  IsObject,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Length,
+  Matches,
+  Max,
+  Min,
+  ValidateIf,
+} from 'class-validator';
 import { ListingCondition, ListingOrigin } from '@prisma/client';
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -16,7 +30,9 @@ export class SubmitQuoteDto {
   @Length(2, 120)
   contactName: string;
 
-  @Matches(/^[6-9]\d{9}$/, { message: 'contactPhone must be a valid 10-digit Indian mobile number' })
+  @Matches(/^[6-9]\d{9}$/, {
+    message: 'contactPhone must be a valid 10-digit Indian mobile number',
+  })
   contactPhone: string;
 
   @IsOptional()
@@ -83,7 +99,9 @@ export class SubmitQuoteDto {
   description?: string;
 
   @IsOptional()
-  @Transform(({ value }) => (typeof value === 'string' ? JSON.parse(value) : value))
+  @Transform(({ value }): unknown =>
+    typeof value === 'string' ? (JSON.parse(value) as unknown) : value,
+  )
   @IsObject()
   specs?: Record<string, unknown>;
 

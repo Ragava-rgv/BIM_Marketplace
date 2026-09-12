@@ -1,4 +1,14 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { UserRole } from '@prisma/client';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -35,7 +45,10 @@ export class BuybackController {
   @Post(':id/accept')
   @HttpCode(HttpStatus.OK)
   @Roles(UserRole.BUYER, UserRole.ADMIN)
-  async accept(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+  async accept(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ) {
     return this.buyback.accept(id, user);
   }
 
@@ -48,13 +61,18 @@ export class BuybackController {
   @Post('from-loan/:loanApplicationId')
   @HttpCode(HttpStatus.CREATED)
   @Roles(UserRole.ADMIN)
-  async initiateFromLoan(@Param('loanApplicationId') loanApplicationId: string) {
+  async initiateFromLoan(
+    @Param('loanApplicationId') loanApplicationId: string,
+  ) {
     return this.buyback.initiateFromLoanApplication(loanApplicationId);
   }
 
   @Patch(':id/agreement')
   @Roles(UserRole.ADMIN)
-  async updateAgreement(@Param('id') id: string, @Body() dto: UpdateBuybackAgreementDto) {
+  async updateAgreement(
+    @Param('id') id: string,
+    @Body() dto: UpdateBuybackAgreementDto,
+  ) {
     return this.buyback.updateAgreement(id, dto);
   }
 

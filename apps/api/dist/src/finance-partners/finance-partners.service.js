@@ -19,13 +19,18 @@ let FinancePartnersService = class FinancePartnersService {
         this.prisma = prisma;
     }
     async listActive() {
-        return this.prisma.financePartner.findMany({ where: { active: true }, orderBy: { name: 'asc' } });
+        return this.prisma.financePartner.findMany({
+            where: { active: true },
+            orderBy: { name: 'asc' },
+        });
     }
     async listAll() {
         return this.prisma.financePartner.findMany({ orderBy: { name: 'asc' } });
     }
     async findById(id) {
-        const partner = await this.prisma.financePartner.findUnique({ where: { id } });
+        const partner = await this.prisma.financePartner.findUnique({
+            where: { id },
+        });
         if (!partner) {
             throw new common_1.NotFoundException('Finance partner not found');
         }
@@ -47,7 +52,9 @@ let FinancePartnersService = class FinancePartnersService {
             where: { id },
             data: {
                 ...dto,
-                referralRate: dto.referralRate !== undefined ? new client_1.Prisma.Decimal(dto.referralRate) : undefined,
+                referralRate: dto.referralRate !== undefined
+                    ? new client_1.Prisma.Decimal(dto.referralRate)
+                    : undefined,
             },
         });
     }

@@ -1,4 +1,14 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { QuoteStatus, UserRole } from '@prisma/client';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -6,7 +16,10 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { AdminService } from './admin.service';
 import { ListingsService } from '../listings/listings.service';
 import { AdminQueryListingsDto } from '../listings/dto/query-listings.dto';
-import { BulkListingStatusDto, type BulkListingStatusAction } from './dto/bulk-listing-status.dto';
+import {
+  BulkListingStatusDto,
+  type BulkListingStatusAction,
+} from './dto/bulk-listing-status.dto';
 import { RequirementsService } from '../requirements/requirements.service';
 import { AdminQueryRequirementsDto } from '../requirements/dto/query-requirements.dto';
 
@@ -83,11 +96,16 @@ export class AdminController {
     const failed = results
       .map((r, i) => ({ r, id: dto.ids[i] }))
       .filter(({ r }) => r.status === 'rejected')
-      .map(({ r, id }) => ({ id, error: (r as PromiseRejectedResult).reason?.message ?? 'Failed' }));
+      .map(({ r, id }) => ({
+        id,
+        error: (r as PromiseRejectedResult).reason?.message ?? 'Failed',
+      }));
     return { succeeded, failed };
   }
 
-  private resolveBulkAction(action: BulkListingStatusAction): (id: string) => Promise<unknown> {
+  private resolveBulkAction(
+    action: BulkListingStatusAction,
+  ): (id: string) => Promise<unknown> {
     switch (action) {
       case 'approve':
         return (id) => this.listings.approve(id);
@@ -102,7 +120,7 @@ export class AdminController {
     }
   }
 
-  // -- Requirement ("Wanted") review queue -------------------------------------
+  // -- Requirement ("Wanted") traceability — read-only, no approval gate --------
 
   @Get('requirements')
   async requirementQueue(@Query() query: AdminQueryRequirementsDto) {
@@ -114,34 +132,10 @@ export class AdminController {
     return this.requirements.findAnyById(id);
   }
 
-  @Post('requirements/:id/approve')
-  @HttpCode(HttpStatus.OK)
-  async approveRequirement(@Param('id') id: string) {
-    return this.requirements.approve(id);
-  }
-
-  @Post('requirements/:id/reject')
-  @HttpCode(HttpStatus.OK)
-  async rejectRequirement(@Param('id') id: string) {
-    return this.requirements.reject(id);
-  }
-
-  // -- Quote review queue --------------------------------------------------------
+  // -- Quote traceability — read-only, no approval gate ---------------------------
 
   @Get('quotes')
   async quoteQueue(@Query('status') status?: QuoteStatus) {
     return this.requirements.adminListQuotes(status);
-  }
-
-  @Post('quotes/:id/approve')
-  @HttpCode(HttpStatus.OK)
-  async approveQuote(@Param('id') id: string) {
-    return this.requirements.approveQuote(id);
-  }
-
-  @Post('quotes/:id/reject')
-  @HttpCode(HttpStatus.OK)
-  async rejectQuote(@Param('id') id: string) {
-    return this.requirements.rejectQuote(id);
   }
 }

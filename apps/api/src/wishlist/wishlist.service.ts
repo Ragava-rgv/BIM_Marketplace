@@ -10,7 +10,9 @@ export class WishlistService {
 
   /** Idempotent — adding a listing that's already wishlisted (and not soft-deleted) is a no-op. */
   async add(buyerId: string, listingId: string): Promise<void> {
-    const listing = await this.prisma.listing.findUnique({ where: { id: listingId } });
+    const listing = await this.prisma.listing.findUnique({
+      where: { id: listingId },
+    });
     if (!listing || listing.status === ListingStatus.WITHDRAWN) {
       throw new NotFoundException('Listing not found');
     }
@@ -20,7 +22,10 @@ export class WishlistService {
     });
     if (existing) {
       if (existing.deletedAt) {
-        await this.prisma.wishlist.update({ where: { id: existing.id }, data: { deletedAt: null } });
+        await this.prisma.wishlist.update({
+          where: { id: existing.id },
+          data: { deletedAt: null },
+        });
       }
       return;
     }

@@ -105,17 +105,13 @@
       "COMPLETED": "पूर्ण"
     },
     "requirement": {
-      "DRAFT": "ड्राफ्ट",
-      "PENDING_REVIEW": "समीक्षा लंबित",
       "ACTIVE": "सक्रिय",
       "FULFILLED": "पूर्ण हुआ",
-      "CLOSED": "बंद",
-      "REJECTED": "अस्वीकृत"
+      "CLOSED": "बंद"
     },
     "quote": {
-      "PENDING_ADMIN": "समीक्षा लंबित",
-      "APPROVED": "स्वीकृत",
-      "REJECTED": "अस्वीकृत"
+      "SUBMITTED": "सबमिट की गई",
+      "WITHDRAWN": "वापस ली गई"
     }
   },
   "role": {

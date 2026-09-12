@@ -26,6 +26,7 @@ var SpecFilterTypeDto;
     SpecFilterTypeDto["none"] = "none";
 })(SpecFilterTypeDto || (exports.SpecFilterTypeDto = SpecFilterTypeDto = {}));
 class AddSpecFieldDto {
+    subcategoryId;
     fieldKey;
     fieldLabel;
     unit;
@@ -38,6 +39,11 @@ class AddSpecFieldDto {
     helpText;
 }
 exports.AddSpecFieldDto = AddSpecFieldDto;
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsUUID)(),
+    __metadata("design:type", String)
+], AddSpecFieldDto.prototype, "subcategoryId", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.Length)(1, 80),

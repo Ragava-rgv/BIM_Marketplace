@@ -2,53 +2,40 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { QuoteDto } from '@machinebazaar/shared';
-import { api, apiErrorMessage } from '../../lib/api';
+import { api } from '../../lib/api';
 import { formatInr } from '../../lib/format';
-import { Button, EmptyState, ErrorBanner, LoadingBlock, PageHeading, Select, StatusBadge } from '../../components/ui';
+import { EmptyState, LoadingBlock, PageHeading, Select, StatusBadge } from '../../components/ui';
 
-const STATUS_OPTIONS = ['PENDING_ADMIN', 'APPROVED', 'REJECTED'];
+const STATUS_OPTIONS = ['', 'SUBMITTED', 'WITHDRAWN'];
 
+/** Read-only traceability log — quotes reach the requirement owner the instant they're
+    submitted (no approval gate), so admin has search/audit access here but nothing to
+    approve or reject. */
 export function AdminQuotes() {
   const { t } = useTranslation();
-  const [status, setStatus] = useState('PENDING_ADMIN');
+  const [status, setStatus] = useState('');
   const [quotes, setQuotes] = useState<QuoteDto[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [acting, setActing] = useState<string | null>(null);
 
   const load = () => {
     setQuotes(null);
-    api.get<QuoteDto[]>('/admin/quotes', { params: { status } })
+    api.get<QuoteDto[]>('/admin/quotes', { params: status ? { status } : undefined })
       .then(({ data }) => setQuotes(data))
       .catch(() => setQuotes([]));
   };
 
   useEffect(load, [status]);
 
-  const act = async (id: string, action: 'approve' | 'reject') => {
-    setActing(id);
-    setError(null);
-    try {
-      await api.post(`/admin/quotes/${id}/${action}`);
-      load();
-    } catch (err) {
-      setError(apiErrorMessage(err, t('admin.quotes.actionError')));
-    } finally {
-      setActing(null);
-    }
-  };
-
   return (
     <div>
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <PageHeading eyebrow={t('admin.quotes.eyebrow')} title={t('admin.quotes.title')} description={t('admin.quotes.description')} />
+        <PageHeading eyebrow={t('admin.quotes.eyebrow')} title={t('admin.quotes.title')} description={t('admin.quotes.traceabilityDescription')} />
         <Select value={status} onChange={(e) => setStatus(e.target.value)} className="w-48">
-          {STATUS_OPTIONS.map((s) => (
+          <option value="">{t('admin.quotes.allStatuses')}</option>
+          {STATUS_OPTIONS.filter(Boolean).map((s) => (
             <option key={s} value={s}>{t(`common:status.quote.${s}`, s)}</option>
           ))}
         </Select>
       </div>
-
-      {error && <div className="mb-5"><ErrorBanner message={error} /></div>}
 
       {quotes === null ? (
         <LoadingBlock />
@@ -90,12 +77,6 @@ export function AdminQuotes() {
                       <img src={m.url} alt="" className="h-full w-full object-cover" />
                     </a>
                   ))}
-                </div>
-              )}
-              {q.status === 'PENDING_ADMIN' && (
-                <div className="mt-3 flex gap-2">
-                  <Button onClick={() => act(q.id, 'approve')} disabled={acting === q.id}>{t('admin.quotes.approve')}</Button>
-                  <Button variant="ghost" onClick={() => act(q.id, 'reject')} disabled={acting === q.id}>{t('admin.quotes.reject')}</Button>
                 </div>
               )}
             </div>

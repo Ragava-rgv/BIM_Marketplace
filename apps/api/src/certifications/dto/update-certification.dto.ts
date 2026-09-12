@@ -1,4 +1,10 @@
-import { IsIn, IsOptional, IsString, Length, ValidateNested } from 'class-validator';
+import {
+  IsIn,
+  IsOptional,
+  IsString,
+  Length,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { InspectionReportDto } from './inspection-report.dto';
 

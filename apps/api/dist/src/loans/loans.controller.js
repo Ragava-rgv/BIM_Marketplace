@@ -34,7 +34,9 @@ let LoansController = class LoansController {
         return this.loans.listMine(user.id);
     }
     async findOne(user, id) {
-        return user.role === client_1.UserRole.ADMIN ? this.loans.findById(id) : this.loans.findForBuyer(user.id, id);
+        return user.role === client_1.UserRole.ADMIN
+            ? this.loans.findById(id)
+            : this.loans.findForBuyer(user.id, id);
     }
     async submit(user, id) {
         return this.loans.submit(user.id, id);

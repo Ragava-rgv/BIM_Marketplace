@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import type { CreateBoostPlanDto, UpdateBoostPlanDto } from './dto/plan.dto';
@@ -22,15 +26,21 @@ export class BoostPlansService {
   }
 
   async findById(id: string) {
-    const plan = await this.prisma.promotionPlan.findFirst({ where: { id, deletedAt: null } });
+    const plan = await this.prisma.promotionPlan.findFirst({
+      where: { id, deletedAt: null },
+    });
     if (!plan) throw new NotFoundException('Boost plan not found');
     return plan;
   }
 
   async create(dto: CreateBoostPlanDto) {
-    const existing = await this.prisma.promotionPlan.findUnique({ where: { name: dto.name } });
+    const existing = await this.prisma.promotionPlan.findUnique({
+      where: { name: dto.name },
+    });
     if (existing && !existing.deletedAt) {
-      throw new BadRequestException(`A boost plan named "${dto.name}" already exists`);
+      throw new BadRequestException(
+        `A boost plan named "${dto.name}" already exists`,
+      );
     }
     return this.prisma.promotionPlan.create({
       data: {
@@ -52,15 +62,22 @@ export class BoostPlansService {
       const conflict = await this.prisma.promotionPlan.findFirst({
         where: { name: dto.name, deletedAt: null, NOT: { id } },
       });
-      if (conflict) throw new BadRequestException(`A boost plan named "${dto.name}" already exists`);
+      if (conflict)
+        throw new BadRequestException(
+          `A boost plan named "${dto.name}" already exists`,
+        );
     }
     return this.prisma.promotionPlan.update({
       where: { id },
       data: {
         ...(dto.name !== undefined && { name: dto.name }),
         ...(dto.displayName !== undefined && { displayName: dto.displayName }),
-        ...(dto.priceInr !== undefined && { priceInr: new Prisma.Decimal(dto.priceInr) }),
-        ...(dto.durationDays !== undefined && { durationDays: dto.durationDays }),
+        ...(dto.priceInr !== undefined && {
+          priceInr: new Prisma.Decimal(dto.priceInr),
+        }),
+        ...(dto.durationDays !== undefined && {
+          durationDays: dto.durationDays,
+        }),
         ...(dto.sortWeight !== undefined && { sortWeight: dto.sortWeight }),
         ...(dto.description !== undefined && { description: dto.description }),
         ...(dto.sortOrder !== undefined && { sortOrder: dto.sortOrder }),
@@ -72,13 +89,18 @@ export class BoostPlansService {
   /** Soft delete — blocked while any purchase record still references this plan (audit trail). */
   async remove(id: string) {
     await this.findById(id);
-    const inUse = await this.prisma.listingBoost.count({ where: { planId: id } });
+    const inUse = await this.prisma.listingBoost.count({
+      where: { planId: id },
+    });
     if (inUse > 0) {
       throw new BadRequestException(
         `Cannot delete a plan with ${inUse} boost purchase(s) on record. Deactivate it instead.`,
       );
     }
-    return this.prisma.promotionPlan.update({ where: { id }, data: { deletedAt: new Date() } });
+    return this.prisma.promotionPlan.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
   }
 
   /** Hard delete — only permitted once the plan is already soft-deleted and has no dependents. */
@@ -86,9 +108,13 @@ export class BoostPlansService {
     const plan = await this.prisma.promotionPlan.findUnique({ where: { id } });
     if (!plan) throw new NotFoundException('Boost plan not found');
     if (!plan.deletedAt) {
-      throw new BadRequestException('Soft-delete this plan before permanently purging it.');
+      throw new BadRequestException(
+        'Soft-delete this plan before permanently purging it.',
+      );
     }
-    const dependents = await this.prisma.listingBoost.count({ where: { planId: id } });
+    const dependents = await this.prisma.listingBoost.count({
+      where: { planId: id },
+    });
     if (dependents > 0) {
       throw new BadRequestException(
         `Cannot purge a plan with ${dependents} boost record(s) still referencing it.`,

@@ -32,7 +32,9 @@ let OtpService = OtpService_1 = class OtpService {
     }
     generateCode() {
         const max = 10 ** OTP_LENGTH;
-        return Math.floor(Math.random() * max).toString().padStart(OTP_LENGTH, '0');
+        return Math.floor(Math.random() * max)
+            .toString()
+            .padStart(OTP_LENGTH, '0');
     }
     async issue(phone, purpose, userId) {
         const code = this.generateCode();

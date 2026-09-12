@@ -11,12 +11,12 @@ export declare class ListingBoostsController {
         };
         plan: {
             id: string;
-            name: string;
             createdAt: Date;
+            name: string;
             updatedAt: Date;
+            durationDays: number;
             displayName: string;
             priceInr: import("@prisma/client/runtime/library").Decimal;
-            durationDays: number;
             isActive: boolean;
             description: string | null;
             sortOrder: number;
@@ -25,16 +25,16 @@ export declare class ListingBoostsController {
         } | null;
     } & {
         id: string;
-        createdAt: Date;
-        durationDays: number;
         expiresAt: Date;
-        planId: string | null;
-        razorpayOrderId: string | null;
-        razorpayPaymentId: string | null;
+        createdAt: Date;
         sellerId: string;
         price: import("@prisma/client/runtime/library").Decimal;
+        durationDays: number;
         startsAt: Date;
+        razorpayOrderId: string | null;
+        razorpayPaymentId: string | null;
         listingId: string;
+        planId: string | null;
     })[]>;
     getStatus(user: AuthenticatedUser, listingId: string): Promise<{
         isBoosted: boolean;
@@ -48,15 +48,15 @@ export declare class ListingBoostsController {
     }>;
     verify(user: AuthenticatedUser, listingId: string, dto: VerifyBoostDto): Promise<{
         id: string;
-        createdAt: Date;
-        durationDays: number;
         expiresAt: Date;
-        planId: string | null;
-        razorpayOrderId: string | null;
-        razorpayPaymentId: string | null;
+        createdAt: Date;
         sellerId: string;
         price: import("@prisma/client/runtime/library").Decimal;
+        durationDays: number;
         startsAt: Date;
+        razorpayOrderId: string | null;
+        razorpayPaymentId: string | null;
         listingId: string;
+        planId: string | null;
     }>;
 }

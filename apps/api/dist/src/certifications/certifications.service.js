@@ -38,7 +38,9 @@ let CertificationsService = class CertificationsService {
         return new client_1.Prisma.Decimal(exports.CERTIFICATION_FEE_BANDS[tier]);
     }
     async createForLoanApplication(loanApplicationId, listingId, complexityTier) {
-        const existing = await this.prisma.certification.findUnique({ where: { loanApplicationId } });
+        const existing = await this.prisma.certification.findUnique({
+            where: { loanApplicationId },
+        });
         if (existing) {
             return existing;
         }
@@ -76,7 +78,10 @@ let CertificationsService = class CertificationsService {
         });
     }
     async listForListing(listingId) {
-        return this.prisma.certification.findMany({ where: { listingId }, orderBy: { createdAt: 'desc' } });
+        return this.prisma.certification.findMany({
+            where: { listingId },
+            orderBy: { createdAt: 'desc' },
+        });
     }
     async update(id, dto) {
         const cert = await this.findById(id);
@@ -96,14 +101,19 @@ let CertificationsService = class CertificationsService {
             data: {
                 status,
                 inspectorNotes: dto.inspectorNotes ?? undefined,
-                inspectionReport: dto.inspectionReport ? dto.inspectionReport : undefined,
-                completedAt: status === client_1.CertificationStatus.COMPLETED ? new Date() : cert.completedAt,
+                inspectionReport: dto.inspectionReport
+                    ? dto.inspectionReport
+                    : undefined,
+                completedAt: status === client_1.CertificationStatus.COMPLETED
+                    ? new Date()
+                    : cert.completedAt,
             },
         });
     }
     async uploadReport(id, file) {
         const cert = await this.findById(id);
-        if (cert.status !== client_1.CertificationStatus.IN_PROGRESS && cert.status !== client_1.CertificationStatus.COMPLETED) {
+        if (cert.status !== client_1.CertificationStatus.IN_PROGRESS &&
+            cert.status !== client_1.CertificationStatus.COMPLETED) {
             throw new common_1.BadRequestException('Move the certification to IN_PROGRESS before attaching the report');
         }
         const uploaded = await this.storage.upload(file, storage_service_1.CERTIFICATION_REPORTS_DIR);

@@ -465,31 +465,27 @@ async function seedCatalog() {
             catOrder++;
             let fieldOrder = 0;
             for (const field of cat.specFields) {
-                await prisma.categorySpecTemplate.upsert({
-                    where: { categoryId_fieldKey: { categoryId: dbCat.id, fieldKey: field.fieldKey } },
-                    update: {
-                        fieldLabel: field.fieldLabel,
-                        unit: field.unit ?? null,
-                        fieldType: field.fieldType,
-                        options: field.options ?? [],
-                        isRequired: field.isRequired ?? false,
-                        isFilterable: field.isFilterable ?? false,
-                        filterType: field.filterType ?? client_1.SpecFilterType.none,
-                        displayOrder: fieldOrder,
-                    },
-                    create: {
-                        categoryId: dbCat.id,
-                        fieldKey: field.fieldKey,
-                        fieldLabel: field.fieldLabel,
-                        unit: field.unit ?? null,
-                        fieldType: field.fieldType,
-                        options: field.options ?? [],
-                        isRequired: field.isRequired ?? false,
-                        isFilterable: field.isFilterable ?? false,
-                        filterType: field.filterType ?? client_1.SpecFilterType.none,
-                        displayOrder: fieldOrder,
-                    },
+                const existingField = await prisma.categorySpecTemplate.findFirst({
+                    where: { categoryId: dbCat.id, subcategoryId: null, fieldKey: field.fieldKey },
                 });
+                const fieldData = {
+                    fieldLabel: field.fieldLabel,
+                    unit: field.unit ?? null,
+                    fieldType: field.fieldType,
+                    options: field.options ?? [],
+                    isRequired: field.isRequired ?? false,
+                    isFilterable: field.isFilterable ?? false,
+                    filterType: field.filterType ?? client_1.SpecFilterType.none,
+                    displayOrder: fieldOrder,
+                };
+                if (existingField) {
+                    await prisma.categorySpecTemplate.update({ where: { id: existingField.id }, data: fieldData });
+                }
+                else {
+                    await prisma.categorySpecTemplate.create({
+                        data: { categoryId: dbCat.id, fieldKey: field.fieldKey, ...fieldData },
+                    });
+                }
                 fieldOrder++;
             }
         }

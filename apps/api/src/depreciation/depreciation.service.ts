@@ -17,7 +17,10 @@ export class DepreciationService {
   async upsert(dto: UpsertDepreciationEntryDto): Promise<DepreciationSchedule> {
     return this.prisma.depreciationSchedule.upsert({
       where: {
-        machineCategory_yearOffset: { machineCategory: dto.machineCategory, yearOffset: dto.yearOffset },
+        machineCategory_yearOffset: {
+          machineCategory: dto.machineCategory,
+          yearOffset: dto.yearOffset,
+        },
       },
       update: { retainedValuePct: new Prisma.Decimal(dto.retainedValuePct) },
       create: {

@@ -5,12 +5,12 @@ export declare class BoostPlansController {
     constructor(service: BoostPlansService);
     listActive(): import("@prisma/client").Prisma.PrismaPromise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number;
         displayName: string;
         priceInr: import("@prisma/client/runtime/library").Decimal;
-        durationDays: number;
         isActive: boolean;
         description: string | null;
         sortOrder: number;
@@ -19,12 +19,12 @@ export declare class BoostPlansController {
     }[]>;
     listAll(): import("@prisma/client").Prisma.PrismaPromise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number;
         displayName: string;
         priceInr: import("@prisma/client/runtime/library").Decimal;
-        durationDays: number;
         isActive: boolean;
         description: string | null;
         sortOrder: number;
@@ -33,12 +33,12 @@ export declare class BoostPlansController {
     }[]>;
     create(dto: CreateBoostPlanDto): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number;
         displayName: string;
         priceInr: import("@prisma/client/runtime/library").Decimal;
-        durationDays: number;
         isActive: boolean;
         description: string | null;
         sortOrder: number;
@@ -47,12 +47,12 @@ export declare class BoostPlansController {
     }>;
     update(id: string, dto: UpdateBoostPlanDto): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number;
         displayName: string;
         priceInr: import("@prisma/client/runtime/library").Decimal;
-        durationDays: number;
         isActive: boolean;
         description: string | null;
         sortOrder: number;
@@ -61,12 +61,12 @@ export declare class BoostPlansController {
     }>;
     remove(id: string): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number;
         displayName: string;
         priceInr: import("@prisma/client/runtime/library").Decimal;
-        durationDays: number;
         isActive: boolean;
         description: string | null;
         sortOrder: number;
@@ -75,12 +75,12 @@ export declare class BoostPlansController {
     }>;
     purge(id: string): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
+        durationDays: number;
         displayName: string;
         priceInr: import("@prisma/client/runtime/library").Decimal;
-        durationDays: number;
         isActive: boolean;
         description: string | null;
         sortOrder: number;

@@ -64,7 +64,10 @@ let AdminController = class AdminController {
         const failed = results
             .map((r, i) => ({ r, id: dto.ids[i] }))
             .filter(({ r }) => r.status === 'rejected')
-            .map(({ r, id }) => ({ id, error: r.reason?.message ?? 'Failed' }));
+            .map(({ r, id }) => ({
+            id,
+            error: r.reason?.message ?? 'Failed',
+        }));
         return { succeeded, failed };
     }
     resolveBulkAction(action) {
@@ -87,20 +90,8 @@ let AdminController = class AdminController {
     async requirementDetail(id) {
         return this.requirements.findAnyById(id);
     }
-    async approveRequirement(id) {
-        return this.requirements.approve(id);
-    }
-    async rejectRequirement(id) {
-        return this.requirements.reject(id);
-    }
     async quoteQueue(status) {
         return this.requirements.adminListQuotes(status);
-    }
-    async approveQuote(id) {
-        return this.requirements.approveQuote(id);
-    }
-    async rejectQuote(id) {
-        return this.requirements.rejectQuote(id);
     }
 };
 exports.AdminController = AdminController;
@@ -187,44 +178,12 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "requirementDetail", null);
 __decorate([
-    (0, common_1.Post)('requirements/:id/approve'),
-    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], AdminController.prototype, "approveRequirement", null);
-__decorate([
-    (0, common_1.Post)('requirements/:id/reject'),
-    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], AdminController.prototype, "rejectRequirement", null);
-__decorate([
     (0, common_1.Get)('quotes'),
     __param(0, (0, common_1.Query)('status')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "quoteQueue", null);
-__decorate([
-    (0, common_1.Post)('quotes/:id/approve'),
-    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], AdminController.prototype, "approveQuote", null);
-__decorate([
-    (0, common_1.Post)('quotes/:id/reject'),
-    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], AdminController.prototype, "rejectQuote", null);
 exports.AdminController = AdminController = __decorate([
     (0, common_1.Controller)('admin'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

@@ -14,7 +14,10 @@ import { PrismaService } from '../prisma/prisma.service';
 import { OtpService } from './otp.service';
 import type { SignupDto } from './dto/signup.dto';
 import type { OtpPurpose } from './dto/send-otp.dto';
-import type { JwtAccessPayload, JwtRefreshPayload } from './types/jwt-payload.interface';
+import type {
+  JwtAccessPayload,
+  JwtRefreshPayload,
+} from './types/jwt-payload.interface';
 
 export interface AuthTokens {
   accessToken: string;
@@ -36,15 +39,23 @@ export class AuthService {
   // -- Signup -------------------------------------------------------------
 
   async signup(dto: SignupDto): Promise<{ userId: string }> {
-    const existing = await this.prisma.user.findUnique({ where: { phone: dto.phone } });
+    const existing = await this.prisma.user.findUnique({
+      where: { phone: dto.phone },
+    });
     if (existing) {
-      throw new ConflictException('An account with this phone number already exists');
+      throw new ConflictException(
+        'An account with this phone number already exists',
+      );
     }
 
     if (dto.email) {
-      const existingEmail = await this.prisma.user.findUnique({ where: { email: dto.email } });
+      const existingEmail = await this.prisma.user.findUnique({
+        where: { email: dto.email },
+      });
       if (existingEmail) {
-        throw new ConflictException('An account with this email already exists');
+        throw new ConflictException(
+          'An account with this email already exists',
+        );
       }
     }
 
@@ -52,7 +63,7 @@ export class AuthService {
 
     const user = await this.prisma.user.create({
       data: {
-        role: dto.role as UserRole,
+        role: dto.role,
         fullName: dto.fullName,
         phone: dto.phone,
         email: dto.email ?? null,
@@ -71,7 +82,10 @@ export class AuthService {
 
   // -- Login ----------------------------------------------------------------
 
-  async loginWithPassword(phone: string, password: string): Promise<AuthTokens> {
+  async loginWithPassword(
+    phone: string,
+    password: string,
+  ): Promise<AuthTokens> {
     const user = await this.prisma.user.findUnique({ where: { phone } });
 
     if (!user || user.role === UserRole.ADMIN || !user.passwordHash) {
@@ -79,7 +93,9 @@ export class AuthService {
     }
 
     if (!user.phoneVerified) {
-      throw new UnauthorizedException('Phone number not verified — complete signup first');
+      throw new UnauthorizedException(
+        'Phone number not verified — complete signup first',
+      );
     }
 
     const matches = await bcrypt.compare(password, user.passwordHash);
@@ -96,16 +112,24 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { phone } });
 
     if (!user) {
-      throw new BadRequestException('No pending signup found for this phone number');
+      throw new BadRequestException(
+        'No pending signup found for this phone number',
+      );
     }
     if (user.role === UserRole.ADMIN) {
-      throw new BadRequestException('Admin accounts use email and password login');
+      throw new BadRequestException(
+        'Admin accounts use email and password login',
+      );
     }
 
     await this.otp.issue(phone, purpose, user.id);
   }
 
-  async verifyOtpAndAuthenticate(phone: string, code: string, purpose: OtpPurpose): Promise<AuthTokens> {
+  async verifyOtpAndAuthenticate(
+    phone: string,
+    code: string,
+    purpose: OtpPurpose,
+  ): Promise<AuthTokens> {
     await this.otp.verify(phone, code, purpose);
 
     const user = await this.prisma.user.findUnique({ where: { phone } });
@@ -114,7 +138,10 @@ export class AuthService {
     }
 
     if (purpose === 'SIGNUP' && !user.phoneVerified) {
-      await this.prisma.user.update({ where: { id: user.id }, data: { phoneVerified: true } });
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { phoneVerified: true },
+      });
     }
 
     return this.issueTokenPair(user);
@@ -131,7 +158,11 @@ export class AuthService {
     await this.otp.issue(phone, 'RESET_PASSWORD', user.id);
   }
 
-  async resetPassword(phone: string, code: string, newPassword: string): Promise<AuthTokens> {
+  async resetPassword(
+    phone: string,
+    code: string,
+    newPassword: string,
+  ): Promise<AuthTokens> {
     await this.otp.verify(phone, code, 'RESET_PASSWORD');
 
     const user = await this.prisma.user.findUnique({ where: { phone } });
@@ -174,7 +205,11 @@ export class AuthService {
   // -- Token lifecycle --------------------------------------------------------
 
   async issueTokenPair(user: User): Promise<AuthTokens> {
-    const accessPayload: JwtAccessPayload = { sub: user.id, role: user.role, type: 'access' };
+    const accessPayload: JwtAccessPayload = {
+      sub: user.id,
+      role: user.role,
+      type: 'access',
+    };
     const accessTtl = this.config.get<string>('JWT_ACCESS_TTL') ?? '15m';
     const accessToken = await this.jwt.signAsync(accessPayload, {
       secret: this.config.get<string>('JWT_ACCESS_SECRET'),
@@ -182,14 +217,22 @@ export class AuthService {
     });
 
     const jti = randomUUID();
-    const refreshPayload: JwtRefreshPayload = { sub: user.id, role: user.role, jti, type: 'refresh' };
+    const refreshPayload: JwtRefreshPayload = {
+      sub: user.id,
+      role: user.role,
+      jti,
+      type: 'refresh',
+    };
     const refreshTtl = this.config.get<string>('JWT_REFRESH_TTL') ?? '30d';
     const refreshToken = await this.jwt.signAsync(refreshPayload, {
       secret: this.config.get<string>('JWT_REFRESH_SECRET'),
       expiresIn: refreshTtl as JwtSignOptions['expiresIn'],
     });
 
-    const tokenHash = await bcrypt.hash(refreshToken, REFRESH_TOKEN_HASH_ROUNDS);
+    const tokenHash = await bcrypt.hash(
+      refreshToken,
+      REFRESH_TOKEN_HASH_ROUNDS,
+    );
     await this.prisma.refreshToken.create({
       data: {
         id: jti,
@@ -216,7 +259,9 @@ export class AuthService {
       throw new UnauthorizedException('Invalid token type');
     }
 
-    const stored = await this.prisma.refreshToken.findUnique({ where: { id: payload.jti } });
+    const stored = await this.prisma.refreshToken.findUnique({
+      where: { id: payload.jti },
+    });
     if (!stored || stored.revoked || stored.expiresAt < new Date()) {
       throw new UnauthorizedException('Refresh token is no longer valid');
     }
@@ -226,13 +271,18 @@ export class AuthService {
       throw new UnauthorizedException('Refresh token is no longer valid');
     }
 
-    const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
+    const user = await this.prisma.user.findUnique({
+      where: { id: payload.sub },
+    });
     if (!user) {
       throw new UnauthorizedException('Account no longer exists');
     }
 
     // Rotate: revoke the used refresh token and issue a fresh pair.
-    await this.prisma.refreshToken.update({ where: { id: stored.id }, data: { revoked: true } });
+    await this.prisma.refreshToken.update({
+      where: { id: stored.id },
+      data: { revoked: true },
+    });
 
     return this.issueTokenPair(user);
   }
@@ -284,7 +334,10 @@ export class AuthService {
     return this.issueTokenPair(updated);
   }
 
-  async switchMode(userId: string, mode: 'BUYER' | 'SELLER'): Promise<ReturnType<typeof this.toUserDto>> {
+  async switchMode(
+    userId: string,
+    mode: 'BUYER' | 'SELLER',
+  ): Promise<ReturnType<typeof this.toUserDto>> {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new UnauthorizedException('Account not found');
 
@@ -339,7 +392,12 @@ export class AuthService {
       return new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     }
     const value = Number(match[1]);
-    const unitMs: Record<string, number> = { s: 1000, m: 60_000, h: 3_600_000, d: 86_400_000 };
+    const unitMs: Record<string, number> = {
+      s: 1000,
+      m: 60_000,
+      h: 3_600_000,
+      d: 86_400_000,
+    };
     return new Date(Date.now() + value * unitMs[match[2]]);
   }
 }

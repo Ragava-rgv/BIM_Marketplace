@@ -12,7 +12,11 @@ import {
   Min,
   ValidateIf,
 } from 'class-validator';
-import { ComplexityTier, ListingCondition, ListingOrigin } from '@prisma/client';
+import {
+  ComplexityTier,
+  ListingCondition,
+  ListingOrigin,
+} from '@prisma/client';
 
 const CURRENT_YEAR = new Date().getFullYear();
 

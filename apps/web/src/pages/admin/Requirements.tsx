@@ -5,11 +5,11 @@ import type { PaginatedResult, RequirementDto } from '@machinebazaar/shared';
 import { api } from '../../lib/api';
 import { EmptyState, LoadingBlock, PageHeading, Select, StatusBadge } from '../../components/ui';
 
-const STATUS_OPTIONS = ['PENDING_REVIEW', 'ACTIVE', 'FULFILLED', 'CLOSED', 'REJECTED'];
+const STATUS_OPTIONS = ['ACTIVE', 'FULFILLED', 'CLOSED'];
 
 export function AdminRequirements() {
   const { t } = useTranslation();
-  const [status, setStatus] = useState('PENDING_REVIEW');
+  const [status, setStatus] = useState('ACTIVE');
   const [result, setResult] = useState<PaginatedResult<RequirementDto> | null>(null);
 
   useEffect(() => {

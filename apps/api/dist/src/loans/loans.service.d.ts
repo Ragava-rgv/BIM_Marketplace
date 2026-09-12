@@ -15,11 +15,11 @@ export declare class LoansService {
     listAll(): Promise<({
         listing: {
             id: string;
-            machineCategory: string;
             locationCity: string;
             locationState: string;
             status: import("@prisma/client").$Enums.ListingStatus;
             title: string;
+            machineCategory: string;
             machineMake: string;
             machineModel: string;
             manufactureYear: number | null;
@@ -43,17 +43,17 @@ export declare class LoansService {
             id: string;
         } | null;
         buyer: {
-            email: string | null;
             phone: string;
             fullName: string;
+            email: string | null;
             gstStatus: import("@prisma/client").$Enums.GstStatus;
         };
         partner: {
             id: string;
             name: string;
+            active: boolean;
             type: import("@prisma/client").$Enums.FinancePartnerType;
             referralRate: Prisma.Decimal;
-            active: boolean;
         } | null;
     } & {
         id: string;
@@ -61,8 +61,8 @@ export declare class LoansService {
         status: import("@prisma/client").$Enums.LoanApplicationStatus;
         listingId: string;
         buyerId: string;
-        amountRequested: Prisma.Decimal;
         partnerId: string | null;
+        amountRequested: Prisma.Decimal;
         referralCommission: Prisma.Decimal | null;
     })[]>;
 }

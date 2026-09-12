@@ -11,28 +11,28 @@ export declare class CategoryGroupsController {
         categories: ({
             subcategories: {
                 id: string;
-                name: string;
                 createdAt: Date;
+                name: string;
                 updatedAt: Date;
                 isActive: boolean;
                 description: string | null;
+                categoryId: string;
                 displayOrder: number;
                 slug: string;
                 iconKey: string | null;
                 imageUrl: string | null;
                 listingCount: number;
-                categoryId: string;
             }[];
         } & {
             id: string;
-            name: string;
             createdAt: Date;
+            name: string;
             updatedAt: Date;
             isActive: boolean;
             description: string | null;
             displayOrder: number;
-            slug: string;
             groupId: string | null;
+            slug: string;
             iconKey: string | null;
             imageUrl: string | null;
             thumbnailUrl: string | null;
@@ -53,26 +53,26 @@ export declare class CategoriesController {
         subcategories: {
             listingCount: number;
             id: string;
-            name: string;
             createdAt: Date;
+            name: string;
             updatedAt: Date;
             isActive: boolean;
             description: string | null;
+            categoryId: string;
             displayOrder: number;
             slug: string;
             iconKey: string | null;
             imageUrl: string | null;
-            categoryId: string;
         }[];
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
         isActive: boolean;
         description: string | null;
         displayOrder: number;
-        slug: string;
         groupId: string | null;
+        slug: string;
         iconKey: string | null;
         imageUrl: string | null;
         thumbnailUrl: string | null;
@@ -80,86 +80,88 @@ export declare class CategoriesController {
     getBySlug(slug: string): Promise<{
         specFields: {
             id: string;
-            isFilterable: boolean;
-            unit: string | null;
-            filterType: import("@prisma/client").$Enums.SpecFilterType;
             options: string[];
-            displayOrder: number;
             categoryId: string;
+            subcategoryId: string | null;
             fieldKey: string;
             fieldLabel: string;
+            unit: string | null;
             fieldType: import("@prisma/client").$Enums.SpecFieldType;
             isRequired: boolean;
+            isFilterable: boolean;
+            filterType: import("@prisma/client").$Enums.SpecFilterType;
+            displayOrder: number;
             helpText: string | null;
         }[];
         subcategories: {
             id: string;
-            name: string;
             createdAt: Date;
+            name: string;
             updatedAt: Date;
             isActive: boolean;
             description: string | null;
+            categoryId: string;
             displayOrder: number;
             slug: string;
             iconKey: string | null;
             imageUrl: string | null;
             listingCount: number;
-            categoryId: string;
         }[];
     } & {
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
         isActive: boolean;
         description: string | null;
         displayOrder: number;
-        slug: string;
         groupId: string | null;
+        slug: string;
         iconKey: string | null;
         imageUrl: string | null;
         thumbnailUrl: string | null;
         listingCount: number;
     }>;
-    getSpecTemplate(id: string): Promise<{
+    getSpecTemplate(id: string, subcategoryId?: string): Promise<{
         specFields: {
             id: string;
-            isFilterable: boolean;
-            unit: string | null;
-            filterType: import("@prisma/client").$Enums.SpecFilterType;
             options: string[];
-            displayOrder: number;
             categoryId: string;
+            subcategoryId: string | null;
             fieldKey: string;
             fieldLabel: string;
+            unit: string | null;
             fieldType: import("@prisma/client").$Enums.SpecFieldType;
             isRequired: boolean;
+            isFilterable: boolean;
+            filterType: import("@prisma/client").$Enums.SpecFilterType;
+            displayOrder: number;
             helpText: string | null;
         }[];
         subcategories: {
             id: string;
-            name: string;
             createdAt: Date;
+            name: string;
             updatedAt: Date;
             isActive: boolean;
             description: string | null;
+            categoryId: string;
             displayOrder: number;
             slug: string;
             iconKey: string | null;
             imageUrl: string | null;
             listingCount: number;
-            categoryId: string;
         }[];
     } & {
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
         isActive: boolean;
         description: string | null;
         displayOrder: number;
-        slug: string;
         groupId: string | null;
+        slug: string;
         iconKey: string | null;
         imageUrl: string | null;
         thumbnailUrl: string | null;
@@ -167,17 +169,17 @@ export declare class CategoriesController {
     }>;
     listPublicSubcategories(id: string): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
         isActive: boolean;
         description: string | null;
+        categoryId: string;
         displayOrder: number;
         slug: string;
         iconKey: string | null;
         imageUrl: string | null;
         listingCount: number;
-        categoryId: string;
     }[]>;
 }
 export declare class AdminCatalogController {
@@ -187,28 +189,28 @@ export declare class AdminCatalogController {
         categories: ({
             subcategories: {
                 id: string;
-                name: string;
                 createdAt: Date;
+                name: string;
                 updatedAt: Date;
                 isActive: boolean;
                 description: string | null;
+                categoryId: string;
                 displayOrder: number;
                 slug: string;
                 iconKey: string | null;
                 imageUrl: string | null;
                 listingCount: number;
-                categoryId: string;
             }[];
         } & {
             id: string;
-            name: string;
             createdAt: Date;
+            name: string;
             updatedAt: Date;
             isActive: boolean;
             description: string | null;
             displayOrder: number;
-            slug: string;
             groupId: string | null;
+            slug: string;
             iconKey: string | null;
             imageUrl: string | null;
             thumbnailUrl: string | null;
@@ -246,42 +248,43 @@ export declare class AdminCatalogController {
         } | null;
         specFields: {
             id: string;
-            isFilterable: boolean;
-            unit: string | null;
-            filterType: import("@prisma/client").$Enums.SpecFilterType;
             options: string[];
-            displayOrder: number;
             categoryId: string;
+            subcategoryId: string | null;
             fieldKey: string;
             fieldLabel: string;
+            unit: string | null;
             fieldType: import("@prisma/client").$Enums.SpecFieldType;
             isRequired: boolean;
+            isFilterable: boolean;
+            filterType: import("@prisma/client").$Enums.SpecFilterType;
+            displayOrder: number;
             helpText: string | null;
         }[];
         subcategories: {
             id: string;
-            name: string;
             createdAt: Date;
+            name: string;
             updatedAt: Date;
             isActive: boolean;
             description: string | null;
+            categoryId: string;
             displayOrder: number;
             slug: string;
             iconKey: string | null;
             imageUrl: string | null;
             listingCount: number;
-            categoryId: string;
         }[];
     } & {
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
         isActive: boolean;
         description: string | null;
         displayOrder: number;
-        slug: string;
         groupId: string | null;
+        slug: string;
         iconKey: string | null;
         imageUrl: string | null;
         thumbnailUrl: string | null;
@@ -290,28 +293,28 @@ export declare class AdminCatalogController {
     createCategory(dto: CreateCategoryDto): Promise<{
         subcategories: {
             id: string;
-            name: string;
             createdAt: Date;
+            name: string;
             updatedAt: Date;
             isActive: boolean;
             description: string | null;
+            categoryId: string;
             displayOrder: number;
             slug: string;
             iconKey: string | null;
             imageUrl: string | null;
             listingCount: number;
-            categoryId: string;
         }[];
     } & {
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
         isActive: boolean;
         description: string | null;
         displayOrder: number;
-        slug: string;
         groupId: string | null;
+        slug: string;
         iconKey: string | null;
         imageUrl: string | null;
         thumbnailUrl: string | null;
@@ -320,28 +323,28 @@ export declare class AdminCatalogController {
     updateCategory(id: string, dto: Partial<CreateCategoryDto>): Promise<{
         subcategories: {
             id: string;
-            name: string;
             createdAt: Date;
+            name: string;
             updatedAt: Date;
             isActive: boolean;
             description: string | null;
+            categoryId: string;
             displayOrder: number;
             slug: string;
             iconKey: string | null;
             imageUrl: string | null;
             listingCount: number;
-            categoryId: string;
         }[];
     } & {
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
         isActive: boolean;
         description: string | null;
         displayOrder: number;
-        slug: string;
         groupId: string | null;
+        slug: string;
         iconKey: string | null;
         imageUrl: string | null;
         thumbnailUrl: string | null;
@@ -349,14 +352,14 @@ export declare class AdminCatalogController {
     }>;
     deactivateCategory(id: string): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
         isActive: boolean;
         description: string | null;
         displayOrder: number;
-        slug: string;
         groupId: string | null;
+        slug: string;
         iconKey: string | null;
         imageUrl: string | null;
         thumbnailUrl: string | null;
@@ -369,28 +372,28 @@ export declare class AdminCatalogController {
     uploadCategoryImage(id: string, file: Express.Multer.File): Promise<{
         subcategories: {
             id: string;
-            name: string;
             createdAt: Date;
+            name: string;
             updatedAt: Date;
             isActive: boolean;
             description: string | null;
+            categoryId: string;
             displayOrder: number;
             slug: string;
             iconKey: string | null;
             imageUrl: string | null;
             listingCount: number;
-            categoryId: string;
         }[];
     } & {
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
         isActive: boolean;
         description: string | null;
         displayOrder: number;
-        slug: string;
         groupId: string | null;
+        slug: string;
         iconKey: string | null;
         imageUrl: string | null;
         thumbnailUrl: string | null;
@@ -398,59 +401,59 @@ export declare class AdminCatalogController {
     }>;
     adminListSubcategories(id: string): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
         isActive: boolean;
         description: string | null;
+        categoryId: string;
         displayOrder: number;
         slug: string;
         iconKey: string | null;
         imageUrl: string | null;
         listingCount: number;
-        categoryId: string;
     }[]>;
     createSubcategory(dto: CreateSubcategoryDto): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
         isActive: boolean;
         description: string | null;
+        categoryId: string;
         displayOrder: number;
         slug: string;
         iconKey: string | null;
         imageUrl: string | null;
         listingCount: number;
-        categoryId: string;
     }>;
     updateSubcategory(id: string, dto: Partial<Omit<CreateSubcategoryDto, 'categoryId'>>): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
         isActive: boolean;
         description: string | null;
+        categoryId: string;
         displayOrder: number;
         slug: string;
         iconKey: string | null;
         imageUrl: string | null;
         listingCount: number;
-        categoryId: string;
     }>;
     deactivateSubcategory(id: string): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
         isActive: boolean;
         description: string | null;
+        categoryId: string;
         displayOrder: number;
         slug: string;
         iconKey: string | null;
         imageUrl: string | null;
         listingCount: number;
-        categoryId: string;
     }>;
     deleteSubcategory(id: string): Promise<{
         deleted: boolean;
@@ -458,44 +461,46 @@ export declare class AdminCatalogController {
     reorderSubcategories(categoryId: string, dto: ReorderDto): Promise<void>;
     uploadSubcategoryImage(id: string, file: Express.Multer.File): Promise<{
         id: string;
-        name: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
         isActive: boolean;
         description: string | null;
+        categoryId: string;
         displayOrder: number;
         slug: string;
         iconKey: string | null;
         imageUrl: string | null;
         listingCount: number;
-        categoryId: string;
     }>;
     addSpecField(categoryId: string, dto: AddSpecFieldDto): Promise<{
         id: string;
-        isFilterable: boolean;
-        unit: string | null;
-        filterType: import("@prisma/client").$Enums.SpecFilterType;
         options: string[];
-        displayOrder: number;
         categoryId: string;
+        subcategoryId: string | null;
         fieldKey: string;
         fieldLabel: string;
+        unit: string | null;
         fieldType: import("@prisma/client").$Enums.SpecFieldType;
         isRequired: boolean;
+        isFilterable: boolean;
+        filterType: import("@prisma/client").$Enums.SpecFilterType;
+        displayOrder: number;
         helpText: string | null;
     }>;
     updateSpecField(id: string, dto: Partial<AddSpecFieldDto>): Promise<{
         id: string;
-        isFilterable: boolean;
-        unit: string | null;
-        filterType: import("@prisma/client").$Enums.SpecFilterType;
         options: string[];
-        displayOrder: number;
         categoryId: string;
+        subcategoryId: string | null;
         fieldKey: string;
         fieldLabel: string;
+        unit: string | null;
         fieldType: import("@prisma/client").$Enums.SpecFieldType;
         isRequired: boolean;
+        isFilterable: boolean;
+        filterType: import("@prisma/client").$Enums.SpecFilterType;
+        displayOrder: number;
         helpText: string | null;
     }>;
     deleteSpecField(id: string): Promise<void>;

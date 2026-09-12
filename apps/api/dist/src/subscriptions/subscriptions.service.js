@@ -35,7 +35,10 @@ let SubscriptionsService = class SubscriptionsService {
         });
         let quota;
         if (active) {
-            quota = active.planConfig && active.planConfig.isActive ? active.planConfig.listingQuota : active.listingQuota;
+            quota =
+                active.planConfig && active.planConfig.isActive
+                    ? active.planConfig.listingQuota
+                    : active.listingQuota;
         }
         else {
             const freePlan = await this.prisma.subscriptionPlanConfig.findFirst({

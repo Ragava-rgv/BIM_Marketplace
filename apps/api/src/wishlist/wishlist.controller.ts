@@ -1,4 +1,13 @@
-import { Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { UserRole } from '@prisma/client';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -26,14 +35,20 @@ export class WishlistController {
 
   @Post(':listingId')
   @HttpCode(HttpStatus.OK)
-  async add(@CurrentUser() user: AuthenticatedUser, @Param('listingId') listingId: string) {
+  async add(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('listingId') listingId: string,
+  ) {
     await this.wishlist.add(user.id, listingId);
     return { saved: true };
   }
 
   @Delete(':listingId')
   @HttpCode(HttpStatus.OK)
-  async remove(@CurrentUser() user: AuthenticatedUser, @Param('listingId') listingId: string) {
+  async remove(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('listingId') listingId: string,
+  ) {
     await this.wishlist.remove(user.id, listingId);
     return { saved: false };
   }

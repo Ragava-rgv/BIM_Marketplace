@@ -52,9 +52,6 @@ let RequirementsController = class RequirementsController {
     async update(user, id, dto) {
         return this.requirements.update(user.id, id, dto);
     }
-    async submit(user, id) {
-        return this.requirements.submitForReview(user.id, id);
-    }
     async close(user, id) {
         return this.requirements.close(user.id, id);
     }
@@ -68,8 +65,8 @@ let RequirementsController = class RequirementsController {
         await this.requirements.removeMedia(user.id, id, mediaId);
         return { removed: true };
     }
-    async approvedQuotes(user, id) {
-        return this.requirements.findApprovedQuotesForRequirement(user.id, id);
+    async quotesReceived(user, id) {
+        return this.requirements.findQuotesForRequirement(user.id, id);
     }
     async submitQuote(user, id, dto, photos) {
         return this.requirements.submitQuote(user.id, id, dto, photos ?? []);
@@ -131,17 +128,6 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], RequirementsController.prototype, "update", null);
 __decorate([
-    (0, common_1.Post)(':id/submit'),
-    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)(client_1.UserRole.BUYER, client_1.UserRole.SELLER),
-    __param(0, (0, current_user_decorator_1.CurrentUser)()),
-    __param(1, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String]),
-    __metadata("design:returntype", Promise)
-], RequirementsController.prototype, "submit", null);
-__decorate([
     (0, common_1.Post)(':id/close'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
@@ -197,12 +183,14 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
-], RequirementsController.prototype, "approvedQuotes", null);
+], RequirementsController.prototype, "quotesReceived", null);
 __decorate([
     (0, common_1.Post)(':id/quotes'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.UserRole.SELLER),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FilesInterceptor)('photos', MAX_QUOTE_PHOTOS, { limits: { fileSize: MAX_QUOTE_PHOTO_BYTES } })),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FilesInterceptor)('photos', MAX_QUOTE_PHOTOS, {
+        limits: { fileSize: MAX_QUOTE_PHOTO_BYTES },
+    })),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('id')),
     __param(2, (0, common_1.Body)()),

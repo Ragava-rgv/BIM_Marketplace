@@ -791,8 +791,8 @@
         "selectStateFirst": "Select state first"
       },
       "submitted": {
-        "title": "Requirement submitted for review",
-        "description": "Once approved, matching sellers can start sending you quotes.",
+        "title": "Your requirement is live",
+        "description": "GST-verified sellers can see it now and send you a quote.",
         "goToRequirements": "Go to my requirements"
       }
     },
@@ -810,14 +810,14 @@
       "backToRequirements": "Back to my requirements",
       "errors": {
         "notFound": "This requirement could not be found.",
-        "submitFailed": "Could not submit this requirement for review.",
+        "fulfilledFailed": "Could not mark this requirement fulfilled.",
         "closeFailed": "Could not close this requirement."
       },
       "sections": { "quotesHeading": "Quotes received" },
-      "noQuotes": "No approved quotes yet — check back once sellers respond.",
+      "noQuotes": "No quotes yet — check back once sellers respond.",
       "quoteFrom": "From {{name}}",
-      "submitting": "Submitting…",
-      "submitForReview": "Submit for review",
+      "markingFulfilled": "Saving…",
+      "markFulfilled": "Mark fulfilled",
       "closing": "Closing…",
       "closeRequirement": "Close requirement"
     },
