@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand palette — forest / copper / cool gray (v5) */
+  --color-ink: #101828;
+  --color-ink-2: #1d2939;
+  --color-forest: #1b4332;
+  --color-forest-2: #2d6a4f;
+  --color-forest-bg: #edf7f2;
+  --color-forest-bdr: #bfe3d2;
+  --color-copper: #b45309;
+  --color-copper-2: #92400e;
+  --color-copper-bg: #fef6ec;
+  --color-copper-bdr: #f5d9a8;
+  --color-green-txt: #067647;
+  --color-green-bg: #ecfdf3;
+  --color-green-bdr: #abefc6;
+
+  /* Cool gray scale — replaces the old warm "paper" tones */
+  --color-paper: #fcfcfd;
+  --color-paper-2: #f2f4f7;
+  --color-gray-25: #fcfcfd;
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f2f4f7;
+  --color-gray-200: #e4e7ec;
+  --color-gray-300: #d0d5dd;
+  --color-gray-500: #667085;
+  --color-gray-600: #475467;
+  --color-gray-700: #344054;
+  --color-line: #e4e7ec;
+  --color-line-2: #d0d5dd;
+  --color-muted: #667085;
+  --color-slate: #475467;
+
+  /* Legacy aliases — existing navy/accent utilities across the app pick up the new palette */
+  --color-navy: #101828;
+  --color-navy-dark: #000000;
+  --color-navy-light: #2d6a4f;
+  --color-accent: #1b4332;
+  --color-accent-dark: #2d6a4f;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-white text-navy font-sans antialiased;
+    font-feature-settings: "cv11";
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display font-extrabold tracking-tight text-navy;
+  }
+
+  /* Indic script fonts, loaded on demand by lib/fonts.ts only when that locale is active */
+  :root[lang="ta"] body {
+    font-family: "Noto Sans Tamil", var(--font-sans);
+  }
+  :root[lang="hi"] body {
+    font-family: "Noto Sans Devanagari", var(--font-sans);
+  }
+}
+
+@layer utilities {
+  .ticker-track {
+    animation: ticker-scroll 40s linear infinite;
+  }
+
+  .ticker-track:hover {
+    animation-play-state: paused;
+  }
+
+  @keyframes ticker-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Subtle technical-drawing grid backdrop used behind hero / media placeholders */
+  .grid-backdrop {
+    background-image:
+      linear-gradient(rgba(16, 24, 40, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(16, 24, 40, 0.035) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .grid-backdrop-fine {
+    background-image:
+      linear-gradient(rgba(16, 24, 40, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(16, 24, 40, 0.04) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  @keyframes pulse-dot {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.4;
+    }
+  }
+
+  .pulse-dot {
+    animation: pulse-dot 2s infinite;
+  }
+}

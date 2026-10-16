@@ -1,0 +1,274 @@
+{
+  "_meta": { "status": "machine-translated-needs-review" },
+  "listing": {
+    "posted": "{{date}} அன்று பதிவிடப்பட்டது",
+    "views_one": "{{count}} பார்வை",
+    "views_other": "{{count}} பார்வைகள்",
+    "condition": "நிலை",
+    "conditionOld": "பழையது",
+    "conditionNew": "புதியது",
+    "conditionRequired": "இயந்திரத்தின் நிலையைத் தேர்ந்தெடுக்கவும்.",
+    "origin": "தோற்றம்",
+    "originIndian": "இந்திய",
+    "originImported": "இறக்குமதி",
+    "importedFrom": "இறக்குமதி · {{country}}"
+  },
+  "nav": {
+    "marketplace": "சந்தை",
+    "wanted": "தேவை",
+    "howItWorks": "இது எப்படி செயல்படுகிறது",
+    "sell": "விற்க",
+    "login": "உள்நுழைக",
+    "signup": "பதிவு செய்க",
+    "signOut": "வெளியேறு",
+    "dashboard": "டாஷ்போர்டு",
+    "wishlist": "விருப்பப் பட்டியல்",
+    "profile": "சுயவிவரம்",
+    "goToDashboard": "டாஷ்போர்டுக்குச் செல்லவும்"
+  },
+  "common": {
+    "button": {
+      "save": "சேமி",
+      "cancel": "ரத்து செய்",
+      "submit": "சமர்ப்பி",
+      "search": "தேடு",
+      "filter": "வடிகட்டி",
+      "clearFilters": "வடிகட்டிகளை அழி",
+      "close": "மூடு",
+      "back": "பின்",
+      "next": "அடுத்து",
+      "continue": "தொடரவும்",
+      "edit": "திருத்து",
+      "delete": "நீக்கு",
+      "remove": "அகற்று",
+      "upload": "பதிவேற்று",
+      "download": "பதிவிறக்கு",
+      "viewAll": "அனைத்தையும் காண்க",
+      "loadMore": "மேலும் ஏற்று",
+      "retry": "மீண்டும் முயற்சி",
+      "confirm": "உறுதிப்படுத்து",
+      "apply": "பயன்படுத்து",
+      "reset": "மீட்டமை"
+    },
+    "label": {
+      "yes": "ஆம்",
+      "no": "இல்லை",
+      "optional": "விருப்பமானது",
+      "required": "தேவை",
+      "loading": "ஏற்றுகிறது...",
+      "none": "ஏதுமில்லை",
+      "notAvailable": "கிடைக்கவில்லை"
+    }
+  },
+  "status": {
+    "listing": {
+      "DRAFT": "வரைவு",
+      "PENDING_REVIEW": "மதிப்பாய்வுக்கு நிலுவையில்",
+      "ACTIVE": "செயலில்",
+      "UNDER_OFFER": "சலுகையில் உள்ளது",
+      "SOLD": "விற்கப்பட்டது",
+      "REJECTED": "நிராகரிக்கப்பட்டது",
+      "WITHDRAWN": "திரும்பப் பெறப்பட்டது"
+    },
+    "gst": {
+      "UNVERIFIED": "சரிபார்க்கப்படவில்லை",
+      "ACTIVE": "செயலில்",
+      "INACTIVE": "செயலற்றது"
+    },
+    "commission": {
+      "PENDING": "நிலுவையில்",
+      "PAID": "செலுத்தப்பட்டது"
+    },
+    "certification": {
+      "REQUESTED": "கோரப்பட்டது",
+      "IN_PROGRESS": "செயலில் உள்ளது",
+      "COMPLETED": "முடிந்தது",
+      "REJECTED": "நிராகரிக்கப்பட்டது"
+    },
+    "loan": {
+      "DRAFT": "வரைவு",
+      "SUBMITTED": "சமர்ப்பிக்கப்பட்டது",
+      "CERT_PENDING": "சான்றிதழ் நிலுவையில்",
+      "WITH_PARTNER": "நிதி பங்குதாரரிடம்",
+      "APPROVED": "அங்கீகரிக்கப்பட்டது",
+      "REJECTED": "நிராகரிக்கப்பட்டது"
+    },
+    "subscription": {
+      "ACTIVE": "செயலில்",
+      "EXPIRED": "காலாவதியானது",
+      "CANCELLED": "ரத்து செய்யப்பட்டது"
+    },
+    "buyback": {
+      "QUOTED": "மேற்கோள் அளிக்கப்பட்டது",
+      "ACCEPTED": "ஏற்கப்பட்டது",
+      "EXPIRED": "காலாவதியானது",
+      "COMPLETED": "முடிந்தது"
+    },
+    "requirement": {
+      "ACTIVE": "செயலில்",
+      "FULFILLED": "நிறைவேற்றப்பட்டது",
+      "CLOSED": "மூடப்பட்டது"
+    },
+    "quote": {
+      "SUBMITTED": "சமர்ப்பிக்கப்பட்டது",
+      "WITHDRAWN": "திரும்பப் பெறப்பட்டது"
+    }
+  },
+  "role": {
+    "buyer": "வாங்குபவர்",
+    "seller": "விற்பனையாளர்",
+    "admin": "நிர்வாகி"
+  },
+  "plan": {
+    "FREE": "இலவசம்",
+    "STANDARD": "நிலையான"
+  },
+  "languageSwitcher": {
+    "title": "மொழி",
+    "en": { "nativeLabel": "English" },
+    "ta": { "nativeLabel": "தமிழ்" },
+    "hi": { "nativeLabel": "हिन्दी" }
+  },
+  "admin": {
+    "approval": {
+      "pendingReview": "மதிப்பாய்வுக்கு நிலுவையில்",
+      "approved": "அங்கீகரிக்கப்பட்டது",
+      "rejected": "நிராகரிக்கப்பட்டது",
+      "approve": "அங்கீகரி",
+      "reject": "நிராகரி"
+    }
+  },
+  "taxonomy": {
+    "category": {
+      "metalworking": {
+        "label": "உலோக பணி இயந்திரங்கள்",
+        "description": "சிஎன்சி லேத், மில்லிங் மையங்கள், க்ரைண்டிங், EDM மற்றும் பல",
+        "subcategory": {
+          "cncTurningCentres": "சிஎன்சி டர்னிங் சென்டர்கள்",
+          "cncMillingMachines": "சிஎன்சி மில்லிங் இயந்திரங்கள்",
+          "vmcVerticalMachiningCentres": "VMC – செங்குத்து மெஷினிங் சென்டர்கள்",
+          "hmcHorizontalMachiningCentres": "HMC – கிடைமட்ட மெஷினிங் சென்டர்கள்",
+          "conventionalLathes": "வழக்கமான லேத்கள்",
+          "surfaceGrindingMachines": "மேற்பரப்பு க்ரைண்டிங் இயந்திரங்கள்",
+          "cylindricalGrindingMachines": "உருளை வடிவ க்ரைண்டிங் இயந்திரங்கள்",
+          "edmWireCutMachines": "EDM / வயர் கட் இயந்திரங்கள்",
+          "drillingMachines": "துளையிடும் இயந்திரங்கள்",
+          "boringMachines": "போரிங் இயந்திரங்கள்",
+          "hydraulicPowerPresses": "ஹைட்ராலிக் பவர் பிரஸ்கள்",
+          "mechanicalPowerPresses": "இயந்திர பவர் பிரஸ்கள்",
+          "miscellaneous": "பிற உலோக பணி இயந்திரங்கள்"
+        }
+      },
+      "sheet-metal": {
+        "label": "தகடு உலோக இயந்திரங்கள்",
+        "description": "லேசர் கட்டிங், பிரஸ் பிரேக்குகள், ஷியரிங் மற்றும் பஞ்சிங்",
+        "subcategory": {
+          "laserCuttingMachines": "லேசர் கட்டிங் இயந்திரங்கள்",
+          "pressBrakesBendingMachines": "பிரஸ் பிரேக் / வளைக்கும் இயந்திரங்கள்",
+          "shearingMachines": "ஷியரிங் இயந்திரங்கள்",
+          "punchingMachines": "பஞ்சிங் இயந்திரங்கள்",
+          "rollFormingMachines": "ரோல் ஃபார்மிங் இயந்திரங்கள்",
+          "miscellaneous": "பிற தகடு உலோக இயந்திரங்கள்"
+        }
+      },
+      "plastic-rubber": {
+        "label": "பிளாஸ்டிக் & ரப்பர்",
+        "description": "இன்ஜெக்ஷன் மோல்டிங், பிளோ மோல்டிங், எக்ஸ்ட்ரூஷன்",
+        "subcategory": {
+          "injectionMouldingMachines": "இன்ஜெக்ஷன் மோல்டிங் இயந்திரங்கள்",
+          "blowMouldingMachines": "பிளோ மோல்டிங் இயந்திரங்கள்",
+          "extrusionLines": "எக்ஸ்ட்ரூஷன் லைன்கள்",
+          "thermoformingMachines": "தெர்மோஃபார்மிங் இயந்திரங்கள்",
+          "rubberMouldingMachines": "ரப்பர் மோல்டிங் இயந்திரங்கள்",
+          "miscellaneous": "பிற பிளாஸ்டிக் & ரப்பர்"
+        }
+      },
+      "textile": {
+        "label": "ஜவுளி இயந்திரங்கள்",
+        "description": "நிட்டிங், நெசவு, நூற்பு மற்றும் சாயமிடும் கருவிகள்",
+        "subcategory": {
+          "knittingMachines": "நிட்டிங் இயந்திரங்கள்",
+          "weavingMachines": "நெசவு இயந்திரங்கள்",
+          "spinningMachines": "நூற்பு இயந்திரங்கள்",
+          "dyeingFinishingMachines": "சாயமிடுதல் & ஃபினிஷிங் இயந்திரங்கள்",
+          "embroideryMachines": "எம்பிராய்டரி இயந்திரங்கள்",
+          "miscellaneous": "பிற ஜவுளி இயந்திரங்கள்"
+        }
+      },
+      "printing": {
+        "label": "அச்சிடும் இயந்திரங்கள்",
+        "description": "ஆஃப்செட், டிஜிட்டல், ஸ்கிரீன் மற்றும் ஃப்ளெக்சோகிராஃபிக் அச்சிடுதல்",
+        "subcategory": {
+          "offsetPrintingMachines": "ஆஃப்செட் அச்சிடும் இயந்திரங்கள்",
+          "digitalPrintingMachines": "டிஜிட்டல் அச்சிடும் இயந்திரங்கள்",
+          "screenPrintingMachines": "ஸ்கிரீன் அச்சிடும் இயந்திரங்கள்",
+          "flexographicPrinting": "ஃப்ளெக்சோகிராஃபிக் அச்சிடுதல்",
+          "dieCuttingMachines": "டை கட்டிங் இயந்திரங்கள்",
+          "miscellaneous": "பிற அச்சிடும் இயந்திரங்கள்"
+        }
+      },
+      "packaging": {
+        "label": "பேக்கேஜிங் & கண்டிஷனிங்",
+        "description": "நிரப்புதல், சீல் செய்தல், லேபிளிங் மற்றும் ரேப்பிங் இயந்திரங்கள்",
+        "subcategory": {
+          "fillingMachines": "நிரப்பும் இயந்திரங்கள்",
+          "sealingMachines": "சீலிங் இயந்திரங்கள்",
+          "labellingMachines": "லேபிளிங் இயந்திரங்கள்",
+          "shrinkWrappingMachines": "ஷ்ரிங்க் ரேப்பிங் இயந்திரங்கள்",
+          "cartoningMachines": "கார்ட்டனிங் இயந்திரங்கள்",
+          "miscellaneous": "பிற பேக்கேஜிங் இயந்திரங்கள்"
+        }
+      },
+      "pharma-chemical": {
+        "label": "மருந்தியல் & ரசாயனம்",
+        "description": "டேப்லெட் பிரஸ், காப்சூல் பில்லிங், ரியாக்டர்கள் மற்றும் மிக்சர்கள்",
+        "subcategory": {
+          "tabletPressMachines": "டேப்லெட் பிரஸ் இயந்திரங்கள்",
+          "capsuleFillingMachines": "காப்சூல் நிரப்பும் இயந்திரங்கள்",
+          "blendersMixers": "பிளெண்டர்கள் / மிக்சர்கள்",
+          "reactorsVessels": "ரியாக்டர்கள் & பாத்திரங்கள்",
+          "coatingMachines": "கோட்டிங் இயந்திரங்கள்",
+          "miscellaneous": "பிற மருந்தியல் & ரசாயனம்"
+        }
+      },
+      "food-processing": {
+        "label": "உணவு பதப்படுத்துதல்",
+        "description": "தொழில்துறை அடுப்புகள், வறுக்கும் இயந்திரங்கள், மிக்சர்கள் மற்றும் பேக்கேஜிங்",
+        "subcategory": {
+          "industrialOvens": "தொழில்துறை அடுப்புகள்",
+          "fryers": "வறுக்கும் இயந்திரங்கள்",
+          "foodMixersBlenders": "உணவு மிக்சர்கள் / பிளெண்டர்கள்",
+          "foodFillingPackaging": "உணவு நிரப்புதல் & பேக்கேஜிங்",
+          "bakeryMachines": "பேக்கரி இயந்திரங்கள்",
+          "miscellaneous": "பிற உணவு பதப்படுத்துதல்"
+        }
+      },
+      "woodworking": {
+        "label": "மரவேலை இயந்திரங்கள்",
+        "description": "ரம்பங்கள், பிளானர்கள், சிஎன்சி ரூட்டர்கள் மற்றும் எட்ஜ் பேண்டர்கள்",
+        "subcategory": {
+          "bandSaws": "பேண்ட் ரம்பங்கள்",
+          "circularSaws": "வட்ட ரம்பங்கள்",
+          "planersThicknessPlaners": "பிளானர்கள் / தடிமன் பிளானர்கள்",
+          "cncRouters": "சிஎன்சி ரூட்டர்கள்",
+          "edgeBanders": "எட்ஜ் பேண்டர்கள்",
+          "mortisingMachines": "மோர்ட்டிசிங் இயந்திரங்கள்",
+          "miscellaneous": "பிற மரவேலை இயந்திரங்கள்"
+        }
+      },
+      "industrial-equipment": {
+        "label": "பிற தொழில்துறை உபகரணங்கள்",
+        "description": "காம்ப்ரசர்கள், ஜெனரேட்டர்கள், ஃபோர்க் லிஃப்ட்கள், கிரேன்கள் மற்றும் பல",
+        "subcategory": {
+          "airCompressors": "காற்று காம்ப்ரசர்கள்",
+          "dieselGenerators": "டீசல் ஜெனரேட்டர்கள்",
+          "forklifts": "ஃபோர்க் லிஃப்ட்கள்",
+          "cranesHoists": "கிரேன்கள் & ஹாய்ஸ்ட்கள்",
+          "industrialPumps": "தொழில்துறை பம்புகள்",
+          "hydraulicSystems": "ஹைட்ராலிக் அமைப்புகள்",
+          "miscellaneous": "பிற தொழில்துறை உபகரணங்கள்"
+        }
+      }
+    }
+  }
+}

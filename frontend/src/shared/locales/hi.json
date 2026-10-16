@@ -1,0 +1,274 @@
+{
+  "_meta": { "status": "machine-translated-needs-review" },
+  "listing": {
+    "posted": "{{date}} को पोस्ट किया गया",
+    "views_one": "{{count}} व्यू",
+    "views_other": "{{count}} व्यू",
+    "condition": "स्थिति",
+    "conditionOld": "पुराना",
+    "conditionNew": "नया",
+    "conditionRequired": "कृपया मशीन की स्थिति चुनें।",
+    "origin": "मूल",
+    "originIndian": "भारतीय",
+    "originImported": "आयातित",
+    "importedFrom": "आयातित · {{country}}"
+  },
+  "nav": {
+    "marketplace": "मार्केटप्लेस",
+    "wanted": "आवश्यकता",
+    "howItWorks": "यह कैसे काम करता है",
+    "sell": "बेचें",
+    "login": "साइन इन करें",
+    "signup": "साइन अप करें",
+    "signOut": "साइन आउट",
+    "dashboard": "डैशबोर्ड",
+    "wishlist": "विशलिस्ट",
+    "profile": "प्रोफ़ाइल",
+    "goToDashboard": "डैशबोर्ड पर जाएं"
+  },
+  "common": {
+    "button": {
+      "save": "सहेजें",
+      "cancel": "रद्द करें",
+      "submit": "सबमिट करें",
+      "search": "खोजें",
+      "filter": "फ़िल्टर",
+      "clearFilters": "फ़िल्टर हटाएं",
+      "close": "बंद करें",
+      "back": "वापस",
+      "next": "अगला",
+      "continue": "जारी रखें",
+      "edit": "संपादित करें",
+      "delete": "हटाएं",
+      "remove": "निकालें",
+      "upload": "अपलोड करें",
+      "download": "डाउनलोड करें",
+      "viewAll": "सभी देखें",
+      "loadMore": "और लोड करें",
+      "retry": "फिर कोशिश करें",
+      "confirm": "पुष्टि करें",
+      "apply": "लागू करें",
+      "reset": "रीसेट करें"
+    },
+    "label": {
+      "yes": "हाँ",
+      "no": "नहीं",
+      "optional": "वैकल्पिक",
+      "required": "आवश्यक",
+      "loading": "लोड हो रहा है...",
+      "none": "कोई नहीं",
+      "notAvailable": "उपलब्ध नहीं"
+    }
+  },
+  "status": {
+    "listing": {
+      "DRAFT": "ड्राफ़्ट",
+      "PENDING_REVIEW": "समीक्षा लंबित",
+      "ACTIVE": "सक्रिय",
+      "UNDER_OFFER": "ऑफ़र में",
+      "SOLD": "बिक गया",
+      "REJECTED": "अस्वीकृत",
+      "WITHDRAWN": "वापस लिया गया"
+    },
+    "gst": {
+      "UNVERIFIED": "असत्यापित",
+      "ACTIVE": "सक्रिय",
+      "INACTIVE": "निष्क्रिय"
+    },
+    "commission": {
+      "PENDING": "लंबित",
+      "PAID": "भुगतान किया गया"
+    },
+    "certification": {
+      "REQUESTED": "अनुरोधित",
+      "IN_PROGRESS": "प्रगति में",
+      "COMPLETED": "पूर्ण",
+      "REJECTED": "अस्वीकृत"
+    },
+    "loan": {
+      "DRAFT": "ड्राफ़्ट",
+      "SUBMITTED": "जमा किया गया",
+      "CERT_PENDING": "प्रमाणन लंबित",
+      "WITH_PARTNER": "वित्त भागीदार के पास",
+      "APPROVED": "स्वीकृत",
+      "REJECTED": "अस्वीकृत"
+    },
+    "subscription": {
+      "ACTIVE": "सक्रिय",
+      "EXPIRED": "समाप्त",
+      "CANCELLED": "रद्द"
+    },
+    "buyback": {
+      "QUOTED": "कोटेशन दिया गया",
+      "ACCEPTED": "स्वीकृत",
+      "EXPIRED": "समाप्त",
+      "COMPLETED": "पूर्ण"
+    },
+    "requirement": {
+      "ACTIVE": "सक्रिय",
+      "FULFILLED": "पूर्ण हुआ",
+      "CLOSED": "बंद"
+    },
+    "quote": {
+      "SUBMITTED": "सबमिट की गई",
+      "WITHDRAWN": "वापस ली गई"
+    }
+  },
+  "role": {
+    "buyer": "खरीदार",
+    "seller": "विक्रेता",
+    "admin": "प्रशासक"
+  },
+  "plan": {
+    "FREE": "मुफ़्त",
+    "STANDARD": "मानक"
+  },
+  "languageSwitcher": {
+    "title": "भाषा",
+    "en": { "nativeLabel": "English" },
+    "ta": { "nativeLabel": "தமிழ்" },
+    "hi": { "nativeLabel": "हिन्दी" }
+  },
+  "admin": {
+    "approval": {
+      "pendingReview": "समीक्षा लंबित",
+      "approved": "स्वीकृत",
+      "rejected": "अस्वीकृत",
+      "approve": "स्वीकृत करें",
+      "reject": "अस्वीकार करें"
+    }
+  },
+  "taxonomy": {
+    "category": {
+      "metalworking": {
+        "label": "मेटल वर्किंग मशीनें",
+        "description": "सीएनसी लेथ, मिलिंग सेंटर, ग्राइंडिंग, ईडीएम और अधिक",
+        "subcategory": {
+          "cncTurningCentres": "सीएनसी टर्निंग सेंटर",
+          "cncMillingMachines": "सीएनसी मिलिंग मशीनें",
+          "vmcVerticalMachiningCentres": "VMC – वर्टिकल मशीनिंग सेंटर",
+          "hmcHorizontalMachiningCentres": "HMC – हॉरिजॉन्टल मशीनिंग सेंटर",
+          "conventionalLathes": "पारंपरिक लेथ",
+          "surfaceGrindingMachines": "सरफेस ग्राइंडिंग मशीनें",
+          "cylindricalGrindingMachines": "सिलेंड्रिकल ग्राइंडिंग मशीनें",
+          "edmWireCutMachines": "ईडीएम / वायर कट मशीनें",
+          "drillingMachines": "ड्रिलिंग मशीनें",
+          "boringMachines": "बोरिंग मशीनें",
+          "hydraulicPowerPresses": "हाइड्रोलिक पावर प्रेस",
+          "mechanicalPowerPresses": "मैकेनिकल पावर प्रेस",
+          "miscellaneous": "अन्य मेटल वर्किंग मशीनें"
+        }
+      },
+      "sheet-metal": {
+        "label": "शीट मेटल मशीनें",
+        "description": "लेज़र कटिंग, प्रेस ब्रेक, शीयरिंग और पंचिंग",
+        "subcategory": {
+          "laserCuttingMachines": "लेज़र कटिंग मशीनें",
+          "pressBrakesBendingMachines": "प्रेस ब्रेक / बेंडिंग मशीनें",
+          "shearingMachines": "शीयरिंग मशीनें",
+          "punchingMachines": "पंचिंग मशीनें",
+          "rollFormingMachines": "रोल फॉर्मिंग मशीनें",
+          "miscellaneous": "अन्य शीट मेटल मशीनें"
+        }
+      },
+      "plastic-rubber": {
+        "label": "प्लास्टिक और रबर",
+        "description": "इंजेक्शन मोल्डिंग, ब्लो मोल्डिंग, एक्सट्रूज़न",
+        "subcategory": {
+          "injectionMouldingMachines": "इंजेक्शन मोल्डिंग मशीनें",
+          "blowMouldingMachines": "ब्लो मोल्डिंग मशीनें",
+          "extrusionLines": "एक्सट्रूज़न लाइनें",
+          "thermoformingMachines": "थर्मोफॉर्मिंग मशीनें",
+          "rubberMouldingMachines": "रबर मोल्डिंग मशीनें",
+          "miscellaneous": "अन्य प्लास्टिक और रबर"
+        }
+      },
+      "textile": {
+        "label": "टेक्सटाइल मशीनें",
+        "description": "निटिंग, बुनाई, कताई और डाइंग उपकरण",
+        "subcategory": {
+          "knittingMachines": "निटिंग मशीनें",
+          "weavingMachines": "बुनाई मशीनें",
+          "spinningMachines": "कताई मशीनें",
+          "dyeingFinishingMachines": "डाइंग और फिनिशिंग मशीनें",
+          "embroideryMachines": "कढ़ाई मशीनें",
+          "miscellaneous": "अन्य टेक्सटाइल मशीनें"
+        }
+      },
+      "printing": {
+        "label": "प्रिंटिंग मशीनें",
+        "description": "ऑफ़सेट, डिजिटल, स्क्रीन और फ्लेक्सोग्राफिक प्रिंटिंग",
+        "subcategory": {
+          "offsetPrintingMachines": "ऑफ़सेट प्रिंटिंग मशीनें",
+          "digitalPrintingMachines": "डिजिटल प्रिंटिंग मशीनें",
+          "screenPrintingMachines": "स्क्रीन प्रिंटिंग मशीनें",
+          "flexographicPrinting": "फ्लेक्सोग्राफिक प्रिंटिंग",
+          "dieCuttingMachines": "डाई कटिंग मशीनें",
+          "miscellaneous": "अन्य प्रिंटिंग मशीनें"
+        }
+      },
+      "packaging": {
+        "label": "पैकेजिंग और कंडीशनिंग",
+        "description": "फिलिंग, सीलिंग, लेबलिंग और रैपिंग मशीनें",
+        "subcategory": {
+          "fillingMachines": "फिलिंग मशीनें",
+          "sealingMachines": "सीलिंग मशीनें",
+          "labellingMachines": "लेबलिंग मशीनें",
+          "shrinkWrappingMachines": "श्रिंक रैपिंग मशीनें",
+          "cartoningMachines": "कार्टनिंग मशीनें",
+          "miscellaneous": "अन्य पैकेजिंग मशीनें"
+        }
+      },
+      "pharma-chemical": {
+        "label": "फार्मास्युटिकल और केमिकल",
+        "description": "टैबलेट प्रेस, कैप्सूल फिलिंग, रिएक्टर और मिक्सर",
+        "subcategory": {
+          "tabletPressMachines": "टैबलेट प्रेस मशीनें",
+          "capsuleFillingMachines": "कैप्सूल फिलिंग मशीनें",
+          "blendersMixers": "ब्लेंडर / मिक्सर",
+          "reactorsVessels": "रिएक्टर और वेसल",
+          "coatingMachines": "कोटिंग मशीनें",
+          "miscellaneous": "अन्य फार्मास्युटिकल और केमिकल"
+        }
+      },
+      "food-processing": {
+        "label": "खाद्य प्रसंस्करण",
+        "description": "औद्योगिक ओवन, फ्रायर, मिक्सर और पैकेजिंग",
+        "subcategory": {
+          "industrialOvens": "औद्योगिक ओवन",
+          "fryers": "फ्रायर",
+          "foodMixersBlenders": "फूड मिक्सर / ब्लेंडर",
+          "foodFillingPackaging": "फूड फिलिंग और पैकेजिंग",
+          "bakeryMachines": "बेकरी मशीनें",
+          "miscellaneous": "अन्य खाद्य प्रसंस्करण"
+        }
+      },
+      "woodworking": {
+        "label": "वुडवर्किंग मशीनें",
+        "description": "आरी, प्लानर, सीएनसी राउटर और एज बैंडर",
+        "subcategory": {
+          "bandSaws": "बैंड आरी",
+          "circularSaws": "सर्कुलर आरी",
+          "planersThicknessPlaners": "प्लानर / थिकनेस प्लानर",
+          "cncRouters": "सीएनसी राउटर",
+          "edgeBanders": "एज बैंडर",
+          "mortisingMachines": "मोर्टाइजिंग मशीनें",
+          "miscellaneous": "अन्य वुडवर्किंग मशीनें"
+        }
+      },
+      "industrial-equipment": {
+        "label": "अन्य औद्योगिक उपकरण",
+        "description": "कंप्रेसर, जनरेटर, फोर्कलिफ्ट, क्रेन और अधिक",
+        "subcategory": {
+          "airCompressors": "एयर कंप्रेसर",
+          "dieselGenerators": "डीज़ल जनरेटर",
+          "forklifts": "फोर्कलिफ्ट",
+          "cranesHoists": "क्रेन और होइस्ट",
+          "industrialPumps": "औद्योगिक पंप",
+          "hydraulicSystems": "हाइड्रोलिक सिस्टम",
+          "miscellaneous": "अन्य औद्योगिक उपकरण"
+        }
+      }
+    }
+  }
+}
