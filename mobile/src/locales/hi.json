@@ -1,0 +1,999 @@
+{
+  "_meta": {
+    "status": "machine-translated-needs-review"
+  },
+  "wanted": {
+    "title": "आवश्यकता — खरीदार आवश्यकताएं",
+    "intro": "सत्यापित खरीदारों की सक्रिय मशीन आवश्यकताएं। यदि आपके पास मिलान करने वाली मशीन है, तो ऐप के माध्यम से विवरण भेजें।",
+    "badge": "आवश्यकता",
+    "emptyState": { "title": "अभी कोई खुली आवश्यकता नहीं", "description": "जल्द ही जांचें, या अपनी आवश्यकता पोस्ट करें।" }
+  },
+  "requirementDetail": {
+    "notFoundError": "यह आवश्यकता नहीं मिली।",
+    "backToWanted": "आवश्यकता सूची पर वापस जाएं",
+    "quoteHeading": "मिलान करने वाली मशीन है?",
+    "quoteSubheading": "कोटेशन भेजें — यह पहले हमारी टीम के पास जाता है, स्वीकृत होने पर खरीदार तक पहुंचता है।",
+    "needsSellerPrompt": "केवल GST-सत्यापित विक्रेता ही कोटेशन भेज सकते हैं। अपना GST सत्यापित करें।",
+    "quoteSentNotice": "कोटेशन प्रशासनिक समीक्षा हेतु भेजा गया — स्वीकृत होते ही हम सूचित करेंगे।",
+    "selectListing": "एक लिस्टिंग चुनें",
+    "priceLabel": "मूल्य (₹)",
+    "messageLabel": "संदेश",
+    "sending": "भेजा जा रहा है…",
+    "sendQuote": "कोटेशन भेजें",
+    "errors": { "quoteFailed": "यह कोटेशन नहीं भेजा जा सका।" }
+  },
+  "onboarding": {
+    "chooseLanguage": "अपनी भाषा चुनें"
+  },
+  "home": {
+    "indiaLabel": "भारत",
+    "signIn": "साइन इन करें",
+    "searchPrefix": "खोजें",
+    "searchPlaceholder": "मशीनें, मेक, मॉडल...",
+    "trust": {
+      "gstVerified": "840 GST सत्यापित",
+      "bankPartners": "12 बैंक भागीदार",
+      "review": "24 घंटे समीक्षा"
+    },
+    "wantedCta": {
+      "title": "मशीन ढूंढ रहे हैं?",
+      "subtitle": "आपको जो चाहिए उसे पोस्ट करें — विक्रेता आपको कोटेशन भेजेंगे",
+      "myRequirements": "मेरी आवश्यकताएं",
+      "browse": "आवश्यकता सूची देखें"
+    },
+    "filters": {
+      "all": "सभी",
+      "certified": "प्रमाणित",
+      "loanEligible": "लोन योग्य",
+      "imported": "आयातित"
+    },
+    "categoryShort": {
+      "metalworking": "धातु",
+      "sheet-metal": "शीट मेटल",
+      "plastic-rubber": "प्लास्टिक",
+      "textile": "टेक्सटाइल",
+      "printing": "प्रिंटिंग",
+      "packaging": "पैकेजिंग",
+      "pharma-chemical": "फार्मा",
+      "food-processing": "खाद्य",
+      "woodworking": "लकड़ी का काम",
+      "industrial-equipment": "औद्योगिक"
+    },
+    "browseByIndustry": "उद्योग के अनुसार ब्राउज़ करें",
+    "typesCount": "{{count}} प्रकार",
+    "recentListings": "हाल की लिस्टिंग",
+    "moreTypes": "+ {{count}} और प्रकार",
+    "filteredLabel": "फ़िल्टर किया गया:",
+    "resultsCount": {
+      "machines": "मशीनें"
+    },
+    "sort": {
+      "latest": "नवीनतम"
+    },
+    "empty": {
+      "title": "कोई मशीन नहीं मिली"
+    }
+  },
+  "listingDetail": {
+    "notFound": "लिस्टिंग नहीं मिली।",
+    "goBack": "वापस जाएं",
+    "removeFromWishlist": "विशलिस्ट से हटाएं",
+    "saveToWishlist": "विशलिस्ट में सहेजें",
+    "previousMedia": "पिछला मीडिया",
+    "nextMedia": "अगला मीडिया",
+    "videoBadge": "वीडियो",
+    "badge": {
+      "certified": "प्रमाणित",
+      "unverified": "असत्यापित",
+      "sold": "बिक गया",
+      "boosted": "बूस्टेड"
+    },
+    "gstVerified": "GST सत्यापित",
+    "askingPrice": "मांगी गई कीमत",
+    "negotiable": "बातचीत योग्य",
+    "aboutHeading": "— इस मशीन के बारे में",
+    "specs": {
+      "grade": "ग्रेड",
+      "category": "श्रेणी",
+      "subcategory": "उप-श्रेणी",
+      "year": "वर्ष",
+      "origin": "मूल",
+      "runningHours": "चलने के घंटे",
+      "location": "स्थान"
+    },
+    "origin": {
+      "imported": "आयातित",
+      "indian": "भारतीय"
+    },
+    "institutionalTrust": "संस्थागत भरोसा",
+    "trustBody": "सभी सौदे प्रशासनिक समीक्षा से गुजरते हैं। कमीशन की पुष्टि होने के बाद ही संपर्क जारी किए जाते हैं।",
+    "sellerContactHeading": "— विक्रेता संपर्क",
+    "contact": {
+      "viewsRemaining": "{{quotaRemaining}} में से {{quotaTotal}} संपर्क दृश्य शेष",
+      "revealPrompt": "अपने संपर्क दृश्यों में से एक का उपयोग करके इस विक्रेता का फ़ोन नंबर और पता देखें।",
+      "remainingPrefix": "आपके पास",
+      "remainingSuffix": "में से {{quotaTotal}} दृश्य शेष हैं।",
+      "revealing": "दिखाया जा रहा है...",
+      "viewContact": "संपर्क देखें",
+      "signInSuffix": "अपने संपर्क-दृश्य कोटा का उपयोग करके विक्रेता का संपर्क देखने के लिए।",
+      "sellerModeNotice": "आप वर्तमान में विक्रेता मोड में हैं।",
+      "switching": "बदल रहा है...",
+      "switchToBuyer": "खरीदार मोड पर स्विच करें",
+      "sellerModeSuffix": "विक्रेता के संपर्क विवरण देखने के लिए।",
+      "quotaExhausted": "आपने अपने सभी संपर्क दृश्यों का उपयोग कर लिया है। अधिक संपर्क देखने के लिए अपनी योजना अपग्रेड करें।",
+      "revealError": "यह संपर्क दिखाया नहीं जा सका। कृपया फिर से प्रयास करें।"
+    },
+    "applyLoan": "लोन के लिए आवेदन करें",
+    "machineSold": "यह मशीन बिक चुकी है",
+    "interestSent": "रुचि भेजी गई!",
+    "sending": "भेजा जा रहा है...",
+    "enquire": "पूछताछ करें"
+  },
+  "components": {
+    "listingCard": {
+      "removeFromWishlist": "विशलिस्ट से हटाएं",
+      "saveToWishlist": "विशलिस्ट में सहेजें",
+      "videoBadge": "वीडियो",
+      "soldBadge": "बिक गया",
+      "certifiedBadge": "प्रमाणित",
+      "unverifiedBadge": "असत्यापित",
+      "boostedBadge": "बूस्टेड",
+      "gstLabel": "जीएसटी",
+      "askingLabel": "मांग मूल्य",
+      "enquireButton": "पूछताछ करें"
+    },
+    "boostSheet": {
+      "loadError": "बूस्ट विकल्प लोड नहीं हो सके।",
+      "paymentFailedError": "भुगतान विफल रहा। कृपया पुनः प्रयास करें।",
+      "title": "इस लिस्टिंग को बूस्ट करें",
+      "close": "बंद करें",
+      "boostedNoticePrefix": "यह लिस्टिंग वर्तमान में",
+      "boostedWord": "बूस्ट की गई है",
+      "boostedNoticeMiddle": ", गैर-बूस्ट की गई लिस्टिंग से ऊपर तब तक क्रमबद्ध होगी",
+      "boostedNoticeSuffix": ". नीचे दिया गया कोई और टियर खरीदने से इसकी अवधि बढ़ जाएगी।",
+      "successMessage": "बूस्ट सक्रिय — यह लिस्टिंग अब गैर-बूस्ट की गई लिस्टिंग से ऊपर दिखाई देगी।",
+      "days": "दिन",
+      "processing": "प्रोसेस हो रहा है...",
+      "noPlansAvailable": "फ़िलहाल कोई बूस्ट टियर उपलब्ध नहीं है।",
+      "razorpayDescription": "{{planName}} — इस लिस्टिंग को {{days}} दिनों के लिए बूस्ट करें"
+    },
+    "bottomNav": {
+      "home": "होम",
+      "search": "खोजें",
+      "enquiries": "पूछताछ",
+      "switchAccountError": "खाता बदला नहीं जा सका। कृपया पुनः प्रयास करें।",
+      "gstRequiredTitle": "जीएसटी सत्यापन आवश्यक है",
+      "gstRequiredBody": "BIM पर बेचने के लिए, आपका जीएसटी सत्यापित और सक्रिय होना चाहिए। पहले जीएसटी सत्यापन पूरा करें — इसमें केवल कुछ मिनट लगते हैं।",
+      "currentStatus": "वर्तमान स्थिति:",
+      "verifyGstNow": "अभी जीएसटी सत्यापित करें →",
+      "gstActiveBadge": "जीएसटी सक्रिय",
+      "switchTitle": "विक्रेता खाते में बदलें?",
+      "switchBodyPrefix": "आपका जीएसटी सत्यापित है। अपने खाते को",
+      "switchBodySuffix": "में बदलकर मशीनें सूचीबद्ध करना शुरू करें। आपको आपके विक्रेता डैशबोर्ड पर भेज दिया जाएगा।",
+      "switchBullets": {
+        "dataKept": "आपका मौजूदा डेटा, जीएसटी और प्रोफ़ाइल सुरक्षित रहेगा",
+        "listImmediately": "बदलने के तुरंत बाद आप मशीनें सूचीबद्ध कर सकते हैं",
+        "cannotReverse": "इस कार्रवाई को ऐप से वापस नहीं लिया जा सकता"
+      },
+      "switching": "खाता बदला जा रहा है…",
+      "switchConfirm": "हां, विक्रेता में बदलें →"
+    },
+    "quotaAlertSheet": {
+      "title": "शेष संपर्क दृश्य",
+      "viewedCount": "आपने {{total}} में से {{used}} संपर्क देखे हैं",
+      "viewMoreContacts": "और संपर्क देखें"
+    }
+  },
+  "seller": {
+    "myQuotes": {
+      "title": "मेरे कोटेशन",
+      "description": "आपके द्वारा खरीदार आवश्यकताओं पर भेजे गए कोटेशन",
+      "browseWanted": "आवश्यकता सूची देखें",
+      "emptyState": {
+        "title": "अभी तक कोई कोटेशन नहीं भेजा गया",
+        "description": "खरीदार आवश्यकताएं देखें और मिलान करने वाली मशीन होने पर कोटेशन भेजें।"
+      }
+    },
+    "subscription": {
+      "header": {
+        "title": "सदस्यता",
+        "subtitle": "अपनी लिस्टिंग योजना प्रबंधित करें"
+      },
+      "error": {
+        "loadPaymentGateway": "भुगतान गेटवे लोड नहीं हो सका। कृपया अपना कनेक्शन जांचें और पुनः प्रयास करें।",
+        "activationFailed": "भुगतान पूरा हुआ लेकिन सक्रियण विफल रहा। सहायता से संपर्क करें।",
+        "initiateFailed": "भुगतान शुरू नहीं हो सका। कृपया पुनः प्रयास करें।"
+      },
+      "success": {
+        "planActivated": "{{planName}} योजना सफलतापूर्वक सक्रिय हो गई!"
+      },
+      "razorpayDescription": "{{planName}} सदस्यता",
+      "currentPlan": {
+        "heading": "वर्तमान योजना",
+        "quota": "कोटा",
+        "active": "सक्रिय",
+        "remaining": "शेष",
+        "listingCount_one": "{{count}} लिस्टिंग",
+        "listingCount_other": "{{count}} लिस्टिंग",
+        "expires": "{{date}} को समाप्त होगी"
+      },
+      "plan": {
+        "current": "वर्तमान",
+        "freeForever": "हमेशा मुफ़्त",
+        "priceDuration": "{{price}} / {{days}} दिन",
+        "upToListings_one": "{{count}} सक्रिय लिस्टिंग तक",
+        "upToListings_other": "{{count}} सक्रिय लिस्टिंग तक",
+        "priorityReview": "प्राथमिकता प्रशासनिक समीक्षा",
+        "featuredSearch": "खोज परिणामों में विशेष रूप से प्रदर्शित",
+        "openingPayment": "भुगतान खोला जा रहा है...",
+        "currentPlanButton": "वर्तमान योजना",
+        "renewUpgrade": "नवीनीकरण / अपग्रेड",
+        "upgradeTo": "{{planName}} में अपग्रेड करें"
+      },
+      "title": "सब्सक्रिप्शन",
+      "subtitle": "अपनी लिस्टिंग योजना प्रबंधित करें",
+      "errors": {
+        "gatewayLoadFailed": "पेमेंट गेटवे लोड नहीं हो सका। कृपया अपना कनेक्शन जाँचें और पुनः प्रयास करें।",
+        "activationFailed": "भुगतान पूरा हुआ लेकिन सक्रियण विफल रहा। सहायता से संपर्क करें।",
+        "paymentInitFailed": "भुगतान शुरू नहीं हो सका। कृपया पुनः प्रयास करें।"
+      },
+      "planActivated": "{{plan}} योजना सफलतापूर्वक सक्रिय हो गई!",
+      "currentPlanLabel": "वर्तमान योजना",
+      "stats": {
+        "quota": "कोटा",
+        "active": "सक्रिय",
+        "remaining": "शेष"
+      },
+      "quotaValue_one": "{{count}} लिस्टिंग",
+      "quotaValue_other": "{{count}} लिस्टिंग",
+      "expires": "समाप्ति {{date}}",
+      "currentBadge": "वर्तमान",
+      "freeForever": "हमेशा मुफ़्त",
+      "priceDuration": "{{price}} / {{days}} दिन",
+      "activeListingQuota_one": "अधिकतम {{count}} सक्रिय लिस्टिंग",
+      "activeListingQuota_other": "अधिकतम {{count}} सक्रिय लिस्टिंग",
+      "priorityReview": "प्राथमिकता एडमिन समीक्षा",
+      "featuredSearch": "खोज परिणामों में विशेष रूप से दिखाया गया",
+      "openingPayment": "भुगतान खोला जा रहा है...",
+      "currentPlanButton": "वर्तमान योजना",
+      "renewOrUpgrade": "नवीनीकरण / अपग्रेड",
+      "upgradeToPlan": "{{plan}} में अपग्रेड करें"
+    },
+    "editListing": {
+      "errors": {
+        "titleTooShort": "शीर्षक कम से कम 5 अक्षरों का होना चाहिए।",
+        "categoryRequired": "कृपया एक मशीन श्रेणी चुनें।",
+        "makeRequired": "मशीन का निर्माता आवश्यक है।",
+        "modelRequired": "मशीन का मॉडल आवश्यक है।",
+        "importedCountryRequired": "कृपया आयात देश चुनें।",
+        "invalidPrice": "एक वैध विक्रय मूल्य दर्ज करें।",
+        "stateRequired": "कृपया एक राज्य चुनें।",
+        "cityRequired": "कृपया एक शहर चुनें।",
+        "descriptionTooShort": "विवरण कम से कम 20 अक्षरों का होना चाहिए।",
+        "fixHighlightedFields": "कृपया नीचे हाइलाइट किए गए फ़ील्ड ठीक करें।",
+        "saveFailed": "परिवर्तन सहेजने में विफल।",
+        "maxPhotosUploaded": "अधिकतम {{count}} फ़ोटो पहले से अपलोड की जा चुकी हैं।",
+        "photoUploadFailed": "एक फ़ोटो अपलोड नहीं हो सकी।",
+        "removePhotoFailed": "फ़ोटो हटाई नहीं जा सकी।",
+        "reorderPhotosFailed": "फ़ोटो का क्रम बदला नहीं जा सका।",
+        "setPrimaryFailed": "इस फ़ोटो को प्राथमिक के रूप में सेट नहीं किया जा सका।",
+        "videoDurationReadFailed": "वीडियो की अवधि पढ़ी नहीं जा सकी। कृपया दूसरी फ़ाइल चुनें।",
+        "videoTooShort": "वीडियो कम से कम {{min}} सेकंड का होना चाहिए (आपका {{actual}} है)।",
+        "videoUploadFailed": "वीडियो अपलोड विफल हुआ।",
+        "removeVideoFailed": "वीडियो हटाया नहीं जा सका।",
+        "submitFailed": "लिस्टिंग सबमिट नहीं हो सकी।",
+        "withdrawFailed": "लिस्टिंग वापस नहीं ली जा सकी।"
+      },
+      "notFoundTitle": "लिस्टिंग नहीं मिली",
+      "notFoundDescription": "यह लिस्टिंग मौजूद नहीं है या आपके पास इसकी पहुँच नहीं है।",
+      "notFoundButton": "मेरी लिस्टिंग",
+      "tabs": {
+        "details": "विवरण",
+        "media": "फ़ोटो और वीडियो"
+      },
+      "rejectedNotice": {
+        "title": "लिस्टिंग अस्वीकृत कर दी गई",
+        "description": "हमारी टीम द्वारा बताई गई समस्याओं को ठीक करें, अपना मीडिया अपडेट करें, फिर दोबारा सबमिट करें।"
+      },
+      "fields": {
+        "title": "लिस्टिंग शीर्षक",
+        "category": "मशीन श्रेणी",
+        "categoryPlaceholder": "श्रेणी चुनें…",
+        "subcategory": "उप-श्रेणी",
+        "subcategoryPlaceholder": "उप-श्रेणी चुनें…",
+        "make": "निर्माता",
+        "model": "मॉडल",
+        "yearBought": "खरीद का वर्ष",
+        "yearBoughtHint": "अज्ञात होने पर उपलब्ध नहीं छोड़ें",
+        "origin": "निर्माण मूल",
+        "importedCountry": "आयात देश",
+        "importedCountryPlaceholder": "देश चुनें…",
+        "price": "मूल्य (₹)",
+        "state": "राज्य",
+        "statePlaceholder": "राज्य चुनें…",
+        "city": "शहर",
+        "cityPlaceholder": "शहर चुनें…",
+        "description": "विवरण"
+      },
+      "origin": {
+        "indian": "भारतीय",
+        "imported": "आयातित"
+      },
+      "saveSuccess": "परिवर्तन सफलतापूर्वक सहेजे गए।",
+      "saving": "सहेज रहा है…",
+      "saveChanges": "परिवर्तन सहेजें",
+      "summary": {
+        "title": "शीर्षक",
+        "category": "श्रेणी",
+        "makeModel": "निर्माता / मॉडल",
+        "year": "वर्ष",
+        "origin": "मूल",
+        "price": "मूल्य",
+        "location": "स्थान",
+        "description": "विवरण"
+      },
+      "boost": {
+        "manageButton": "बूस्ट प्रबंधित करें",
+        "startButton": "इस लिस्टिंग को बूस्ट करें"
+      },
+      "withdrawing": "वापस ले रहा है…",
+      "withdrawListing": "लिस्टिंग वापस लें",
+      "withdrawConfirm": {
+        "title": "क्या इस लिस्टिंग को वापस लेना है?",
+        "body": "यह इसे तुरंत मार्केटप्लेस से हटा देगा। जब तक आप इसे दोबारा सबमिट नहीं करते, खरीदार इसे न तो ढूंढ पाएंगे और न ही पूछताछ कर पाएंगे।",
+        "confirm": "हां, वापस लें",
+        "cancel": "रद्द करें"
+      },
+      "media": {
+        "cannotChange": "लिस्टिंग {{status}} स्थिति में होने पर मीडिया बदला नहीं जा सकता।",
+        "requirementsMet": "मीडिया आवश्यकताएँ पूरी हुईं",
+        "requirementsTitle": "मीडिया आवश्यकताएँ",
+        "photosLine": "फ़ोटो: {{min}}–{{max}} में से {{count}} आवश्यक",
+        "videoUploadedLine": "वीडियो: अपलोड हुआ ({{duration}})",
+        "videoRequiredLine": "वीडियो: कम से कम {{min}} सेकंड का 1 वीडियो आवश्यक",
+        "machinePhotos": "मशीन की फ़ोटो",
+        "photoAlt": "फ़ोटो {{index}}",
+        "primaryBadge": "प्राथमिक",
+        "setPrimaryAriaLabel": "प्राथमिक फ़ोटो के रूप में सेट करें",
+        "moveEarlierAriaLabel": "फ़ोटो को पहले ले जाएँ",
+        "moveLaterAriaLabel": "फ़ोटो को बाद में ले जाएँ",
+        "uploadingPhotos": "अपलोड हो रहा है…",
+        "addPhotos": "फ़ोटो जोड़ें",
+        "runningVideo": "चलती हुई वीडियो",
+        "videoUploaded": "वीडियो अपलोड हो गया",
+        "uploadingVideo": "वीडियो अपलोड हो रहा है…",
+        "addVideo": "वीडियो जोड़ें (न्यूनतम {{min}} सेकंड)",
+        "noVideoUploaded": "कोई वीडियो अपलोड नहीं हुआ",
+        "addMorePhotosAndVideo_one": "सबमिट करने के लिए {{count}} और फ़ोटो तथा एक चलती हुई वीडियो जोड़ें।",
+        "addMorePhotosAndVideo_other": "सबमिट करने के लिए {{count}} और फ़ोटो तथा एक चलती हुई वीडियो जोड़ें।",
+        "addMorePhotosOnly_one": "सबमिट करने के लिए {{count}} और फ़ोटो जोड़ें।",
+        "addMorePhotosOnly_other": "सबमिट करने के लिए {{count}} और फ़ोटो जोड़ें।"
+      },
+      "submitting": "सबमिट हो रहा है…",
+      "submitForReview": "समीक्षा हेतु सबमिट करें →",
+      "viewPublicListing": "सार्वजनिक लिस्टिंग देखें →"
+    },
+    "newListing": {
+      "stepLabels": [
+        "विवरण",
+        "फ़ोटो और वीडियो",
+        "समीक्षा"
+      ],
+      "title": "नई लिस्टिंग",
+      "stepIndicator": "चरण {{current}} / 3 — {{label}}",
+      "errors": {
+        "titleTooShort": "शीर्षक कम से कम 5 अक्षरों का होना चाहिए।",
+        "categoryRequired": "कृपया एक मशीन श्रेणी चुनें।",
+        "makeRequired": "मशीन का निर्माता आवश्यक है।",
+        "modelRequired": "मशीन का मॉडल आवश्यक है।",
+        "importedCountryRequired": "कृपया आयात देश चुनें।",
+        "invalidPrice": "एक वैध विक्रय मूल्य दर्ज करें।",
+        "stateRequired": "कृपया एक राज्य चुनें।",
+        "cityRequired": "कृपया एक शहर चुनें।",
+        "descriptionTooShort": "विवरण कम से कम 20 अक्षरों का होना चाहिए।",
+        "specFieldRequired": "{{field}} आवश्यक है।",
+        "fixHighlightedFields": "कृपया नीचे हाइलाइट किए गए फ़ील्ड ठीक करें।",
+        "createFailed": "लिस्टिंग बनाने में विफल। कृपया फिर से प्रयास करें।",
+        "maxPhotosUploaded": "अधिकतम {{count}} फ़ोटो पहले से अपलोड की जा चुकी हैं।",
+        "photoUploadFailed": "एक फ़ोटो अपलोड नहीं हो सकी। कृपया फिर से प्रयास करें।",
+        "removePhotoFailed": "फ़ोटो हटाई नहीं जा सकी।",
+        "reorderPhotosFailed": "फ़ोटो का क्रम बदला नहीं जा सका।",
+        "setPrimaryFailed": "इस फ़ोटो को प्राथमिक के रूप में सेट नहीं किया जा सका।",
+        "videoDurationReadFailed": "वीडियो की अवधि पढ़ी नहीं जा सकी। कृपया दूसरी फ़ाइल चुनें।",
+        "videoTooShort": "वीडियो कम से कम {{min}} सेकंड का होना चाहिए (आपका {{actual}} है)।",
+        "videoUploadFailed": "वीडियो अपलोड विफल हुआ। कृपया फिर से प्रयास करें।",
+        "removeVideoFailed": "वीडियो हटाया नहीं जा सका।",
+        "submitFailed": "लिस्टिंग सबमिट नहीं हो सकी। कृपया फिर से प्रयास करें।"
+      },
+      "fields": {
+        "title": "लिस्टिंग शीर्षक",
+        "titleHint": "न्यूनतम 5 अक्षर (उदा. BFW CNC Turning Centre TC-20)",
+        "titlePlaceholder": "उदा. BFW CNC Turning Centre TC-20",
+        "category": "मशीन श्रेणी",
+        "categoryPlaceholder": "श्रेणी चुनें...",
+        "subcategory": "उप-श्रेणी",
+        "subcategoryHint": "वैकल्पिक — खरीदारों को फ़िल्टर करने में मदद करता है",
+        "subcategoryPlaceholder": "उप-श्रेणी चुनें...",
+        "make": "निर्माता",
+        "makePlaceholder": "उदा. BFW",
+        "model": "मॉडल",
+        "modelPlaceholder": "उदा. TC-20",
+        "yearBought": "खरीद का वर्ष",
+        "yearBoughtHint": "अज्ञात होने पर उपलब्ध नहीं छोड़ें",
+        "origin": "निर्माण मूल",
+        "importedCountry": "आयात देश",
+        "importedCountryPlaceholder": "देश चुनें…",
+        "price": "विक्रय मूल्य (₹)",
+        "pricePlaceholder": "18,50,000",
+        "state": "राज्य",
+        "statePlaceholder": "राज्य चुनें...",
+        "city": "शहर",
+        "cityHint": "पहले एक राज्य चुनें",
+        "cityPlaceholder": "शहर चुनें...",
+        "description": "विवरण",
+        "descriptionHint": "न्यूनतम 20 अक्षर — स्थिति, सहायक उपकरण, बिक्री का कारण",
+        "descriptionPlaceholder": "उदा. मशीन उत्कृष्ट स्थिति में है, सभी टूलिंग शामिल है, प्लांट अपग्रेड के कारण बेची जा रही है। बिना किसी बैकलैश के सुचारू रूप से चलती है।",
+        "descriptionCounter": "{{count}} / न्यूनतम 20",
+        "runningHoursPlaceholder": "4200"
+      },
+      "origin": {
+        "indian": "भारतीय",
+        "imported": "आयातित"
+      },
+      "specTemplate": {
+        "title": "स्पेक टेम्पलेट (वैकल्पिक)",
+        "description": "इस मशीन प्रकार के लिए विशिष्ट स्पेक फ़ील्ड अनलॉक करने हेतु चुनें।",
+        "catalogCategoryLabel": "कैटलॉग श्रेणी",
+        "noneOption": "कोई नहीं",
+        "selectPlaceholder": "चुनें...",
+        "conditionGrade": "स्थिति ग्रेड",
+        "conditionGradeHint": "A=उत्कृष्ट B=अच्छा C=औसत",
+        "runningHours": "चलने के घंटे",
+        "negotiable": "मोलभाव योग्य"
+      },
+      "creatingDraft": "ड्राफ़्ट बनाया जा रहा है...",
+      "nextAddMedia": "अगला: फ़ोटो और वीडियो जोड़ें →",
+      "media": {
+        "requirementsMet": "सभी मीडिया आवश्यकताएँ पूरी हुईं",
+        "requirementsTitle": "मीडिया आवश्यकताएँ",
+        "photosLine": "फ़ोटो: {{min}}–{{max}} में से {{count}} आवश्यक",
+        "videoUploadedLine": "वीडियो: अपलोड हुआ ({{duration}})",
+        "videoRequiredLine": "वीडियो: कम से कम {{min}} सेकंड का 1 वीडियो आवश्यक",
+        "machinePhotos": "मशीन की फ़ोटो",
+        "photoAlt": "फ़ोटो {{index}}",
+        "primaryBadge": "प्राथमिक",
+        "setPrimaryAriaLabel": "प्राथमिक फ़ोटो के रूप में सेट करें",
+        "moveEarlierAriaLabel": "फ़ोटो को पहले ले जाएँ",
+        "moveLaterAriaLabel": "फ़ोटो को बाद में ले जाएँ",
+        "uploadingPhotos": "अपलोड हो रहा है...",
+        "addPhotosNeeded": "फ़ोटो जोड़ें (आवश्यक {{min}}–{{max}})",
+        "addMorePhotos_one": "और जोड़ें ({{count}} शेष)",
+        "addMorePhotos_other": "और जोड़ें ({{count}} शेष)",
+        "photosHint": "सभी कोण — आगे, पीछे, किनारे, नियंत्रण पैनल, कार्य क्षेत्र। फ़ोटो हाल ही में ली गई होनी चाहिए।",
+        "runningVideo": "चलती हुई वीडियो",
+        "videoUploaded": "वीडियो अपलोड हो गया",
+        "uploadingVideo": "वीडियो अपलोड हो रहा है...",
+        "addVideo": "वीडियो जोड़ें (न्यूनतम {{min}} सेकंड)",
+        "videoHint": "मशीन को सक्रिय रूप से चलते हुए दिखाने वाला एक वॉकअराउंड वीडियो रिकॉर्ड करें — कम से कम 1 मिनट। खरीदार पूछताछ से पहले स्थिति आंकने के लिए इसका उपयोग करते हैं।"
+      },
+      "nextReview": "अगला: समीक्षा और सबमिट करें →",
+      "review": {
+        "intro": "नीचे सब कुछ जाँचें, फिर BIM टीम की समीक्षा के लिए सबमिट करें।",
+        "labels": {
+          "title": "शीर्षक",
+          "category": "श्रेणी",
+          "makeModel": "निर्माता / मॉडल",
+          "year": "वर्ष",
+          "origin": "मूल",
+          "askingPrice": "विक्रय मूल्य",
+          "location": "स्थान",
+          "media": "मीडिया"
+        },
+        "descriptionLabel": "विवरण",
+        "photoCount_one": "{{count}} फ़ोटो",
+        "photoCount_other": "{{count}} फ़ोटो",
+        "videoWithDuration": "1 वीडियो ({{duration}})",
+        "videoNoDuration": "1 वीडियो",
+        "pendingReviewTitle": "प्रशासनिक समीक्षा लंबित है",
+        "pendingReviewDescription": "सबमिट करने के बाद, हमारी टीम लिस्टिंग विवरण और फ़ोटो सत्यापित करेगी, फिर खरीदारों के ब्राउज़ करने हेतु इसे स्वीकृत करेगी। इसमें आमतौर पर 1–2 कार्य दिवस लगते हैं।"
+      },
+      "submitting": "सबमिट हो रहा है...",
+      "submitForReview": "समीक्षा हेतु सबमिट करें →",
+      "backToMedia": "← मीडिया पर वापस जाएँ",
+      "success": {
+        "title": "लिस्टिंग सबमिट हो गई!",
+        "description": "आपकी लिस्टिंग हमारी टीम द्वारा समीक्षा के अधीन है। स्वीकृत होने पर, यह खरीदारों को दिखाई देगी — आमतौर पर 1–2 कार्य दिवसों के भीतर।",
+        "viewListingsButton": "मेरी लिस्टिंग देखें"
+      }
+    },
+    "gstVerification": {
+      "badge": "विक्रेता आवश्यकता",
+      "title": "जीएसटी सत्यापन",
+      "statusLabel": "जीएसटी स्थिति",
+      "success": "जीएसटी सत्यापित — अब आप लिस्टिंग प्रकाशित कर सकते हैं।",
+      "error": "उस जीएसटीआईएन को सत्यापित नहीं किया जा सका। कृपया नंबर जाँचकर पुनः प्रयास करें।",
+      "verified": {
+        "title": "जीएसटी सत्यापन पूर्ण",
+        "prefix": "आपका जीएसटीआईएन",
+        "suffix": "सत्यापित और सक्रिय है। आप मशीनें लिस्ट कर सकते हैं, लाइव होने से पहले हमारी टीम उनकी समीक्षा करेगी।"
+      },
+      "createListingButton": "एक लिस्टिंग बनाएं →",
+      "whyTitle": "जीएसटी सत्यापन क्यों महत्वपूर्ण है",
+      "whyItems": [
+        "लिस्टिंग प्रकाशित करने हेतु आवश्यक (विक्रेता)",
+        "मशीन लोन के लिए आवेदन हेतु आवश्यक (खरीदार)",
+        "प्रतिपक्षों के साथ विश्वास बनाता है",
+        "कमीशन-ट्रैक लेनदेन के लिए अनिवार्य"
+      ],
+      "formTitle": "अपना जीएसटीआईएन दर्ज करें",
+      "formDescription": "BIM पर लिस्टिंग बनाने और प्रकाशित करने के लिए विक्रेताओं के पास सक्रिय जीएसटी पंजीकरण होना चाहिए। नीचे अपना जीएसटीआईएन दर्ज करें — हम इसे सत्यापित करेंगे और आपका व्यवसाय नाम स्वतः भर देंगे।",
+      "gstinLabel": "जीएसटीआईएन",
+      "gstinHint": "15-अक्षर जीएसटी पहचान संख्या",
+      "addressLabel": "व्यवसाय पता",
+      "addressHint": "खरीदार आपकी संपर्क जानकारी देखने के बाद यह दिखाया जाएगा",
+      "verifying": "मास्टर्स इंडिया के साथ सत्यापित हो रहा है...",
+      "verifyButton": "जीएसटीआईएन सत्यापित करें"
+    },
+    "dashboard": {
+      "greeting": "सुप्रभात",
+      "stats": {
+        "listings": "लिस्टिंग",
+        "pending": "लंबित",
+        "drafts": "ड्राफ्ट"
+      },
+      "needsAttention": "आपके ध्यान की आवश्यकता है",
+      "listingInReview": "समीक्षाधीन लिस्टिंग",
+      "adminReviewInProgress": "एडमिन समीक्षा जारी है",
+      "listNewMachine": "नई मशीन लिस्ट करें",
+      "listNewMachineHint": "5+ फ़ोटो · चलती हुई वीडियो आवश्यक",
+      "buyerEnquiries": "खरीदार पूछताछ",
+      "buyerEnquiriesHint": "एडमिन द्वारा सत्यापित खरीदार प्रतीक्षा में",
+      "yourListings": "आपकी लिस्टिंग",
+      "manageAll": "सभी प्रबंधित करें →",
+      "manage": "प्रबंधित करें",
+      "activePlan": "सक्रिय योजना",
+      "expires": "समाप्ति {{date}}"
+    },
+    "enquiries": {
+      "title": "खरीदार पूछताछ",
+      "subtitle": "आपकी मशीनों में रुचि रखने वाले खरीदार",
+      "loadError": "पूछताछ लोड नहीं हो सकी",
+      "loadErrorHint": "कृपया बाद में पुनः प्रयास करें।",
+      "emptyTitle": "अभी तक कोई पूछताछ नहीं",
+      "emptyDescription": "जब खरीदार आपकी लिस्टिंग के बारे में पूछताछ करेंगे, तो वे यहाँ दिखाई देंगी।",
+      "listMachine": "मशीन लिस्ट करें →",
+      "buyerInitialFallback": "ख",
+      "buyerFallback": "खरीदार",
+      "listingFallback": "आपकी लिस्टिंग",
+      "status": {
+        "NEW": "नया",
+        "CLOSED": "बंद"
+      },
+      "viewListing": "लिस्टिंग देखें"
+    },
+    "listings": {
+      "title": "मेरी लिस्टिंग",
+      "totalCount": "कुल {{count}}",
+      "new": "नया",
+      "emptyTitle": "अभी तक कोई लिस्टिंग नहीं",
+      "emptyDescription": "खरीदार पूछताछ प्राप्त करना शुरू करने के लिए अपनी पहली मशीन लिस्ट करें।",
+      "listMachine": "मशीन लिस्ट करें",
+      "manage": "प्रबंधित करें →"
+    }
+  },
+  "profile": {
+    "signInPrompt": "अपने खाते में साइन इन करें",
+    "gstLabel": "जीएसटी {{status}}",
+    "groups": {
+      "preferences": "प्राथमिकताएं",
+      "seller": "विक्रेता",
+      "buyer": "खरीदार",
+      "account": "खाता"
+    },
+    "items": {
+      "language": "भाषा",
+      "sellerDashboard": "विक्रेता डैशबोर्ड",
+      "myListings": "मेरी लिस्टिंग",
+      "myQuotes": "मेरे कोटेशन",
+      "enquiriesFromBuyers": "खरीदारों से पूछताछ",
+      "subscriptionPlan": "सदस्यता और योजना",
+      "gstVerification": "जीएसटी सत्यापन",
+      "buyerDashboard": "खरीदार डैशबोर्ड",
+      "myRequirements": "मेरी आवश्यकताएं",
+      "myEnquiries": "मेरी पूछताछ",
+      "savedListings": "सहेजी गई लिस्टिंग",
+      "loanApplications": "ऋण आवेदन",
+      "buybackAgreements": "बायबैक समझौते",
+      "switchToSeller": "विक्रेता में बदलें",
+      "browseAllListings": "सभी लिस्टिंग ब्राउज़ करें",
+      "browseWanted": "आवश्यकता सूची देखें"
+    }
+  },
+  "enquiries": {
+    "title": "मेरी पूछताछ",
+    "subtitle": "जिन मशीनों में आपने रुचि दिखाई है",
+    "empty": {
+      "title": "अभी तक कोई पूछताछ नहीं",
+      "body": "लिस्टिंग ब्राउज़ करें और शुरू करने के लिए \"पूछताछ करें\" पर टैप करें।",
+      "cta": "मशीनें ब्राउज़ करें →"
+    },
+    "fallbackTitle": "लिस्टिंग",
+    "status": {
+      "NEW": "नई",
+      "CLOSED": "बंद"
+    }
+  },
+  "gstVerification": {
+    "title": "GST सत्यापन",
+    "statusLabel": "GST स्थिति: {{status}}",
+    "notVerified": "असत्यापित",
+    "why": {
+      "title": "GST सत्यापन क्यों ज़रूरी है",
+      "items": {
+        "publishListings": "लिस्टिंग प्रकाशित करने के लिए ज़रूरी (विक्रेता)",
+        "applyLoans": "मशीन लोन के लिए आवेदन करने के लिए ज़रूरी (खरीदार)",
+        "buildsTrust": "समकक्षों के साथ भरोसा बनाता है",
+        "mandatoryCommission": "कमीशन-ट्रैक किए गए लेनदेन के लिए अनिवार्य"
+      }
+    },
+    "desktop": {
+      "title": "डेस्कटॉप पर सत्यापन पूरा करें",
+      "body": "GST सत्यापन में कई चरणों वाली दस्तावेज़ अपलोड प्रक्रिया शामिल है। सर्वोत्तम अनुभव के लिए डेस्कटॉप साइट का उपयोग करें।"
+    },
+    "verified": "आपका GST सत्यापित है। आप तैयार हैं!"
+  },
+  "notFound": {
+    "title": "पृष्ठ नहीं मिला",
+    "body": "यह पृष्ठ मौजूद नहीं है या स्थानांतरित कर दिया गया है।",
+    "cta": "होम पर जाएं"
+  },
+  "search": {
+    "placeholder": "CNC, VMC, लेथ खोजें...",
+    "prompt": "मशीनें खोजने के लिए टाइप करना शुरू करें…",
+    "noResults": "\"{{query}}\" के लिए कोई परिणाम नहीं"
+  },
+  "auth": {
+    "login": {
+      "invalidCredentials": "अमान्य मोबाइल नंबर या पासवर्ड।",
+      "tagline": "बड़ी औद्योगिक मशीनें · भारत का B2B बाज़ार",
+      "title": "साइन इन करें",
+      "subtitle": "अपना पंजीकृत मोबाइल नंबर और पासवर्ड दर्ज करें।",
+      "mobileNumberLabel": "मोबाइल नंबर",
+      "phonePlaceholder": "98765 43210",
+      "passwordLabel": "पासवर्ड",
+      "forgotPassword": "पासवर्ड भूल गए?",
+      "signingIn": "साइन इन हो रहा है…",
+      "signIn": "साइन इन करें →",
+      "newToBim": "BIM पर नए हैं?",
+      "createAccount": "खाता बनाएं"
+    },
+    "forgotPassword": {
+      "accountNotFoundError": "उस मोबाइल नंबर से कोई खाता नहीं मिला।",
+      "resendError": "कोड फिर से नहीं भेजा जा सका। कृपया फिर से प्रयास करें।",
+      "passwordMismatch": "पासवर्ड मेल नहीं खाते।",
+      "resetError": "वह कोड मेल नहीं खाया या समाप्त हो गया है। कृपया फिर से प्रयास करें।",
+      "headerPrompt": "अपना पासवर्ड रीसेट करें",
+      "otpSentTo": "+91 {{phone}} पर OTP भेजा गया",
+      "devHint": "कोड के लिए API कंसोल देखें।",
+      "title": "पासवर्ड भूल गए",
+      "subtitle": "अपना पंजीकृत मोबाइल नंबर दर्ज करें और हम एक बार का कोड भेजेंगे।",
+      "mobileNumberLabel": "मोबाइल नंबर",
+      "phonePlaceholder": "98765 43210",
+      "sending": "भेजा जा रहा है…",
+      "sendOtp": "OTP भेजें →",
+      "backToSignIn": "← साइन इन पर वापस जाएं",
+      "otpTitle": "OTP और नया पासवर्ड दर्ज करें",
+      "otpSubtitle": "आपके मोबाइल नंबर पर 6-अंकों का कोड भेजा गया।",
+      "oneTimeCodeLabel": "एक बार का कोड",
+      "newPasswordLabel": "नया पासवर्ड",
+      "confirmPasswordLabel": "नए पासवर्ड की पुष्टि करें",
+      "resentNotice": "एक नया कोड भेजा गया है।",
+      "resetting": "रीसेट हो रहा है…",
+      "resetSubmit": "पासवर्ड रीसेट करें और साइन इन करें →",
+      "resendingLabel": "फिर से भेजा जा रहा है…",
+      "resendLabel": "कोड नहीं मिला? फिर से भेजें",
+      "changeNumber": "← मोबाइल नंबर बदलें"
+    },
+    "otp": {
+      "invalidOtp": "अमान्य OTP। कृपया फिर से प्रयास करें।",
+      "otpSentTo": "{{phone}} पर OTP भेजा गया",
+      "title": "OTP दर्ज करें",
+      "subtitle": "आपके नंबर पर 6-अंकों का कोड भेजा गया।",
+      "verifying": "सत्यापित हो रहा है…",
+      "verify": "सत्यापित करें →",
+      "backToPhone": "← मोबाइल नंबर पर वापस जाएं"
+    },
+    "signup": {
+      "createError": "खाता नहीं बनाया जा सका। कृपया अपना विवरण जांचें।",
+      "chooseRoleTitle": "खाता बनाएं",
+      "chooseRoleSubtitle": "आप BIM का उपयोग कैसे करेंगे?",
+      "roles": {
+        "SELLER": {
+          "title": "मैं मशीनरी बेचना चाहता हूं",
+          "body": "सत्यापित मीडिया और प्रशासनिक समीक्षा के साथ अपनी मशीनें सूचीबद्ध करें।"
+        },
+        "BUYER": {
+          "title": "मैं मशीनरी खरीदना चाहता हूं",
+          "body": "लिस्टिंग ब्राउज़ करें, सुरक्षित रूप से पूछताछ करें, और फाइनेंसिंग के लिए आवेदन करें।"
+        }
+      },
+      "alreadyHaveAccount": "पहले से खाता है?",
+      "signInLink": "साइन इन करें",
+      "changeAccountType": "← खाता प्रकार बदलें",
+      "accountTypeTitle": {
+        "seller": "विक्रेता खाता",
+        "buyer": "खरीदार खाता"
+      },
+      "fillDetails": "शुरू करने के लिए अपना विवरण भरें।",
+      "fullNameLabel": "पूरा नाम",
+      "fullNamePlaceholder": "आपका पूरा नाम",
+      "mobileNumberLabel": "मोबाइल नंबर",
+      "mobileNumberHint": "10-अंकों का भारतीय मोबाइल नंबर",
+      "phonePlaceholder": "98765 43210",
+      "invalidPhone": "एक वैध 10-अंकों का नंबर दर्ज करें",
+      "passwordLabel": "पासवर्ड",
+      "passwordHint": "कम से कम 8 अक्षर",
+      "emailLabel": "ईमेल पता",
+      "emailPlaceholder": "you@business.com",
+      "stateLabel": "राज्य",
+      "stateHint": "पहले राज्य चुनें, फिर शहर",
+      "selectStatePlaceholder": "— राज्य चुनें —",
+      "cityLabel": "शहर",
+      "selectCityPlaceholder": "— शहर चुनें —",
+      "creating": "खाता बनाया जा रहा है...",
+      "submit": "खाता बनाएं और सत्यापित करें →"
+    },
+    "verifyOtp": {
+      "sessionExpiredTitle": "सत्र समाप्त हो गया",
+      "sessionExpiredBody": "कृपया साइन इन या साइन अप से फिर से शुरू करें।",
+      "backToSignIn": "साइन इन पर वापस जाएं",
+      "invalidOtp": "अमान्य OTP। कृपया फिर से प्रयास करें।",
+      "resendError": "OTP फिर से नहीं भेजा जा सका। कृपया फिर से प्रयास करें।",
+      "otpSentTo": "+91 {{phone}} पर OTP भेजा गया",
+      "devHint": "कोड के लिए API कंसोल देखें।",
+      "title": "OTP दर्ज करें",
+      "subtitle": "आपके मोबाइल नंबर पर 6-अंकों का कोड भेजा गया।",
+      "resentNotice": "एक नया कोड भेजा गया है।",
+      "verifying": "सत्यापित हो रहा है…",
+      "submit": "सत्यापित करें और जारी रखें →",
+      "resendingLabel": "फिर से भेजा जा रहा है…",
+      "resendLabel": "कोड नहीं मिला? फिर से भेजें",
+      "goBack": "← वापस जाएं"
+    }
+  },
+  "buyer": {
+    "newRequirement": {
+      "title": "एक आवश्यकता पोस्ट करें",
+      "submit": "आवश्यकता पोस्ट करें",
+      "posting": "पोस्ट किया जा रहा है…",
+      "errors": {
+        "createFailed": "यह आवश्यकता पोस्ट नहीं की जा सकी।",
+        "titleTooShort": "शीर्षक कम से कम 5 अक्षर का होना चाहिए।",
+        "descriptionTooShort": "विवरण कम से कम 20 अक्षर का होना चाहिए।",
+        "categoryRequired": "कृपया मशीन श्रेणी चुनें।"
+      },
+      "fields": {
+        "title": "आवश्यकता शीर्षक",
+        "titlePlaceholder": "जैसे CNC टर्निंग सेंटर चाहिए",
+        "description": "विवरण",
+        "descriptionPlaceholder": "आपको क्या चाहिए, अपेक्षित विवरण बताएं",
+        "category": "मशीन श्रेणी",
+        "selectCategory": "श्रेणी चुनें…",
+        "subcategory": "उप-श्रेणी",
+        "selectSubcategory": "उप-श्रेणी चुनें…",
+        "origin": "मूल",
+        "anyOrigin": "कोई भी — भारतीय या आयातित",
+        "anyCondition": "कोई भी — पुराना या नया",
+        "budgetMin": "बजट — से (₹)",
+        "budgetMax": "बजट — तक (₹)",
+        "budgetPlaceholder": "वैकल्पिक",
+        "state": "राज्य",
+        "anyState": "कोई भी राज्य",
+        "city": "शहर",
+        "selectCity": "शहर चुनें…",
+        "selectStateFirst": "पहले राज्य चुनें"
+      },
+      "submitted": {
+        "title": "आपकी आवश्यकता लाइव है",
+        "description": "GST-सत्यापित विक्रेता अब इसे देख सकते हैं और आपको कोटेशन भेज सकते हैं।",
+        "goToRequirements": "मेरी आवश्यकताओं पर जाएं"
+      }
+    },
+    "requirements": {
+      "title": "मेरी आवश्यकताएं",
+      "description": "वे मशीनें जिन्हें आप खरीदना चाहते हैं",
+      "postRequirement": "एक आवश्यकता पोस्ट करें",
+      "table": { "quotes": "कोटेशन" },
+      "emptyState": {
+        "title": "अभी तक कोई आवश्यकता पोस्ट नहीं की गई",
+        "description": "आपको जो मशीन चाहिए उसे पोस्ट करें, मिलान करने वाले विक्रेता कोटेशन भेज सकते हैं।"
+      }
+    },
+    "editRequirement": {
+      "backToRequirements": "मेरी आवश्यकताओं पर वापस जाएं",
+      "errors": {
+        "notFound": "यह आवश्यकता नहीं मिली।",
+        "fulfilledFailed": "इस आवश्यकता को पूर्ण के रूप में चिह्नित नहीं किया जा सका।",
+        "closeFailed": "इस आवश्यकता को बंद नहीं किया जा सका।"
+      },
+      "sections": { "quotesHeading": "प्राप्त कोटेशन" },
+      "noQuotes": "अभी तक कोई कोटेशन नहीं।",
+      "quoteFrom": "{{name}} की ओर से",
+      "markingFulfilled": "सहेजा जा रहा है…",
+      "markFulfilled": "पूर्ण के रूप में चिह्नित करें",
+      "closing": "बंद किया जा रहा है…",
+      "closeRequirement": "आवश्यकता बंद करें"
+    },
+    "buyback": {
+      "title": "बायबैक समझौते",
+      "offerCount_one": "{{count}} ऑफ़र",
+      "offerCount_other": "{{count}} ऑफ़र",
+      "acceptError": "बायबैक ऑफ़र स्वीकार नहीं हो सका। कृपया पुनः प्रयास करें।",
+      "emptyTitle": "अभी तक कोई बायबैक ऑफ़र नहीं",
+      "emptyDescription": "आपका लोन स्वीकृत होने और मशीन प्रमाणन पूरा होने के बाद बायबैक ऑफ़र तैयार किए जाते हैं।",
+      "machineFallback": "मशीन",
+      "labels": {
+        "offerAmount": "ऑफ़र राशि",
+        "certifiedValue": "प्रमाणित मूल्य",
+        "machineAge": "मशीन की आयु",
+        "quotedOn": "उद्धरण तिथि",
+        "depreciationSchedule": "मूल्यह्रास अनुसूची",
+        "agreementTerms": "समझौते की शर्तें",
+        "buybackWindow": "बायबैक अवधि",
+        "noticePeriod": "नोटिस अवधि"
+      },
+      "years_one": "{{count}} वर्ष",
+      "years_other": "{{count}} वर्ष",
+      "days_one": "{{count}} दिन",
+      "days_other": "{{count}} दिन",
+      "yearOffset": "वर्ष {{year}}",
+      "valuePercent": "{{pct}}% मूल्य",
+      "accepting": "स्वीकार हो रहा है…",
+      "acceptButton": "बायबैक समझौता स्वीकार करें →"
+    },
+    "dashboard": {
+      "workspaceLabel": "खरीदार वर्कस्पेस",
+      "gstLabel": "जीएसटी {{status}}",
+      "gstBanner": {
+        "title": "फाइनेंसिंग के लिए जीएसटी सत्यापन आवश्यक",
+        "description": "ब्राउज़िंग और पूछताछ सभी के लिए खुली है। मशीन लोन के लिए आवेदन करने हेतु जीएसटी सत्यापित करें।",
+        "verifyButton": "सत्यापित करें"
+      },
+      "stats": {
+        "saved": "सहेजे गए",
+        "enquiries": "पूछताछ",
+        "loans": "लोन"
+      },
+      "actions": {
+        "browse": {
+          "title": "मशीनें ब्राउज़ करें",
+          "description": "पूरे भारत में औद्योगिक मशीनरी खोजें"
+        },
+        "loan": {
+          "title": "लोन के लिए आवेदन करें",
+          "descriptionActive": "हमारे पार्टनर बैंकों के माध्यम से मशीन फाइनेंस करें",
+          "descriptionInactive": "पहले जीएसटी सत्यापन आवश्यक है"
+        },
+        "saved": {
+          "title": "सहेजी गई लिस्टिंग",
+          "description_one": "{{count}} मशीन बुकमार्क की गई",
+          "description_other": "{{count}} मशीनें बुकमार्क की गईं"
+        }
+      },
+      "recentApplications": {
+        "title": "हाल के आवेदन",
+        "loanFallback": "लोन आवेदन"
+      },
+      "switchCta": {
+        "titleActive": "बेचने के लिए तैयार हैं? खाता बदलें",
+        "titleInactive": "मशीनरी बेचना चाहते हैं?",
+        "descriptionActive": "आपका जीएसटी सक्रिय है। लिस्टिंग शुरू करने के लिए विक्रेता खाते पर स्विच करें।",
+        "descriptionInactive": "पहले जीएसटी सत्यापित करें, फिर एक टैप में अपने खाते को विक्रेता में बदलें।",
+        "buttonActive": "विक्रेता में बदलें →",
+        "buttonInactive": "और जानें →"
+      }
+    },
+    "gstVerification": {
+      "badge": "खरीदार आवश्यकता",
+      "title": "जीएसटी सत्यापन",
+      "statusLabel": "जीएसटी स्थिति",
+      "success": "जीएसटी सफलतापूर्वक सत्यापित हुआ — आपका खाता अब सक्रिय है।",
+      "error": "उस जीएसटीआईएन को सत्यापित नहीं किया जा सका। कृपया नंबर जाँचकर पुनः प्रयास करें।",
+      "verified": {
+        "title": "जीएसटी सत्यापन पूर्ण",
+        "prefix": "आपका जीएसटीआईएन",
+        "suffix": "सत्यापित और सक्रिय है। आप हमारे ऋण भागीदारों के माध्यम से मशीन फाइनेंसिंग के लिए आवेदन कर सकते हैं।"
+      },
+      "whyTitle": "जीएसटी सत्यापन क्यों महत्वपूर्ण है",
+      "whyItems": [
+        "मशीन लोन के लिए आवेदन हेतु आवश्यक (खरीदार)",
+        "विक्रेताओं और हमारी टीम के साथ विश्वास बनाता है",
+        "कमीशन-ट्रैक लेनदेन के लिए अनिवार्य",
+        "लिस्टिंग ब्राउज़ करने के लिए जीएसटी आवश्यक नहीं है"
+      ],
+      "formTitle": "अपना जीएसटीआईएन दर्ज करें",
+      "formDescription": "हम मास्टर्स इंडिया API के ज़रिए आपका नंबर सत्यापित करेंगे और आपका व्यवसाय नाम स्वतः भर देंगे। यह केवल लोन आवेदनों पर लागू होता है — आप बिना जीएसटी के स्वतंत्र रूप से ब्राउज़ कर सकते हैं।",
+      "gstinLabel": "जीएसटीआईएन",
+      "gstinHint": "15-अक्षर जीएसटी पहचान संख्या",
+      "verifying": "मास्टर्स इंडिया के साथ सत्यापित हो रहा है…",
+      "verifyButton": "जीएसटीआईएन सत्यापित करें"
+    },
+    "loans": {
+      "title": "लोन आवेदन",
+      "applicationCount_one": "{{count}} आवेदन",
+      "applicationCount_other": "{{count}} आवेदन",
+      "new": "नया",
+      "emptyTitle": "अभी तक कोई लोन आवेदन नहीं",
+      "emptyDescription": "एक मशीन खोजें और हमारे पार्टनर बैंकों और NBFC के माध्यम से फाइनेंसिंग के लिए आवेदन करें।",
+      "applyButton": "लोन के लिए आवेदन करें",
+      "loanFallback": "लोन आवेदन",
+      "labels": {
+        "amount": "राशि",
+        "routedTo": "भेजा गया",
+        "commission": "कमीशन"
+      },
+      "appliedOn": "आवेदन किया गया {{date}}"
+    },
+    "saved": {
+      "title": "सहेजी गई लिस्टिंग",
+      "savedCount": "{{count}} सहेजे गए",
+      "emptyTitle": "कोई सहेजी गई लिस्टिंग नहीं",
+      "emptyDescription": "जिन लिस्टिंग में आपकी रुचि है उन्हें बुकमार्क करें और यहाँ पाएं।",
+      "browseButton": "मशीनें ब्राउज़ करें",
+      "viewListing": "लिस्टिंग देखें →"
+    },
+    "newLoan": {
+      "title": "नया लोन आवेदन",
+      "subtitle": "एडमिन सबसे उपयुक्त बैंक/NBFC को भेजेगा",
+      "errors": {
+        "noListing": "कृपया एक लिस्टिंग चुनें।",
+        "invalidAmount": "मान्य लोन राशि दर्ज करें।",
+        "submitFailed": "लोन आवेदन सबमिट नहीं हो सका। कृपया पुनः प्रयास करें।"
+      },
+      "gstGate": {
+        "title": "जीएसटी सत्यापन आवश्यक",
+        "description": "लोन आवेदन सबमिट करने से पहले सक्रिय जीएसटी पंजीकरण आवश्यक है।",
+        "verifyButton": "अभी जीएसटी सत्यापित करें →"
+      },
+      "fields": {
+        "listingLabel": "मशीन लिस्टिंग",
+        "listingPlaceholder": "एक लिस्टिंग चुनें…",
+        "listingIdPlaceholder": "लिस्टिंग आईडी पेस्ट करें (लिस्टिंग पेज से)",
+        "listingIdHint": "ड्रॉपडाउन से चुनने के लिए पहले लिस्टिंग सहेजें। या यहाँ लिस्टिंग आईडी पेस्ट करें।",
+        "amountLabel": "लोन राशि (₹)",
+        "amountPlaceholder": "उदा. 1500000",
+        "amountHint": "जो राशि आपको फाइनेंस करनी है — पूरी अनुरोधित कीमत तक हो सकती है।"
+      },
+      "info": {
+        "title": "आगे क्या होगा",
+        "description": "हमारी एडमिन टीम आपके आवेदन की समीक्षा करती है, मशीन प्रमाणन शुरू करती है, और फिर आवेदन को सबसे उपयुक्त बैंक या NBFC पार्टनर को भेजती है। हर चरण पर आपको सूचित किया जाएगा।"
+      },
+      "submitting": "आवेदन सबमिट हो रहा है…",
+      "submitButton": "आवेदन सबमिट करें →"
+    },
+    "switchToSeller": {
+      "badge": "खाता",
+      "title": "विक्रेता में बदलें",
+      "switchError": "खाता नहीं बदला जा सका। कृपया पुनः प्रयास करें।",
+      "gstGate": {
+        "title": "जीएसटी सत्यापन आवश्यक",
+        "description": "BIM पर विक्रेताओं के पास सक्रिय जीएसटी पंजीकरण होना चाहिए। खाता बदलने से पहले जीएसटी सत्यापन पूरा करें।"
+      },
+      "currentStatusTitle": "वर्तमान जीएसटी स्थिति",
+      "verifyHint": "विक्रेता एक्सेस अनलॉक करने के लिए अपना जीएसटीआईएन सत्यापित करें। सत्यापित होते ही आप अपना खाता बदलकर तुरंत मशीनें लिस्ट करना शुरू कर सकते हैं।",
+      "verifyNowButton": "अभी जीएसटी सत्यापित करें →",
+      "backToDashboard": "डैशबोर्ड पर वापस जाएं",
+      "gstActiveBadge": "जीएसटी सक्रिय",
+      "whatChangesTitle": "स्विच करने पर क्या होता है",
+      "whatChangesItems": [
+        "आपका खाता विक्रेता खाता बन जाएगा",
+        "आप तुरंत लिस्टिंग बना सकते हैं",
+        "आपका जीएसटी, प्रोफ़ाइल और इतिहास सुरक्षित रहेगा",
+        "खरीदार आपकी लिस्टिंग के बारे में पूछताछ कर सकते हैं",
+        "यह कार्रवाई ऐप से वापस नहीं ली जा सकती"
+      ],
+      "switching": "खाता बदला जा रहा है...",
+      "confirmButton": "हाँ, विक्रेता में बदलें →"
+    }
+  }
+}

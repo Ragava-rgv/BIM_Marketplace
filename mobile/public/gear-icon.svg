@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Navy tile background with rounded corners -->
+  <rect width="1024" height="1024" rx="180" fill="#101828"/>
+
+  <!-- Copper ring body (outer gear disc) -->
+  <circle cx="512" cy="512" r="370" fill="#E8820C"/>
+
+  <!-- 9 rectangular teeth, each rotated 40° around centre.
+       Each tooth: 88px wide × 82px tall, tip at radius 452, root at radius 370.
+       Rect positioned so bottom edge aligns with ring outer edge:
+         x = 512 − 44 = 468, y = 512 − 452 = 60, bottom-y = 60+82 = 142 = 512−370 ✓ -->
+  <g fill="#E8820C">
+    <rect x="468" y="60" width="88" height="82" rx="6" transform="rotate(0   512 512)"/>
+    <rect x="468" y="60" width="88" height="82" rx="6" transform="rotate(40  512 512)"/>
+    <rect x="468" y="60" width="88" height="82" rx="6" transform="rotate(80  512 512)"/>
+    <rect x="468" y="60" width="88" height="82" rx="6" transform="rotate(120 512 512)"/>
+    <rect x="468" y="60" width="88" height="82" rx="6" transform="rotate(160 512 512)"/>
+    <rect x="468" y="60" width="88" height="82" rx="6" transform="rotate(200 512 512)"/>
+    <rect x="468" y="60" width="88" height="82" rx="6" transform="rotate(240 512 512)"/>
+    <rect x="468" y="60" width="88" height="82" rx="6" transform="rotate(280 512 512)"/>
+    <rect x="468" y="60" width="88" height="82" rx="6" transform="rotate(320 512 512)"/>
+  </g>
+
+  <!-- Navy notch — punches through the ring to create the classic gear hollow -->
+  <circle cx="512" cy="512" r="262" fill="#101828"/>
+
+  <!-- Copper hub dot in the centre -->
+  <circle cx="512" cy="512" r="78" fill="#E8820C"/>
+</svg>
